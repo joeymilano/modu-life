@@ -1,1 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><rect width="80" height="80" rx="18" fill="#b73d2b"/><text x="40" y="57" text-anchor="middle" font-size="51" fill="#fff7e6" font-family="serif">沪</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" role="img" aria-label="魔都人生"><title>魔都人生</title><rect width="80" height="80" rx="16" fill="#153a30"/><g transform="translate(13 7) scale(.82)"><path fill="#a6402d" d="M5 0H51L64 13V80H0V5Z"/>
+<path fill="none" stroke="#d8af72" stroke-width="1.2" d="M9 5H47L59 17V75H5V9M54 6V10H58"/>
+<g fill="#f5e8ca"><path d="M31 12H33V20H31ZM30 27H34V42H30ZM27 53H30L25 67H21ZM34 53H37L43 67H39ZM31 53H33V67H31Z"/><circle cx="32" cy="24" r="4.5"/><circle cx="32" cy="48" r="9"/></g>
+<g stroke="#a6402d" fill="none"><path d="M24 48H40M28 44H36M28 52H36" stroke-width="1.2"/></g></g></svg>

@@ -24,10 +24,10 @@ with sync_playwright() as pw:
         assert r.headers.get('content-type','').startswith('image/'),(a,r.headers)
     for gender in ['female','male']:
         for looks,name in [('everyday','普通耐看'),('charming','颇有姿色'),('stunning','惊艳全场')]:
-            p.get_by_role('button',name='来，抽一手人生').click()
+            p.get_by_role('button',name='开局抽卡').click()
             p.locator('.gender-picker button').nth(0 if gender=='female' else 1).click()
-            p.get_by_role('button',name='颜值：'+name,exact=True).click()
-            assert p.get_by_role('button',name='颜值：'+name,exact=True).get_attribute('aria-pressed')=='true'
+            p.get_by_role('button',name='颜值 '+name,exact=True).click()
+            assert p.get_by_role('button',name='颜值 '+name,exact=True).get_attribute('aria-pressed')=='true'
             p.get_by_role('button',name='全部揭晓').click()
             p.get_by_role('button',name='就这手牌，进上海').click()
             annual(p)

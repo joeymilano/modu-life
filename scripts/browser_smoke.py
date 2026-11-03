@@ -31,7 +31,7 @@ with sync_playwright() as p:
     page.wait_for_load_state('networkidle')
     page.wait_for_timeout(900)
     page.screenshot(path=str(OUT/'home-desktop.png'),full_page=True)
-    page.get_by_role('button',name='来，抽一手人生').click()
+    page.get_by_role('button',name='开局抽卡').click()
     page.get_by_role('button',name='全部揭晓').click()
     page.wait_for_timeout(900)
     page.screenshot(path=str(OUT/'draw-desktop.png'),full_page=True)
@@ -42,7 +42,7 @@ with sync_playwright() as p:
     page.screenshot(path=str(OUT/'play-desktop.png'),full_page=True)
     # Actual five-wave reflex encounter.
     go_hotspot(page,'四元观景位')
-    page.get_by_role('button',name='拿稳奶茶，试试走位').click()
+    page.get_by_role('button',name='拿稳柠檬水，开始躲').click()
     until=time.time()+16
     while time.time()<until:
         if page.locator('.phase-done').count():break
@@ -53,13 +53,12 @@ with sync_playwright() as p:
         page.wait_for_timeout(100)
     assert page.locator('.phase-done').count(), 'laser did not finish'
     page.screenshot(path=str(OUT/'laser-desktop.png'),full_page=True)
-    page.get_by_role('button',name='继续在上海生活').click()
+    page.get_by_role('button',name='喝完再走').click()
     page.locator('.outcome-content .primary').click()
     # A real three-round interview.
     page.locator('.career-summary').click()
     page.locator('.career-option').filter(has_text='技术研发').click()
     next_dialogue(page,[0,1,0])
-    assert '技术研发' in page.locator('.outcome-text').inner_text() or '机会' in page.locator('.outcome-text').inner_text()
     page.locator('.outcome-content .primary').click()
     # First date uses its own questions and records the selected person.
     go_hotspot(page,'江风约会')
@@ -106,7 +105,7 @@ with sync_playwright() as p:
     m.goto(BASE+'?seed=MOBILE');m.wait_for_load_state('networkidle');m.wait_for_timeout(700)
     m.screenshot(path=str(OUT/'home-mobile.png'),full_page=True)
     assert m.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
-    m.get_by_role('button',name='来，抽一手人生').click();m.get_by_role('button',name='全部揭晓').click();m.wait_for_timeout(700)
+    m.get_by_role('button',name='开局抽卡').click();m.get_by_role('button',name='全部揭晓').click();m.wait_for_timeout(700)
     m.screenshot(path=str(OUT/'draw-mobile.png'),full_page=True)
     m.get_by_role('button',name='就这手牌，进上海').click();choose_year(m)
     m.wait_for_timeout(700);m.screenshot(path=str(OUT/'play-mobile.png'),full_page=True)

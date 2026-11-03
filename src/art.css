@@ -220,3 +220,55 @@
 .owl-drag-note{position:absolute;left:0;right:0;text-align:center;bottom:85px;font-size:9px;letter-spacing:1px;color:#cfbe93;pointer-events:none;}
 .event-visual:has(.owl-preview):after{pointer-events:none;}
 @media(max-width:850px){.event-visual:has(.owl-preview){height:270px;}.event-visual:has(.owl-preview)>span{display:none;}.owl-drag-note{bottom:12px;font-size:8px;}}
+
+/* The game title is an outlined wordmark, shared with the app icon and cards. */
+.brand{display:block;line-height:0;flex-shrink:0;}
+.brand img{width:176px;height:auto;}
+.brand .brand-light{display:none;}
+.screen-home .brand .brand-dark{display:none;}
+.screen-home .brand .brand-light{display:block;}
+.topbar-actions{margin-left:auto;}
+.screen-home .topbar-actions,.screen-home .nav-button,.screen-home .icon-button{color:#eddfc2;}
+.screen-home .home-copy{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:0 0 24px;align-self:stretch;}
+.screen-home .home-copy h1.game-title{margin:0 0 28px;line-height:0;letter-spacing:0;font-size:inherit;}
+.game-title img{display:block;width:clamp(300px,28vw,420px);height:auto;filter:drop-shadow(0 4px 25px #08251d66);}
+.screen-home .home-description{font-size:14px;font-weight:400;line-height:2;letter-spacing:.5px;color:#e4dcc6;}
+.screen-home .home-start{margin-top:28px;}
+.screen-home .start-button{min-width:242px;justify-content:space-between;font-size:15px;letter-spacing:2px;}
+.screen-home .home-bottom{font-size:12px;}
+.screen-home .ticker-label{font-size:12px;}
+.screen-home .ticker{gap:27px;}
+.screen-home .hero-film-grain{background:linear-gradient(90deg,#102b25 0%,#102b25eb 7%,#102b2590 25%,transparent 55%),linear-gradient(0deg,#102b25f2,transparent 28%);}
+.draw-heading h1{margin-top:0;margin-bottom:0;}
+.cards-section-label>span{font-size:16px;letter-spacing:1px;color:#274d3d;font-family:var(--serif);font-weight:700;}
+.appearance-heading h2{margin:0;}
+.look-caption h3{margin:0;}
+.appearance-note{padding-top:12px;justify-content:flex-end;}
+.appearance-note>p{font-size:12px;line-height:1.6;color:#79613c;}
+.draw-next{padding-top:24px;}
+.goal-picker>p{font-weight:600;}
+.little-news p{font-size:12px;line-height:1.8;}
+.event-content h2,.modal h2,.ending-copy h1{text-wrap:balance;}
+.event-choices b,.dialogue-answers button{text-wrap:pretty;}
+.help-content>h2,.save-content>h2,.contacts-content>h2,.journal-content>h2,.career-content>h2,.romance-content>h2{margin-top:0;}
+@media(max-width:1150px) and (min-width:851px){.game-title img{width:330px;}.screen-home .home-description{font-size:12px;}}
+@media(max-width:850px){
+ .brand img{width:147px;}
+ .screen-home .home-screen{padding:24px 24px 64px;}
+ .screen-home .home-screen:after{content:none;}
+ .screen-home .home-copy{min-height:calc(100svh - 185px);padding:15px 0 35px;}
+ .screen-home .home-copy h1.game-title{margin:0 0 27px;}
+ .game-title img{width:clamp(230px,64vw,320px);}
+ .screen-home .home-description{font-size:12px;line-height:1.9;letter-spacing:0;}
+ .screen-home .home-start{margin-top:24px;}
+ .screen-home .start-button{min-width:225px;font-size:14px;}
+ .screen-home .home-bottom{font-size:10px;gap:14px;}
+ .screen-home .ticker-label{font-size:10px;padding-right:14px;}
+ .screen-home .ticker span+span{display:none;}
+ .screen-home .hero-film-grain{background:linear-gradient(90deg,#102b25f5,#102b25a0 48%,#102b2530),linear-gradient(0deg,#102b25 0%,#102b25ba 18%,transparent 65%);}
+ .appearance-note>p{font-size:11px;margin:0;padding:0;}
+ .cards-section-label>span{font-size:15px;}
+ .look-caption h3{font-size:17px;}
+ .draw-heading h1{font-size:29px;}
+}
+@media(max-width:370px){.brand img{width:130px;}.game-title img{width:225px;}.screen-home .home-description{font-size:11px;}.topbar{gap:8px;}}

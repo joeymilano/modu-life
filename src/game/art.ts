@@ -1,9 +1,9 @@
 import type { LooksLevel, PlayerAppearance } from './types';
 export interface ArtRegion {src:string;columns:number;rows:number;index:number;aspect:number;}
 export const LOOKS:{id:LooksLevel;name:string;line:string;flavor:string;face:number;attraction:number}[]=[
- {id:'everyday',name:'普通耐看',line:'混进人群，活得自在。',flavor:'不靠回头率，也有自己的故事。',face:0,attraction:0},
- {id:'charming',name:'颇有姿色',line:'第一眼，蛮有腔调。',flavor:'路人多看一眼，聊天还得自己接。',face:8,attraction:3},
- {id:'stunning',name:'惊艳全场',line:'沪上回头率，有点超标。',flavor:'美貌先开门，日子进去再谈。',face:16,attraction:6},
+ {id:'everyday',name:'普通耐看',line:'地铁闸机都不会多看你一眼',flavor:'无外貌加成',face:0,attraction:0},
+ {id:'charming',name:'颇有姿色',line:'出门常被问路，偶尔被要微信',flavor:'有点回头率',face:8,attraction:3},
+ {id:'stunning',name:'惊艳全场',line:'路过咖啡店，主理人亲自开门',flavor:'回头率超标',face:16,attraction:6},
 ];
 export function playerArt(a:PlayerAppearance):ArtRegion{return {src:`/art/player-${a.gender}.webp`,columns:3,rows:1,index:LOOKS.findIndex(x=>x.id===a.looks),aspect:.5};}
 const female=['xia','lin','qiao','lu'],male=['ning','chen','yang','he'];
