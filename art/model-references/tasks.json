@@ -1,0 +1,37 @@
+{
+  "verified_at": "2026-11-03T21:51:00+08:00",
+  "provider": "Tripo Studio web H3.1",
+  "status": "all-three-generated-export-membership-blocked",
+  "generation_credits_used": 165,
+  "observed_balance": 35,
+  "tasks": [
+    {
+      "slot": "oriental-pearl",
+      "task_id": "1ce85d72-2017-4101-bf64-57b506dcf4a5",
+      "url": "https://studio.tripo3d.ai/workspace/generate/oriental-pearl-tower-composed-of-pink-spheres-and-beige-supports-with-1ce85d72-2017-4101-bf64-57b506dcf4a5",
+      "cost": 55,
+      "observed_progress": 100,
+      "status": "generated-export-membership-blocked",
+      "source_faces": 1931716
+    },
+    {
+      "slot": "wukang-corner",
+      "task_id": "29914ce6-f3f8-427e-bbe0-a8488699cc0e",
+      "url": "https://studio.tripo3d.ai/workspace/generate/brick-building-with-rounded-corner-arched-ground-floor-entrances-bei-29914ce6-f3f8-427e-bbe0-a8488699cc0e",
+      "cost": 55,
+      "observed_progress": 100,
+      "status": "generated-export-membership-blocked",
+      "source_faces": 1923802
+    },
+    {
+      "slot": "player-female-stunning",
+      "task_id": "c28287f9-787e-456c-bcd3-96d78822714e",
+      "url": "https://studio.tripo3d.ai/workspace/generate/green-knee-length-satin-dress-with-short-sleeves-on-female-model-c28287f9-787e-456c-bcd3-96d78822714e",
+      "cost": 55,
+      "observed_progress": 100,
+      "status": "generated-export-membership-blocked",
+      "source_faces": 1915050
+    }
+  ],
+  "imported_into_game": false
+}
