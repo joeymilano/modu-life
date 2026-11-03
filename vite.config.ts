@@ -9,7 +9,7 @@ const offlinePrecache = {
   closeBundle() {
     const root=resolve('dist');
     const walk=(dir:string):string[]=>readdirSync(dir,{withFileTypes:true}).flatMap(f=>f.isDirectory()?walk(resolve(dir,f.name)):[resolve(dir,f.name)]);
-    const files=walk(root).filter(f=>!f.endsWith('/sw.js')&&!f.endsWith('.map')).sort();
+    const files=walk(root).filter(f=>!f.endsWith('/sw.js')&&!f.endsWith('.map')&&!['_headers','_redirects','_routes.json'].includes(relative(root,f))).sort();
     const buildId=createHash('sha256');for(const file of files)buildId.update(readFileSync(file));
     const urls=['/',...files.map(f=>'/'+relative(root,f))];
     writeFileSync(resolve(root,'sw.js'),'self.__BUILD_ID='+JSON.stringify(buildId.digest('hex').slice(0,12))+';self.__PRECACHE='+JSON.stringify(urls)+';\n'+readFileSync(resolve('public/sw.js'),'utf8'));

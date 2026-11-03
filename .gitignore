@@ -7,3 +7,6 @@ outputs/
 .DS_Store
 *.tsbuildinfo
 
+
+.wrangler/
+.dev.vars*

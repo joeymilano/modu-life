@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://modulife.pages.dev/sitemap.xml

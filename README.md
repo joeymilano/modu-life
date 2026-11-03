@@ -2,6 +2,8 @@
 
 一款单人网页人生喜剧。18岁进城，60岁回看；六个写意上海街区，开局五连抽，三格年度行动，工作、约会、邻里和自己的日子互相牵动。
 
+公开试玩：[modulife.pages.dev](https://modulife.pages.dev/) · 源码：[GitHub](https://github.com/joeymilano/modu-life)
+
 ## 本地试玩
 
 使用 Node.js 22 或更新版本。
@@ -11,7 +13,7 @@ npm install
 npm run dev
 ```
 
-打开终端显示的 Local 地址。正式构建用 `npm run build`，产物在 `dist/`。这是静态网页，运行时不需要模型服务或用户账号；Sites 试玩地址沿用平台的私密访问设置。
+打开终端显示的 Local 地址。正式构建用 `npm run build`，产物在 `dist/`。这是静态网页，运行时不需要模型服务或用户账号；公开试玩部署在 Cloudflare Pages，访问无需登录。
 
 ## 已做的玩法
 
@@ -25,7 +27,7 @@ npm run dev
 - 自动存档、三个手动存档位、档案导入导出、人生分享图片。
 - 首次完整加载后可离线继续。正式构建注册Service Worker，开发模式不缓存。
 
-内容来源研究在父目录 `research/`。梗的出处和原创游戏改编分开记录；游戏人物、插画、程序化模型、动画与台词均采用原创实现。
+网络梗在游戏中作原创情节改编。人物、插画、程序化模型、动画与台词均为本项目制作。
 
 ## 代码分层
 
@@ -59,3 +61,19 @@ python3 scripts/browser_smoke.py
 人物立绘、40张开局牌、八类剧情插画、首页、看房和怪谈背景由内置 Image generation 工具生成。运行时使用压缩的 `public/art/*.webp`，完整原图保存在 `art/source/*.png`，逐张提示词与拼图顺序见 `art/prompts.json` 与 `art/README.md`。UI图标保留为矢量，以保证小尺寸清晰。
 
 新增浏览器验收：`python3 scripts/art_acceptance.py`，覆盖六种形象、14个美术文件、保存／导出／旧档迁移、约会大图和手机约会流程。
+
+
+## 公开发布
+
+GitHub `main` 分支自动发布到 Cloudflare Pages：
+
+- 项目名：`modulife`
+- 正式网址：`https://modulife.pages.dev`
+- 构建：`npm test && npm run build`
+- 输出：`dist/`
+- Node.js：22
+- 每次推送触发 Cloudflare 构建；GitHub Actions 同时检查测试和构建。无需在 GitHub 配置 Cloudflare 密钥。
+
+需要手动发布时，在同一 Cloudflare 账号登录后运行 `npm run deploy`。`wrangler.jsonc` 是当前发布配置。游戏仅使用静态文件，没有后端函数或付费模型调用。
+
+存档保存在浏览器和域名对应的本地空间中。若之前在另一地址玩过，请在原地址导出人生档案，再到新地址的「存档」中导入。

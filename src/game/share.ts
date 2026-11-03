@@ -1,6 +1,6 @@
 import { ending, publicOriginNames } from './engine';import { playerArt, LOOKS } from './art';
 import { GOALS } from './content';import type { GameState } from './types';
-export const SITE_URL='https://modu-life-shanghai.joeykonad.chatgpt.site';
+export const SITE_URL='https://modulife.pages.dev';
 function lines(ctx:CanvasRenderingContext2D,text:string,x:number,y:number,max:number,lineHeight:number){let line='';for(const c of text){if(ctx.measureText(line+c).width>max){ctx.fillText(line,x,y);y+=lineHeight;line=c;}else line+=c;}ctx.fillText(line,x,y);return y;}
 export async function makeShareCard(s:GameState):Promise<Blob>{
  const c=document.createElement('canvas');c.width=1080;c.height=1440;const g=c.getContext('2d')!;g.fillStyle='#f4efe3';g.fillRect(0,0,1080,1440);g.fillStyle='#223d3d';g.fillRect(58,58,964,4);
