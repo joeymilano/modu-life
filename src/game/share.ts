@@ -1,0 +1,19 @@
+import { ending, publicOriginNames } from './engine';import { GOALS } from './content';import type { GameState } from './types';
+export const SITE_URL='https://modu-life-shanghai.joeykonad.chatgpt.site';
+function lines(ctx:CanvasRenderingContext2D,text:string,x:number,y:number,max:number,lineHeight:number){let line='';for(const c of text){if(ctx.measureText(line+c).width>max){ctx.fillText(line,x,y);y+=lineHeight;line=c;}else line+=c;}ctx.fillText(line,x,y);return y;}
+export async function makeShareCard(s:GameState):Promise<Blob>{
+ const c=document.createElement('canvas');c.width=1080;c.height=1440;const g=c.getContext('2d')!;g.fillStyle='#f4efe3';g.fillRect(0,0,1080,1440);g.fillStyle='#223d3d';g.fillRect(58,58,964,4);
+ g.font='24px sans-serif';g.fillText('魔都人生 / SHANGHAI STORIES',62,109);g.textAlign='right';g.fillText('人生档案 NO. '+s.seed,1018,109);g.textAlign='left';
+ g.fillStyle='#b2402b';g.font='bold 28px sans-serif';g.fillText(s.ended?'这一生，我在上海':'这回，我在上海',65,196);g.fillStyle='#223d3d';g.font='bold 73px "Songti SC",serif';
+ const result=s.ended?ending(s):{title:s.name+'的'+s.age+'岁',text:'来都来了，各凭本事。'};
+ let y=lines(g,result.title,60,295,950,93);g.font='27px sans-serif';y=lines(g,result.text,65,y+69,900,46);
+ const scene=document.querySelector<HTMLCanvasElement>('.city-stage canvas, .hero-city canvas');let imageY=Math.max(y+60,540);
+ if(scene){try{const img=new Image();img.src=scene.toDataURL('image/png');await img.decode();g.save();g.beginPath();g.roundRect(60,imageY,960,400,20);g.clip();g.fillStyle='#e7e8db';g.fillRect(60,imageY,960,400);const ratio=Math.max(960/img.width,400/img.height);g.drawImage(img,60+(960-img.width*ratio)/2,imageY+(400-img.height*ratio)/2,img.width*ratio,img.height*ratio);g.restore();}catch{g.fillStyle='#dde2d4';g.fillRect(60,imageY,960,400);}}
+ y=imageY+448;g.fillStyle='#62736a';g.font='22px sans-serif';g.fillText('开局这手牌',65,y);g.fillStyle='#223d3d';g.font='bold 28px sans-serif';y=lines(g,publicOriginNames(s).join(' / '),65,y+48,920,46);
+ y+=80;g.font='22px sans-serif';g.fillStyle='#63766a';g.fillText('想过的日子',65,y);g.fillText('现在的积蓄',590,y);g.font='bold 36px sans-serif';g.fillStyle='#223d3d';g.fillText(GOALS.find(x=>x.id===s.goal)?.name||'',65,y+53);g.fillText('¥'+s.cash.toLocaleString(),590,y+53);
+ g.strokeStyle='#b7c1b3';g.beginPath();g.moveTo(60,1310);g.lineTo(1020,1310);g.stroke();g.font='23px sans-serif';g.fillText('来，抽同一手牌。看你怎么过。',65,1360);g.textAlign='right';g.fillStyle='#b2402b';g.fillText('种子 '+s.seed,1015,1360);
+ return await new Promise((resolve,reject)=>c.toBlob(b=>b?resolve(b):reject(new Error('分享卡生成失败')),'image/png'));
+}
+export function challengeUrl(s:GameState){const url=new URL(SITE_URL);url.searchParams.set('seed',s.seed);url.searchParams.set('cards',s.origins.join('.'));url.searchParams.set('goal',s.goal);return url.toString();}
+export function downloadBlob(blob:Blob,name:string){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);}
+

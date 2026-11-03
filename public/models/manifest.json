@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "description": "Local GLB replacement slots. Set a URL after importing approved models; no API key belongs in this file.",
+  "slots": {
+    "oriental-pearl": {
+      "url": null,
+      "targetHeight": 12.2,
+      "maxWidth": 3.2,
+      "maxDepth": 3.2
+    },
+    "wukang-corner": {
+      "url": null,
+      "targetHeight": 6.5,
+      "maxWidth": 6,
+      "maxDepth": 4.6
+    },
+    "bund-facade": {
+      "url": null,
+      "targetHeight": 5.2,
+      "maxWidth": 3.4,
+      "maxDepth": 3.4
+    },
+    "jinmao": {
+      "url": null,
+      "targetHeight": 10.5,
+      "maxWidth": 2.7,
+      "maxDepth": 2.7
+    },
+    "shanghai-tower": {
+      "url": null,
+      "targetHeight": 13.2,
+      "maxWidth": 2.5,
+      "maxDepth": 2.5
+    },
+    "financial-center": {
+      "url": null,
+      "targetHeight": 11.5,
+      "maxWidth": 2.5,
+      "maxDepth": 1.7
+    },
+    "zhangjiang-campus": {
+      "url": null,
+      "targetHeight": 5.2,
+      "maxWidth": 3.4,
+      "maxDepth": 3.9
+    },
+    "residential-block": {
+      "url": null,
+      "targetHeight": 5.5,
+      "maxWidth": 3.4,
+      "maxDepth": 3.8
+    }
+  }
+}
