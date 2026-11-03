@@ -1,10 +1,15 @@
-"""Blender background import: preserve a genuine Tripo OBJ's vertex colours and reduce for web."""
+"""Blender background import: preserve Tripo OBJ colours or GLB textures; reduce for web."""
 import bpy,sys,json
 from pathlib import Path
 args=sys.argv[sys.argv.index('--')+1:]
 source=Path(args[0]).resolve();output=Path(args[1]).resolve();target=int(args[2]) if len(args)>2 else 30000
 bpy.ops.wm.read_factory_settings(use_empty=True)
-bpy.ops.wm.obj_import(filepath=str(source))
+if source.suffix.lower()=='.obj':
+ bpy.ops.wm.obj_import(filepath=str(source))
+elif source.suffix.lower() in ['.glb','.gltf']:
+ bpy.ops.import_scene.gltf(filepath=str(source))
+else:
+ raise ValueError('Expected an OBJ or GLB/glTF model.')
 meshes=[o for o in bpy.context.scene.objects if o.type=='MESH']
 source_faces=sum(len(o.data.polygons) for o in meshes)
 source_vertices=sum(len(o.data.vertices) for o in meshes)
@@ -12,7 +17,7 @@ for obj in meshes:
  bpy.context.view_layer.objects.active=obj;obj.select_set(True)
  print('Imported',obj.name,'colours',[(c.name,c.domain) for c in obj.data.color_attributes])
  # Blender's OBJ importer recognizes Tripo's XYZRGB vertex records.
- if len(obj.data.color_attributes):
+ if len(obj.data.color_attributes) and source.suffix.lower()=='.obj':
   attr=obj.data.color_attributes[0]
   obj.data.color_attributes.active_color=attr
   mat=bpy.data.materials.new('Tripo original vertex colours');mat.use_nodes=True
@@ -22,8 +27,12 @@ for obj in meshes:
  dec=obj.modifiers.new('Web polygon budget','DECIMATE');dec.ratio=min(1,target/source_faces);dec.use_collapse_triangulate=True
  bpy.ops.object.modifier_apply(modifier=dec.name)
  for face in obj.data.polygons:face.use_smooth=True
- obj.name='tripo-night-owl'
+ obj.name=f'{output.stem}-{meshes.index(obj)}'
  obj.select_set(False)
+# Resize packed model textures for browser memory while preserving materials and UVs.
+for image in bpy.data.images:
+ if image.type=='IMAGE' and max(image.size[:])>1024:
+  width,height=image.size[:];scale=1024/max(width,height);image.scale(max(1,round(width*scale)),max(1,round(height*scale)))
 # Keep native geometry orientation; glTF exporter performs the Z-up to Y-up conversion.
 bpy.ops.object.select_all(action='SELECT')
 output.parent.mkdir(exist_ok=True,parents=True)

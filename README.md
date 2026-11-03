@@ -33,7 +33,7 @@ npm run dev
 
 - `src/game/`：类型、内容、事件、纯规则引擎、存档、声音和分享。
 - `src/components/`：原创城市模型、场景交互、寻路、人物头像与小游戏。
-- `public/models/manifest.json`：八个可替换GLB模型槽。接Tripo时不必重写玩法。
+- `public/models/manifest.json`：九个GLB模型槽，其中夜猫子已导入，八个地标可继续替换。
 
 渲染与规则分开。漫游不改变年龄与经济；确认活动才消耗时间。所有活动、对话与小游戏结果最终经过统一规则结算。
 

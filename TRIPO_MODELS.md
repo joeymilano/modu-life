@@ -48,14 +48,16 @@ node scripts/tripo-assets.mjs fetch oriental-pearl
 
 只有 `create` 会提交一次计费生成；它保留任务ID，已有本地任务时拒绝重复提交。状态查询和下载不会偷偷重新生成。`fetch`只接受成功任务的自包含GLB，通过格式、大小和依赖检查后更新模型清单。导入后仍需查看真实轮廓、朝向、材质、昼夜与手机性能，不能把成功下载当成视觉验收。
 
-当前Safari账号点击GLB导出会进入会员订阅页面。现有200积分并没有让本次导出成功；没有订阅购买，也没有消耗生成积分。
+当前通过Safari网页制作新资产，不使用API密钥。东方明珠已经生成，原始1,931,716面；武康大楼已经生成，原始1,923,802面。成年女性玩家模型已提交生成。三次生成各消耗55个现有积分，观察余额35。新模型仍被会员导出权限挡住，尚未下载或替换进游戏；用户准备自行开通导出权限，没有由本项目购买订阅。
+
+参考图与生成提示词保存在 `art/model-references/`。参考图不代表已得到可用GLB；具体任务状态和导入范围应分别核实。任务ID保留在该目录说明中，继续下载时不要重新生成。
 
 官方接口依据：[v3快速开始](https://developers.tripo3d.ai/en/docs/quick-start)、[P系列文生模型](https://developers.tripo3d.ai/en/docs/generation-text-to-model/p)。
 
-## 现有OBJ的网页优化
+## OBJ与GLB的网页优化
 
 ```sh
 /Applications/Blender.app/Contents/MacOS/Blender -b --python scripts/prepare_tripo_model.py -- input.obj public/models/tripo/model-v1.glb 30000
 ```
 
-脚本保留Tripo XYZRGB顶点色并减面，输出统计报告。未重新雕刻或把其他来源模型冒充Tripo模型。
+输入也可以是 `.glb` 或 `.gltf`。脚本保留OBJ顶点色，或保留GLB材质与UV，减面并把大贴图缩到最长边1024像素，输出独立GLB与统计报告。只处理静态网格；人物骨骼和动画必须另行验证。
