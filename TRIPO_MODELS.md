@@ -1,11 +1,16 @@
 # Tripo模型升级接口
 
-当前玩法不依赖Tripo服务，八个GLB替换槽已实际接入渲染器。提供API后，优先在开发期生成、审看、优化模型，再把合格GLB作为静态资产导入。玩家加载游戏时不需要调用Tripo，也不会接触API密钥。
+外滩已实际导入一个已有 Tripo 模型：夜猫子邮筒。点击模型或地图标签会打开可旋转的3D特写与来信故事；选择消耗一格行动并进入存档。城市建筑目前仍为程序模型，不能将本次猫头鹰导入视为地标已替换。
 
-## 当前可替换位置
+原始素材是已有的 `owl+3d+model.zip`，并非本轮调用 API 新生成。保留原始顶点颜色，从1,988,579面精简到29,999面；发行GLB为721,448字节、无外部贴图或解码器依赖。来源、校验与制作记录位于 `public/models/tripo/provenance.json`。
+
+玩家只加载静态GLB，不会调用Tripo服务，也不会接触API密钥。
+
+## 已导入与可替换位置
 
 | 模型槽 | 建议首批资产 | 目标高度 | 最大宽×深 |
 | --- | --- | ---: | ---: |
+| night-owl | 已导入：夜猫子邮筒 | 2.25 | 1.5×1.5 |
 | oriental-pearl | 东方明珠微缩模型 | 12.2 | 3.2×3.2 |
 | wukang-corner | 武康街角三角楼 | 6.5 | 6×4.6 |
 | bund-facade | 外滩石材沿街立面 | 5.2 | 3.4×3.4 |
@@ -30,7 +35,27 @@
 
 首批先替换东方明珠和武康街角，确认风格与性能再扩展。单个建筑优先控制在约5万三角形以内，纹理以1024或2048为主，GLB建议不超过2MB；这些是制作预算，不是自动验证结果。
 
-## API接入时再确认
+## Tripo API v3 开发通道
 
-取得API后再核对Tripo当时的官方接口、任务状态与下载格式。开发期请求脚本从本地环境读取 `TRIPO_API_KEY`，任务记录不包含密钥。当前没有虚构服务端地址或占位的成功结果。
+已按当前官方 v3 接口准备 `scripts/tripo-assets.mjs`，配有东方明珠和武康街角两套制作提示词。只从环境或未跟踪的 `.env.local` 读取 `TRIPO_API_KEY`，不进入网页或GitHub。当前本地没有Key，尚未提交新的API生成任务。
 
+```sh
+node scripts/tripo-assets.mjs balance
+node scripts/tripo-assets.mjs create oriental-pearl
+node scripts/tripo-assets.mjs status oriental-pearl
+node scripts/tripo-assets.mjs fetch oriental-pearl
+```
+
+只有 `create` 会提交一次计费生成；它保留任务ID，已有本地任务时拒绝重复提交。状态查询和下载不会偷偷重新生成。`fetch`只接受成功任务的自包含GLB，通过格式、大小和依赖检查后更新模型清单。导入后仍需查看真实轮廓、朝向、材质、昼夜与手机性能，不能把成功下载当成视觉验收。
+
+当前Safari账号点击GLB导出会进入会员订阅页面。现有200积分并没有让本次导出成功；没有订阅购买，也没有消耗生成积分。
+
+官方接口依据：[v3快速开始](https://developers.tripo3d.ai/en/docs/quick-start)、[P系列文生模型](https://developers.tripo3d.ai/en/docs/generation-text-to-model/p)。
+
+## 现有OBJ的网页优化
+
+```sh
+/Applications/Blender.app/Contents/MacOS/Blender -b --python scripts/prepare_tripo_model.py -- input.obj public/models/tripo/model-v1.glb 30000
+```
+
+脚本保留Tripo XYZRGB顶点色并减面，输出统计报告。未重新雕刻或把其他来源模型冒充Tripo模型。

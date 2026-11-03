@@ -1,0 +1,20 @@
+{
+  "assets": [
+    {
+      "id": "night-owl",
+      "provider": "Tripo",
+      "kind": "existing-export",
+      "source_archive": "owl+3d+model.zip",
+      "source_archive_sha256": "92266618ffefc804dfcee5dda5f9dd017a301c45d8e7195b6e85a466d54079b4",
+      "source_node": "tripo_node_48530467-fcde-425f-b9ca-6bf8ecdc6f41",
+      "source_url": "https://studio.tripo3d.ai/workspace/generate/owl-character-with-brown-and-cream-plumage-b8a9ba9a-6406-401a-b8b9-c695e2681da8",
+      "file": "/models/tripo/night-owl-v1.glb",
+      "sha256": "8ac8995f7cc23797eaebc65867b51941a77669b4be274b28d853efc7408b4ec9",
+      "processing": "Imported genuine XYZRGB OBJ; retained vertex colours; decimated in Blender; exported self-contained GLB without external decoders.",
+      "source_faces": 1988579,
+      "faces": 29999,
+      "bytes": 721448,
+      "generated_in_this_revision": false
+    }
+  ]
+}

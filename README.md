@@ -49,7 +49,7 @@ python3 scripts/browser_smoke.py
 
 ## 后续模型升级
 
-详见 [Tripo模型接入说明](TRIPO_MODELS.md)。当前使用原创程序化3D模型，尚未调用Tripo API。接口密钥应只存在开发环境，不能写进网页或模型清单。
+详见 [Tripo模型接入说明](TRIPO_MODELS.md)。建筑与玩家仍使用原创程序化3D模型；外滩已导入现有Tripo猫头鹰，带可旋转的3D特写和邮筒来信互动。尚未调用Tripo API新生成模型。接口密钥应只存在开发环境，不能写进网页或模型清单。
 
 
 ## 人物与生成美术（第二版）
@@ -77,3 +77,5 @@ GitHub `main` 分支自动发布到 Cloudflare Pages：
 需要手动发布时，在同一 Cloudflare 账号登录后运行 `npm run deploy`。`wrangler.jsonc` 是当前发布配置。游戏仅使用静态文件，没有后端函数或付费模型调用。
 
 存档保存在浏览器和域名对应的本地空间中。若之前在另一地址玩过，请在原地址导出人生档案，再到新地址的「存档」中导入。
+
+Tripo模型实际加载、桌面／手机／夜景、来信扣行动与存档验收：`python3 scripts/tripo_acceptance.py`。设置 `GAME_URL=https://modulife.pages.dev/` 可检查公开版并验证离线模型与3D特写。

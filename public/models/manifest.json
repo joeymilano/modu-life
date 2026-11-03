@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "description": "Local GLB replacement slots. Set a URL after importing approved models; no API key belongs in this file.",
+  "description": "Static GLB assets. Tripo files are loaded by the game; API credentials are development-only.",
   "slots": {
     "oriental-pearl": {
       "url": null,
@@ -49,6 +49,12 @@
       "targetHeight": 5.5,
       "maxWidth": 3.4,
       "maxDepth": 3.8
+    },
+    "night-owl": {
+      "url": "/models/tripo/night-owl-v1.glb",
+      "targetHeight": 2.25,
+      "maxWidth": 1.5,
+      "maxDepth": 1.5
     }
   }
 }

@@ -4,7 +4,7 @@ import { RoundedBox } from '@react-three/drei';
 import * as THREE from 'three';
 import { DISTRICTS } from '../game/content';
 import type { DistrictId } from '../game/types';
-import { Bench, Block, CityArchitecture, Figure, getObstacles, Lamp, Tree, Umbrella, type ModelManifest } from './CityModels';
+import { Bench, Block, CityArchitecture, Figure, getObstacles, NightOwlPostbox, Lamp, Tree, Umbrella, type ModelManifest } from './CityModels';
 import { findPath, isWalkable, type Point2 } from './pathfinding';
 
 export interface PlayerAppearance { gender:'female'|'male'; looks:'everyday'|'charming'|'stunning' }
@@ -12,7 +12,7 @@ const DEFAULT_APPEARANCE:PlayerAppearance={gender:'male',looks:'everyday'};
 export interface CitySceneProps {
  district:DistrictId; selectedHotspot?:string|null; onHotspot:(id:string)=>void;
  destination?:[number,number]|null; onArrive?:()=>void; night?:boolean; reducedMotion?:boolean;
- compact?:boolean; mode?:'hero'|'play'; onReady?:()=>void; appearance?:PlayerAppearance;
+ compact?:boolean; mode?:'hero'|'play'; onReady?:()=>void; appearance?:PlayerAppearance; onNightOwl?:()=>void;
 }
 function inputBlocked(){const tag=document.activeElement?.tagName;return tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||!!document.querySelector('[aria-modal="true"]');}
 function CameraRig({compact,hero,reducedMotion,onReady}:{compact:boolean;hero:boolean;reducedMotion:boolean;onReady?:()=>void}){
@@ -36,7 +36,7 @@ function StreetFurniture({district,night}:{district:DistrictId;night:boolean}){
  const xs=district==='bund'?[-12,-9.8,9.5]:[-12,12];
  return <group>
  {xs.flatMap((x,j)=>[-7.8,-3,2.8,7.7].map((z,i)=><Tree key={`${j}-${i}`} position={[x,0,z]} tone={i+j}/>))}
- {[-10.8,-6,-2.2,2.2,6,10.8].map((x,i)=><Tree key={x} position={[x,0,9.4]} tone={i}/>)}
+ {[-10.8,-6,-2.2,2.2,6,10.8].filter(x=>district!=='bund'||x!==-2.2).map((x,i)=><Tree key={x} position={[x,0,9.4]} tone={i}/>)}
  {[-10,-5,5,9].map(x=><Lamp key={x} position={[x,0,1.9]} night={night}/>)}
  {[-8,-3,3,8].map((x,i)=><Bench key={x} position={[x,0,-2]} rotation={i%2?Math.PI:0}/>)}
  <Umbrella position={[-10.7,0,5.2]} color='#b54c35'/><Umbrella position={[-10.7,0,7.3]} color='#ddbf6d'/>
@@ -149,9 +149,9 @@ function Hotspots({district,selected,labelRefs}:{district:DistrictId;selected?:s
  const config=DISTRICTS.find(d=>d.id===district);const projected=useMemo(()=>new THREE.Vector3(),[]);
  useFrame(({camera,size})=>{
   camera.updateMatrixWorld();
-  for(const h of config?.hotspots??[]){
+  for(const h of [...(config?.hotspots??[]),...(district==='bund'?[{id:'night-owl',position:[-2.6,9] as Point2}]:[])]){
    const button=labelRefs.current.get(h.id);if(!button)continue;
-   projected.set(h.position[0],1.1,h.position[1]).project(camera);
+   projected.set(h.position[0],h.id==='night-owl'?3.8:1.1,h.position[1]).project(camera);
    const x=(projected.x*.5+.5)*size.width,y=(-projected.y*.5+.5)*size.height;
    button.style.transform=`translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0) translate(-50%,-50%)`;
    button.style.visibility=projected.z>=-1&&projected.z<=1&&Math.abs(projected.x)<1.12&&Math.abs(projected.y)<1.12?'visible':'hidden';
@@ -159,10 +159,11 @@ function Hotspots({district,selected,labelRefs}:{district:DistrictId;selected?:s
  });
  return <group>{config?.hotspots.map(h=><group key={h.id} position={[h.position[0],.05,h.position[1]]}><mesh rotation={[-Math.PI/2,0,0]}><ringGeometry args={[.35,.44,24]}/><meshBasicMaterial color={selected===h.id?'#b73e2c':'#a78548'} transparent opacity={.7}/></mesh></group>)}</group>;
 }
-function World({district,selectedHotspot,onHotspot,destination,onArrive,night=false,reducedMotion=false,compact=false,mode='play',onReady,labelRefs,appearance}:CitySceneProps&{labelRefs:HotspotLabelRefs}){
+function World({district,selectedHotspot,onHotspot,destination,onArrive,night=false,reducedMotion=false,compact=false,mode='play',onReady,labelRefs,appearance,onNightOwl,onModelLoaded}:CitySceneProps&{labelRefs:HotspotLabelRefs;onModelLoaded?:(id:string)=>void}){
  const [manifest,setManifest]=useState<ModelManifest>({});const [walkRequest,setWalkRequest]=useState<Point2|null>(null);useEffect(()=>setWalkRequest(null),[district]);
  useEffect(()=>{const controller=new AbortController();fetch(new URL('models/manifest.json', document.baseURI),{signal:controller.signal}).then(r=>r.ok?r.json():null).then(j=>{if(j?.slots)setManifest(j.slots);}).catch(()=>{});return()=>controller.abort();},[]);
  const groundClick=useCallback((e:ThreeEvent<PointerEvent>)=>{if(mode==='hero'||inputBlocked())return;e.stopPropagation();setWalkRequest([e.point.x,e.point.z]);},[mode]);
+ const owlLoaded=useCallback(()=>onModelLoaded?.('night-owl'),[onModelLoaded]);
  const park=district==='people';
  return <>
   <CameraRig compact={compact} hero={mode==='hero'} reducedMotion={reducedMotion} onReady={onReady}/>
@@ -177,7 +178,7 @@ function World({district,selectedHotspot,onHotspot,destination,onArrive,night=fa
    <Road/>
    {district==='bund'&&<Waterfront reducedMotion={reducedMotion}/>}
    <CityArchitecture district={district} night={night} manifest={manifest}/>
-   <StreetFurniture district={district} night={night}/>
+   <StreetFurniture district={district} night={night}/>{district==='bund'&&<NightOwlPostbox manifest={manifest} onLoaded={owlLoaded} onOpen={()=>{if(!inputBlocked())onNightOwl?.();}}/>}
    <Taxi offset={-7} reducedMotion={reducedMotion} color='#b8aa58'/>
    {!compact&&<Taxi offset={7} reducedMotion={reducedMotion} color='#426a58'/>}
    {[{start:[-6,2.55] as Point2,color:'#395d4c'},{start:[4,-2.6] as Point2,color:'#cf9d5b'},{start:[8,2.55] as Point2,color:'#b76b52'},{start:[-8,-2.55] as Point2,color:'#667c8b'}].slice(0,compact?2:4).map((p,i)=><Pedestrian key={i} {...p} index={i} reducedMotion={reducedMotion}/>)}
@@ -189,11 +190,12 @@ function World({district,selectedHotspot,onHotspot,destination,onArrive,night=fa
 }
 class SceneBoundary extends Component<{children:ReactNode},{error:boolean}>{state={error:false};static getDerivedStateFromError(){return {error:true};}render(){return this.state.error?<div style={{display:'grid',placeItems:'center',height:'100%',color:'#7a806d',padding:32,textAlign:'center',fontSize:13}}>3D画面暂不可用，仍可从地点列表继续人生。</div>:this.props.children;}}
 export default function CityScene(props:CitySceneProps){
+ const [loadedModels,setLoadedModels]=useState<string[]>([]);const modelLoaded=useCallback((id:string)=>setLoadedModels(v=>v.includes(id)?v:[...v,id]),[]);
  const [visible,setVisible]=useState(true);const labelRefs=useRef(new Map<string,HTMLButtonElement>());
  const config=DISTRICTS.find(d=>d.id===props.district);
  useEffect(()=>{const f=()=>setVisible(!document.hidden);document.addEventListener('visibilitychange',f);return()=>document.removeEventListener('visibilitychange',f);},[]);
- return <SceneBoundary><div style={{width:'100%',height:'100%',position:'relative'}} data-avatar-gender={(props.appearance??DEFAULT_APPEARANCE).gender} data-avatar-looks={(props.appearance??DEFAULT_APPEARANCE).looks}>
-  <Canvas orthographic shadows camera={{position:[31,29,35],zoom:20,near:.1,far:200}} dpr={props.compact?[1,1.3]:[1,1.7]} gl={{preserveDrawingBuffer:true,alpha:true,antialias:true,powerPreference:'high-performance'}} frameloop={visible?'always':'demand'} style={{width:'100%',height:'100%',background:'transparent',touchAction:'none'}} onCreated={({gl})=>{gl.toneMapping=THREE.ACESFilmicToneMapping;gl.toneMappingExposure=1.03;gl.shadowMap.type=THREE.PCFSoftShadowMap;gl.setClearColor(0x000000,0);}}><World {...props} labelRefs={labelRefs}/></Canvas>
-  {(props.mode??'play')==='play'&&<div className='city-hotspot-overlay' style={{position:'absolute',inset:0,pointerEvents:'none',zIndex:2,overflow:'hidden'}}>{config?.hotspots.map((h,i)=><button key={h.id} ref={node=>{if(node)labelRefs.current.set(h.id,node);else labelRefs.current.delete(h.id);}} type='button' className={`city-hotspot${props.selectedHotspot===h.id?' is-selected':''}`} data-hotspot={h.id} onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();props.onHotspot(h.id);}} aria-label={`前往${h.name}`} style={{position:'absolute',left:0,top:0,pointerEvents:'auto',visibility:'hidden',willChange:'transform',border:props.selectedHotspot===h.id?'1px solid #b83d2a':'1px solid #a9a993',borderRadius:3,background:props.selectedHotspot===h.id?'#b83d2a':'#fff9e9',color:props.selectedHotspot===h.id?'#fff7e2':'#354b3c',fontFamily:'inherit',fontSize:10,padding:'5px 8px',boxShadow:'0 3px 10px #253d3520',whiteSpace:'nowrap',cursor:'pointer',display:'flex',gap:6,alignItems:'center',minHeight:30}}><span style={{fontSize:8,opacity:.7}}>{String(i+1).padStart(2,'0')}</span>{h.name}<span style={{fontSize:10}}>↗</span></button>)}</div>}
+ return <SceneBoundary><div style={{width:'100%',height:'100%',position:'relative'}} data-loaded-models={loadedModels.join(',')} data-avatar-gender={(props.appearance??DEFAULT_APPEARANCE).gender} data-avatar-looks={(props.appearance??DEFAULT_APPEARANCE).looks}>
+  <Canvas orthographic shadows camera={{position:[31,29,35],zoom:20,near:.1,far:200}} dpr={props.compact?[1,1.3]:[1,1.7]} gl={{preserveDrawingBuffer:true,alpha:true,antialias:true,powerPreference:'high-performance'}} frameloop={visible?'always':'demand'} style={{width:'100%',height:'100%',background:'transparent',touchAction:'none'}} onCreated={({gl})=>{gl.toneMapping=THREE.ACESFilmicToneMapping;gl.toneMappingExposure=1.03;gl.shadowMap.type=THREE.PCFSoftShadowMap;gl.setClearColor(0x000000,0);}}><World {...props} labelRefs={labelRefs} onModelLoaded={modelLoaded}/></Canvas>
+  {(props.mode??'play')==='play'&&<div className='city-hotspot-overlay' style={{position:'absolute',inset:0,pointerEvents:'none',zIndex:2,overflow:'hidden'}}>{config?.hotspots.map((h,i)=><button key={h.id} ref={node=>{if(node)labelRefs.current.set(h.id,node);else labelRefs.current.delete(h.id);}} type='button' className={`city-hotspot${props.selectedHotspot===h.id?' is-selected':''}`} data-hotspot={h.id} onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();props.onHotspot(h.id);}} aria-label={`前往${h.name}`} style={{position:'absolute',left:0,top:0,pointerEvents:'auto',visibility:'hidden',willChange:'transform',border:props.selectedHotspot===h.id?'1px solid #b83d2a':'1px solid #a9a993',borderRadius:3,background:props.selectedHotspot===h.id?'#b83d2a':'#fff9e9',color:props.selectedHotspot===h.id?'#fff7e2':'#354b3c',fontFamily:'inherit',fontSize:10,padding:'5px 8px',boxShadow:'0 3px 10px #253d3520',whiteSpace:'nowrap',cursor:'pointer',display:'flex',gap:6,alignItems:'center',minHeight:30}}><span style={{fontSize:8,opacity:.7}}>{String(i+1).padStart(2,'0')}</span>{h.name}<span style={{fontSize:10}}>↗</span></button>)}{props.district==='bund'&&loadedModels.includes('night-owl')&&<button className='city-hotspot owl-hotspot' data-hotspot='night-owl' ref={node=>{if(node)labelRefs.current.set('night-owl',node);else labelRefs.current.delete('night-owl');}} aria-label='打开夜猫子邮筒' onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();props.onNightOwl?.();}}>夜猫子邮筒 <span>收工了伐？</span></button>}</div>}
  </div></SceneBoundary>;
 }

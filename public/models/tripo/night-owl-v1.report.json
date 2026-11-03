@@ -1,0 +1,24 @@
+{
+  "source_faces": 1988579,
+  "source_vertices": 994294,
+  "target_faces": 30000,
+  "result_faces": 29999,
+  "result_vertices": 15004,
+  "bytes": 721448,
+  "objects": [
+    {
+      "name": "tripo-night-owl",
+      "dimensions": [
+        0.41418933868408203,
+        0.6198813319206238,
+        0.9999328851699829
+      ],
+      "colours": [
+        [
+          "Color",
+          "POINT"
+        ]
+      ]
+    }
+  ]
+}
