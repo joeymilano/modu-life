@@ -1,6 +1,6 @@
 import { CAREERS, CAST, GOALS, ORIGIN_POOLS } from './content';
 import { EVENTS } from './events';
-import type { ActivityKind, ChoiceResult, Effect, EventChoice, GameState, GoalId, LifeEvent, OriginCard, OriginSlot, StatKey } from './types';
+import type { ActivityKind, ChoiceResult, Effect, EventChoice, GameState, GoalId, LifeEvent, LooksLevel, OriginCard, OriginSlot, PlayerAppearance, StatKey } from './types';
 
 export const STAT_NAMES: Record<StatKey,string> = { health:'身体', spirit:'心气', skill:'本事', face:'腔势', network:'人脉' };
 export const ACTIVITY_NAMES: Record<ActivityKind,string> = { career:'事业', romance:'约会', rest:'歇一歇', learn:'长本事', housing:'住下来', social:'交朋友', business:'搞点事业', explore:'白相相' };
@@ -22,6 +22,16 @@ export function drawOrigins(seed:string, reroll=0):OriginCard[] {
 }
 export function newSeed():string {const values=new Uint32Array(1);if(globalThis.crypto?.getRandomValues)globalThis.crypto.getRandomValues(values);else values[0]=Date.now();return values[0].toString(36).toUpperCase().padStart(6,'0').slice(0,7);}
 export function chapterOf(age:number){return Math.min(5,Math.floor((age-18)/7));}
+const DEFAULT_APPEARANCE: PlayerAppearance = {gender:'male',looks:'everyday'};
+const LOOKS_BONUS: Record<LooksLevel,{face:number;attraction:number}> = {
+  everyday:{face:0,attraction:0}, charming:{face:8,attraction:3}, stunning:{face:16,attraction:6},
+};
+function validateAppearance(value:unknown):PlayerAppearance {
+  if(!value||typeof value!=='object'||Array.isArray(value))throw new Error('外观选项不完整。');
+  const appearance=value as Record<string,unknown>;
+  if(!['female','male'].includes(appearance.gender as string)||!['everyday','charming','stunning'].includes(appearance.looks as string))throw new Error('外观选项不匹配。');
+  return {gender:appearance.gender as PlayerAppearance['gender'],looks:appearance.looks as LooksLevel};
+}
 function applyEffect(state:GameState,effect:Effect,npcId?:string):GameState {
   const s=structuredClone(state);s.cash=Math.round(s.cash+(effect.cash||0));
   for(const key of Object.keys(STAT_NAMES) as StatKey[])s.stats[key]=clamp(s.stats[key]+(effect[key]||0));
@@ -30,13 +40,16 @@ function applyEffect(state:GameState,effect:Effect,npcId?:string):GameState {
   s.flags=[...new Set([...s.flags,...(effect.setFlags||[])])].filter(f=>!(effect.removeFlags||[]).includes(f));
   const relationTarget=npcId||s.partnerId;
   if(relationTarget&&s.relationships[relationTarget]){
-    const rel=s.relationships[relationTarget];rel.met=true;rel.trust=clamp(rel.trust+(effect.trust||0));rel.attraction=clamp(rel.attraction+(effect.attraction||0));rel.commitment=clamp(rel.commitment+(effect.commitment||0));
+    const rel=s.relationships[relationTarget];
+    const firstImpression=!rel.met&&CAST.some(c=>c.id===relationTarget&&c.role==='romance')?LOOKS_BONUS[s.appearance.looks].attraction:0;
+    rel.met=true;rel.trust=clamp(rel.trust+(effect.trust||0));rel.attraction=clamp(rel.attraction+(effect.attraction||0)+firstImpression);rel.commitment=clamp(rel.commitment+(effect.commitment||0));
     if(effect.love&&rel.trust>=40&&rel.attraction>=35)s.partnerId=relationTarget;
   }
   return s;
 }
-export function createGame(seed:string,name:string,goal:GoalId,cards:OriginCard[]):GameState {
-  let state:GameState={version:1,seed:seed.slice(0,32),rng:hashSeed(seed),name:name.trim().slice(0,12)||'小申',age:18,actions:3,goal,district:'bund',cash:36000,stats:{health:80,spirit:75,skill:28,face:30,network:20},jobId:null,jobRank:0,housing:0,origins:cards.map(c=>c.id),flags:[],seenEvents:[],relationships:Object.fromEntries(CAST.map(c=>[c.id,{attraction:10,trust:15,commitment:0,met:false,memories:[]}])),partnerId:null,journal:[],pendingYearEvent:true,ended:false,totalEarned:0,yearsEmployed:0,rescues:0};
+export function createGame(seed:string,name:string,goal:GoalId,cards:OriginCard[],appearance:PlayerAppearance=DEFAULT_APPEARANCE):GameState {
+  const selectedAppearance=validateAppearance(appearance);
+  let state:GameState={version:1,seed:seed.slice(0,32),rng:hashSeed(seed),name:name.trim().slice(0,12)||'小申',age:18,actions:3,goal,appearance:selectedAppearance,district:'bund',cash:36000,stats:{health:80,spirit:75,skill:28,face:30+LOOKS_BONUS[selectedAppearance.looks].face,network:20},jobId:null,jobRank:0,housing:0,origins:cards.map(c=>c.id),flags:[],seenEvents:[],relationships:Object.fromEntries(CAST.map(c=>[c.id,{attraction:10,trust:15,commitment:0,met:false,memories:[]}])),partnerId:null,journal:[],pendingYearEvent:true,ended:false,totalEarned:0,yearsEmployed:0,rescues:0};
   for(const card of cards)state=applyEffect(state,card.effect);
   if(state.flags.some(f=>/own.?home|有房|home_owner/i.test(f)))state.housing=3;
   state.cash=Math.max(3000,state.cash);
@@ -188,7 +201,8 @@ export function validateSave(value:unknown):GameState {
   for(const npc of CAST){const r=s.relationships[npc.id];if(!r||!finite(r.attraction,0,100)||!finite(r.trust,0,100)||!finite(r.commitment,0,100)||typeof r.met!=='boolean'||!Array.isArray(r.memories)||r.memories.length>20||r.memories.some(x=>typeof x!=='string'||x.length>300))throw new Error('关系记录损坏。');}
   if(s.partnerId!==null&&!CAST.some(c=>c.id===s.partnerId&&c.role==='romance'))throw new Error('关系对象不存在。');
   if(s.ended!==(s.age>=60))throw new Error('年龄与人生状态不匹配。');
-  return structuredClone(s);
+  const appearance=Object.prototype.hasOwnProperty.call(s,'appearance')?validateAppearance(s.appearance):{...DEFAULT_APPEARANCE};
+  return {...structuredClone(s),appearance};
 }
 export function readAutoSave():GameState|null {try{const raw=localStorage.getItem(SAVE_KEY);return raw?validateSave(JSON.parse(raw)):null;}catch{return null;}}
 export function writeAutoSave(s:GameState):boolean {try{localStorage.setItem(SAVE_KEY,JSON.stringify(s));return true;}catch{return false;}}

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { CAREERS, CAST, ORIGIN_POOLS } from '../src/game/content';
 import { EVENTS } from '../src/game/events';
-import { createGame, drawOrigins, ending, eligibleEvent, monthlyBudget, nextYear, resolveChoice, selectEvent, validateSave } from '../src/game/engine';
-import type { ActivityKind, GameState, LifeEvent } from '../src/game/types';
+import { commitRelationship, createGame, drawOrigins, ending, eligibleEvent, monthlyBudget, nextYear, resolveChoice, selectEvent, validateSave } from '../src/game/engine';
+import type { ActivityKind, GameState, LifeEvent, PlayerAppearance } from '../src/game/types';
 function freeChoice(s:GameState,e:LifeEvent){return e.choices.find(c=>(c.effect.cash||0)>=0)||e.choices.find(c=>(c.effect.cash||0)>=-s.cash)!;}
 function annual(s:GameState){if(!s.pendingYearEvent)return s;const e=selectEvent(s,'year');return resolveChoice(s,e,freeChoice(s,e).id).state;}
 function run(seed:string,job:string):GameState{let s=createGame(seed,'测试玩家','free',drawOrigins(seed));s.jobId=job;for(let year=18;year<60;year++){s=annual(s);for(const kind of ['rest','learn','social'] as ActivityKind[]){const e=selectEvent(s,kind);s=resolveChoice(s,e,freeChoice(s,e).id).state;}s=nextYear(s).state;validateSave(s);}return s;}
@@ -26,5 +26,61 @@ describe('内容资料可运行',()=>{
  it('开局40张、24名人物、8位恋爱对象、8条职业',()=>{expect(Object.values(ORIGIN_POOLS).flat()).toHaveLength(40);expect(CAST).toHaveLength(24);expect(CAST.filter(c=>c.role==='romance')).toHaveLength(8);expect(CAREERS).toHaveLength(8);});
  it('事件id唯一，每个事件都有一个无现金支出选项',()=>{expect(new Set(EVENTS.map(e=>e.id)).size).toBe(EVENTS.length);for(const e of EVENTS){expect(e.choices.length,e.id).toBe(3);expect(e.choices.some(c=>(c.effect.cash||0)>=0),e.id).toBe(true);if(e.speakerId)expect(CAST.some(c=>c.id===e.speakerId),e.id).toBe(true);for(const c of e.choices){if(c.effect.job)expect([...CAREERS.map(c=>c.id),'unemployed']).toContain(c.effect.job);}}});
  it('42个年度都有确定的来信',()=>{for(let age=18;age<60;age++)expect(EVENTS.some(e=>e.category==='year'&&e.minAge===age&&e.maxAge===age)).toBe(true);});
+});
+
+describe('玩家外观与旧档案兼容',()=>{
+ const plainCards=()=>drawOrigins('APPEARANCE').map(card=>({...card,effect:{}}));
+ it('保存所选性别与颜值，旧四参调用保留默认',()=>{
+   const original=createGame('APPEARANCE','小申','love',plainCards());
+   expect(original.appearance).toEqual({gender:'male',looks:'everyday'});
+   for(const gender of ['female','male'] as const){
+     for(const [looks,face] of [['everyday',30],['charming',38],['stunning',46]] as const){
+       const s=createGame('APPEARANCE','小申','love',plainCards(),{gender,looks});
+       expect(s.appearance).toEqual({gender,looks});
+       expect(s.stats.face).toBe(face);
+       expect(s.stats.health).toBe(original.stats.health);
+       expect(s.stats.spirit).toBe(original.stats.spirit);
+       expect(s.relationships.xia).toEqual(original.relationships.xia);
+       expect(validateSave(s)).toEqual(s);
+     }
+   }
+ });
+ it('缺少外观的旧v1档案自动迁移，并保留原有进度与状态',()=>{
+   const current=run('LEGACY','service');
+   const legacy=structuredClone(current) as unknown as Record<string,unknown>;
+   delete legacy.appearance;
+   const restored=validateSave(legacy);
+   expect(restored).toEqual({...current,appearance:{gender:'male',looks:'everyday'}});
+   expect(legacy).not.toHaveProperty('appearance');
+   restored.appearance.gender='female';
+   expect(current.appearance.gender).toBe('male');
+ });
+ it('显式非法或不完整的外观被拒绝，导入只保留已知外观字段',()=>{
+   const s=createGame('APPEARANCE','小申','love',plainCards());
+   for(const appearance of [null,undefined,[],{},'female',{gender:'female'},{looks:'stunning'},{gender:'other',looks:'everyday'},{gender:'male',looks:'perfect'}]){
+     expect(()=>validateSave({...s,appearance})).toThrow(/外观/);
+   }
+   expect(()=>createGame('APPEARANCE','小申','love',plainCards(),{gender:'male',looks:'unknown'} as unknown as PlayerAppearance)).toThrow(/外观/);
+   const clean=validateSave({...s,appearance:{gender:'female',looks:'charming',injected:true}});
+   expect(clean.appearance).toEqual({gender:'female',looks:'charming'});
+ });
+ it('初见好感只加一次，不替代信任或自动确定关系',()=>{
+   const encounter:LifeEvent={id:'first-impression',title:'第一次聊聊',text:'先认识一下。',category:'romance',choices:[{id:'chat',label:'聊聊',reply:'介绍了近况。',effect:{},check:{stat:'face',threshold:0,success:{},failure:{},successText:'聊得顺利。',failureText:'有点紧张。'}}]};
+   for(const [looks,attraction] of [['everyday',10],['charming',13],['stunning',16]] as const){
+     let s=annual(createGame('APPEARANCE','小申','love',plainCards(),{gender:'female',looks}));
+     const health=s.stats.health;
+     s=resolveChoice(s,encounter,'chat','xia').state;
+     expect(s.relationships.xia.attraction).toBe(attraction);
+     expect(s.relationships.xia.trust).toBe(15);
+     expect(s.relationships.xia.commitment).toBe(0);
+     expect(s.stats.health).toBe(health);
+     expect(s.partnerId).toBeNull();
+     expect(()=>commitRelationship(s,'xia')).toThrow();
+     s=resolveChoice(s,encounter,'chat','xia').state;
+     expect(s.relationships.xia.attraction).toBe(attraction);
+     s=resolveChoice(s,encounter,'chat','mother').state;
+     expect(s.relationships.mother.attraction).toBe(10);
+   }
+ });
 });
 

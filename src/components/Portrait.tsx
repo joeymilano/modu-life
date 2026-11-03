@@ -1,7 +1,24 @@
-import type { CastMember, OriginCard } from '../game/types';
-export function Portrait({person,size=64}:{person:CastMember;size?:number}){
- const n=person.id.split('').reduce((a,c)=>a+c.charCodeAt(0),0),female=person.gender==='female',dark=n%3===0;
- return <svg width={size} height={size} viewBox="0 0 100 110" className="portrait" aria-hidden="true"><rect width="100" height="110" rx="22" fill={person.color+'24'}/><path d="M10 110c2-27 20-36 40-36s38 9 40 36" fill={person.color}/><path d="M41 72v15c6 6 12 6 18 0V72" fill="#dbb89b"/><path d={female?'M23 41c-1-37 58-42 57 2l1 42-13-3-35 4-12-10Z':'M24 40C20 9 71 6 77 33l-4 21-46 1Z'} fill={dark?'#373b35':'#4f4035'}/><ellipse cx="50" cy="49" rx="24" ry="30" fill="#edccb1"/><path d={female?'M26 44C25 12 71 8 75 40 61 30 49 24 32 39Z':'M26 42C23 12 65 9 76 33l-18-7-17 12Z'} fill={dark?'#373b35':'#4f4035'}/><path d="M35 50h5m20 0h5" stroke="#41413a" strokeWidth="2.5" strokeLinecap="round"/><path d="M49 54l-2 9h5M43 70q7 5 14 0" fill="none" stroke="#b67e69" strokeWidth="1.8" strokeLinecap="round"/>{n%4===0&&<g fill="none" stroke="#4d5855" strokeWidth="1.5"><rect x="29" y="44" width="17" height="13" rx="5"/><rect x="54" y="44" width="17" height="13" rx="5"/><path d="M46 48h8"/></g>}<path d="m38 86 12 9 12-9M50 95v15" fill="none" stroke="#fff5" strokeWidth="2"/></svg>;
+import type { CSSProperties } from 'react';
+import type { ActivityKind, CastMember, OriginCard, PlayerAppearance } from '../game/types';
+import { ORIGIN_POOLS } from '../game/content';
+import { castArt, playerArt, type ArtRegion } from '../game/art';
+export function AtlasArt({region,className='',label}:{region:ArtRegion;className?:string;label?:string}){
+ const x=region.index%region.columns,y=Math.floor(region.index/region.columns);
+ const style:CSSProperties={backgroundImage:`url(${region.src})`,backgroundSize:`${region.columns*100}% ${region.rows*100}%`,backgroundPosition:`${region.columns===1?0:x/(region.columns-1)*100}% ${region.rows===1?0:y/(region.rows-1)*100}%`,aspectRatio:region.aspect};
+ return <div className={'atlas-art '+className} style={style} role={label?'img':undefined} aria-label={label} aria-hidden={!label}/>;
 }
-export function CardArt({card}:{card:OriginCard}){const slot=card.slot;return <svg viewBox="0 0 180 150" className="card-art" aria-hidden="true"><circle cx="92" cy="75" r="60" fill={card.accent+'15'}/><g stroke={card.accent} strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round">{slot==='出身'?<><path d="M18 129h144M35 129V67l27-17 26 17v62M47 74h11v14H47zM65 74h11v14H65zM58 129v-25h14v25M101 129V40h37v89M112 50h15M112 62h15M112 74h15M112 86h15M112 98h15M119 40V22M106 40l13-13 13 13"/><circle cx="155" cy="29" r="10"/></>:slot==='家底'?<><path d="M28 84 88 35l59 49M42 76v55h93V76M77 131v-33h25v33M53 82h14v15H53zM113 82h14v15h-14z"/><path d="M102 46V29h20v34M21 131h133"/><circle cx="148" cy="111" r="17"/><path d="M148 99v24m-7-18h10a4 4 0 0 1 0 8h-9m0-6v13"/></>:slot==='天赋'?<><path d="m90 22 10 33 34-2-26 21 12 32-30-19-29 19 11-32-26-21 34 2zM40 118l17 9m67-7 15-8M32 71l-13 2M145 64l17-4"/><path d="m78 118-7 20m30-20 7 20"/></>:slot==='牵绊'?<><path d="M51 49c-20-14-37 9-22 26l23 24 23-24c15-17-2-40-24-26ZM124 49c-20-14-37 9-22 26l23 24 23-24c15-17-2-40-24-26Z"/><path d="M52 99c9 27 64 29 73 0M77 42l13-16 13 16"/></>:<><rect x="39" y="40" width="100" height="85" rx="5"/><path d="m40 44 49 40 49-40M40 122l36-39m62 39-35-39"/><circle cx="128" cy="39" r="20" fill="#f7f0e4"/><path d="M123 34c1-9 15-8 14 1 0 5-8 5-8 11m0 8h.1"/></>}</g></svg>;}
-
+export function Portrait({person,size=64,full=false}:{person:CastMember;size?:number;full?:boolean}){
+ return <div className={'portrait '+(full?'portrait-full':'portrait-head')} style={full?undefined:{width:size,height:size}}><AtlasArt region={castArt(person.id)} label={person.name+' · '+person.title}/></div>;
+}
+export function PlayerPortrait({appearance,full=false,size=52}:{appearance:PlayerAppearance;full?:boolean;size?:number}){
+ return <div className={'player-portrait '+(full?'player-portrait-full':'player-portrait-head')} style={full?undefined:{width:size,height:size}}><AtlasArt region={playerArt(appearance)} label={(appearance.gender==='female'?'女性':'男性')+'玩家形象'}/></div>;
+}
+export function CardArt({card}:{card:OriginCard}){
+ const sheets={'出身':'birth','家底':'wealth','天赋':'talent','牵绊':'ties','秘密':'secrets'};
+ const index=ORIGIN_POOLS[card.slot].findIndex(c=>c.id===card.id);
+ return <div className="card-art"><AtlasArt region={{src:`/art/cards-${sheets[card.slot]}.webp`,columns:4,rows:2,index:Math.max(0,index),aspect:1}}/></div>;
+}
+export function StoryArt({kind,className=''}:{kind:ActivityKind|'year';className?:string}){
+ const index=({career:0,romance:1,rest:2,learn:3,housing:4,social:5,business:6,explore:7,year:2})[kind];
+ return <div className={'story-art '+className}><AtlasArt region={{src:'/art/story-scenes.webp',columns:4,rows:2,index,aspect:1}}/></div>;
+}

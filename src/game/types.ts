@@ -3,6 +3,9 @@ export type ActivityKind = 'career' | 'romance' | 'rest' | 'learn' | 'housing' |
 export type StatKey = 'health' | 'spirit' | 'skill' | 'face' | 'network';
 export type GoalId = 'wealth' | 'love' | 'craft' | 'free' | 'community';
 export type OriginSlot = '出身' | '家底' | '天赋' | '牵绊' | '秘密';
+export type Gender = 'female' | 'male';
+export type LooksLevel = 'everyday' | 'charming' | 'stunning';
+export interface PlayerAppearance { gender: Gender; looks: LooksLevel; }
 export interface Effect {
  cash?: number; health?: number; spirit?: number; skill?: number; face?: number; network?: number;
  trust?: number; attraction?: number; commitment?: number;
@@ -27,6 +30,7 @@ export interface Relationship { attraction: number; trust: number; commitment: n
 export interface JournalEntry { age: number; title: string; text: string; tag: string; }
 export interface GameState {
  version: 1; seed: string; rng: number; name: string; age: number; actions: number; goal: GoalId;
+ appearance: PlayerAppearance;
  district: DistrictId; cash: number; stats: Record<StatKey,number>; jobId: string|null; jobRank: number; housing: number;
  origins: string[]; flags: string[]; seenEvents: string[]; relationships: Record<string,Relationship>; partnerId: string|null;
  journal: JournalEntry[]; pendingYearEvent: boolean; ended: boolean; totalEarned: number; yearsEmployed: number; rescues: number;
