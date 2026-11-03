@@ -34,7 +34,7 @@ with sync_playwright() as p:
  page.wait_for_timeout(700);page.screenshot(path=str(OUT/'ending-desktop.png'),full_page=True)
  # The actual rendered app supplies a dedicated social preview, without remote images.
  page.get_by_role('button',name='魔都人生首页').click();page.set_viewport_size({'width':1200,'height':630})
- page.add_style_tag(content='.topbar{height:70px}.topbar-note{display:none}.home-screen{height:560px;min-height:560px;padding-top:28px;padding-bottom:0}.home-copy h1{font-size:65px;margin:24px 0 16px}.home-description{font-size:12px}.home-start{margin-top:20px}.home-facts{margin-top:14px}.postscript,.home-bottom,.continue-button{display:none}.hero-city{inset:-8px -3% 0 38%}.hero-city-title{top:23px}.city-caption{bottom:14px}.hero-seal{bottom:75px}')
+ page.add_style_tag(content='.toast{display:none}.topbar{height:70px}.topbar-note{display:none}.home-screen{height:560px;min-height:560px;padding-top:28px;padding-bottom:0}.home-copy h1{font-size:65px;margin:24px 0 16px}.home-description{font-size:12px}.home-start{margin-top:20px}.home-facts{margin-top:14px}.postscript,.home-bottom,.continue-button{display:none}.hero-city{inset:-8px -3% 0 38%}.hero-city-title{top:23px}.city-caption{bottom:14px}.hero-seal{bottom:75px}')
  page.wait_for_timeout(700);page.screenshot(path='public/social.png')
  assert Image.open('public/social.png').size==(1200,630)
  report={'production_build':'passed','offline_reload':'passed','share_png':'1080x1440','social_preview':'1200x630','terminal_transition':'59 to 60 through UI','errors':errors}
