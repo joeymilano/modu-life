@@ -1,0 +1,19 @@
+{
+  "source_faces": 19413,
+  "source_vertices": 20822,
+  "target_faces": 20000,
+  "result_faces": 19413,
+  "result_vertices": 20822,
+  "bytes": 1479096,
+  "objects": [
+    {
+      "name": "player-female-stunning-v1-0",
+      "dimensions": [
+        0.21142578125,
+        0.47802734375,
+        0.99951171875
+      ],
+      "colours": []
+    }
+  ]
+}

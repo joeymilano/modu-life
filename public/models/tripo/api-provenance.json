@@ -1,0 +1,37 @@
+{
+  "provider": "Tripo API v3",
+  "model": "P2-20260801",
+  "textures_max_edge": 1024,
+  "assets": [
+    {
+      "slot": "oriental-pearl",
+      "task_id": "efbf983e-9660-4021-a0c8-ee63e2cdb408",
+      "reference": "art/model-references/oriental-pearl-reference.png",
+      "credits_consumed": 110,
+      "file": "oriental-pearl-v1.glb",
+      "triangles": 19617,
+      "bytes": 2143408,
+      "sha256": "e0fe534fd94d80462e882dbdbdbeff24b22e20b94480b1a9e5b42ce44f31afc4"
+    },
+    {
+      "slot": "player-female-stunning",
+      "task_id": "35c15b62-e86a-4476-b9a4-b1af3459ef3e",
+      "reference": "art/model-references/female-stunning-reference.png",
+      "credits_consumed": 110,
+      "file": "player-female-stunning-v1.glb",
+      "triangles": 19413,
+      "bytes": 1479096,
+      "sha256": "cb56d558da557b9097d6be1b794059526131cf67f913c16d55c2cc24beb85e96"
+    },
+    {
+      "slot": "wukang-corner",
+      "task_id": "66c58c46-26b5-4941-896f-18e101dfacda",
+      "reference": "art/model-references/wukang-corner-reference.png",
+      "credits_consumed": 110,
+      "file": "wukang-corner-v1.glb",
+      "triangles": 17536,
+      "bytes": 2225520,
+      "sha256": "8eddf452f4f695743d14b53d34d30541261600513b446852df22e270bcaeda59"
+    }
+  ]
+}

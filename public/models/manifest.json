@@ -3,13 +3,13 @@
   "description": "Static GLB assets. Tripo files are loaded by the game; API credentials are development-only.",
   "slots": {
     "oriental-pearl": {
-      "url": null,
+      "url": "/models/tripo/oriental-pearl-v1.glb",
       "targetHeight": 12.2,
       "maxWidth": 3.2,
       "maxDepth": 3.2
     },
     "wukang-corner": {
-      "url": null,
+      "url": "/models/tripo/wukang-corner-v1.glb",
       "targetHeight": 6.5,
       "maxWidth": 6,
       "maxDepth": 4.6
@@ -55,6 +55,13 @@
       "targetHeight": 2.25,
       "maxWidth": 1.5,
       "maxDepth": 1.5
+    },
+    "player-female-stunning": {
+      "url": "/models/tripo/player-female-stunning-v1.glb",
+      "targetHeight": 1.43,
+      "rotationY": -1.5707963267948966,
+      "maxWidth": 0.85,
+      "maxDepth": 0.85
     }
   }
 }

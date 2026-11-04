@@ -1,0 +1,19 @@
+{
+  "source_faces": 17536,
+  "source_vertices": 28698,
+  "target_faces": 20000,
+  "result_faces": 17536,
+  "result_vertices": 28698,
+  "bytes": 2225520,
+  "objects": [
+    {
+      "name": "wukang-corner-v1-0",
+      "dimensions": [
+        0.99951171875,
+        0.23779296875,
+        0.47509765625
+      ],
+      "colours": []
+    }
+  ]
+}

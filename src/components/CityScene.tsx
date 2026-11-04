@@ -4,7 +4,7 @@ import { RoundedBox } from '@react-three/drei';
 import * as THREE from 'three';
 import { DISTRICTS } from '../game/content';
 import type { DistrictId } from '../game/types';
-import { Bench, Block, CityArchitecture, Figure, getObstacles, NightOwlPostbox, Lamp, Tree, Umbrella, type ModelManifest } from './CityModels';
+import { Bench, Block, CityArchitecture, Figure, getObstacles, NightOwlPostbox, ModelSlotView, Lamp, Tree, Umbrella, type ModelManifest } from './CityModels';
 import { findPath, isWalkable, type Point2 } from './pathfinding';
 
 export interface PlayerAppearance { gender:'female'|'male'; looks:'everyday'|'charming'|'stunning' }
@@ -125,8 +125,10 @@ function PlayerAvatar({appearance=DEFAULT_APPEARANCE,walking=false}:{appearance?
   {female&&smart&&<Block position={[.32,.49,-.015]} size={[.1,.21,.21]} color='#ae7549' roughness={.8}/>}
  </group>;
 }
-function Player({district,destination,onArrive,walkRequest,reducedMotion,appearance}:{district:DistrictId;destination?:Point2|null;onArrive?:()=>void;walkRequest?:Point2|null;reducedMotion:boolean;appearance?:PlayerAppearance}){
+function Player({district,destination,onArrive,walkRequest,reducedMotion,appearance,manifest,onModelLoaded}:{district:DistrictId;destination?:Point2|null;onArrive?:()=>void;walkRequest?:Point2|null;reducedMotion:boolean;appearance?:PlayerAppearance;manifest:ModelManifest;onModelLoaded?:(slot:string)=>void}){
  const ref=useRef<THREE.Group>(null),route=useRef<Point2[]>([]),point=useRef<Point2>([0,4.3]),keys=useRef(new Set<string>()),notify=useRef(false);
+ const avatarRoot=useRef<THREE.Group>(null);
+ const imported=appearance?.gender==='female'&&appearance.looks==='stunning';
  const [walking,setWalking]=useState(false);const walkingRef=useRef(false),targetTurn=useRef(0);
  const obstacles=useMemo(()=>getObstacles(district),[district]);const callback=useRef(onArrive);callback.current=onArrive;
  useEffect(()=>{if(destination){route.current=findPath(point.current,destination,obstacles);notify.current=true;if(!route.current.length&&Math.hypot(point.current[0]-destination[0],point.current[1]-destination[1])<.8){notify.current=false;callback.current?.();}}else if(!walkRequest){route.current=[];notify.current=false;}},[destination?.[0],destination?.[1],obstacles]);
@@ -140,9 +142,11 @@ function Player({district,destination,onArrive,walkRequest,reducedMotion,appeara
    else if(route.current.length){const p=route.current[0],x=p[0]-point.current[0],z=p[1]-point.current[1],len=Math.hypot(x,z);if(len<step){point.current=p;route.current.shift();}else{point.current=[point.current[0]+x/len*step,point.current[1]+z/len*step];targetTurn.current=Math.atan2(x,z);}moved=true;if(!route.current.length&&notify.current){notify.current=false;callback.current?.();}}
   }
   if(ref.current){ref.current.position.set(point.current[0],.075,point.current[1]);const diff=Math.atan2(Math.sin(targetTurn.current-ref.current.rotation.y),Math.cos(targetTurn.current-ref.current.rotation.y));ref.current.rotation.y+=diff*Math.min(1,delta*12);}
+  if(avatarRoot.current)avatarRoot.current.position.y=moved&&!reducedMotion?Math.abs(Math.sin(_.clock.elapsedTime*9))*.03:0;
   if(moved!==walkingRef.current){walkingRef.current=moved;setWalking(moved);}
  });
- return <group ref={ref} position={[0,.075,4.3]}><PlayerAvatar appearance={appearance} walking={walking&&!reducedMotion}/><mesh rotation={[-Math.PI/2,0,0]} position={[0,.005,0]}><ringGeometry args={[.33,.42,32]}/><meshBasicMaterial color='#bd4b35' transparent opacity={.75}/></mesh></group>;
+ const avatar=<PlayerAvatar appearance={appearance} walking={walking&&!reducedMotion}/>;
+ return <group ref={ref} position={[0,.075,4.3]}>{imported?<group ref={avatarRoot}><ModelSlotView slot="player-female-stunning" manifest={manifest} height={1.43} onLoaded={()=>onModelLoaded?.('player-female-stunning')}>{avatar}</ModelSlotView></group>:avatar}<mesh rotation={[-Math.PI/2,0,0]} position={[0,.005,0]}><ringGeometry args={[.33,.42,32]}/><meshBasicMaterial color='#bd4b35' transparent opacity={.75}/></mesh></group>;
 }
 type HotspotLabelRefs = RefObject<Map<string, HTMLButtonElement>>;
 function Hotspots({district,selected,labelRefs}:{district:DistrictId;selected?:string|null;labelRefs:HotspotLabelRefs}){
@@ -177,12 +181,12 @@ function World({district,selectedHotspot,onHotspot,destination,onArrive,night=fa
    {park&&<><RoundedBox args={[11,.06,6.9]} radius={.5} smoothness={2} position={[-6,.05,-5.8]} receiveShadow><meshStandardMaterial color='#8da47c' roughness={1}/></RoundedBox><Block position={[2,.07,-5.7]} size={[1,.06,6]} color='#e1d3a8'/></>}
    <Road/>
    {district==='bund'&&<Waterfront reducedMotion={reducedMotion}/>}
-   <CityArchitecture district={district} night={night} manifest={manifest}/>
+   <CityArchitecture district={district} night={night} manifest={manifest} onLoaded={onModelLoaded}/>
    <StreetFurniture district={district} night={night}/>{district==='bund'&&<NightOwlPostbox manifest={manifest} onLoaded={owlLoaded} onOpen={()=>{if(!inputBlocked())onNightOwl?.();}}/>}
    <Taxi offset={-7} reducedMotion={reducedMotion} color='#b8aa58'/>
    {!compact&&<Taxi offset={7} reducedMotion={reducedMotion} color='#426a58'/>}
    {[{start:[-6,2.55] as Point2,color:'#395d4c'},{start:[4,-2.6] as Point2,color:'#cf9d5b'},{start:[8,2.55] as Point2,color:'#b76b52'},{start:[-8,-2.55] as Point2,color:'#667c8b'}].slice(0,compact?2:4).map((p,i)=><Pedestrian key={i} {...p} index={i} reducedMotion={reducedMotion}/>)}
-   {mode==='play'&&<><Player key={district} district={district} destination={destination} onArrive={onArrive} walkRequest={walkRequest} reducedMotion={reducedMotion} appearance={appearance}/><Hotspots district={district} selected={selectedHotspot} labelRefs={labelRefs}/></>}
+   {mode==='play'&&<><Player key={district} district={district} destination={destination} onArrive={onArrive} walkRequest={walkRequest} reducedMotion={reducedMotion} appearance={appearance} manifest={manifest} onModelLoaded={onModelLoaded}/><Hotspots district={district} selected={selectedHotspot} labelRefs={labelRefs}/></>}
    <mesh rotation={[-Math.PI/2,0,0]} position={[0,.105,0]} onPointerDown={groundClick}><planeGeometry args={[31,24]}/><meshBasicMaterial transparent opacity={0} depthWrite={false}/></mesh>
   </group>
   <mesh rotation={[-Math.PI/2,0,0]} position={[0,-1.15,0]} receiveShadow><planeGeometry args={[200,200]}/><shadowMaterial opacity={.13} color='#4d5133'/></mesh>

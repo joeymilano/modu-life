@@ -1,0 +1,19 @@
+{
+  "source_faces": 19617,
+  "source_vertices": 23866,
+  "target_faces": 20000,
+  "result_faces": 19617,
+  "result_vertices": 23866,
+  "bytes": 2143408,
+  "objects": [
+    {
+      "name": "oriental-pearl-v1-0",
+      "dimensions": [
+        0.29052734375,
+        0.28662109375,
+        0.99951171875
+      ],
+      "colours": []
+    }
+  ]
+}

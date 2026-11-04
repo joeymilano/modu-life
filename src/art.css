@@ -272,3 +272,15 @@
  .draw-heading h1{font-size:29px;}
 }
 @media(max-width:370px){.brand img{width:130px;}.game-title img{width:225px;}.screen-home .home-description{font-size:11px;}.topbar{gap:8px;}}
+
+.parallel-home{display:flex;align-items:center;gap:9px;padding:8px 12px;min-height:44px;color:#f5e8ca;border:1px solid #d2b78785;border-radius:3px;font-size:14px;}
+.parallel-home svg:last-child{margin-left:auto;}
+.parallel-home:hover{background:#f5e8ca22;}
+@media(max-width:850px){.screen-home .parallel-nav{display:none;}.parallel-nav{padding-inline:7px;}}
+.parallel-outcome{margin:10px auto 0;}
+.player-model-preview{margin:12px 0 0;background:radial-gradient(ellipse at 50% 45%,#e6d6ad,#57736a 66%,#2e5046);border-radius:6px;overflow:hidden;}
+.player-model-preview .owl-preview{position:relative;inset:auto;height:clamp(260px,48vw,400px);min-height:0;background:transparent;}
+.preview-error{padding:22px;color:#fff1d2;}
+.appearance-note .secondary{font-size:13px;padding:7px 12px;min-height:38px;margin-right:auto;}
+
+@media(max-width:850px){.appearance-note:has(.secondary){display:flex;gap:8px;}}

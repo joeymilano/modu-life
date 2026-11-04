@@ -1,6 +1,6 @@
 # Tripo模型升级接口
 
-外滩已实际导入一个已有 Tripo 模型：夜猫子邮筒。点击模型或地图标签会打开可旋转的3D特写与来信故事；选择消耗一格行动并进入存档。城市建筑目前仍为程序模型，不能将本次猫头鹰导入视为地标已替换。
+外滩已实际导入一个已有 Tripo 模型：夜猫子邮筒。点击模型或地图标签会打开可旋转的3D特写与来信故事；选择消耗一格行动并进入存档。东方明珠、武康大楼与高颜值女性角色已换成 Tripo API 生成的 GLB。选角页可以旋转查看绿裙角色，进城后沿用这个形象。
 
 原始素材是已有的 `owl+3d+model.zip`，并非本轮调用 API 新生成。保留原始顶点颜色，从1,988,579面精简到29,999面；发行GLB为721,448字节、无外部贴图或解码器依赖。来源、校验与制作记录位于 `public/models/tripo/provenance.json`。
 
@@ -11,8 +11,9 @@
 | 模型槽 | 建议首批资产 | 目标高度 | 最大宽×深 |
 | --- | --- | ---: | ---: |
 | night-owl | 已导入：夜猫子邮筒 | 2.25 | 1.5×1.5 |
-| oriental-pearl | 东方明珠微缩模型 | 12.2 | 3.2×3.2 |
-| wukang-corner | 武康街角三角楼 | 6.5 | 6×4.6 |
+| oriental-pearl | 已导入：东方明珠 | 12.2 | 3.2×3.2 |
+| wukang-corner | 已导入：武康大楼 | 6.5 | 6×4.6 |
+| player-female-stunning | 已导入：绿裙角色 | 1.43 | 0.85×0.85 |
 | bund-facade | 外滩石材沿街立面 | 5.2 | 3.4×3.4 |
 | jinmao | 金茂退台高楼 | 10.5 | 2.7×2.7 |
 | shanghai-tower | 上海中心螺旋高楼 | 13.2 | 2.5×2.5 |
@@ -37,22 +38,18 @@
 
 ## Tripo API v3 开发通道
 
-已按当前官方 v3 接口准备 `scripts/tripo-assets.mjs`，配有东方明珠和武康街角两套制作提示词。只从环境或未跟踪的 `.env.local` 读取 `TRIPO_API_KEY`，不进入网页或GitHub。当前本地没有Key，尚未提交新的API生成任务。
+模型从三张自制参考图通过 Tripo API v3 的 P2 图生模型生成，每件消耗 110 个现有 API 积分。旧 Studio 任务在 API 下返回 404，保留在 `art/model-references/tasks.json`。新任务、文件校验和网格统计见 `public/models/tripo/api-provenance.json`。
 
 ```sh
 node scripts/tripo-assets.mjs balance
-node scripts/tripo-assets.mjs create oriental-pearl
+node scripts/tripo-assets.mjs create-image oriental-pearl
 node scripts/tripo-assets.mjs status oriental-pearl
 node scripts/tripo-assets.mjs fetch oriental-pearl
 ```
 
-只有 `create` 会提交一次计费生成；它保留任务ID，已有本地任务时拒绝重复提交。状态查询和下载不会偷偷重新生成。`fetch`只接受成功任务的自包含GLB，通过格式、大小和依赖检查后更新模型清单。导入后仍需查看真实轮廓、朝向、材质、昼夜与手机性能，不能把成功下载当成视觉验收。
+脚本只从环境或忽略跟踪的 `.env.local` 读取 `TRIPO_API_KEY`。执行 `create-image` 消耗 API 积分。已有任务请先查询或下载，避免重复生成。下载后用下面的优化脚本处理贴图和网格，再检查选角、地图、夜景和窄屏。
 
-当前通过Safari网页制作新资产，不使用API密钥。东方明珠已经生成，原始1,931,716面；武康大楼已经生成，原始1,923,802面；成年女性玩家模型已经生成，原始1,915,050面。三次生成各消耗55个现有积分，观察余额35。新模型仍被会员导出权限挡住，尚未下载或替换进游戏；用户准备自行开通导出权限，没有由本项目购买订阅。
-
-参考图与生成提示词保存在 `art/model-references/`。参考图不代表已得到可用GLB；具体任务状态和导入范围应分别核实。任务ID保留在该目录说明中，继续下载时不要重新生成。
-
-官方接口依据：[v3快速开始](https://developers.tripo3d.ai/en/docs/quick-start)、[P系列文生模型](https://developers.tripo3d.ai/en/docs/generation-text-to-model/p)。
+官方接口文档见 [上传参考图](https://developers.tripo3d.ai/en/docs/files) 和 [P2 图生模型](https://developers.tripo3d.ai/en/docs/generation-image-to-model/p)。
 
 ## OBJ与GLB的网页优化
 

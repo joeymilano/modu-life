@@ -5,27 +5,45 @@ import { createHash } from 'node:crypto';
 for (const file of ['.env.local','.env']) if (existsSync(file)) process.loadEnvFile(file);
 const key=process.env.TRIPO_API_KEY;
 const api='https://openapi.tripo3d.ai/v3';
+const references={
+ 'oriental-pearl':'oriental-pearl-reference.png',
+ 'wukang-corner':'wukang-corner-reference.png',
+ 'player-female-stunning':'female-stunning-reference.png',
+};
 const plan={
  'oriental-pearl':{prompt:'A single isolated accurate miniature of Shanghai Oriental Pearl Tower, three angled concrete support legs, large lower pink-red observation sphere, slender vertical shafts, smaller upper sphere and long needle spire. Recognizable real architectural silhouette, refined miniature city game prop, warm cream concrete, dusty rose metallic spheres, jade glass bands, physically plausible materials. Upright Y-up, ground at base, no surrounding city, no labels, no people, no ground diorama.'},
  'wukang-corner':{prompt:'A single isolated miniature Shanghai Wukang Mansion corner building, iconic narrow triangular wedge footprint, curved ship-bow corner, seven storeys with warm red-brown brick and cream stone horizontal bands, French Renaissance details, rows of deep dark green windows, street-floor arches. Premium detailed miniature city game prop, tidy realistic materials, all four sides complete, no surrounding street, no people, no text, no giant base.'}
 };
 const [command='help',slot,taskArg]=process.argv.slice(2);
 const stateDir=resolve('outputs/tripo/tasks');mkdirSync(stateDir,{recursive:true});
-function jobPath(id){if(!Object.hasOwn(plan,id))throw new Error('Unknown model slot. Choose oriental-pearl or wukang-corner.');return resolve(stateDir,id+'.json');}
+function jobPath(id){if(!Object.hasOwn(references,id))throw new Error('Unknown model slot. See help for supported model slots.');return resolve(stateDir,id+'.json');}
 async function request(path,body){
- const r=await fetch(api+path,{method:body?'POST':'GET',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined,signal:AbortSignal.timeout(45000)});
- const j=await r.json();if(!r.ok||j.code!==0)throw new Error(`Tripo request failed (${r.status}, code ${j.code??'unknown'}): ${String(j.message||j.msg||'See Tripo console').slice(0,160)}`);return j.data;
+ const r=await fetch(api+path,{method:body?'POST':'GET',headers:{Authorization:'Bearer '+key,...(body instanceof FormData?{}:{'Content-Type':'application/json'})},body:body instanceof FormData?body:body?JSON.stringify(body):undefined,signal:AbortSignal.timeout(45000)});
+ const j=await r.json();if(!r.ok||j.code!==0)throw new Error(`Tripo request failed (${r.status}, code ${j.code??'unknown'})`);return j.data;
 }
-if(command==='help'){console.log('TRIPO_API_KEY in .env.local or environment. Commands: balance | create <slot> | status <slot> [task_id] | fetch <slot> [task_id]. create submits one billable generation; other commands never create tasks. Model recipes: '+Object.keys(plan).join(', '));process.exit(0);}
+if(command==='help'){console.log('TRIPO_API_KEY in .env.local or environment. Commands: balance | create <slot> | create-image <slot> | status <slot> [task_id] | fetch <slot> [task_id]. Each create command submits one generation using API credits. Slots: '+Object.keys(references).join(', '));process.exit(0);}
 if(!key){console.error('TRIPO_API_KEY is not configured. Put it in the ignored .env.local file or environment; do not put it in source or chat. No API request was made.');process.exit(2);}
 try{
  if(command==='balance'){const d=await request('/account/balance');console.log(JSON.stringify({balance:d.balance,frozen:d.frozen}));}
- else if(command==='create'){
+ else if(command==='create'||command==='create-image'){
   const path=jobPath(slot);if(existsSync(path))throw new Error('This slot already has a local task record. Use status/fetch; review or archive it before creating another paid task.');
-  const input={...plan[slot],model:'P2-20260801',face_limit:20000,texture:true,pbr:true,texture_quality:'standard'};
-  // Do not retry this POST on an ambiguous network failure: check the provider console first.
-  const d=await request('/generation/text-to-model',input);if(!d.task_id)throw new Error('The response did not contain a task_id. Inspect provider tasks before retrying.');
-  writeFileSync(path,JSON.stringify({slot,task_id:d.task_id,input,created_at:new Date().toISOString()},null,2));console.log(JSON.stringify({slot,task_id:d.task_id,status:'submitted'}));
+  const settings={model:'P2-20260801',face_limit:20000,texture:true,pbr:true,texture_quality:'standard'};
+  const image=command==='create-image';
+  if(!image&&!Object.hasOwn(plan,slot))throw new Error('This slot requires its reference image. Use create-image.');
+  let source=plan[slot];
+  if(image){
+   const filename=references[slot];
+   const form=new FormData();
+   form.append('file',new Blob([readFileSync(resolve('art/model-references',filename))],{type:'image/png'}),filename);
+   const upload=await request('/files',form);
+   if(!upload?.file_token)throw new Error('Tripo did not return a reference file token.');
+   source={input:upload.file_token};
+  }
+  // Reserve the slot before submitting. After an uncertain response, recover the ID from Tripo.
+  writeFileSync(path,JSON.stringify({slot,status:'submitting',created_at:new Date().toISOString()},null,2),{flag:'wx'});
+  const d=await request(image?'/generation/image-to-model':'/generation/text-to-model',{...settings,...source});
+  if(!d.task_id)throw new Error('The response did not contain a task_id. Inspect provider tasks before retrying.');
+  writeFileSync(path,JSON.stringify({slot,task_id:d.task_id,settings,reference:image?references[slot]:undefined,created_at:new Date().toISOString()},null,2));console.log(JSON.stringify({slot,task_id:d.task_id,status:'submitted'}));
  }else if(command==='status'||command==='fetch'){
   const path=jobPath(slot);const job=existsSync(path)?JSON.parse(readFileSync(path,'utf8')):{slot,task_id:taskArg};const id=taskArg||job.task_id;
   if(!id||!/^[a-zA-Z0-9_-]+$/.test(id))throw new Error('No valid task ID.');

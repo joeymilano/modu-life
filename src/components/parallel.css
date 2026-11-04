@@ -1,0 +1,122 @@
+.parallel {
+  --paper: #f1ead8;
+  --ink: #153a31;
+  --muted: #55665b;
+  --rule: #b7b9a6;
+  --red: #a13429;
+  min-height: 100svh;
+  padding: 0 clamp(20px, 6vw, 100px) 68px;
+  color: var(--ink);
+  background: var(--paper);
+}
+.parallel h1, .parallel h2, .parallel h3 { margin: 0; font-family: var(--serif); line-height: 1.14; }
+.parallel h1 { font-size: clamp(34px, 5vw, 62px); overflow-wrap: anywhere; }
+.parallel h2 { font-size: clamp(23px, 3vw, 32px); }
+.parallel h3 { font-size: 22px; }
+.parallel p { line-height: 1.85; overflow-wrap: anywhere; white-space: pre-wrap; }
+.parallel button { font-weight: 600; }
+.parallel button:focus-visible, .parallel input:focus-visible, .parallel textarea:focus-visible, .parallel select:focus-visible {
+  outline: 2px solid #b64735;
+  outline-offset: 3px;
+}
+.parallel h1:focus { outline: 0; }
+.parallel-bar, .parallel-shelf-head, .parallel-actions, .parallel-tools { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.parallel-bar { justify-content: space-between; min-height: 62px; border-bottom: 1px solid var(--rule); }
+.parallel-quiet { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 6px 0; color: inherit; background: transparent; }
+.parallel-quiet:hover { text-decoration: underline; text-underline-offset: 5px; }
+.parallel-primary, .parallel-outline {
+  display: inline-flex; align-items: center; justify-content: space-between; gap: 14px;
+  min-height: 48px; padding: 10px 16px; border: 1px solid transparent; border-radius: 4px;
+}
+.parallel-primary { color: #fff3dd; background: var(--red); }
+.parallel-primary:hover { background: #852d23; }
+.parallel-outline { color: inherit; border-color: currentColor; background: #153a31b0; }
+.parallel-kicker, .parallel-stamp { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: .13em; }
+.parallel-kicker { margin-bottom: 14px; }
+.parallel-stamp { color: var(--red); }
+.parallel-hero {
+  isolation: isolate; position: relative; overflow: hidden; margin: 28px 0 44px;
+  min-height: 320px; display: flex; align-items: center; padding: clamp(25px, 6vw, 72px);
+  border-radius: 5px; color: #f5e8ca; background: #14382e;
+}
+.parallel-hero::before {
+  position: absolute; content: ''; z-index: -2; inset: 0;
+  background: linear-gradient(90deg,#12362e 16%,#12362eda 50%,#12362e40), url('/art/shanghai-night.webp') 65% 24% / cover;
+}
+.parallel-hero h1 { font-size: clamp(50px, 8vw, 112px); letter-spacing: -.06em; }
+.parallel-hero p { margin: 12px 0 24px; font-size: clamp(14px, 2vw, 20px); }
+.parallel-hero-copy { z-index: 1; }
+.parallel-hero-track { position: absolute; width: min(48%, 530px); right: 3%; bottom: 16%; opacity: .7; }
+.parallel-hero-track svg { width: 100%; stroke: #e6b86f; stroke-width: 1.75; }
+.parallel-hero-track circle { fill: #234138; }
+.parallel-shelf { margin-top: 32px; }
+.parallel-shelf-head { justify-content: space-between; }
+.parallel-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 16px; }
+.parallel-ticket {
+  display: grid; gap: 8px; text-align: left; padding: clamp(16px, 3vw, 27px);
+  background: #faf4e5; color: var(--ink); border: 1px solid #bab7a4;
+  border-left: 4px solid #b23f30; border-radius: 4px; overflow-wrap: anywhere;
+}
+.parallel-ticket:hover { background: #fffaf0; border-color: var(--red); }
+.parallel-ticket strong { font: 700 clamp(21px, 3vw, 31px) / 1.25 var(--serif); }
+.parallel-ticket small, .parallel-ticket span { color: var(--muted); font-size: 13px; }
+.parallel-ticket .parallel-ticket-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 6px; color: var(--red); }
+.parallel-ticket-meta b { font-size: 12px; padding: 2px 7px; border: 1px solid currentColor; border-radius: 20px; }
+.parallel-ticket-meta svg { margin-left: auto; }
+.parallel-empty { color: var(--muted); border: 1px dashed var(--rule); padding: 16px; }
+.parallel-layout { display: grid; grid-template-columns: minmax(190px, .9fr) minmax(0, 2.65fr); gap: clamp(22px, 5vw, 70px); padding-top: 36px; }
+.parallel-map { border-right: 1px solid var(--rule); padding: 6px 20px 0 0; overflow-wrap: anywhere; }
+.parallel-map ol { list-style: none; padding: 0; margin: 24px 0; }
+.parallel-map li { position: relative; margin-left: 6px; padding: 0 0 20px 20px; border-left: 1px solid #9ba492; }
+.parallel-map li::before { content: ''; position: absolute; top: 4px; left: -5px; width: 9px; height: 9px; border-radius: 50%; background: var(--ink); }
+.parallel-map li[aria-current]::before { background: var(--red); box-shadow: 0 0 0 3px #c37a6a50; }
+.parallel-map small, .parallel-results small { display: block; color: var(--muted); margin-bottom: 4px; }
+.parallel-map button { text-align: left; color: var(--ink); min-height: 32px; background: transparent; }
+.parallel-map button:hover { text-decoration: underline; }
+.parallel-siblings { display: grid; gap: 6px; }
+.parallel-siblings > span { font-size: 13px; color: var(--muted); }
+.parallel-stage { min-width: 0; }
+.parallel-scene { border-top: 3px double var(--rule); padding-top: 22px; }
+.parallel-scene h1 { margin: 12px 0 14px; }
+.parallel-scene p { font-size: clamp(16px, 2vw, 20px); }
+.parallel-previous { padding: 12px 16px; background: #e5e5d5; border-left: 3px solid #6e806c; margin: 0 0 20px; }
+.parallel-choices { display: grid; gap: 10px; margin: 22px 0 6px; }
+.parallel-choices button { display: grid; grid-template-columns: 28px 1fr auto; align-items: center; gap: 12px; min-height: 54px; padding: 10px 16px; background: #fcf7ea; border: 1px solid var(--rule); border-radius: 3px; color: var(--ink); text-align: left; }
+.parallel-choices button b { color: var(--red); font-family: ui-monospace, monospace; }
+.parallel-choices button:hover { border-color: var(--red); background: #fffcf5; }
+.parallel-answer, .parallel-editor { display: grid; gap: 16px; justify-items: start; }
+.parallel-answer { margin: 10px 0 20px; }
+.parallel-results { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 24px 0; }
+.parallel-results article { padding: clamp(14px, 2vw, 24px); background: #faf4e5; border-top: 2px solid var(--ink); }
+.parallel-results article:first-child { border-color: var(--red); }
+.parallel-results section { margin-top: 16px; }
+.parallel-tools { margin-top: 15px; border-top: 1px solid var(--rule); font-size: 13px; }
+.parallel-editor { margin: 30px auto 0; max-width: 850px; }
+.parallel-editor .parallel-kicker { margin: 0; }
+.parallel-fieldset { width: 100%; min-width: 0; display: grid; gap: 12px; padding: 16px; border: 1px solid var(--rule); }
+.parallel-fieldset legend { color: var(--red); padding: 0 8px; font-weight: 700; }
+.parallel-fields { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.parallel-option-fields { display: grid; gap: 10px; padding: 12px; background: #e8e5d7; }
+.parallel-field { display: grid; gap: 6px; width: 100%; font-size: 14px; font-weight: 600; }
+.parallel-field input, .parallel-field textarea, .parallel-field select, .parallel-link {
+  width: 100%; min-width: 0; padding: 10px; border: 1px solid #9ba492; border-radius: 3px;
+  color: var(--ink); background: #fffaee; font-family: inherit; font-size: 16px; line-height: 1.45; font-weight: 400;
+}
+.parallel-field textarea { resize: vertical; }
+.parallel-status { position: sticky; bottom: 12px; width: fit-content; padding: 9px 14px; margin-top: 12px; background: var(--ink); color: #fff3dd; border-radius: 4px; }
+.parallel-link { max-width: 850px; margin-top: 8px; }
+@media (max-width: 680px) {
+  .parallel-hero { min-height: 275px; margin-top: 18px; }
+  .parallel-hero-track { opacity: .4; width: 83%; right: -28%; }
+  .parallel-hero::before { background-position: 55% 24%; }
+  .parallel-grid, .parallel-layout, .parallel-results, .parallel-fields { grid-template-columns: 1fr; }
+  .parallel-layout { padding-top: 20px; }
+  .parallel-map { border: 0; border-bottom: 1px solid var(--rule); padding: 0 0 10px; }
+  .parallel-map ol { margin: 14px 0 0; }
+  .parallel-map li { padding-bottom: 10px; }
+  .parallel-hero .parallel-actions { gap: 8px; }
+  .parallel-hero .parallel-primary, .parallel-hero .parallel-outline { padding-inline: 10px; font-size: 13px; }
+}
+@media (min-width: 1020px) {
+  .parallel-service-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
