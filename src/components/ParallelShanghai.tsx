@@ -101,10 +101,13 @@ function Editor({ kind, preset, onSave }: { kind: Timeline['kind']; preset?: Tim
 function TicketCard({ ticket, index, onClick }: { ticket: Ticket; index: number; onClick: () => void }) {
   const { timeline, route } = ticket;
   const first = timeline.turns[0];
+  const label = route?.length
+    ? (walk(timeline, route).next === null ? '回执' : '进行中') + ' · ' + route.map(move => 'ABC'[move.pick]).join('·')
+    : timeline.kind === 'life' ? '人生线' : '现实题';
   return <button className="parallel-ticket" onClick={onClick}>
     <span className="parallel-ticket-meta">
       <b>{String(index + 1).padStart(2, '0')}</b>
-      {route?.length ? '回执' : timeline.kind === 'life' ? '人生线' : '现实题'}
+      {label}
       <Icon name="arrow" size={21} />
     </span>
     <strong>{timeline.title}</strong>
@@ -162,6 +165,13 @@ export default function ParallelShanghai({ onClose, hash, preset }: {
     }
   }
 
+  function rewind(index: number) {
+    if (!ticket?.route?.length) return;
+    const previous = ticket;
+    open({ ...previous, route: ticket.route.slice(0, index) });
+    keep(previous);
+  }
+
   async function copy(next: Ticket) {
     const url = ticketLink(next);
     try {
@@ -207,17 +217,17 @@ export default function ParallelShanghai({ onClose, hash, preset }: {
     const saved = entries.some(entry => JSON.stringify(entry) === JSON.stringify(ticket));
     content = <div className="parallel-layout">
       <aside className="parallel-map">
-        <span className="parallel-kicker">这条线 · {movePath}</span>
+        <span className="parallel-kicker">时间线 · {movePath}</span>
         <h2>{timeline.title}</h2>
         <ol>
           {steps.map(({ turn, option }, index) => <li key={index}>
             <small>{turn.date}</small>
-            <button onClick={() => open({ ...ticket, route: route.slice(0, index) })}>{option.move}</button>
+            <b>{option.move}</b><button className="parallel-fork-link" onClick={() => rewind(index)}>从这里开分支</button>
           </li>)}
           {current && <li aria-current="step"><small>{current.date}</small><b>{current.place}</b></li>}
         </ol>
         {siblings.length > 0 && <div className="parallel-siblings">
-          <span>票夹里的其他走法</span>
+          <span>其他时间线</span>
           {siblings.map((entry, index) => <button key={index} onClick={() => open(entry)}>
             {entry.route!.map(move => 'ABC'[move.pick]).join('·')} · {walk(entry.timeline, entry.route!).steps.at(-1)?.option.move}
           </button>)}
@@ -258,7 +268,7 @@ export default function ParallelShanghai({ onClose, hash, preset }: {
           </div>
           <div className="parallel-actions">
             <button className="parallel-primary" onClick={() => copy(ticket)}>复制回执链接 <Icon name="share" size={17} /></button>
-            <button className="parallel-quiet" onClick={() => open({ version: 1, timeline })}>从头再走一次</button>
+            <button className="parallel-quiet" onClick={() => rewind(0)}>从头再走一次</button>
           </div>
         </>}
         <div className="parallel-tools">
@@ -270,7 +280,7 @@ export default function ParallelShanghai({ onClose, hash, preset }: {
             catch { setStatus('这台设备的票夹暂时改不了'); }
           }}>从票夹取出</button>}
         </div>
-        {current && number > 1 && <button className="parallel-quiet" onClick={() => open({ ...ticket, route: route.slice(0, -1) })}>← 回上一幕</button>}
+        {current && number > 1 && <button className="parallel-quiet" onClick={() => rewind(route.length - 1)}>← 从上一幕开分支</button>}
       </div>
     </div>;
   } else if (editing) {
@@ -280,12 +290,9 @@ export default function ParallelShanghai({ onClose, hash, preset }: {
       <div className="parallel-hero">
         <div className="parallel-hero-copy">
           <span className="parallel-kicker">上海 · 平行站</span>
-          <h1 ref={titleRef} tabIndex={-1}>平行上海</h1>
+          <h1 ref={titleRef} tabIndex={-1}>重走别人的人生</h1>
           <p>那天要是没赶上末班车呢</p>
-          <div className="parallel-actions">
-            <button className="parallel-primary" onClick={() => setEditing('life')}>写一段人生 <Icon name="arrow" size={18} /></button>
-            <button className="parallel-outline" onClick={() => setEditing('question')}>空降现实题 <Icon name="bolt" size={17} /></button>
-          </div>
+          <button className="parallel-primary" onClick={() => document.getElementById('guest-stories')?.focus()}>挑一段来走 <Icon name="arrow" size={18} /></button>
         </div>
         <div className="parallel-hero-track" aria-hidden="true">
           <svg viewBox="0 0 400 170" fill="none">
@@ -298,7 +305,13 @@ export default function ParallelShanghai({ onClose, hash, preset }: {
         </div>
       </div>
       <section className="parallel-shelf">
-        <h2>今晚的车次</h2>
+        <div className="parallel-shelf-head">
+          <h2 id="guest-stories" tabIndex={-1}>今晚的车次</h2>
+          <div className="parallel-actions">
+            <button className="parallel-quiet" onClick={() => setEditing('life')}>写一段人生 <Icon name="arrow" size={18} /></button>
+            <button className="parallel-quiet" onClick={() => setEditing('question')}>空降现实题 <Icon name="bolt" size={17} /></button>
+          </div>
+        </div>
         <div className="parallel-grid parallel-service-grid">{CITY_TIMELINES.map((timeline, index) =>
           <TicketCard key={timeline.id} ticket={{ version: 1, timeline }} index={index} onClick={() => open({ version: 1, timeline })} />
         )}</div>
@@ -315,7 +328,7 @@ export default function ParallelShanghai({ onClose, hash, preset }: {
   return <main className="parallel">
     <div className="parallel-bar">
       <button className="parallel-quiet" onClick={onClose}>← 回魔都</button>
-      {screen !== 'hub' && <button className="parallel-quiet" onClick={() => { open(null); setEditing(null); setUsePreset(false); }}>回平行站</button>}
+      {screen !== 'hub' && <button className="parallel-quiet" onClick={() => { open(null); setEditing(null); setUsePreset(false); }}>回故事列表</button>}
     </div>
     <input ref={fileRef} type="file" accept=".json,application/json" hidden onChange={event => importTicket(event.target.files?.[0])} />
     {content}

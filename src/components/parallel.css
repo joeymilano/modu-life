@@ -120,3 +120,5 @@
 @media (min-width: 1020px) {
   .parallel-service-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
+.parallel-hero h1{font-size:clamp(38px,6.3vw,88px);}
+.parallel-map .parallel-fork-link{display:block;color:var(--red);font-size:12px;}
