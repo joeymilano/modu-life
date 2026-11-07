@@ -8,8 +8,23 @@ export function portraitArt(id: string, full: boolean): string {
  return '/art/portraits/' + (full ? '' : 'head/') + id + '.webp';
 }
 
-export function playerArt(appearance: PlayerAppearance, full = true): string {
- return portraitArt('player-' + appearance.gender + '-' + appearance.looks, full);
+export function playerArt(appearance: PlayerAppearance, full = true, age = 18): string {
+ const stage = age >= 53 ? '-senior' : age >= 32 ? '-midlife' : '';
+ return portraitArt('player-' + appearance.gender + '-' + appearance.looks + stage, full);
+}
+
+const endingScenes: Record<string, string> = {
+ million: 'wealth', comfortable: 'wealth', love: 'love', companions: 'love',
+ master: 'craft', maker: 'craft', reset: 'craft', free: 'river', ordinary: 'river',
+ community: 'community', friends: 'community', comeback: 'comeback',
+};
+
+export function endingPhoto(endingId: string): string {
+ return `/art/endings/${endingScenes[endingId] ?? 'river'}.webp`;
+}
+
+export function farewellPhoto(person: 'mao' | 'he' | 'lu'): string {
+ return `/art/endings/farewell-${person}.webp`;
 }
 
 export function datePhoto(personId: string, scene: 'meeting' | 'return'): string {

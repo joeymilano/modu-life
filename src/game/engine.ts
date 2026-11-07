@@ -1,5 +1,6 @@
 import { CAREERS, CAST, GOALS, ORIGIN_POOLS } from './content';
 import { FIRST_NIGHT_FLAG, firstNightYear } from './firstNight';
+import { lastDayEvent } from './lastDay';
 import { EVENTS } from './events';
 import type { ActivityKind, ChoiceResult, Effect, EventChoice, GameState, GoalId, LifeEvent, LooksLevel, OriginCard, OriginSlot, PlayerAppearance, StatKey } from './types';
 
@@ -80,8 +81,8 @@ export function eligibleEvent(e:LifeEvent,s:GameState,kind:ActivityKind|'year'):
   return e.category===kind&&(!e.district||e.district===s.district)&&(!e.minAge||s.age>=e.minAge)&&(!e.maxAge||s.age<=e.maxAge)&&(!e.once||!s.seenEvents.includes(e.id))&&!s.seenEvents.includes(e.id)&&(!e.requiredFlags||e.requiredFlags.every(f=>s.flags.includes(f)))&&(!e.forbiddenFlags||e.forbiddenFlags.every(f=>!s.flags.includes(f)));
 }
 export function selectEvent(s:GameState,kind:ActivityKind|'year',npcId?:string):LifeEvent {
-  const opening = kind === 'year' ? firstNightYear(s) : undefined;
-  if (opening && !s.seenEvents.includes(opening.id)) return opening;
+  const annual = kind === 'year' ? firstNightYear(s) ?? lastDayEvent(s) : undefined;
+  if (annual && !s.seenEvents.includes(annual.id)) return annual;
   let candidates=EVENTS.filter(e=>eligibleEvent(e,s,kind));
   if(npcId){const personal=candidates.filter(e=>e.speakerId===npcId);if(personal.length)candidates=personal;else candidates=candidates.filter(e=>!e.speakerId);}
   const continuing=candidates.filter(e=>e.chainId&&(e.chainStep||0)>0);if(continuing.length)candidates=continuing;

@@ -3,6 +3,8 @@ import { streetLead } from '../src/game/streetLeads';
 import { describe, expect, it } from 'vitest';
 import { createGame, drawOrigins, nextYear, resolveChoice, selectEvent } from '../src/game/engine';
 import { activeLine, decodeLife, encodeLife, forkLife, recordDecision, replayScene, startBook, switchLine, updateLife } from '../src/game/lifeLines';
+import { lastDayMemory } from '../src/game/lastDay';
+import { EVENTS } from '../src/game/events';
 
 describe('my life branches', () => {
   const opening = () => createGame('TWIN', '小申', 'free', drawOrigins('TWIN'));
@@ -55,6 +57,30 @@ describe('my life branches', () => {
 
     const legacy = { ...before, flags: before.flags.filter(flag => flag !== FIRST_NIGHT_FLAG) };
     expect(selectEvent(legacy, 'year').id).toBe('year-18');
+  });
+
+  it('brings back only the person actually met on the first night and lets the farewell branch', () => {
+    const start = opening();
+    const arrival = selectEvent(start, 'year');
+    const endIds = ['last-day-keys', 'last-day-receipt', 'last-day-orange'];
+    arrival.choices.forEach((choice, index) => {
+      const invited = resolveChoice(start, arrival, choice.id).state;
+      expect(selectEvent({ ...invited, age: 59, pendingYearEvent: true }, 'year').id).toBe('year-59');
+      const lead = streetLead(invited)!.event;
+      const met = resolveChoice(invited, lead, lead.choices[1].id).state;
+      const before = { ...met, age: 59, actions: 3, pendingYearEvent: true };
+      const finale = selectEvent(before, 'year');
+      expect(finale.id).toBe(endIds[index]);
+      const a = resolveChoice(before, finale, finale.choices[0].id);
+      expect(a.state.actions).toBe(3);
+      expect(lastDayMemory(nextYear(a.state).state)?.text).toBe(a.text);
+      const original = recordDecision(startBook(before), a.state, finale, finale.choices[0].id, finale.speakerId);
+      const branch = forkLife(original, 0);
+      expect(replayScene(activeLine(branch).state, activeLine(branch).replay!)).toEqual(finale);
+      const b = resolveChoice(before, finale, finale.choices[1].id);
+      expect(lastDayMemory(b.state)?.text).not.toBe(lastDayMemory(a.state)?.text);
+      expect(replayScene(before, { kind: 'year', eventId: 'year-59' })).toEqual(EVENTS.find(event => event.id === 'year-59'));
+    });
   });
 
 });

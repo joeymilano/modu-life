@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { CAREERS, CAST, ORIGIN_POOLS } from '../src/game/content';
 import { EVENTS } from '../src/game/events';
+import { playerArt } from '../src/game/art';
 import { commitRelationship, createGame, drawOrigins, ending, eligibleEvent, monthlyBudget, nextYear, resolveChoice, selectEvent, validateSave } from '../src/game/engine';
 import type { ActivityKind, GameState, LifeEvent, PlayerAppearance } from '../src/game/types';
 function freeChoice(s:GameState,e:LifeEvent){return e.choices.find(c=>(c.effect.cash||0)>=0)||e.choices.find(c=>(c.effect.cash||0)>=-s.cash)!;}
@@ -30,6 +31,17 @@ describe('内容资料可运行',()=>{
 
 describe('玩家外观与旧档案兼容',()=>{
  const plainCards=()=>drawOrigins('APPEARANCE').map(card=>({...card,effect:{}}));
+ it('每种外观的头像和立绘都随年龄切换',()=>{
+   for(const gender of ['female','male'] as const)for(const looks of ['everyday','charming','stunning'] as const){
+     const appearance={gender,looks};
+     const name=`player-${gender}-${looks}`;
+     expect(playerArt(appearance,false,31)).toBe(`/art/portraits/head/${name}.webp`);
+     expect(playerArt(appearance,false,32)).toBe(`/art/portraits/head/${name}-midlife.webp`);
+     expect(playerArt(appearance,true,52)).toBe(`/art/portraits/${name}-midlife.webp`);
+     expect(playerArt(appearance,true,53)).toBe(`/art/portraits/${name}-senior.webp`);
+     expect(playerArt(appearance,true,60)).toBe(`/art/portraits/${name}-senior.webp`);
+   }
+ });
  it('保存所选性别与颜值，旧四参调用保留默认',()=>{
    const original=createGame('APPEARANCE','小申','love',plainCards());
    expect(original.appearance).toEqual({gender:'male',looks:'everyday'});
