@@ -37,7 +37,7 @@ export const DISTRICTS: District[] = [
     {id:'xin-rent',name:'弄堂租房处',kind:'housing',position:[-7,2],caption:'中介说晚上八点还能看'},
     {id:'xin-neighbor',name:'邻里小饭桌',kind:'social',position:[-3,-2],caption:'楼下阿姨叫你带个碗'},
     {id:'xin-rest',name:'小区长椅',kind:'rest',position:[3,2],caption:'长椅上有半张报纸'},
-    {id:'xin-street',name:'晚风小吃街',kind:'explore',position:[7,-2],caption:'老板刚把第一笼生煎端出来'},
+    {id:'xin-street',name:'晚风小吃街',kind:'business',position:[7,-2],caption:'吴师傅开了两口锅，手上还缺个人'},
   ]},
 ];
 

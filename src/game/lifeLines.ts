@@ -6,6 +6,7 @@ import { returnDate } from './dateReturns';
 import { firstDateParting } from './dates';
 import { parkVisit } from './matchmaking';
 import { ferryVisit } from './ferryVisit';
+import { isStallSettlement, replayStall } from './stall';
 import { isJobOffer, replayJobOffer } from './jobOffers';
 import { openingLead } from './originStories';
 import { ALL_RENTAL_CLUES, rentalNegotiation } from './rental';
@@ -68,6 +69,7 @@ export function clearReplay(book: LifeBook): LifeBook {
 }
 
 export function replayScene(state: GameState, scene: SceneRef): LifeEvent | null {
+  if (scene.kind === 'business' && isStallSettlement(scene.eventId)) return replayStall(state, scene.eventId);
   if (scene.kind === 'career' && isJobOffer(scene.eventId)) return replayJobOffer(state, scene.eventId);
   if (scene.eventId.startsWith('bund-ferry-')) {
     const event = ferryVisit(state);

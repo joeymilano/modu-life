@@ -1,0 +1,69 @@
+.modal.stall-modal { width: min(100%, 1050px); max-width: 1050px; padding: 0; background: #f4eee1; }
+.stall-intro { display: grid; grid-template-columns: minmax(0,1.12fr) minmax(0,1fr); }
+.stall-intro > img { width: 100%; height: 100%; min-height: 440px; object-fit: cover; object-position: 52%; }
+.stall-intro-copy { align-self: center; padding: clamp(25px,4vw,51px); }
+.stall-location { color: #8e4833; font-size: 12px; }
+.stall-intro h2, .stall-work-head h2 { margin: 8px 0 12px; font: 700 clamp(25px,3vw,46px)/1.14 var(--serif); }
+.stall-intro-copy p, .stall-intro-copy ul { color: #3b5048; font-size: 14px; line-height: 1.65; }
+.stall-intro-copy ul { padding-left: 18px; margin: 14px 0 21px; }
+.stall-intro-copy li + li { margin-top: 6px; }
+.stall-intro-copy .primary { margin-top: 17px; }
+.stall-workbench { padding: clamp(20px,3vw,35px); }
+.stall-work-head {
+ display: flex; position: relative; isolation: isolate; overflow: hidden; min-height: 108px;
+ justify-content: space-between; align-items: end; gap: 12px; padding: 12px 20px;
+ color: #fff0d9; background: #23322e;
+}
+.stall-work-head > img { position: absolute; z-index: -2; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 53%; }
+.stall-work-head::after { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(0deg,#142720ed,#1427206f); }
+.stall-work-head .stall-location { color: #f0dbb5; }
+.stall-work-head h2 { margin-bottom: 0; }
+.stall-counter { display: grid; gap: 4px; text-align: right; flex-shrink: 0; }
+.stall-counter b { font: 600 clamp(16px,2vw,25px)/1 ui-monospace,monospace; }
+.stall-counter span { color: #f3e5cd; font-size: 11px; }
+.stall-update { min-height: 35px; padding: 8px 11px; margin: 13px 0; background: #e7dbbe; color: #54472e; font-size: 13px; }
+.stall-board { display: grid; grid-template-columns: minmax(0,1.17fr) minmax(0,1fr); align-items: start; gap: 14px; }
+.stall-pans { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+.stall-pan { min-width: 0; border: 1px solid #b8b3a2; background: #faf5e9; }
+.stall-pan[data-ready="true"] { border-color: #738759; box-shadow: inset 0 -3px #7b8b62; }
+.stall-pan > img { display: block; width: 100%; aspect-ratio: 1.7; object-fit: cover; }
+.stall-pan-caption { display: grid; padding: 9px 9px 0; gap: 3px; min-height: 49px; }
+.stall-pan-caption b { font-size: 14px; }
+.stall-pan-caption span { color: #5b6757; font-size: 11px; }
+.stall-pan-actions { display: flex; flex-wrap: wrap; gap: 5px; padding: 6px 7px 8px; }
+.stall-pan-actions button { flex: 1; }
+.stall-workbench .secondary { min-height: 39px; padding: 4px 8px; gap: 4px; border: 1px solid #b2ac98; color: #294238; font-size: 12px; justify-content: center; white-space: nowrap; }
+.stall-workbench .stall-discard { color: #704b39; border-style: dashed; }
+.stall-wait { grid-column: 1 / -1; }
+.stall-orders { min-width: 0; }
+.stall-order-head { display: flex; justify-content: space-between; gap: 5px; align-items: baseline; }
+.stall-order-head h3 { font: 700 21px var(--serif); margin: 0 0 6px; }
+.stall-order-head span, .stall-empty { color: #586658; font-size: 12px; }
+.stall-order { display: grid; grid-template-columns: auto minmax(0,1fr) auto; align-items: center; gap: 8px; border-top: 1px solid #cfc6ae; padding: 7px 2px; }
+.stall-order b, .stall-order small { display: block; }
+.stall-order b { font-size: 13px; }
+.stall-order small { margin-top: 2px; color: #485b4e; font-size: 11px; line-height: 1.35; }
+.stall-order-action { display: grid; gap: 2px; justify-items: end; }
+.stall-order-action span { color: #4b5d4e; font-size: 10px; }
+.stall-order[data-urgent="true"] .stall-order-action span { color: #943d27; font-weight: 700; }
+.stall-order-action .secondary { min-height: 32px; }
+.stall-order-action .secondary:not(:disabled) { background: #345344; border-color: #345344; color: #fff5df; }
+.stall-order-action .secondary:hover:not(:disabled) { background: #456653; }
+.stall-result { display: flex; gap: 8px; margin: 15px 0; }
+.stall-result > div { display: grid; flex: 1; gap: 2px; padding: 9px; background: #e8dfca; }
+.stall-result b { color: #283e35; font: 700 27px var(--serif); }
+.stall-result span { color: #5b6453; font-size: 11px; }
+
+@media(max-width: 720px) {
+ .stall-intro, .stall-board { grid-template-columns: minmax(0,1fr); }
+ .stall-intro > img { min-height: 0; height: auto; aspect-ratio: 16/9; }
+ .stall-intro-copy { padding: 18px 19px 22px; }
+ .stall-intro-copy .primary { margin-top: 7px; }
+ .stall-workbench { padding: 15px; }
+ .stall-work-head { min-height: 74px; padding: 9px 10px; gap: 8px; }
+ .stall-work-head h2 { font-size: clamp(19px,5vw,29px); }
+ .stall-counter span { font-size: 10px; }
+ .stall-pan > img { aspect-ratio: 2.6; }
+ .stall-workbench .secondary { min-height: 44px; }
+ .stall-order-action .secondary { min-height: 44px; }
+}
