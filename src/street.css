@@ -117,8 +117,8 @@
   font-size: 13px; line-height: 1.7; margin: 0 0 9px; overflow-wrap: anywhere;
 }
 .screen-play .scene-switch { min-height: 36px; border-radius: 2px; }
-.city-map-mode { background: radial-gradient(ellipse at 50% 50%,#ede6d1,#c9cfc1); }
-.city-map-mode[data-night="true"] { background: radial-gradient(ellipse at 48% 50%,#37494a,#1c292f); }
+.city-map-mode { background: radial-gradient(ellipse at 52% 53%,#e4e4db,#bdcbd0); }
+.city-map-mode[data-night="true"] { background: radial-gradient(ellipse at 50% 54%,#384a57,#182431); }
 .city-map-mode[data-night="true"] .district-title :is(h1,p,small,.district-en), .city-map-mode[data-night="true"] .stage-bottom { color: #f3e4c4; }
 .event-modal:has(.event-photo) .event-choices b { font-size: 15px; line-height: 1.4; }
 .event-modal:has(.event-photo) .event-choices p { font-size: 13px; line-height: 1.45; }

@@ -5,6 +5,7 @@ import { nightOwlLetter } from './encounters';
 import { returnDate } from './dateReturns';
 import { firstDateParting } from './dates';
 import { parkVisit } from './matchmaking';
+import { ferryVisit } from './ferryVisit';
 import { openingLead } from './originStories';
 import { ALL_RENTAL_CLUES, rentalNegotiation } from './rental';
 import type { ActivityKind, FirstDatePicks, GameState, LifeEvent } from './types';
@@ -66,6 +67,10 @@ export function clearReplay(book: LifeBook): LifeBook {
 }
 
 export function replayScene(state: GameState, scene: SceneRef): LifeEvent | null {
+  if (scene.eventId.startsWith('bund-ferry-')) {
+    const event = ferryVisit(state);
+    return event?.id === scene.eventId ? event : null;
+  }
   if (scene.kind === 'rental') {
     if (scene.evidence === undefined || state.district !== 'xinzhuang' || state.flags.includes('rental_checked')) return null;
     const event = rentalNegotiation(scene.evidence);

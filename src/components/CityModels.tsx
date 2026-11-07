@@ -2,6 +2,7 @@ import { Component, Suspense, useEffect, useMemo, useRef, type ReactNode } from 
 import { RoundedBox, useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import type { DistrictId } from '../game/types';
 import type { Obstacle } from './pathfinding';
 
@@ -21,17 +22,17 @@ function Windows({width,depth,height,floors=4,night=false,modern=false,frontOnly
  const ref=useRef<THREE.InstancedMesh>(null);
  const columns=Math.max(2,Math.floor(width/.65)),sideColumns=Math.max(2,Math.floor(depth/.75));
  const data=useMemo(()=>{const a:{p:[number,number,number];r:number;s:[number,number,number]}[]=[];for(let f=0;f<floors;f++){const y=.62+(f+.1)*(height-.9)/floors;for(let c=0;c<columns;c++){const x=-width/2+(c+.5)*width/columns;for(const z of (frontOnly?[1]:[-1,1]))a.push({p:[x,y,z*(depth/2+.018)],r:0,s:[modern?width/columns*.74:.32,modern?(height-.9)/floors*.72:.46,.035]});}if(!frontOnly)for(let c=0;c<sideColumns;c++){const z=-depth/2+(c+.5)*depth/sideColumns;for(const x of [-1,1])a.push({p:[x*(width/2+.018),y,z],r:Math.PI/2,s:[modern?depth/sideColumns*.74:.31,modern?(height-.9)/floors*.72:.46,.035]});}}return a;},[width,depth,height,floors,columns,sideColumns,modern,frontOnly]);
- useEffect(()=>{if(!ref.current)return;const o=new THREE.Object3D();data.forEach((v,i)=>{o.position.set(...v.p);o.rotation.set(0,v.r,0);o.scale.set(...v.s);o.updateMatrix();ref.current!.setMatrixAt(i,o.matrix);ref.current!.setColorAt(i,new THREE.Color(night?(i%4===0?'#f2cd78':'#44635e'):(i%6===0?'#ceb98a':modern?'#87aaa5':'#4f6860')));});ref.current.instanceMatrix.needsUpdate=true;if(ref.current.instanceColor)ref.current.instanceColor.needsUpdate=true;},[data,night]);
- return <instancedMesh ref={ref} args={[BOX,undefined,data.length]} dispose={null}><meshStandardMaterial metalness={modern?.35:.05} roughness={modern?.25:.8} emissive={night?'#bc8a39':'#000'} emissiveIntensity={night?.12:0}/></instancedMesh>;
+ useEffect(()=>{if(!ref.current)return;const o=new THREE.Object3D();data.forEach((v,i)=>{o.position.set(...v.p);o.rotation.set(0,v.r,0);o.scale.set(...v.s);o.updateMatrix();ref.current!.setMatrixAt(i,o.matrix);ref.current!.setColorAt(i,new THREE.Color(night?(i%4===0?'#ffe0a0':'#3c555e'):(i%6===0?'#b7a993':modern?'#78939e':'#536a6b')));});ref.current.instanceMatrix.needsUpdate=true;if(ref.current.instanceColor)ref.current.instanceColor.needsUpdate=true;},[data,night]);
+ return <instancedMesh ref={ref} args={[BOX,undefined,data.length]} dispose={null}><meshStandardMaterial metalness={modern?.35:.05} roughness={modern?.25:.8} emissive={night?'#bc8a39':'#000'} emissiveIntensity={night?.17:0}/></instancedMesh>;
 }
 function PitchedRoof({width,depth,color='#a8523d'}:{width:number;depth:number;color?:string}){
  const geom=useMemo(()=>{const shape=new THREE.Shape();shape.moveTo(-width/2,0);shape.lineTo(0,.64);shape.lineTo(width/2,0);shape.closePath();const g=new THREE.ExtrudeGeometry(shape,{depth,bevelEnabled:false});g.translate(0,0,-depth/2);return g;},[width,depth]);
  return <mesh geometry={geom} material={material(color)} castShadow receiveShadow dispose={null}/>;
 }
-export function House({position=[0,0,0],width=3,depth=3,height=3.5,color='#e7d9b8',night=false,shop='弄堂生煎',roof='#a95642'}:{position?:[number,number,number];width?:number;depth?:number;height?:number;color?:string;night?:boolean;shop?:string;roof?:string}){
+export function House({position=[0,0,0],width=3,depth=3,height=3.5,color='#e7d9b8',night=false,shop='弄堂生煎',roof='#965f4b',wallMap}:{position?:[number,number,number];width?:number;depth?:number;height?:number;color?:string;night?:boolean;shop?:string;roof?:string;wallMap?:THREE.Texture}){
  const floors=Math.max(2,Math.round(height/.9));
  return <group position={position}>
-  <Block position={[0,height/2,0]} size={[width,height,depth]} color={color}/>
+  <mesh position={[0,height/2,0]} castShadow receiveShadow><boxGeometry args={[width,height,depth]}/><meshStandardMaterial color={color} map={wallMap} bumpMap={wallMap} bumpScale={.036} roughness={.96}/></mesh>
   <Block position={[0,.15,0]} size={[width+.13,.3,depth+.12]} color='#afa98f'/>
   <Windows width={width} height={height} depth={depth} floors={floors} night={night}/>
   {Array.from({length:Math.max(1,floors-1)},(_,i)=><Block key={i} position={[0,(i+1)*height/floors+.25,0]} size={[width+.09,.08,depth+.09]} color='#e9e0c9'/>)}
@@ -48,9 +49,29 @@ export function House({position=[0,0,0],width=3,depth=3,height=3.5,color='#e7d9b
 function Office({position=[0,0,0],width=3,depth=3,height=6,color='#a8b8af',night=false}:{position?:[number,number,number];width?:number;depth?:number;height?:number;color?:string;night?:boolean}){
  return <group position={position}><Block position={[0,height/2,0]} size={[width,height,depth]} color={color} metalness={.2} roughness={.45}/><Windows width={width} height={height-.1} depth={depth} floors={Math.round(height/.7)} modern night={night}/><Block position={[0,height+.12,0]} size={[width+.1,.25,depth+.1]} color='#e1dcc9'/><Block position={[0,.18,0]} size={[width+.4,.35,depth+.4]} color='#ded9c5'/><Block position={[0,.5,depth/2+.05]} size={[width*.45,1,.1]} color='#476760'/>{Array.from({length:3},(_,i)=><Block key={i} position={[-width*.25+i*.25,height+.45,0]} size={[.17,.45,.5]} color='#b9c3b7'/>)}</group>;
 }
+const crowns = [
+  [-.37, 1.75, .02, .58, .39, .53], [.39, 1.89, -.18, .65, .42, .55],
+  [.07, 2.07, .23, .62, .44, .55], [-.11, 2.17, -.34, .56, .39, .51],
+  [.34, 1.69, .36, .48, .31, .43],
+].map(([x, y, z, width, height, depth], cluster) => {
+ const crown = new THREE.IcosahedronGeometry(1, 2);
+ const vertices = crown.attributes.position;
+ for (let i = 0; i < vertices.count; i++) {
+  const vx = vertices.getX(i), vy = vertices.getY(i), vz = vertices.getZ(i);
+  const swell = 1 + .095 * Math.sin(vx * 12 + cluster) * Math.cos(vz * 10 + vy * 8);
+  vertices.setXYZ(i, vx * width * swell + x, vy * height * swell + y, vz * depth * swell + z);
+ }
+ return crown;
+});
+const planeTreeCrown = mergeGeometries(crowns);
+crowns.forEach(crown => crown.dispose());
+
 export function Tree({position=[0,0,0],small=false,tone=0}:{position?:[number,number,number];small?:boolean;tone?:number}){
- const size=small?.55:1;
- return <group position={position} scale={size}><mesh position={[0,.7,0]} castShadow><cylinderGeometry args={[.07,.12,1.4,6]}/><meshStandardMaterial color='#827056'/></mesh><mesh position={[0,1.7,0]} scale={[1.03,.78,.9]} castShadow receiveShadow><icosahedronGeometry args={[.88,1]}/><meshStandardMaterial color={tone%3===0?'#476c4a':tone%3===1?'#6a8250':'#8e975e'} roughness={.94}/></mesh><mesh position={[.45,1.65,-.18]} scale={[.65,.62,.75]} castShadow><icosahedronGeometry args={[.65,0]}/><meshStandardMaterial color={tone%2?'#71884e':'#526f45'}/></mesh></group>;
+ return <group position={position} scale={small?.51:1} rotation={[0,tone*1.2,0]}>
+  <mesh position={[0,.83,0]} castShadow><cylinderGeometry args={[.059,.108,1.66,7]}/><meshStandardMaterial color='#746c5d' roughness={1}/></mesh>
+  <mesh position={[.13,1.38,0]} rotation={[0,0,-.43]} castShadow><cylinderGeometry args={[.029,.062,.72,6]}/><meshStandardMaterial color='#746c5d' roughness={1}/></mesh>
+  <mesh geometry={planeTreeCrown} material={material(['#4a6451','#5e6c48','#6a704c'][tone%3],0,.98)} castShadow receiveShadow dispose={null}/>
+ </group>;
 }
 export function Bench({position=[0,0,0],rotation=0}:{position?:[number,number,number];rotation?:number}){return <group position={position} rotation={[0,rotation,0]}><Block position={[0,.38,0]} size={[1.35,.12,.45]} color='#a47f4d'/><Block position={[0,.68,-.18]} size={[1.35,.5,.09]} color='#a47f4d'/>{[-.48,.48].map(x=><Block key={x} position={[x,.18,0]} size={[.08,.4,.4]} color='#354c41'/>)}</group>;}
 export function Lamp({position=[0,0,0],night=false}:{position?:[number,number,number];night?:boolean}){return <group position={position}><mesh position={[0,1.2,0]}><cylinderGeometry args={[.035,.055,2.4,6]}/><meshStandardMaterial color='#345246'/></mesh><mesh position={[0,2.46,0]}><sphereGeometry args={[.17,8,6]}/><meshStandardMaterial color='#ead9ad' emissive={night?'#ffd397':'#2d2413'} emissiveIntensity={night?1.6:0}/></mesh><Block position={[0,.1,0]} size={[.16,.2,.16]} color='#345246'/></group>;}
@@ -102,8 +123,8 @@ export function getBuildings(district:DistrictId):BuildingSpec[]{
  return [...HOUSE_POS.map((x,i)=>({x,z:-6,width:3.2,depth:3.6,height:[5.5,6.5,5.8,5][i],kind:'house' as const,color:['#d2c9aa','#c6b99a','#d9c6a4','#cbb799'][i],roof:'#716d56',shop:['小区东门','邻里服务','望月公寓','青年公寓'][i]})),...HOUSE_POS.map((x,i)=>({x,z:6,width:3.1,depth:3.5,height:2.5+i%2*.4,kind:'house' as const,shop:['邻里菜场','房屋租售','早点铺','修修补补'][i]}))];
 }
 export function getObstacles(district:DistrictId):Obstacle[]{const a:Obstacle[]=getBuildings(district).map(b=>({x:b.x,z:b.z,width:b.width+.22,depth:b.depth+.25}));if(district==='bund'||district==='lujiazui'){a.push({x:2.6,z:-5.8,width:2.8,depth:2.8},{x:6,z:-7,width:2.4,depth:2.4},{x:8.2,z:-3.9,width:2.1,depth:2.1},{x:-1.2,z:-8.5,width:2.4,depth:2.4});if(district==='bund')a.push({x:13,z:0,width:5.2,depth:25},{x:-2.6,z:9,width:1.65,depth:1.7});}if(district==='anfu')a.push({x:5,z:6,width:5.8,depth:4.2});if(district==='people')a.push({x:-6,z:-5,width:5.8,depth:3.6});return a;}
-export function CityArchitecture({district,night,manifest,onLoaded}:{district:DistrictId;night:boolean;manifest:ModelManifest;onLoaded?:(slot:string)=>void}){const buildings=getBuildings(district);return <group>
- {buildings.map((b,i)=>{const building=b.kind==='house'?<House width={b.width} depth={b.depth} height={b.height} color={b.color} roof={b.roof} shop={b.shop} night={night}/>:<Office width={b.width} depth={b.depth} height={b.height} color={b.color} night={night}/>;const slot=district==='bund'&&i===0?'bund-facade':district==='zhangjiang'&&i===1?'zhangjiang-campus':district==='xinzhuang'&&i===0?'residential-block':null;return <group key={i} position={[b.x,0,b.z]}>{slot?<ModelSlotView slot={slot} manifest={manifest} height={b.height}>{building}</ModelSlotView>:building}</group>;})}
+export function CityArchitecture({district,night,manifest,wallMap,onLoaded}:{district:DistrictId;night:boolean;manifest:ModelManifest;wallMap?:THREE.Texture;onLoaded?:(slot:string)=>void}){const buildings=getBuildings(district);return <group>
+ {buildings.map((b,i)=>{const building=b.kind==='house'?<House width={b.width} depth={b.depth} height={b.height} color={b.color} roof={b.roof} shop={b.shop} night={night} wallMap={wallMap}/>:<Office width={b.width} depth={b.depth} height={b.height} color={b.color} night={night}/>;const slot=district==='bund'&&i===0?'bund-facade':district==='zhangjiang'&&i===1?'zhangjiang-campus':district==='xinzhuang'&&i===0?'residential-block':null;return <group key={i} position={[b.x,0,b.z]}>{slot?<ModelSlotView slot={slot} manifest={manifest} height={b.height}>{building}</ModelSlotView>:building}</group>;})}
  {(district==='bund'||district==='lujiazui')&&<><group position={[2.6,0,-5.8]}><ModelSlotView slot='oriental-pearl' manifest={manifest} height={12.2} onLoaded={()=>onLoaded?.('oriental-pearl')}><OrientalPearl night={night}/></ModelSlotView></group><group position={[6,0,-7]}><ModelSlotView slot='shanghai-tower' manifest={manifest} height={13.2}><ShanghaiTower night={night}/></ModelSlotView></group><group position={[8.2,0,-3.9]} rotation={[0,.72,0]}><ModelSlotView slot='financial-center' manifest={manifest} height={11.5}><FinancialCenter night={night}/></ModelSlotView></group><group position={[-1.2,0,-8.5]}><ModelSlotView slot='jinmao' manifest={manifest} height={10.5}><Jinmao night={night}/></ModelSlotView></group></>}
  {district==='anfu'&&<group position={[5,0,6]}><ModelSlotView slot='wukang-corner' manifest={manifest} height={6.5} onLoaded={()=>onLoaded?.('wukang-corner')}><CornerBuilding night={night}/></ModelSlotView></group>}
  {district==='people'&&<><mesh position={[-6,.025,-5]} rotation={[-Math.PI/2,0,0]}><circleGeometry args={[2.1,32]}/><meshStandardMaterial color='#80a99b' metalness={.22} roughness={.2}/></mesh><group position={[-6,0,-5]}><mesh position={[0,.42,0]}><cylinderGeometry args={[.55,.72,.8,12]}/><meshStandardMaterial color='#c7cab0'/></mesh><mesh position={[0,.88,0]}><sphereGeometry args={[.27,12,8]}/><meshStandardMaterial color='#e9dfba'/></mesh></group><group position={[3,0,-5.8]}><mesh position={[0,2.2,0]}><coneGeometry args={[1.8,.9,6]}/><meshStandardMaterial color='#687965'/></mesh>{[0,1,2,3,4,5].map(i=><Block key={i} position={[Math.sin(i*Math.PI/3)*1.4,1,Math.cos(i*Math.PI/3)*1.4]} size={[.12,2,.12]} color='#d6c39a'/>)}</group></>}

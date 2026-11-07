@@ -62,6 +62,12 @@ export function tablePhoto(shot: (typeof TABLE_STILLS)[number]): string {
  return '/art/long-table/' + shot + '.webp';
 }
 
+export const FERRY_STILLS = ['cake', 'cabin', 'booth'] as const;
+
+export function ferryPhoto(shot: (typeof FERRY_STILLS)[number]): string {
+ return '/art/night-ferry/' + shot + '.webp';
+}
+
 export const RENTAL_STILLS = ['room', 'wall', 'contract', 'window', 'talk', 'upstairs'] as const;
 
 export function rentalPhoto(shot: (typeof RENTAL_STILLS)[number]): string {

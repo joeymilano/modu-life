@@ -6,7 +6,7 @@ export const DISTRICTS: District[] = [
   { id:'bund', name:'外滩', en:'THE BUND', subtitle:'有船就能过江', color:'#3b7475', hotspots:[
     {id:'bund-river',name:'江边长椅',kind:'rest',position:[-7,2],caption:'背后有人在练萨克斯'},
     {id:'bund-photo',name:'四元观景位',kind:'explore',position:[-3,-2],caption:'四块钱一杯，对面塔顶亮了'},
-    {id:'bund-ferry',name:'摆渡口',kind:'social',position:[3,2],caption:'靠栏杆等船，也等人'},
+    {id:'bund-ferry',name:'摆渡口',kind:'social',position:[8.75,1.9],caption:'严可下夜班，从这里过江'},
     {id:'bund-date',name:'江风约会',kind:'romance',position:[7,-2],caption:'说好了带件挡风的衣服'},
   ]},
   { id:'anfu', name:'安福路', en:'ANFU ROAD', subtitle:'梧桐底下全是座', color:'#9c7059', hotspots:[

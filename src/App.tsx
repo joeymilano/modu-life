@@ -3,6 +3,7 @@ import StreetScene from './components/StreetScene';
 import { streetLead } from './game/streetLeads';
 import { openingLead, openingStory } from './game/originStories';
 import { parkVisit } from './game/matchmaking';
+import { ferryVisit } from './game/ferryVisit';
 import LifeLines from './components/LifeLines';
 import EndingScreen from './components/EndingScreen';
 import {
@@ -138,8 +139,8 @@ export default function App(){
   if(!game)return;
   if(game.actions<=0||game.pendingYearEvent){notify('先把这一年结算好，明年继续。');return;}
   playSound('tap');
-  const match=h.id==='people-match'?parkVisit(game):null;
-  if(match){setActiveEvent(match.event);setEventNpc(match.event.speakerId);setMobilePanel(null);return;}
+  const visit=h.id==='people-match'?parkVisit(game)?.event:h.id==='bund-ferry'?ferryVisit(game):null;
+  if(visit){setActiveEvent(visit);setEventNpc(visit.speakerId);setMobilePanel(null);return;}
   if(h.kind==='career'){if(game.jobId)openEvent('career');else setModal('career');return;}
   if(h.kind==='romance'){
    const partner=CAST.find(person=>person.id===game.partnerId);
@@ -252,7 +253,7 @@ export default function App(){
  const tableScene=scenePhoto?.startsWith('/art/long-table/')??false;
  const focusScene=Boolean(activeEvent?.firstDate)||rentalEvidence!==undefined||tableScene;
  const partingBill=activeEvent?.firstDate ? -(activeEvent.choices[0].effect.cash??0) : 0;
- const wideShot=scenePhoto?.startsWith('/art/shanghai-streets/first-night-')||scenePhoto?.startsWith('/art/dates/')||scenePhoto?.startsWith('/art/endings/farewell-')||scenePhoto?.startsWith('/art/work/')||scenePhoto?.startsWith('/art/pearl/')||scenePhoto?.startsWith('/art/matchmaking/')||scenePhoto?.startsWith('/art/opening/')||scenePhoto?.startsWith('/art/rental/')||tableScene;
+ const wideShot=scenePhoto?.startsWith('/art/shanghai-streets/first-night-')||scenePhoto?.startsWith('/art/dates/')||scenePhoto?.startsWith('/art/endings/farewell-')||scenePhoto?.startsWith('/art/work/')||scenePhoto?.startsWith('/art/pearl/')||scenePhoto?.startsWith('/art/matchmaking/')||scenePhoto?.startsWith('/art/opening/')||scenePhoto?.startsWith('/art/rental/')||scenePhoto?.startsWith('/art/night-ferry/')||tableScene;
  const leadButtons=game&&(lead||cardLead)?<div className="story-leads">{[lead,cardLead].map(item=>item&&<button
   key={item.event.id} className={'story-lead'+(item===cardLead?' opening-lead':'')}
   disabled={blocked||game.actions<=0} onClick={()=>openLead(item.event)}>
