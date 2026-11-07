@@ -209,7 +209,24 @@ export default function App(){
   else setMini({type:'dialogue',person});
  }
  function askCommit(person:CastMember){if(!game)return;try{setGame(commitRelationship(game,person.id));notify('你们在一起了');playSound('good');}catch(e){notify((e as Error).message);}}
- async function share(){if(!game||sharing)return;setSharing(true);try{const blob=await makeShareCard(game);const file=new File([blob],`魔都人生-${game.name}.png`,{type:'image/png'});if(compact&&navigator.canShare?.({files:[file]})){await navigator.share({files:[file],title:'魔都人生',text:`我抽到了${publicOriginNames(game)[0]}。同一手牌，你来试试？\n${challengeUrl(game)}`});}else{downloadBlob(blob,`魔都人生-${game.name}-${game.age}岁.png`);notify('人生卡已下载');}}catch(e){if((e as Error).name!=='AbortError')notify('分享卡暂时没生成，先复制挑战链接也可以。');}finally{setSharing(false);}}
+ async function share(){
+  if(!game||sharing)return;
+  setSharing(true);
+  try{
+   const blob=await makeShareCard(game);
+   const file=new File([blob],`魔都人生-${game.name}-${game.age}岁.png`,{type:'image/png'});
+   if(compact&&navigator.canShare?.({files:[file]})){
+    try{
+     await navigator.share({files:[file],title:'魔都人生',text:`我抽到了${publicOriginNames(game)[0]}。同一手牌，你来试试？\n${challengeUrl(game)}`});
+     return;
+    }catch(error){
+     if((error as Error).name==='AbortError')return;
+    }
+   }
+   downloadBlob(blob,file.name);notify('人生卡已下载');
+  }catch{notify('分享卡暂时没生成，先复制挑战链接也可以。');}
+  finally{setSharing(false);}
+ }
  async function copyHand(hand:SharedHand){
   const url=challengeUrl(hand);
   try{await navigator.clipboard.writeText(url);notify('挑战链接已复制');}

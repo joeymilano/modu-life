@@ -1,6 +1,6 @@
-import { allOrigins, ending, publicOriginNames } from './engine';
-import { endingPhoto, LIFE_ALBUM_AGES, pearlPhoto, playerArt, LOOKS, streetPhoto, TIMELINE_COVER } from './art';
-import { DISTRICTS, GOALS } from './content';
+import { allOrigins, ending } from './engine';
+import { endingPhoto, LIFE_ALBUM_AGES, pearlPhoto, playerArt, streetPhoto, TIMELINE_COVER } from './art';
+import { CAREERS, DISTRICTS } from './content';
 import { PEARL_PATH, pearlHash, pearlRank, pearlRoundCount, type PearlRules, type PearlScore } from './pearl';
 import { describeDecision, lineDivergence, lineFacts } from './lineComparison';
 import { lineName, type LifeLine } from './lifeLines';
@@ -29,14 +29,6 @@ async function paintPhoto(ctx: CanvasRenderingContext2D, source: string, frame: 
  }
 }
 
-function photoCaption(ctx: CanvasRenderingContext2D, label: string, x: number, y: number, width: number) {
- ctx.fillStyle = '#183c33';
- ctx.fillRect(x, y, width, 38);
- ctx.fillStyle = '#fff3dc';
- ctx.font = '21px sans-serif';
- ctx.fillText(label, x + 16, y + 27);
-}
-
 async function paintChallengeCode(ctx: CanvasRenderingContext2D, url: string, right = 1020, y = 1248, size = 180): Promise<boolean> {
  try {
   const { default: makeCode } = await import('qrcode-generator');
@@ -59,43 +51,146 @@ async function paintChallengeCode(ctx: CanvasRenderingContext2D, url: string, ri
  }
 }
 
-export async function makeShareCard(s:GameState):Promise<Blob>{
- const c=document.createElement('canvas');c.width=1080;c.height=1440;const g=c.getContext('2d')!;g.fillStyle='#f4efe3';g.fillRect(0,0,1080,1440);g.fillStyle='#223d3d';g.fillRect(58,58,964,4);
- g.font='24px sans-serif';try{const logo=new Image();logo.src='/brand/logo-dark.svg';await logo.decode();g.drawImage(logo,62,72,230,54);}catch{g.fillText('魔都人生',62,109);}g.textAlign='right';g.fillText('人生档案 NO. '+s.seed,1018,109);g.textAlign='left';
- g.fillStyle='#b2402b';g.font='bold 28px sans-serif';g.fillText(s.ended?'这一生，我在上海':'这回，我在上海',65,196);g.fillStyle='#223d3d';g.font='bold 73px "Songti SC",serif';
- const final = s.ended ? ending(s) : undefined;
- const title = final?.title ?? s.name + '的' + s.age + '岁';
- const detail = final?.text ?? DISTRICTS.find(district => district.id === s.district)?.name ?? '上海';
- let y = lines(g, title, 60, 295, 950, 93);
- g.font = '27px sans-serif';
- y = lines(g, detail, 65, y + 69, 900, 46);
- if (final) {
-  const sceneY = Math.max(y + 35, 405);
-  const portraitsY = sceneY + 250;
-  await Promise.all([
-   paintPhoto(g, endingPhoto(final.id), [60, sceneY, 960, 234]),
-   ...LIFE_ALBUM_AGES.map((age,i) => paintPhoto(g, playerArt(s.appearance,true,age), [60+i*324, portraitsY, 312, 288], .12)),
-  ]);
-  LIFE_ALBUM_AGES.forEach((age,i) => photoCaption(g, age+' 岁', 60+i*324, portraitsY+250, 312));
-  y = portraitsY + 338;
- } else {
-  const imageY = Math.max(y + 60, 540);
-  const canvas = document.querySelector<HTMLCanvasElement>('.city-stage canvas');
-  let scene = streetPhoto(s.district);
-  try { if (canvas) scene = canvas.toDataURL('image/png'); } catch { /* Use the district photograph. */ }
-  await paintPhoto(g, scene, [60, imageY, 960, 400]);
-  await paintPhoto(g, playerArt(s.appearance, true, s.age), [755, imageY + 40, 220, 330], .22);
-  photoCaption(g, LOOKS.find(look => look.id === s.appearance.looks)!.name, 755, imageY + 332, 220);
-  y = imageY + 448;
+const cardInk = '#243a33';
+const cardRust = '#a44832';
+const cardPaper = '#f4eee1';
+const cardSerif = '"Songti SC", "Noto Serif CJK SC", STSong, serif';
+
+async function paintCardHeader(ctx: CanvasRenderingContext2D, label: string) {
+ ctx.fillStyle = cardPaper;
+ ctx.fillRect(0, 0, 1080, 1440);
+ ctx.fillStyle = cardRust;
+ ctx.fillRect(64, 48, 952, 4);
+ const logo = new Image();
+ logo.src = '/brand/logo-dark.svg';
+ try {
+  await logo.decode();
+  ctx.drawImage(logo, 64, 68, 213, 50);
+ } catch {
+  ctx.fillStyle = cardInk;
+  ctx.font = 'bold 32px ' + cardSerif;
+  ctx.fillText('魔都人生', 64, 106);
  }
- g.fillStyle='#62736a';g.font='22px sans-serif';g.fillText('开局这手牌',65,y);g.fillStyle='#223d3d';g.font='bold 28px sans-serif';y=lines(g,publicOriginNames(s).join(' / '),65,y+48,920,46);
- y+=80;g.font='22px sans-serif';g.fillStyle='#63766a';g.fillText('想过的日子',65,y);g.fillText('现在的积蓄',460,y);g.font='bold 36px sans-serif';g.fillStyle='#223d3d';g.fillText(GOALS.find(x=>x.id===s.goal)?.name||'',65,y+53);g.fillText('¥'+s.cash.toLocaleString(),460,y+53,355);
- const hasCode = await paintChallengeCode(g, challengeUrl(s));
- g.strokeStyle='#b7c1b3';g.beginPath();g.moveTo(60,1310);g.lineTo(hasCode ? 835 : 1020,1310);g.stroke();
- g.fillStyle='#223d3d';g.font='bold 23px sans-serif';g.fillText(hasCode ? '扫码抽同一手牌' : '同一手牌，换你来试试',65,1357);
- g.fillStyle='#b2402b';g.font='22px sans-serif';g.fillText('modulife.pages.dev',65,1392);
- return await new Promise((resolve,reject)=>c.toBlob(b=>b?resolve(b):reject(new Error('分享卡生成失败')),'image/png'));
+ ctx.fillStyle = cardInk;
+ ctx.font = '26px sans-serif';
+ ctx.textAlign = 'right';
+ ctx.fillText(label, 1016, 105, 700);
+ ctx.textAlign = 'left';
 }
+
+async function paintCurrentCard(ctx: CanvasRenderingContext2D, state: GameState) {
+ await Promise.all([
+  paintPhoto(ctx, playerArt(state.appearance, true, state.age), [64, 144, 386, 579]),
+  paintPhoto(ctx, streetPhoto(state.district), [470, 144, 546, 364], .4),
+ ]);
+ const career = CAREERS.find(role => role.id === state.jobId);
+ ctx.fillStyle = cardInk;
+ ctx.font = 'bold 66px ' + cardSerif;
+ ctx.fillText(state.name, 470, 599, 546);
+ ctx.fillStyle = '#4e6356';
+ ctx.font = '30px sans-serif';
+ ctx.fillText(career?.ranks[Math.floor(state.jobRank)] ?? '还在找工作', 472, 650, 544);
+ ctx.font = '24px sans-serif';
+ ctx.fillText('手上还有', 472, 710);
+ ctx.fillStyle = cardInk;
+ ctx.font = 'bold 39px sans-serif';
+ ctx.fillText('¥' + Math.round(state.cash).toLocaleString('zh-CN'), 584, 710, 432);
+ const entry = state.journal.at(-1);
+ ctx.fillStyle = cardRust;
+ ctx.font = 'bold 25px sans-serif';
+ ctx.fillText('最近一幕', 64, 784);
+ ctx.fillStyle = cardInk;
+ ctx.font = 'bold 45px ' + cardSerif;
+ ctx.fillText(entry?.title ?? '刚到上海', 64, 850, 952);
+}
+
+async function paintEndingCard(ctx: CanvasRenderingContext2D, state: GameState) {
+ const final = ending(state);
+ const scene = endingPhoto(final.id);
+ await Promise.all([
+  paintPhoto(ctx, scene, [64, 144, 952, 292], scene.endsWith('/river.webp') ? .28 : .5),
+  ...LIFE_ALBUM_AGES.map((age, index) =>
+   paintPhoto(ctx, playerArt(state.appearance, true, age), [64 + 321 * index, 632, 310, 300], .15)),
+ ]);
+ ctx.fillStyle = cardInk;
+ ctx.font = 'bold 65px ' + cardSerif;
+ ctx.fillText(final.title, 64, 520, 602);
+ ctx.textAlign = 'right';
+ ctx.fillStyle = '#4e6356';
+ ctx.font = '22px sans-serif';
+ ctx.fillText('最后存下', 1016, 478);
+ ctx.fillStyle = cardInk;
+ ctx.font = 'bold 32px sans-serif';
+ ctx.fillText('¥' + Math.round(state.cash).toLocaleString('zh-CN'), 1016, 520, 326);
+ ctx.textAlign = 'left';
+ ctx.fillStyle = '#455d50';
+ ctx.font = '27px sans-serif';
+ lines(ctx, final.text, 66, 569, 950, 38);
+ LIFE_ALBUM_AGES.forEach((age, index) => {
+  const x = 64 + 321 * index;
+  ctx.fillStyle = '#243a33';
+  ctx.fillRect(x, 891, 310, 42);
+  ctx.fillStyle = '#fff3dc';
+  ctx.font = 'bold 24px ' + cardSerif;
+  ctx.fillText(age + ' 岁', x + 14, 921);
+ });
+}
+
+function paintOpeningHand(ctx: CanvasRenderingContext2D, state: GameState) {
+ const cards = allOrigins();
+ const y = state.ended ? 963 : 924;
+ ctx.fillStyle = cardRust;
+ ctx.font = 'bold 26px sans-serif';
+ ctx.fillText('开局这手牌', 64, y);
+ state.origins.forEach((id, index) => {
+  const card = cards.find(item => item.id === id);
+  const x = 64 + 192 * index;
+  ctx.fillStyle = '#ebe3d3';
+  ctx.fillRect(x, y + 20, 184, 137);
+  ctx.fillStyle = card?.accent ?? cardInk;
+  ctx.fillRect(x, y + 20, 184, 4);
+  ctx.fillStyle = '#576356';
+  ctx.font = '22px sans-serif';
+  ctx.fillText(card?.slot ?? '', x + 13, y + 56);
+  ctx.textAlign = 'right';
+  ctx.fillText(card?.rarity ?? '', x + 171, y + 56);
+  ctx.textAlign = 'left';
+  ctx.fillStyle = cardInk;
+  const name = card?.name ?? '未知';
+  ctx.font = 'bold 29px ' + cardSerif;
+  const nameWidth = ctx.measureText(name).width;
+  if (nameWidth > 158) ctx.font = 'bold ' + Math.floor(29 * 158 / nameWidth) + 'px ' + cardSerif;
+  ctx.fillText(name, x + 13, y + 102, 158);
+ });
+}
+
+export async function makeShareCard(state: GameState): Promise<Blob> {
+ const canvas = document.createElement('canvas');
+ canvas.width = 1080;
+ canvas.height = 1440;
+ const ctx = canvas.getContext('2d');
+ if (!ctx) throw new Error('分享卡生成失败');
+ const district = DISTRICTS.find(item => item.id === state.district)?.name ?? '上海';
+ const label = (state.ended ? state.name : district) + ' · ' + state.age + ' 岁';
+ await paintCardHeader(ctx, label);
+ if (state.ended) await paintEndingCard(ctx, state);
+ else await paintCurrentCard(ctx, state);
+ paintOpeningHand(ctx, state);
+ const hasCode = await paintChallengeCode(ctx, challengeUrl(state), 1016, 1164, 264);
+ ctx.fillStyle = '#a99e88';
+ ctx.fillRect(64, 1150, 952, 1);
+ ctx.fillStyle = cardInk;
+ ctx.font = 'bold 53px ' + cardSerif;
+ ctx.fillText('同一手牌，你怎么过', 64, 1266, 702);
+ ctx.font = '27px sans-serif';
+ ctx.fillText(hasCode ? '扫码，带着这五张牌来上海' : '来上海，抽你的开局牌', 66, 1325);
+ ctx.fillStyle = cardRust;
+ ctx.font = '25px sans-serif';
+ ctx.fillText('modulife.pages.dev', 66, 1377);
+ return new Promise((resolve, reject) => canvas.toBlob(blob =>
+  blob ? resolve(blob) : reject(new Error('分享卡生成失败')), 'image/png'));
+}
+
 export type SharedHand = Pick<GameState, 'seed' | 'origins' | 'goal' | 'appearance'>;
 export function challengeUrl(s:SharedHand){const url=new URL(SITE_URL);url.searchParams.set('seed',s.seed);url.searchParams.set('cards',s.origins.join('.'));url.searchParams.set('goal',s.goal);url.searchParams.set('gender',s.appearance.gender);url.searchParams.set('looks',s.appearance.looks);return url.toString();}
 export function downloadBlob(blob:Blob,name:string){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);}
