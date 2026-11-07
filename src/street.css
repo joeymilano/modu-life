@@ -1,10 +1,11 @@
-.screen-home { --home-matte: #1d2721; }
+.screen-home { --home-matte: #192025; }
 .screen-home .home-screen { background: var(--home-matte); }
 .screen-home .hero-city { inset: 0; }
-.screen-home .home-key-art { object-position: center 47%; }
+.screen-home .hero-city picture { display: block; width: 100%; height: 100%; }
+.screen-home .home-key-art { object-position: center 54%; }
 .screen-home .hero-shade {
-  background: linear-gradient(90deg,#17221ce8 0%,#17221cb3 24%,#17221c22 48%,transparent 66%),
-              linear-gradient(0deg,var(--home-matte),#1d272100 19%);
+  background: linear-gradient(90deg,#10171bcc 0%,#10171b88 29%,transparent 58%),
+              linear-gradient(0deg,var(--home-matte),transparent 17%);
 }
 .screen-home .home-description { color: #f1e9dc; font-size: 16px; }
 .screen-home .game-title img { width: clamp(224px,23vw,354px); }
@@ -76,8 +77,8 @@
 
 @media (max-width: 850px) {
   .screen-home .hero-city { height: clamp(256px,46svh,465px); }
-  .screen-home .home-key-art { object-position: 91% 43%; }
-  .screen-home .hero-shade { background: linear-gradient(0deg,var(--home-matte),#1d272156 22%,transparent 55%); }
+  .screen-home .home-key-art { object-position: 88% 30%; }
+  .screen-home .hero-shade { background: linear-gradient(0deg,var(--home-matte),#19202545 21%,transparent 52%); }
   .screen-home .home-copy { min-height: auto; padding: clamp(220px,37svh,370px) 0 12px; }
   .screen-home .game-title img { width: clamp(155px,43vw,220px); }
   .screen-home .home-description { font-size: 14px; }
@@ -94,6 +95,9 @@
   .event-modal .event-photo { height: clamp(158px,43vw,270px); margin-bottom: 14px; }
   .event-modal .event-photo > img { object-position: 50% 43%; }
   .event-modal .event-photo > img[src$="/station.webp"] { object-position: 50% 57%; }
+}
+@media (max-width: 600px) {
+  .screen-home .home-key-art { object-position: center 32%; }
 }
 @media (max-width: 480px) and (max-height: 720px) {
   .screen-home .hero-city { height: clamp(220px,42svh,300px); }
@@ -134,6 +138,7 @@
   }
   .wide-shot-modal .event-photo { position: relative; width: 100%; }
   .wide-shot-modal .event-content { align-self: center; padding: 32px clamp(24px,3vw,45px); }
+  .event-modal.arrival-modal { max-width: 1200px; grid-template-columns: minmax(0,1.25fr) minmax(0,1fr); }
 }
 @media (max-width: 850px) {
   .wide-shot-modal .event-content { max-width: none; }
