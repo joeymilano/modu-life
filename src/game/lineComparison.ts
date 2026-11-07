@@ -2,6 +2,7 @@ import { eventPhoto, portraitArt } from './art';
 import { CAREERS, CAST, DISTRICTS, HOUSING_NAMES } from './content';
 import { dateAnswer } from './dates';
 import { monthlyBudget } from './engine';
+import { householdPlan } from './household';
 import { replayScene, type LifeLine } from './lifeLines';
 import type { GameState } from './types';
 
@@ -40,7 +41,10 @@ export function describeDecision(line: LifeLine, point: Point) {
 
 function relationship(state: GameState, speaker?: string) {
  const partner = CAST.find(person => person.id === state.partnerId);
- if (partner) return '和' + partner.name + '在一起';
+ if (partner) {
+  const plan = householdPlan(state);
+  return '和' + partner.name + (plan==='shared'?'一起住':plan==='standing'?'每周见面':'在一起');
+ }
  const person = CAST.find(person => person.id === speaker && person.role === 'romance');
  if (!person) return '单身';
  const status = dateAnswer(state, person.id);

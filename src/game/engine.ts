@@ -7,6 +7,7 @@ import { employmentOf, LONG_COMMUTE, MAX_PAY_RATE, monthlySalary, moveJob, NIGHT
 import { EVENTS } from './events';
 import { LOAN_DUE, LOAN_INSTALLMENT } from './originStories';
 import { STALL_YEARLY_PAY, stallCommitment } from './stall';
+import { clearHousehold, householdFlag, householdPlan, housingPayment, STANDING_DATE_MONTHLY_COST } from './household';
 import type { ActivityKind, ChoiceResult, Effect, EventChoice, GameState, GoalId, LifeEvent, LooksLevel, OriginCard, OriginSlot, PlayerAppearance, StatKey } from './types';
 
 export const STAT_NAMES: Record<StatKey,string> = { health:'身体', spirit:'心气', skill:'本事', face:'腔势', network:'人脉' };
@@ -69,6 +70,11 @@ function applyEffect(state:GameState,effect:Effect,npcId?:string):GameState {
     if(effect.love&&rel.trust>=40&&rel.attraction>=35)s.partnerId=relationTarget;
     if(effect.love===false&&s.partnerId===relationTarget)s.partnerId=null;
   }
+  if(s.partnerId!==state.partnerId)s.flags=clearHousehold(s.flags);
+  else if(s.housing===0&&s.partnerId){
+    const shared=householdFlag(s.partnerId,'shared');
+    s.flags=s.flags.filter(flag=>flag!==shared);
+  }
   return s;
 }
 export function createGame(seed:string,name:string,goal:GoalId,cards:OriginCard[],appearance:PlayerAppearance=DEFAULT_APPEARANCE):GameState {
@@ -86,8 +92,9 @@ export function createGame(seed:string,name:string,goal:GoalId,cards:OriginCard[
 }
 export function monthlyBudget(s:GameState){
   const salary=monthlySalary(s);
-  const rent=s.leaseRent??([1800,3300,5500,1000][s.housing]||1800);
-  const living=1800+(s.partnerId?600:0)+(s.age>=40?500:0);
+  const plan=householdPlan(s);
+  const rent=housingPayment(s.housing,s.leaseRent,plan==='shared');
+  const living=1800+(s.partnerId?600:0)+(s.age>=40?500:0)+(plan==='standing'?STANDING_DATE_MONTHLY_COST:0);
   return {salary,rent,living,net:salary-rent-living};
 }
 export function eligibleEvent(e:LifeEvent,s:GameState,kind:ActivityKind|'year'):boolean {
@@ -184,7 +191,7 @@ export function resolveChoice(state:GameState,event:LifeEvent,choiceId:string,np
   }
   s.journal.push({age:s.age,title:event.title,text,tag:event.tag||ACTIVITY_NAMES[event.category as ActivityKind]||'这一年'});
   const target=npcId||event.speakerId||((choice.effect.trust||choice.effect.attraction||choice.effect.commitment)?s.partnerId||undefined:undefined);
-  if(target&&s.relationships[target]){const rel=s.relationships[target];rel.met=true;rel.memories=[...rel.memories,`${s.age}岁 · ${event.title}`].slice(-8);if(rel.trust<20&&s.partnerId===target){s.partnerId=null;s.journal.push({age:s.age,title:'分开一阵',text:'最近几次聊天都没讲完。你们约出来，把东西还了，决定先分开。',tag:'关系'});}}
+  if(target&&s.relationships[target]){const rel=s.relationships[target];rel.met=true;rel.memories=[...rel.memories,`${s.age}岁 · ${event.title}`].slice(-8);if(rel.trust<20&&s.partnerId===target){s.partnerId=null;s.flags=clearHousehold(s.flags);s.journal.push({age:s.age,title:'分开一阵',text:'最近几次聊天都没讲完。你们约出来，把东西还了，决定先分开。',tag:'关系'});}}
   s.cash=Math.max(0,s.cash);
   return {state:s,title:event.title,text,effect,success};
 }
@@ -201,12 +208,13 @@ export function nextYear(state:GameState) {
   const workIncome=employment.earned+currentPay;
   const income=workIncome+table.income+stallIncome,rentExpense=budget.rent*12,expense=rentExpense+budget.living*12;
   const payroll=employment.closedMonths>0?{previous:employment.earned,current:currentPay,months:activeMonths}:undefined;
+  const plan=householdPlan(s);
   const pressure:Record<string,[number,number]>={tech:[5,5],finance:[3,8],creative:[3,4],service:[6,3],public:[2,2],freelance:[2,3],business:[4,4],trade:[4,5]};
   const commute=s.flags.includes(LONG_COMMUTE);
   if(s.jobId){const [body,mind]=pressure[s.jobId]||[2,2];const late=s.flags.includes(NIGHT_WORK);
     s.stats.health=clamp(s.stats.health-Math.round((body+(late?4:0)+(commute?5:0))*activeMonths/12));
     s.stats.spirit=clamp(s.stats.spirit-Math.round((mind+(late?3:0)+(commute?3:0))*activeMonths/12));}
-  if(s.partnerId){const rel=s.relationships[s.partnerId];const keptInTouch=rel.memories.some(m=>m.startsWith(s.age+'岁 · '));if(!keptInTouch){rel.trust=clamp(rel.trust-4);rel.commitment=clamp(rel.commitment-2);}}
+  if(s.partnerId){const rel=s.relationships[s.partnerId];const keptInTouch=rel.memories.some(m=>m.startsWith(s.age+'岁 · '));if(!keptInTouch){rel.trust=clamp(rel.trust-(plan==='standing'?1:4));rel.commitment=clamp(rel.commitment-(plan==='standing'?1:2));}}
   const repayment=s.flags.includes(LOAN_DUE)?LOAN_INSTALLMENT:0;
   s.cash+=income-expense-repayment;s.totalEarned+=income;if(workIncome>0)s.yearsEmployed++;
   const notices:string[]=[];
@@ -214,13 +222,16 @@ export function nextYear(state:GameState) {
   if(commute&&activeMonths)notices.push('过江那趟赶了一年。你现在站着也能眯一会儿。');
   if(table.income)note+=` 长桌修补台入账 ¥${table.income.toLocaleString()}。`;
   if(stallIncome)note+=` 小吃街晚班入账 ¥${stallIncome.toLocaleString()}。`;
-  if(state.leaseRent!==undefined)note+=` 这份租约全年房租 ¥${rentExpense.toLocaleString()}。`;
+  if(plan==='shared')note+=` 同住的住房费，你这一年出了 ¥${rentExpense.toLocaleString()}。`;
+  else if(state.leaseRent!==undefined)note+=` 这份租约全年房租 ¥${rentExpense.toLocaleString()}。`;
   if(repayment){
     s.flags=s.flags.filter(flag=>flag!==LOAN_DUE);
     note+=` 这期助学贷款已扣 ¥${repayment.toLocaleString()}。`;
   }
   if(employment.closedMonths>0)note+=` 旧岗位入账 ¥${employment.earned.toLocaleString()}，当前岗位计 ${activeMonths} 个月。`;
-  if(s.cash<0){const shortage=-s.cash;s.cash=6000;s.rescues++;s.stats.spirit=clamp(s.stats.spirit-8);s.housing=0;delete s.leaseRent;s.flags=[...new Set([...s.flags,'needed_help'])];notices.push(`周转差了 ¥${shortage.toLocaleString()}。朋友帮你垫了一笔，你搬回合租房，手上留下 ¥6,000。`);s.journal.push({age:s.age,title:'先把这关过了',text:'朋友帮忙垫了周转钱，你搬回合租房。收好行李，先把明天的面试地址存下来。',tag:'重整'});}
+  if(s.cash<0){const shortage=-s.cash;s.cash=6000;s.rescues++;s.stats.spirit=clamp(s.stats.spirit-8);s.housing=0;delete s.leaseRent;
+    if(s.partnerId)s.flags=s.flags.filter(flag=>flag!==householdFlag(s.partnerId!,'shared'));
+    s.flags=[...new Set([...s.flags,'needed_help'])];notices.push(`周转差了 ¥${shortage.toLocaleString()}。朋友帮你垫了一笔，你搬回合租房，手上留下 ¥6,000。`);s.journal.push({age:s.age,title:'先把这关过了',text:'朋友帮忙垫了周转钱，你搬回合租房。收好行李，先把明天的面试地址存下来。',tag:'重整'});}
   s.stats.health=clamp(s.stats.health-(s.age>40?3:1)-(table.income?2:0)-(stallIncome?2:0));s.stats.spirit=clamp(s.stats.spirit-2+table.spirit);
   if(s.stats.health<15){
     const care=Math.min(s.cash,3000);
@@ -232,10 +243,10 @@ export function nextYear(state:GameState) {
   s.journal.push({age:s.age,title:`${s.age}岁年度账本`,text:note,tag:'账本'});
   if(s.employment)s.employment={...employment,closedMonths:0,earned:0};
   s.age++;s.actions=3;s.ended=s.age>=60;s.pendingYearEvent=!s.ended;
-  return {state:s,income,tableIncome:table.income,stallIncome,expense,rentExpense:state.leaseRent===undefined?undefined:rentExpense,note,notice,payroll,repayment};
+  return {state:s,income,tableIncome:table.income,stallIncome,expense,rentExpense:state.leaseRent!==undefined||plan==='shared'?rentExpense:undefined,sharedHousing:plan==='shared',note,notice,payroll,repayment};
 }
 export function relationshipLabel(s:GameState,id:string){const r=s.relationships[id];if(!r?.met)return '未遇见';if(s.partnerId===id)return r.trust>75?'彼此笃定':'正在一起';if(r.trust>=70&&r.attraction>=50)return '心照不宣';if(r.trust>=45)return '熟悉的人';return '刚认识';}
-export function commitRelationship(s:GameState,id:string):GameState {const rel=s.relationships[id];if(!rel?.met||rel.trust<55||rel.attraction<45)throw new Error('再多了解彼此一点，现在还没到这一步。');let next=structuredClone(s);next.partnerId=id;next.relationships[id].commitment=clamp(rel.commitment+25);next.flags=[...new Set([...next.flags,'committed'])];next.journal.push({age:s.age,title:`和${CAST.find(c=>c.id===id)?.name}一起`,text:'你们吃完饭，顺路一起去买了牙刷。回去的路上，谁也没再说客气话。',tag:'关系'});return next;}
+export function commitRelationship(s:GameState,id:string):GameState {const rel=s.relationships[id];if(!rel?.met||rel.trust<55||rel.attraction<45)throw new Error('再多了解彼此一点，现在还没到这一步。');let next=structuredClone(s);next.partnerId=id;next.relationships[id].commitment=clamp(rel.commitment+25);next.flags=[...new Set([...(s.partnerId===id?next.flags:clearHousehold(next.flags)),'committed'])];next.journal.push({age:s.age,title:`和${CAST.find(c=>c.id===id)?.name}一起`,text:'你们吃完饭，顺路一起去买了牙刷。回去的路上，谁也没再说客气话。',tag:'关系'});return next;}
 export function ending(s:GameState){
   const rel=s.partnerId?s.relationships[s.partnerId]:null;
   const candidates=[

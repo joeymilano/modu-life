@@ -3,6 +3,7 @@ import { ACTIVITY_NAMES, oldYearLetter, SAVE_KEY, selectEvent, validateSave } fr
 import { streetLead } from './streetLeads';
 import { nightOwlLetter } from './encounters';
 import { returnDate } from './dateReturns';
+import { householdVisit } from './household';
 import { firstDateParting } from './dates';
 import { parkVisit } from './matchmaking';
 import { ferryVisit } from './ferryVisit';
@@ -86,6 +87,8 @@ export function replayScene(state: GameState, scene: SceneRef): LifeEvent | null
     return event?.id === scene.eventId ? event : null;
   }
   if (scene.kind === 'romance' && scene.npc) {
+    const household = householdVisit(state, scene.npc);
+    if (household?.id === scene.eventId) return household;
     const date = returnDate(state, scene.npc);
     if (date?.id === scene.eventId) return date;
   }
