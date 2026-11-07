@@ -1,9 +1,8 @@
 import type { DistrictId, EventChoice, GameState, LifeEvent } from './types';
 
-import { streetPhoto } from './art';
-type SceneArt = 'station' | 'keys' | 'kitchen' | 'ferry';
+import { streetPhoto, type StreetPhoto } from './art';
 
-function scene(id: string, art: SceneArt, title: string, text: string, choices: Omit<EventChoice, 'id'>[], district?: DistrictId, speakerId?: string): LifeEvent {
+function scene(id: string, art: StreetPhoto, title: string, text: string, choices: Omit<EventChoice, 'id'>[], district?: DistrictId, speakerId?: string): LifeEvent {
   return {
     id: 'first-night-' + id, title, text, choices: choices.map((choice, i) => ({ ...choice, id: String(i + 1) })),
     district, speakerId, category: district ? 'explore' : 'year', tag: district ? '今晚的事' : '来沪第一年',
@@ -21,7 +20,7 @@ const arrival = scene('arrival', 'station', '出站前的三条消息',
       reply: '陆嘉给你转了二十块地铁钱。她说蓝箱子上有个橘子贴纸，真拿错了也先别打开。', effect: { cash: 20, setFlags: ['night-ferry'] } },
   ]);
 
-const room = scene('keys', 'keys', '两把钥匙',
+const room = scene('keys', 'first-night-room', '两把钥匙',
   '毛小毛坐在楼梯上，膝盖上摊着合同。房东指着左边那把钥匙，说阳台算半间房。毛小毛把另一把捡起来。「小间门锁是好的。我们可以一人住一间。」', [
     { label: '跟毛小毛合住 · 先交 ¥1,800',
       reply: '你们一人转了一千八。屋里只有一把椅子，毛小毛把装电饭煲的纸箱翻过来，坐在上面吃面。', effect: { cash: -1800, housing: 1, spirit: 9, trust: 12, setFlags: ['night-shared'] } },
@@ -29,7 +28,7 @@ const room = scene('keys', 'keys', '两把钥匙',
       reply: '毛小毛拍到第三页，房东把合同抽走了。下楼时，毛小毛问你能不能陪他去街口打个电话。', effect: { skill: 5, trust: 6, setFlags: ['night-refused'] } },
   ], 'xinzhuang', 'mao');
 
-const shift = scene('till', 'kitchen', '账上少两份面',
+const shift = scene('till', 'first-night-shift', '账上少两份面',
   '最后一桌走了。何亮数了两遍钱，少六十八。送餐的小姑娘已经穿上雨衣，说明早有课。何亮把菜单递给你，让你看看哪桌漏了。', [
     { label: '翻收银小票 · 让她先回去',
       reply: '两份面挂在六号桌。何亮看了眼时间，把你那份工钱多算了半小时。「周末也来伐？」', effect: { cash: 320, skill: 4, trust: 7, health: -4, setFlags: ['night-offer'] } },
@@ -37,8 +36,8 @@ const shift = scene('till', 'kitchen', '账上少两份面',
       reply: '何亮从围裙兜里数出二百二。穿雨衣的姑娘拿着两把伞等在门口，问你走哪个方向。', effect: { cash: 220, network: 4, setFlags: ['night-met-courier'] } },
   ], 'anfu', 'he');
 
-const ferry = scene('box', 'ferry', '箱底开了',
-  '轮渡口的坡道积了水。你一提，纸箱的底就开了，橘子滚到路中间。陆嘉发来一句「船要开了」，紧接着又问「有压坏的吗」。', [
+const ferry = scene('box', 'first-night-ferry', '箱底开了',
+  '纸箱一提就漏了底，橘子滚下坡道。你收到陆嘉发的「船要开了」，抬头一看，她已经跑下来，蹲在路边够一只橘子。闸机那边开始催了。', [
     { label: '先捡橘子 · 下一班船再走',
       reply: '有三个被车压了。陆嘉等到下一班，把剩下的装进鼓包。「这袋给我爸的。你要不要挑个好的？」', effect: { trust: 13, cash: 100, setFlags: ['night-saved-box'] } },
     { label: '先去追船 · 到了再买一袋',

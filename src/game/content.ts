@@ -40,14 +40,14 @@ export const DISTRICTS: District[] = [
 ];
 
 export const CAST: CastMember[] = [
-  {id:'xia',name:'许小雯',ageOffset:1,title:'建筑助理',district:'anfu',role:'romance',description:'改图经常到很晚。周末不想赶场，约顿早饭就行。',trait:'sincerity',color:'#bb785f',gender:'female'},
-  {id:'ning',name:'周宁',ageOffset:2,title:'研发工程师',district:'zhangjiang',role:'romance',description:'消息回得慢，答应的事会记进备忘录。',trait:'security',color:'#5b8386',gender:'male'},
-  {id:'lin',name:'林佳',ageOffset:0,title:'社区插画师',district:'xinzhuang',role:'romance',description:'喜欢热闹的小店。不吃“专门为你设计浪漫”那一套。',trait:'humor',color:'#b9914d',gender:'female'},
-  {id:'chen',name:'陈恺',ageOffset:3,title:'咖啡店店长',district:'anfu',role:'romance',description:'六点半开门。休息日不想再替所有人决定喝什么。',trait:'freedom',color:'#81725a',gender:'male'},
-  {id:'qiao',name:'乔敏',ageOffset:1,title:'金融分析师',district:'lujiazui',role:'romance',description:'白天工作，晚上考证。改时间可以，别临时放鸽子。',trait:'ambition',color:'#8c6b88',gender:'female'},
-  {id:'yang',name:'杨帆',ageOffset:2,title:'社会工作者',district:'people',role:'romance',description:'忙社区项目，常替别人跑腿。最怕有事不说清，一直让他猜。',trait:'sincerity',color:'#71846a',gender:'male'},
-  {id:'lu',name:'陆嘉',ageOffset:0,title:'乐手兼家教',district:'bund',role:'romance',description:'排练时间常改，但会提前讲。没演出时想找个近点的地方吃饭。',trait:'freedom',color:'#a05d55',gender:'female'},
-  {id:'he',name:'何亮',ageOffset:4,title:'餐饮创业者',district:'xinzhuang',role:'romance',description:'家里开小饭店，知道哪里好吃。冷笑话讲得比菜名多。',trait:'humor',color:'#a87f58',gender:'male'},
+  {id:'xia',name:'许小雯',ageOffset:1,title:'建筑助理',district:'anfu',role:'romance',description:'改图改到太晚，周末反倒醒得早。约她吃早饭，比约晚饭容易。',trait:'sincerity',color:'#bb785f',gender:'female'},
+  {id:'ning',name:'周宁',ageOffset:2,title:'研发工程师',district:'zhangjiang',role:'romance',description:'消息回得慢。真约了几点，他会把地铁出口也发过来。',trait:'security',color:'#5b8386',gender:'male'},
+  {id:'lin',name:'林佳',ageOffset:0,title:'社区插画师',district:'xinzhuang',role:'romance',description:'等菜时会在餐巾上画两笔。画到谁，谁就可以带走。',trait:'humor',color:'#b9914d',gender:'female'},
+  {id:'chen',name:'陈恺',ageOffset:3,title:'咖啡店店长',district:'anfu',role:'romance',description:'六点半开门，休息日只想吃一碗辣肉面。',trait:'freedom',color:'#81725a',gender:'male'},
+  {id:'qiao',name:'乔敏',ageOffset:1,title:'金融分析师',district:'lujiazui',role:'romance',description:'地铁上背完一章，出站才回微信。约饭给她留个准点。',trait:'ambition',color:'#8c6b88',gender:'female'},
+  {id:'yang',name:'杨帆',ageOffset:2,title:'社会工作者',district:'people',role:'romance',description:'谁家漏水总先找他。回消息前，他会先把你的茶添满。',trait:'sincerity',color:'#71846a',gender:'male'},
+  {id:'lu',name:'陆嘉',ageOffset:0,title:'乐手兼家教',district:'bund',role:'romance',description:'演完吃烧烤。要帮她卷线，长的放左边。',trait:'freedom',color:'#a05d55',gender:'female'},
+  {id:'he',name:'何亮',ageOffset:4,title:'餐饮创业者',district:'xinzhuang',role:'romance',description:'端菜前先问要不要醋。说洗碗免单的时候，手上已经拿着围裙。',trait:'humor',color:'#a87f58',gender:'male'},
   {id:'aunt',name:'汪阿姨',ageOffset:35,title:'相亲角热心人',district:'people',role:'mentor',description:'嘴上查户口，手里却给每个年轻人留了颗糖。',trait:'security',color:'#985c5a',gender:'female'},
   {id:'uncle',name:'顾爷叔',ageOffset:38,title:'退休机修师',district:'people',role:'mentor',description:'认得旧厂房，也愿意学新手机。棋输了会说风太大。',trait:'humor',color:'#65776b',gender:'male'},
   {id:'mother',name:'老妈',ageOffset:28,title:'永远在线的家人',district:'xinzhuang',role:'family',description:'消息开头是吃了伐，结尾常常是别太累。',trait:'security',color:'#aa7a6b',gender:'female'},

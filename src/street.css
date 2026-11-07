@@ -74,7 +74,7 @@
 .city-street-mode > .story-lead { margin: 0; }
 
 @media (max-width: 850px) {
-  .screen-home .home-key-art { object-position: 89% 50%; }
+  .screen-home .home-key-art { object-position: 77% 50%; }
   .screen-home .hero-film-grain { background: linear-gradient(90deg,#121c23b8,#121c2314),linear-gradient(0deg,#151f25e0 4%,transparent 38%); }
   .screen-home .home-description { font-size: 14px; }
   .city-street-mode { justify-content: flex-start; padding: 10px 12px 14px; }
@@ -109,6 +109,24 @@
 .city-map-mode[data-night="true"] .district-title :is(h1,p,small,.district-en), .city-map-mode[data-night="true"] .stage-bottom { color: #f3e4c4; }
 .event-modal:has(.event-photo) .event-choices b { font-size: 15px; line-height: 1.4; }
 .event-modal:has(.event-photo) .event-choices p { font-size: 13px; line-height: 1.45; }
+
+.event-modal.wide-shot-modal { max-width: 1100px; }
+.wide-shot-modal .event-content { max-width: 530px; }
+.wide-shot-modal .event-photo > img { display: block; }
+.wide-shot-modal .event-photo::after { content: none; }
+@media (min-width: 851px) {
+  .event-modal.wide-shot-modal {
+    display: grid; grid-template-columns: minmax(0,1fr) minmax(0,.91fr);
+    min-height: 510px; padding: 0; overflow-y: auto;
+  }
+  .wide-shot-modal .event-photo { position: relative; width: 100%; }
+  .wide-shot-modal .event-content { align-self: center; padding: 32px clamp(24px,3vw,45px); }
+}
+@media (max-width: 850px) {
+  .wide-shot-modal .event-content { max-width: none; }
+  .wide-shot-modal .event-photo { height: auto; aspect-ratio: 16 / 10; }
+}
+.wide-shot-modal .event-photo > img { position: absolute; inset: 0; object-position: center; }
 
 @media (max-width: 850px) {
   .screen-play .topbar { margin-inline: 12px; gap: 6px; }

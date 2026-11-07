@@ -1,9 +1,8 @@
 from playwright.sync_api import sync_playwright
 from pathlib import Path
-import json
-from urllib.parse import urlparse,parse_qs
+import json,os
 
-BASE='http://localhost:5173/'
+BASE=os.environ.get('GAME_URL','http://localhost:5173/').rstrip('/')+'/'
 OUT=Path('outputs');OUT.mkdir(exist_ok=True)
 errors=[]
 def annual(p):
@@ -12,22 +11,31 @@ def annual(p):
     p.locator('.outcome-content .primary').click()
 def hotspot(p,text):
     p.locator('.place-card').filter(has_text=text).click()
-    p.get_by_role('button',name='直接进去').click()
+    skip=p.get_by_role('button',name='直接进去')
+    if skip.count():skip.click()
 with sync_playwright() as pw:
     b=pw.chromium.launch(headless=True,channel='chrome',args=['--use-angle=swiftshader','--enable-webgl','--ignore-gpu-blocklist'])
     ctx=b.new_context(viewport={'width':1440,'height':1000},permissions=['clipboard-read','clipboard-write'])
     p=ctx.new_page();p.on('pageerror',lambda e:errors.append(str(e)))
     p.goto(BASE+'?seed=ARTLOOKS');p.wait_for_load_state('networkidle')
-    assets=['player-female','player-male','romance-female','romance-male','supporting-cast','cards-birth','cards-wealth','cards-talent','cards-ties','cards-secrets','story-scenes','shanghai-night','rental-room','pearl-laser']
-    for a in assets:
-        r=p.request.get(BASE+'art/'+a+'.webp');assert r.status==200,(a,r.status)
-        assert r.headers.get('content-type','').startswith('image/'),(a,r.headers)
+    art_dir=Path('public/art')
+    assets=[file.relative_to(art_dir).as_posix() for folder in ('portraits','origins','encounters') for file in (art_dir/folder).rglob('*.webp')]
+    assets.extend(file.relative_to(art_dir).as_posix() for file in (art_dir/'shanghai-streets').glob('first-night-*.webp'))
+    assets.append('shanghai-streets/cover-station.webp')
+    assert len(assets)==106, len(assets)
+    for asset in assets:
+        r=p.request.get(BASE+'art/'+asset);assert r.status==200,(asset,r.status)
+        assert r.headers.get('content-type','').startswith('image/'),(asset,r.headers)
     for gender in ['female','male']:
         for looks,name in [('everyday','普通耐看'),('charming','颇有姿色'),('stunning','惊艳全场')]:
             p.get_by_role('button',name='开局抽卡').click()
             p.locator('.gender-picker button').nth(0 if gender=='female' else 1).click()
             p.get_by_role('button',name='颜值 '+name,exact=True).click()
-            assert p.get_by_role('button',name='颜值 '+name,exact=True).get_attribute('aria-pressed')=='true'
+            picked=p.get_by_role('button',name='颜值 '+name,exact=True)
+            assert picked.get_attribute('aria-pressed')=='true'
+            image=picked.locator('img')
+            assert image.get_attribute('src')==f'/art/portraits/player-{gender}-{looks}.webp'
+            assert image.evaluate('async img=>{await img.decode();return img.naturalHeight>700}')
             p.get_by_role('button',name='全部揭晓').click()
             p.get_by_role('button',name='就这手牌，进上海').click()
             annual(p)
@@ -56,14 +64,25 @@ with sync_playwright() as pw:
     hotspot(p,'江风约会')
     p.locator('.romance-grid .portrait-full').first.wait_for()
     assert p.locator('.romance-grid .portrait-full').count()==8
+    assert p.locator('.romance-grid .portrait-full img').evaluate_all('async images=>{await Promise.all(images.map(img=>img.decode()));return images.every(img=>img.naturalWidth>450)}')
     p.wait_for_timeout(300);p.screenshot(path=str(OUT/'romance-cast-desktop.png'),full_page=True)
     p.locator('.romance-grid button').nth(6).click()
     p.locator('.date-visual').wait_for();p.wait_for_timeout(300)
     p.screenshot(path=str(OUT/'date-desktop.png'),full_page=True)
     p.get_by_role('button',name='关闭',exact=True).click()
-    # Narrative art and rental investigation still have usable choices.
-    hotspot(p,'江边长椅');p.locator('.event-content').wait_for();p.screenshot(path=str(OUT/'story-desktop.png'),full_page=True)
+    # The room photograph is visible to all four edges, including the contract.
+    p.get_by_role('navigation',name='切换城区').get_by_role('button',name='莘庄').click()
+    hotspot(p,'弄堂租房处')
+    room=p.locator('.room-scene')
+    assert room.evaluate('el=>getComputedStyle(el,"::before").content==="none" && getComputedStyle(el).borderBottomWidth==="0px"')
+    assert room.locator('img').evaluate('async img=>{await img.decode();return img.naturalWidth>700}')
+    for clue in ('墙角','合同','窗外'):
+        button=room.get_by_role('button',name=clue,exact=True)
+        button.click()
+        assert button.get_attribute('aria-pressed')=='true'
+    assert p.locator('.clue-list p').count()==3
     p.get_by_role('button',name='关闭',exact=True).click()
+    p.get_by_role('navigation',name='切换城区').get_by_role('button',name='外滩').click()
     # Mobile date, cast and image framing.
     p.set_viewport_size({'width':390,'height':844})
     hotspot(p,'江风约会')
@@ -75,6 +94,6 @@ with sync_playwright() as pw:
         p.locator('.dialogue-answers button').nth(i).click();p.locator('.dialogue-reply .primary').click()
     p.locator('.outcome-content .primary').click()
     assert json.loads(p.evaluate('localStorage.getItem("modu-life-v1")'))['relationships']['qiao']['met']
-    print(json.dumps({'passed':True,'appearance_combinations':6,'assets':14,'save_export_reload':True,'legacy_save_migrated':True,'large_romance_portraits':8,'mobile_date_completed':True,'page_errors':errors},ensure_ascii=False))
+    print(json.dumps({'passed':True,'appearance_combinations':6,'assets':len(assets),'save_export_reload':True,'legacy_save_migrated':True,'large_romance_portraits':8,'mobile_date_completed':True,'page_errors':errors},ensure_ascii=False))
     assert not errors,errors
     b.close()
