@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import type { Career, CastMember, Effect, FirstDatePicks } from '../game/types';
 import { romanceQuestions, type Question } from '../game/dates';
-import { datePhoto, interviewPhoto } from '../game/art';
+import { datePhoto, interviewPhoto, offerPhoto } from '../game/art';
+import { isSelfEmployed, offerTopic, type InterviewOffer } from '../game/jobOffers';
 import Icon from './Icon';
 import { Portrait } from './Portrait';
 
@@ -44,23 +45,55 @@ const interviewStarts:Record<string,Question>={
   ['先问哪些货可以少留几天','他说这个能问，接着问拿什么换这几天。']),
 };
 
-function interviewQuestions(career:Career):Question[]{return [
+const followups:Record<string,Question>={
+ tech:interviewOpening('「回滚以后，后台还在重试。明早有两千笔单，你怎么交班？」',
+  ['把异常订单列出来，标明谁接、几点查','她翻开交接本，问你准备把哪笔放在最前面。'],
+  ['看着像恢复了，先让大家回家','她问那明早谁来认领没到账的订单。'],
+  ['自己再盯一小时，写下异常再走','她在排班表上圈了一格，问这小时以后呢。']),
+ creative:interviewOpening('「印厂等到六点。还有两张没过，甲方现在在飞机上。」',
+  ['把改过日期的那张先发去打样','她把台历转过来，给你看印厂最晚接稿的时间。'],
+  ['用旧稿，甲方回来再说','她用铅笔点了一下旧稿上的日期。'],
+  ['让印厂先做确认过的那一张','她把第一张放到边上，问剩下两张还能等多久。']),
+ finance:interviewOpening('沈经理看了眼表。「三分钟以后要发。那笔重复款谁来认？」',
+  ['先标记差额和来源，给她一版能核的','她把电话按掉，说给你五分钟。'],
+  ['先改总数，细项下次再对','她问这两版打印出来，以后还能不能对上。'],
+  ['打电话找填表的人，先把出表时间往后挪','她把对方号码写在纸背上。']),
+ service:interviewOpening('后厨说挂面还剩三份。吴师傅往门口一指，外面又来了四个。',
+  ['先把卖完的划掉，给新来的说还有什么','他把柜台那块小黑板拿了出来。'],
+  ['先收钱，真不够了再退','他问那四个人是来吃饭还是来退钱的。'],
+  ['问后厨能不能换面，再给前面的人选','他从冰箱拿出一袋年糕，说你来开口。']),
+ public:interviewOpening('楼上的人只能晚上七点到，维修师傅六点就收工。',
+  ['先请师傅查公区，和两户定同一时间复查','她拿下墙上的轮值表，把七点那格划出来。'],
+  ['让楼下继续等，什么时候都齐了再说','她翻过报修单，最早的日期是上个月。'],
+  ['先协调师傅拍照留记录，晚上再联系两户','她问你打算给谁留办公室电话。']),
+ freelance:interviewOpening('「有一页还想换个颜色。顺手的事嘛，就别写进合同了。」',
+  ['把哪一页、改几次、哪天确认都写上','他接过笔，自己把「这一页」圈了出来。'],
+  ['顺手多做几版，做完他总会付','他问，五版够不够挑。'],
+  ['先答应改一次，确认后再谈其它页','他想了会儿，说那就改这次。']),
+ business:interviewOpening('吴师傅刚找出零钱，有人问明早能不能先留三十份生煎。',
+  ['问清几个人、几点取，订金到了再备料','吴师傅把订货本翻到明早那页。'],
+  ['先答应，明天人没来也能卖','他问你准备拿什么锅，先多煎三十个。'],
+  ['先留十份，其它的到店再加','那人想了想，问有没有个能固定下单的办法。']),
+ trade:interviewOpening('客户回了邮件，说可以定一半，另一半想再占两天仓位。',
+  ['锁已确认的，余货写明几点释放','经理拿出仓库的电话，让你当面说一遍。'],
+  ['占着，客户看见有货才肯付','经理看了一眼库存，说还有三个人在等这批。'],
+  ['先请客户定一个能承诺的时间','经理翻到那封邮件的时间戳，问你按哪边的钟。']),
+};
+
+function interviewQuestions(career:Career):Question[]{const contract=isSelfEmployed(career.id);return [
  interviewStarts[career.id],
- {text:'“明天就要交，今天又加了两个需求。你怎么办？”',answers:[
- {label:'先承诺都能做，回去再想办法。',reply:'对方点了点头，表情看不出在想什么。',points:0},
- {label:'让他选，明天先交哪一版',reply:'“可以，具体说说你会砍哪一部分。”',points:2},
- {label:'说清一个人做不完，需要谁帮忙',reply:'对方把项目排期拿了出来。',points:1}]},
- {text:'“你还有什么想问我们的？”',answers:[
- {label:'问岗位目标、薪酬和实际作息。',reply:'对方把薪酬表转过来，指了指其中一行。',points:2},
- {label:'问做这份工作的人，最近最难解决什么。',reply:'对方笑了一下：“这个问题问得蛮好。”',points:2},
- {label:'都可以，我比较能吃苦。',reply:'“明白了。”这句结束得有点快。',points:0}]}
+ followups[career.id],
+ {text:'对方把笔放下。「还有什么想问？」',answers:[
+ {label:contract?'问现在能先转多少':'问津贴怎么算，写不写进工资',reply:contract?'他把手机翻了过来。':'对方翻到写津贴的那一页。',points:2},
+ {label:contract?'问哪天交，临时改怎么算':'问晚上和周末谁接电话',reply:contract?'他把第二页抽了出来。':'对方从抽屉里拿出排班表。',points:2},
+ {label:contract?'都好说，什么时候开工':'都可以，我比较能吃苦',reply:'对方拿起了笔。',points:0}]}
 ];}
 type DialogueProps = {skill:number;cash:number;flags:string[]} & (
- {person:CastMember;career?:never;onParting:(picks:FirstDatePicks)=>void;onFinish?:never} |
- {person?:never;career:Career;onParting?:never;onFinish:(effect:Effect,text:string)=>void}
+ {person:CastMember;career?:never;onParting:(picks:FirstDatePicks)=>void;onFinish?:never;onOffer?:never} |
+ {person?:never;career:Career;onParting?:never;onFinish:(effect:Effect,text:string)=>void;onOffer:(offer:InterviewOffer)=>void}
 );
 
-export function DialogueGame({person,career,skill,cash,flags,onFinish,onParting}:DialogueProps){
+export function DialogueGame({person,career,skill,cash,flags,onFinish,onParting,onOffer}:DialogueProps){
  const [picks,setPicks]=useState<number[]>([]);
  const [selected,setSelected]=useState<number|null>(null);
  const [shotReady,setShotReady]=useState(false);
@@ -74,9 +107,9 @@ export function DialogueGame({person,career,skill,cash,flags,onFinish,onParting}
  const spent=earlier.reduce((total,item)=>total+(item.cost??0),0);
 
  useEffect(()=>{
-  if(!person)return;
-  for(const src of [shot,datePhoto(person.id,'parting')])new Image().src=src;
- },[shot,person]);
+  const nextShot=person?datePhoto(person.id,'parting'):offerPhoto(career.id);
+  new Image().src=nextShot;
+ },[career,person]);
 
  function next(){
   if(!answer||selected===null)return;
@@ -88,12 +121,13 @@ export function DialogueGame({person,career,skill,cash,flags,onFinish,onParting}
    setPicks([...picks,selected]);setSelected(null);
    return;
   }
-  if(!career||!onFinish)return;
-  const score=earlier.reduce((total,item)=>total+item.points,answer.points);
-  const success=score+skill/25>=5.5;
-  onFinish({job:success?career.id:undefined,skill:success?4:7,face:success?5:1,spirit:success?8:-3},
-   success?`拿到${career.entry}的offer，月薪 ¥${career.salary.toLocaleString()} 起。你走出楼门，给家里发了张截图。`:
-   '没拿到offer。电梯里，你把答得最差的那道题记进手机，准备回去再练一遍。');
+  if(!career||!onFinish||!onOffer)return;
+  const score=earlier.reduce((total,item)=>total+item.points,0);
+  if(score+answer.points+skill/25>=5.5){
+   onOffer({topic:offerTopic(selected),proof:score>=3});
+  }else{
+   onFinish({skill:7,face:1,spirit:-3},'没谈成。走到楼下，你把卡住的那道题记进手机。');
+  }
  }
 
  return <div className="dialogue-game">
@@ -117,7 +151,7 @@ export function DialogueGame({person,career,skill,cash,flags,onFinish,onParting}
      onClick={()=>setSelected(i)}><span>{String.fromCharCode(65+i)}</span>{ans.label}{ans.cost?' · ¥'+ans.cost:''}<Icon name="chevron" size={16}/></button>)}
    </div>
    {answer&&<div className="dialogue-reply"><p>{answer.reply}</p>
-    <button className="primary" onClick={next}>{person&&round===1?'要走了':round===2?'看看这次怎么样':'接着聊'}<Icon name="arrow" size={17}/></button>
+    <button className="primary" onClick={next}>{person&&round===1?'要走了':round===2?'听听对方怎么说':'接着聊'}<Icon name="arrow" size={17}/></button>
    </div>}
   </div>
  </div>;

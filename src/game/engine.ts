@@ -3,7 +3,7 @@ import { FIRST_NIGHT_FLAG, firstNightYear } from './firstNight';
 import { lastDayEvent } from './lastDay';
 import { workYearEvent } from './workScenes';
 import { longTableBudget, longTableYear } from './longTable';
-import { employmentOf, monthlySalary, moveJob, NIGHT_WORK, registerReview } from './employment';
+import { employmentOf, MAX_PAY_RATE, monthlySalary, moveJob, NIGHT_WORK, registerReview } from './employment';
 import { EVENTS } from './events';
 import { LOAN_DUE, LOAN_INSTALLMENT } from './originStories';
 import type { ActivityKind, ChoiceResult, Effect, EventChoice, GameState, GoalId, LifeEvent, LooksLevel, OriginCard, OriginSlot, PlayerAppearance, StatKey } from './types';
@@ -261,7 +261,7 @@ export function validateSave(value:unknown):GameState {
   if(s.leaseRent!==undefined&&(s.housing!==1||!Number.isInteger(s.leaseRent)||!finite(s.leaseRent,2000,6000)))throw new Error('租约里的房租不对。');
   if(s.jobId!==null&&!CAREERS.some(c=>c.id===s.jobId))throw new Error('职业资料不匹配。');
   const work=s.employment;
-  if(work!==undefined&&(!work||!Number.isInteger(work.sinceAge)||!finite(work.sinceAge,18,s.age)||!Number.isInteger(work.reviews)||!finite(work.reviews,0,42)||(work.reviewedAt!==undefined&&(!Number.isInteger(work.reviewedAt)||!finite(work.reviewedAt,work.sinceAge,s.age)))||!finite(work.rate,.5,1)||!Number.isInteger(work.closedMonths)||!finite(work.closedMonths,0,12)||!Number.isInteger(work.earned)||!finite(work.earned,0,1e7)))throw new Error('工作记录不完整。');
+  if(work!==undefined&&(!work||!Number.isInteger(work.sinceAge)||!finite(work.sinceAge,18,s.age)||!Number.isInteger(work.reviews)||!finite(work.reviews,0,42)||(work.reviewedAt!==undefined&&(!Number.isInteger(work.reviewedAt)||!finite(work.reviewedAt,work.sinceAge,s.age)))||!finite(work.rate,.5,MAX_PAY_RATE)||!Number.isInteger(work.closedMonths)||!finite(work.closedMonths,0,12)||!Number.isInteger(work.earned)||!finite(work.earned,0,1e7)))throw new Error('工作记录不完整。');
   for(const k of ['origins','flags','seenEvents'] as const)if(!Array.isArray(s[k])||s[k].length>1500||s[k].some(x=>typeof x!=='string'||x.length>120))throw new Error('档案记录无效。');
   if(s.origins.length!==5||s.origins.some(id=>!allOrigins().some(c=>c.id===id)))throw new Error('开局卡片不存在。');
   if(!Array.isArray(s.journal)||s.journal.length>1000||s.journal.some(j=>!j||!finite(j.age,18,60)||typeof j.title!=='string'||j.title.length>200||typeof j.text!=='string'||j.text.length>5000||typeof j.tag!=='string'||j.tag.length>80))throw new Error('人生记录损坏。');

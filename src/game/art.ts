@@ -48,6 +48,10 @@ export function interviewPhoto(careerId: string): string {
  return `/art/interviews/${careerId}.webp`;
 }
 
+export function offerPhoto(careerId: string): string {
+ return `/art/job-offers/${careerId}.webp`;
+}
+
 export function pearlPhoto(shot: 'arena' | 'hero' | 'receipt' | 'booth' | 'night-office' | 'clean' | 'spill'): string {
  return `/art/pearl/${shot}.webp`;
 }

@@ -1,7 +1,7 @@
 import type { EventChoice, LifeEvent } from './types';
 import { PARK_TICKET_SCENES } from './matchmaking';
-import { FERRY_STILLS, FIRST_NIGHT_STILLS, MATCH_STILLS, OPENING_STILLS, TABLE_STILLS, datePhoto, farewellPhoto, ferryPhoto, matchPhoto, openingPhoto, pearlPhoto, rentalPhoto, streetPhoto, tablePhoto, workPhoto } from './art';
-import { CAST } from './content';
+import { FERRY_STILLS, FIRST_NIGHT_STILLS, MATCH_STILLS, OPENING_STILLS, TABLE_STILLS, datePhoto, farewellPhoto, ferryPhoto, matchPhoto, offerPhoto, openingPhoto, pearlPhoto, rentalPhoto, streetPhoto, tablePhoto, workPhoto } from './art';
+import { CAREERS, CAST } from './content';
 import { PHOTO_SHOP_STILLS, PHOTO_SHOP_STORY, photoShopStill } from './photoShop';
 
 export interface Turn {
@@ -50,6 +50,7 @@ const ticketShots = new Set([
   ...OPENING_STILLS.map(openingPhoto),
   ...TABLE_STILLS.map(tablePhoto),
   ...FERRY_STILLS.map(ferryPhoto),
+  ...CAREERS.map(career => offerPhoto(career.id)),
   ...(['receipt', 'booth', 'night-office'] as const).map(pearlPhoto),
   ...(['mao', 'he', 'lu'] as const).map(farewellPhoto),
   ...(['reorg', 'overtime', 'shift', 'invoice', 'return'] as const).map(workPhoto),

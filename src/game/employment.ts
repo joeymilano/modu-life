@@ -5,6 +5,7 @@ const payByRank = [1, 1.22, 1.45, 1.7];
 const yearsByRank = [0, 1, 4, 8];
 const reviewsByRank = [0, 1, 3, 6];
 export const NIGHT_WORK = 'work-night-shift';
+export const MAX_PAY_RATE = 1.2;
 
 export function employmentOf(state: GameState): Employment {
  return state.employment ?? { sinceAge: state.age, reviews: 0, rate: 1, closedMonths: 0, earned: 0 };
