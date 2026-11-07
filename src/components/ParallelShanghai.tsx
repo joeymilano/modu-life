@@ -5,12 +5,13 @@ import {
   CITY_TIMELINES, readTickets, removeTicket, saveTicket, ticketFromHash, ticketLink, validateTicket, walk,
   type Move, type Ticket, type Timeline, type Turn,
 } from '../game/timelines';
+import { streetPhoto, type StreetPhoto } from '../game/art';
 import Icon from './Icon';
 import './parallel.css';
 
-const storyPaintings = new Map([
+const storyPhotos = new Map<string, StreetPhoto[]>([
   ['last-train', ['station', 'zhangjiang', 'anfu']],
-  ['second-chair', ['people']],
+  ['second-chair', ['table']],
   ['pearl-signal', ['bund', 'lujiazui']],
 ]);
 
@@ -216,7 +217,7 @@ export default function ParallelShanghai({ onClose, hash, preset }: {
     const { timeline, route = [] } = ticket;
     const { steps, next } = walk(timeline, route);
     const current = next === null ? null : timeline.turns[next];
-    const painting = next === null ? undefined : storyPaintings.get(timeline.id)?.[next];
+    const photo = next === null ? undefined : storyPhotos.get(timeline.id)?.[next];
     const last = steps.at(-1);
     const number = route.length + 1;
     const movePath = route.map(move => 'ABC'[move.pick]).join('·') || '起点';
@@ -245,8 +246,8 @@ export default function ParallelShanghai({ onClose, hash, preset }: {
         {current ? <>
           {last && <p className="parallel-previous" aria-live="polite">{last.option.after}</p>}
           <div className="parallel-scene" key={next}>
-            <div className={painting ? 'parallel-location illustrated-location' : 'parallel-location'}>
-              {painting && <img src={'/art/after-hours/' + painting + '.webp'} alt="" />}
+            <div className={photo ? 'parallel-location photographic-location' : 'parallel-location'}>
+              {photo && <img src={streetPhoto(photo)} alt="" />}
               <div><span className="parallel-stamp">{current.date}</span>
               <h1 ref={titleRef} tabIndex={-1}>{current.place}</h1></div>
             </div>

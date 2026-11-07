@@ -1,13 +1,13 @@
 import type { DistrictId, EventChoice, GameState, LifeEvent } from './types';
 
-const ART = '/art/after-hours/';
-type SceneArt = 'station' | 'keys' | 'kitchen' | 'garage';
+import { streetPhoto } from './art';
+type SceneArt = 'station' | 'keys' | 'kitchen' | 'ferry';
 
 function scene(id: string, art: SceneArt, title: string, text: string, choices: Omit<EventChoice, 'id'>[], district?: DistrictId, speakerId?: string): LifeEvent {
   return {
     id: 'first-night-' + id, title, text, choices: choices.map((choice, i) => ({ ...choice, id: String(i + 1) })),
     district, speakerId, category: district ? 'explore' : 'year', tag: district ? '今晚的事' : '来沪第一年',
-    illustration: ART + art + '.webp',
+    illustration: streetPhoto(art),
   };
 }
 
@@ -37,7 +37,7 @@ const shift = scene('till', 'kitchen', '账上少两份面',
       reply: '何亮从围裙兜里数出二百二。穿雨衣的姑娘拿着两把伞等在门口，问你走哪个方向。', effect: { cash: 220, network: 4, setFlags: ['night-met-courier'] } },
   ], 'anfu', 'he');
 
-const ferry = scene('box', 'garage', '箱底开了',
+const ferry = scene('box', 'ferry', '箱底开了',
   '轮渡口的坡道积了水。你一提，纸箱的底就开了，橘子滚到路中间。陆嘉发来一句「船要开了」，紧接着又问「有压坏的吗」。', [
     { label: '先捡橘子 · 下一班船再走',
       reply: '有三个被车压了。陆嘉等到下一班，把剩下的装进鼓包。「这袋给我爸的。你要不要挑个好的？」', effect: { trust: 13, cash: 100, setFlags: ['night-saved-box'] } },
@@ -61,7 +61,7 @@ const shiftEnd = scene('shift-end', 'kitchen', '何亮排了张班表',
       reply: '何亮擦掉名字，结清上次垫的夜宵钱。后来他缺人，还是先问你当天有没有空。', effect: { cash: 480, network: 6 } },
   ], undefined, 'he');
 
-const ferryEnd = scene('ferry-end', 'garage', '一袋有疤的橘子',
+const ferryEnd = scene('ferry-end', 'ferry', '一袋有疤的橘子',
   '陆嘉把你叫到摆渡口。她爸寄来一袋橘子，个个有疤。她一边分，一边问你星期天有没有空，她演出缺个人帮忙搬音箱。', [
     { label: '去帮忙 · 留到最后一首',
       reply: '搬完音箱，陆嘉把你带到台侧。最后一首她弹错了一个和弦，下台第一句问你听出来没有。', effect: { network: 6, trust: 12, attraction: 5 } },

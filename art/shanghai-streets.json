@@ -1,0 +1,39 @@
+{
+  "method": "Built-in imagegen",
+  "assetDirectory": "public/art/shanghai-streets",
+  "sets": {
+    "cover": {
+      "photos": [
+        "cover"
+      ],
+      "prompt": "Original photorealistic environment photography for a contemporary Shanghai narrative game. It must look like a candid location scout photograph, with real modern Shanghai scale, real optics, physically plausible window reflections, accurate trees and ordinary people in practical clothes. Restrained true-to-life color, subtle 35mm sensor texture, clear daylight where specified. No brush strokes, canvas, CGI, artificial glow, steam added for drama, teal-orange LUT, color cast, ultra-HDR, fake text, graphic overlays, or recognizable branding. Landscape 3:2 cover image with genuine daytime color. Shanghai residential lane in Xuhui on an overcast spring afternoon just after drizzle, normal pale daylight opening at the distant end of the lane. Left 42% a nearly flat, dark desaturated old brick wall with a shadowed doorway, naturally empty and legible under a separate ivory logo. On the right third, an adult East Asian woman arriving in town wears a simple slightly oversized navy rain jacket and carries a practical duffel and wheeled carry-on. She is seen candidly in side profile, weight resting on one foot as she reads a phone held near her waist, face gently lit by real sky. Realistic small potted plants and metal bike against a wall, worn lane paving, dark brick around windows, depth down the lane. Ordinary active city life just beyond the lane, soft clear daylight not a noir film. No photo text, letters, emblems, billboard graphics, or montage."
+    },
+    "districtA": {
+      "photos": [
+        "bund",
+        "anfu",
+        "people",
+        "lujiazui"
+      ],
+      "prompt": "Original photorealistic environment photography for a contemporary Shanghai narrative game. It must look like a candid location scout photograph, with real modern Shanghai scale, real optics, physically plausible window reflections, accurate trees and ordinary people in practical clothes. Restrained true-to-life color, subtle 35mm sensor texture, clear daylight where specified. No brush strokes, canvas, CGI, artificial glow, steam added for drama, teal-orange LUT, color cast, ultra-HDR, fake text, graphic overlays, or recognizable branding. Output a landscape 3:2 contact sheet, exactly TWO equal columns by TWO equal rows, four complete landscape photographs in a strict grid, flush edges with NO margin, borders, captions, or dividing lines. All primary subjects near each cell’s central two thirds for separate mobile crops. Top left: the Bund viewed east over a WIDE Huangpu river in pale overcast daytime, broad granite embankment and a few walkers in the foreground; the actual Oriental Pearl Tower opposite and Shanghai Tower much further to the right, Pudong skyline at its real distance. Top right: Wukang Mansion seen from the pedestrian corner of the intersection in soft spring daylight, recognizable narrow wedge/ship bow, rounded red brick upper façade, cream stone ground-floor arches, horizontal cream belts, authentic plane trees and traffic, limited quiet foreground. Bottom left: real People's Park matchmaking corner in Shanghai, ordinary middle-aged and older locals in unposed conversation by umbrellas carrying paper notices too far away to read, mature trees, damp paving and diffused afternoon light. Bottom right: Lujiazui in ordinary office hours seen from sidewalk level beneath a glass pedestrian walkway, real scale office towers and commuting workers, normal white-gray sky, one taxi seen in the distance. Each frame is an independent photograph with no objects crossing the grid lines."
+    },
+    "districtB": {
+      "photos": [
+        "zhangjiang",
+        "xinzhuang",
+        "keys",
+        "ferry"
+      ],
+      "prompt": "Original photorealistic environment photography for a contemporary Shanghai narrative game. It must look like a candid location scout photograph, with real modern Shanghai scale, real optics, physically plausible window reflections, accurate trees and ordinary people in practical clothes. Restrained true-to-life color, subtle 35mm sensor texture, clear daylight where specified. No brush strokes, canvas, CGI, artificial glow, steam added for drama, teal-orange LUT, color cast, ultra-HDR, fake text, graphic overlays, or recognizable branding. Landscape 3:2 contact sheet exactly TWO equal columns by TWO equal rows, four independent photos meeting at clean edges. No borders, margins, collage overlap or graphic overlays. Top left: realistic Zhangjiang Hi-Tech Park after work, modern glass-and-stone R&D campus low and medium rise buildings, blue-gray gray daylight, rows of ordinary electric scooters in racks, commuters at a security turnstile, roadside trees and an off-white street curb, look like an everyday neighborhood. Top right: Xinzhuang, Minhang Shanghai residential complex, six-story early-2000s apartments with external AC units, worn beige walls, building doorway partly visible behind a resident carrying vegetables, bike shed, utility boxes, morning daylight, no historic landmark or mountains. Bottom left: ordinary second-floor Shanghai sublet, camera outside a narrow open door, unglamorous 18 square meter room with off-white walls, a real simple bed, daylight from a modest barred window, worn grey linoleum, folded umbrella and a keyring by the threshold. Bottom right: ordinary concrete ferry ramp on Huangpu under the embarkation shelter on an overcast rainy afternoon, a tipped cardboard fruit box and oranges scattered on damp concrete, a casually dressed adult crouches naturally to pick one up, grey river glimpsed beyond real railings. Nothing stylized or illustrated, no writing."
+    },
+    "scenes": {
+      "photos": [
+        "station",
+        "kitchen",
+        "table",
+        "bookshop"
+      ],
+      "prompt": "Original photorealistic environment photography for a contemporary Shanghai narrative game. It must look like a candid location scout photograph, with real modern Shanghai scale, real optics, physically plausible window reflections, accurate trees and ordinary people in practical clothes. Restrained true-to-life color, subtle 35mm sensor texture, clear daylight where specified. No brush strokes, canvas, CGI, artificial glow, steam added for drama, teal-orange LUT, color cast, ultra-HDR, fake text, graphic overlays, or recognizable branding. Landscape 3:2 contact sheet, EXACTLY two equal columns and two equal rows, four photos, NO gutters or borders. Top left: Shanghai South Railway Station recognizable wide low circular steel-and-glass roof on a rainy overcast afternoon, seen from outside at standing eye level. Central third: an adult East Asian traveler looking down at a smartphone near an ordinary small dark suitcase, dark navy rain jacket, foot traffic under umbrellas in the midground, real wet pavement and no long exposure, no station lettering. Top right: a small casual Shanghai noodle restaurant at closing, an adult East Asian man and a coworker in everyday blue aprons counting real small receipts at a stainless counter, practical overhead fluorescent light mixed with cool dusk through the window, white bowls, everyday wear, camera candid at eye level. Bottom left: Shanghai neighborhood restaurant table after one guest steps away, natural window light, three used mismatched chairs, porcelain cups and folded menu on laminate table, ordinary simple neighborhood restaurant with people far away, no legible text. Bottom right: rainy Xuhui bookshop/cafe entry from the sidewalk with a bicycle parked outside, no stock-photo pose, normal exposure and geometry. All scenes are calm and plausible, no fashion photography, no drama, no logos."
+    }
+  }
+}

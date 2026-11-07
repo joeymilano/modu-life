@@ -1,4 +1,4 @@
-import { ending, publicOriginNames } from './engine';import { playerArt, LOOKS } from './art';
+import { ending, publicOriginNames } from './engine';import { playerArt, LOOKS, streetPhoto } from './art';
 import { DISTRICTS, GOALS } from './content';import type { GameState } from './types';
 export const SITE_URL='https://modulife.pages.dev';
 function lines(ctx:CanvasRenderingContext2D,text:string,x:number,y:number,max:number,lineHeight:number){let line='';for(const c of text){if(ctx.measureText(line+c).width>max){ctx.fillText(line,x,y);y+=lineHeight;line=c;}else line+=c;}ctx.fillText(line,x,y);return y;}
@@ -9,7 +9,7 @@ export async function makeShareCard(s:GameState):Promise<Blob>{
  const result=s.ended?ending(s):{title:s.name+'的'+s.age+'岁',text:DISTRICTS.find(district=>district.id===s.district)?.name??'上海'};
  let y=lines(g,result.title,60,295,950,93);g.font='27px sans-serif';y=lines(g,result.text,65,y+69,900,46);
  const scene=document.querySelector<HTMLCanvasElement>('.city-stage canvas, .hero-city canvas');const imageY=Math.max(y+60,540);
- try{const img=new Image();img.src=scene?scene.toDataURL('image/png'):'/art/after-hours/'+s.district+'.webp';await img.decode();g.save();g.beginPath();g.roundRect(60,imageY,960,400,20);g.clip();g.fillStyle='#e7e8db';g.fillRect(60,imageY,960,400);const ratio=Math.max(960/img.width,400/img.height);g.drawImage(img,60+(960-img.width*ratio)/2,imageY+(400-img.height*ratio)/2,img.width*ratio,img.height*ratio);g.restore();}catch{g.fillStyle='#dde2d4';g.fillRect(60,imageY,960,400);}
+ try{const img=new Image();img.src=scene?scene.toDataURL('image/png'):streetPhoto(s.district);await img.decode();g.save();g.beginPath();g.roundRect(60,imageY,960,400,20);g.clip();g.fillStyle='#e7e8db';g.fillRect(60,imageY,960,400);const ratio=Math.max(960/img.width,400/img.height);g.drawImage(img,60+(960-img.width*ratio)/2,imageY+(400-img.height*ratio)/2,img.width*ratio,img.height*ratio);g.restore();}catch{g.fillStyle='#dde2d4';g.fillRect(60,imageY,960,400);}
  try{const art=playerArt(s.appearance),img=new Image();img.src=art.src;await img.decode();const sw=img.width/art.columns,sh=img.height/art.rows;g.save();g.beginPath();g.roundRect(755,imageY+40,220,330,8);g.clip();g.drawImage(img,art.index*sw,0,sw,sh,755,imageY+40,220,440);g.restore();g.fillStyle='#183c33';g.fillRect(755,imageY+327,220,43);g.fillStyle='#fff3dc';g.font='21px sans-serif';g.fillText(LOOKS.find(l=>l.id===s.appearance.looks)!.name,777,imageY+356);}catch{}
  y=imageY+448;g.fillStyle='#62736a';g.font='22px sans-serif';g.fillText('开局这手牌',65,y);g.fillStyle='#223d3d';g.font='bold 28px sans-serif';y=lines(g,publicOriginNames(s).join(' / '),65,y+48,920,46);
  y+=80;g.font='22px sans-serif';g.fillStyle='#63766a';g.fillText('想过的日子',65,y);g.fillText('现在的积蓄',590,y);g.font='bold 36px sans-serif';g.fillStyle='#223d3d';g.fillText(GOALS.find(x=>x.id===s.goal)?.name||'',65,y+53);g.fillText('¥'+s.cash.toLocaleString(),590,y+53);

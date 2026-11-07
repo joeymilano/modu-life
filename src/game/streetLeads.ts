@@ -1,3 +1,4 @@
+import { streetPhoto } from './art';
 import { firstNightLead } from './firstNight';
 import type { GameState, LifeEvent } from './types';
 
@@ -13,7 +14,7 @@ const leads: StreetLead[] = [
     available: s => s.age >= 20 && s.age <= 31 && s.housing < 3,
     event: {
       id: 'street-lease', title: '这道印子是旧的', category: 'housing', district: 'xinzhuang',
-      illustration: '/art/after-hours/keys.webp', tag: '租房',
+      illustration: streetPhoto('keys'), tag: '租房',
       text: '退租当天，房东拍了张墙面的照片，说要从押金里扣三百。毛小毛把手机递过来。搬进来那天他拍过视频，可那面墙刚好被纸箱挡住了。',
       choices: [
         { id: 'settle', label: '认这三百 · 今天把账结了', effect: { cash: -300, spirit: 5 },
@@ -28,7 +29,7 @@ const leads: StreetLead[] = [
     available: s => s.age >= 25 && s.age <= 39 && s.jobId !== null && !['business', 'freelance'].includes(s.jobId),
     event: {
       id: 'street-reorg', title: '名单上只剩一格', category: 'career', district: 'lujiazui', speakerId: 'boss',
-      illustration: '/art/after-hours/lujiazui.webp', tag: '工作',
+      illustration: streetPhoto('lujiazui'), tag: '工作',
       text: '沈经理把门带上。两个人的活，下月只留一个人做。你可以留下接周末值班，也可以拿公司这次谈好的离职补助。她的电脑还停在值班表那一页。',
       choices: [
         { id: 'stay', label: '留下 · 把周末值班写进排班表', effect: { health: -8, skill: 8, trust: 5 },
@@ -43,7 +44,7 @@ const leads: StreetLead[] = [
     available: s => s.age >= 32 && s.age <= 53,
     event: {
       id: 'street-clinic', title: '早上七点的号', category: 'social', district: 'people', speakerId: 'mother',
-      illustration: '/art/after-hours/station.webp', tag: '家里',
+      illustration: streetPhoto('station'), tag: '家里',
       text: '老妈把挂号短信转给你，又撤回了。她在电话里说认得路，去了才知道还要从自助机上取号。你的工作群也在问，早会的文件谁带。',
       choices: [
         { id: 'go', label: '请半天假 · 到医院门口等她', effect: { trust: 12, spirit: 5, network: -2 },
@@ -58,7 +59,7 @@ const leads: StreetLead[] = [
     available: s => s.age >= 40 && s.age <= 59 && s.cash >= 6000 && s.jobId !== 'business',
     event: {
       id: 'street-breakfast', title: '炉子跟摊一起转', category: 'business', district: 'xinzhuang', speakerId: 'he',
-      illustration: '/art/after-hours/kitchen.webp', tag: '生意',
+      illustration: streetPhoto('kitchen'), tag: '生意',
       text: '何亮掀开盖炉子的塑料布。老板要回老家，连桌椅一起转六千。有人隔着卷帘门问明天还出摊吗。何亮看了你一眼，把那句话留给你答。',
       choices: [
         { id: 'buy', label: '出 ¥6,000 接摊 · 明天照常开', effect: { cash: -6000, job: 'business', network: 12, health: -6 },

@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import type { ActivityKind, CastMember, OriginCard, PlayerAppearance } from '../game/types';
+import type { CastMember, OriginCard, PlayerAppearance } from '../game/types';
 import { ORIGIN_POOLS } from '../game/content';
 import { castArt, playerArt, type ArtRegion } from '../game/art';
 export function AtlasArt({region,className='',label}:{region:ArtRegion;className?:string;label?:string}){
@@ -17,8 +17,4 @@ export function CardArt({card}:{card:OriginCard}){
  const sheets={'出身':'birth','家底':'wealth','天赋':'talent','牵绊':'ties','秘密':'secrets'};
  const index=ORIGIN_POOLS[card.slot].findIndex(c=>c.id===card.id);
  return <div className="card-art"><AtlasArt region={{src:`/art/cards-${sheets[card.slot]}.webp`,columns:4,rows:2,index:Math.max(0,index),aspect:1}}/></div>;
-}
-export function StoryArt({kind,className=''}:{kind:ActivityKind|'year';className?:string}){
- const index=({career:0,romance:1,rest:2,learn:3,housing:4,social:5,business:6,explore:7,year:2})[kind];
- return <div className={'story-art '+className}><AtlasArt region={{src:'/art/story-scenes.webp',columns:4,rows:2,index,aspect:1}}/></div>;
 }

@@ -1,4 +1,4 @@
-import type { LooksLevel, PlayerAppearance } from './types';
+import type { DistrictId, LifeEvent, LooksLevel, PlayerAppearance } from './types';
 export interface ArtRegion {src:string;columns:number;rows:number;index:number;aspect:number;}
 export const LOOKS:{id:LooksLevel;name:string;line:string;flavor:string;face:number;attraction:number}[]=[
  {id:'everyday',name:'普通耐看',line:'地铁闸机都不会多看你一眼',flavor:'无外貌加成',face:0,attraction:0},
@@ -12,4 +12,18 @@ export function castArt(id:string):ArtRegion{
  if(female.includes(id))return {src:'/art/romance-female.webp',columns:2,rows:2,index:female.indexOf(id),aspect:2/3};
  if(male.includes(id))return {src:'/art/romance-male.webp',columns:2,rows:2,index:male.indexOf(id),aspect:2/3};
  return {src:'/art/supporting-cast.webp',columns:4,rows:4,index:Math.max(0,support.indexOf(id)),aspect:1};
+}
+
+export type StreetPhoto = DistrictId | 'cover' | 'station' | 'keys' | 'kitchen' | 'ferry' | 'table' | 'bookshop';
+
+export function streetPhoto(photo: StreetPhoto): string {
+ return '/art/shanghai-streets/' + photo + '.webp';
+}
+
+const eventPhotos: Partial<Record<LifeEvent['category'], StreetPhoto>> = {
+ career: 'lujiazui', romance: 'table', learn: 'bookshop', housing: 'keys', business: 'kitchen',
+};
+
+export function eventPhoto(event: LifeEvent, district: DistrictId): string {
+ return event.illustration ?? streetPhoto(eventPhotos[event.category] ?? district);
 }

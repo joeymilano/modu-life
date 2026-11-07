@@ -1,3 +1,4 @@
+import { streetPhoto } from '../game/art';
 import { ACTIVITY_NAMES } from '../game/engine';
 import type { District, Hotspot } from '../game/types';
 import Icon from './Icon';
@@ -7,7 +8,7 @@ export default function StreetScene({ district, disabled, onVisit, onNightOwl }:
 }) {
   return <div className="street-scene">
     <div className="street-frame" data-district={district.id} key={district.id}>
-      <img src={'/art/after-hours/' + district.id + '.webp'} alt="" width={764} height={337} />
+      <img src={streetPhoto(district.id)} alt="" width={764} height={508} />
       <div className="street-name">
         <span>{district.en}</span>
         <h1>{district.name}</h1>
