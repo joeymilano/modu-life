@@ -46,6 +46,8 @@ export function pearlPhoto(shot: 'arena' | 'hero' | 'receipt' | 'booth' | 'night
  return `/art/pearl/${shot}.webp`;
 }
 
+export const TIMELINE_COVER = '/art/timelines/ferry.webp';
+
 export const OPENING_STILLS = ['garage', 'dialect', 'portfolio', 'bank', 'cat'] as const;
 
 export function openingPhoto(shot: (typeof OPENING_STILLS)[number]): string {

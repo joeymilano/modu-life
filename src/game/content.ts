@@ -1,5 +1,7 @@
 import type { Career, CastMember, District, Goal, OriginCard, OriginSlot } from './types';
 
+export const HOUSING_NAMES = ['合租 / 亲友房', '普通租房', '改善租房', '自有住房'] as const;
+
 export const DISTRICTS: District[] = [
   { id:'bund', name:'外滩', en:'THE BUND', subtitle:'有船就能过江', color:'#3b7475', hotspots:[
     {id:'bund-river',name:'江边长椅',kind:'rest',position:[-7,2],caption:'背后有人在练萨克斯'},

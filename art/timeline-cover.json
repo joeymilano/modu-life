@@ -1,0 +1,8 @@
+{
+  "generator": "Built-in ImageGen",
+  "assets": {
+    "public/art/timelines/ferry.webp": {
+      "prompt": "Original wide 3:2 landscape live-action Shanghai photograph for the chapter cover of a game about comparing two possible lives. A solitary passenger stands right of center at the bright open end of a long utilitarian older Huangpu ferry shelter at the Bund near the end of afternoon, where two parallel waist-high steel pedestrian lanes split around a low island before the water. Camera looks out from deep soft shaded shelter toward a broad river. Keep the leftmost 43 percent in genuinely deep quiet green-gray shade with a simple painted steel post, worn gray stone and subtle texture; game title will be composited there. Human figure at x=72%, y=48%, in ordinary muted brick-red cotton work jacket, one hand on a rail, looking toward real Pudong buildings in the far distance. Far skyline identifiable but small, a believable white working ferry crossing mid distance, pale sunlight reflecting off water, air has real depth. Rail lines pull the eye toward different paths, no surreal duplicate city or impossible geometry. Realistic Shanghai rail hardware and modest transit setting, fine grain, normal 40mm full frame lens, natural gray green neutral colors and warm side light, gentle exposure. Clear silhouette and river on right usable when cut to a very wide 4:1 cover banner and on a tall mobile crop. No painting, CGI, fantasy, double exposure, fake Chinese signage, letters, logos, graphic overlays, neon, oversaturation, nostalgia filter, or frame."
+    }
+  }
+}

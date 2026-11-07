@@ -1,7 +1,9 @@
 import { allOrigins, ending, publicOriginNames } from './engine';
-import { endingPhoto, pearlPhoto, playerArt, LOOKS, streetPhoto } from './art';
+import { endingPhoto, pearlPhoto, playerArt, LOOKS, streetPhoto, TIMELINE_COVER } from './art';
 import { DISTRICTS, GOALS } from './content';
 import { PEARL_DELAYS, pearlHash, pearlRank, type PearlScore } from './pearl';
+import { describeDecision, lineDivergence, lineFacts } from './lineComparison';
+import { lineName, type LifeLine } from './lifeLines';
 import type { GameState } from './types';
 export const SITE_URL='https://modulife.pages.dev';
 function lines(ctx:CanvasRenderingContext2D,text:string,x:number,y:number,max:number,lineHeight:number){let line='';for(const c of text){if(ctx.measureText(line+c).width>max){ctx.fillText(line,x,y);y+=lineHeight;line=c;}else line+=c;}ctx.fillText(line,x,y);return y;}
@@ -99,6 +101,74 @@ export async function makeShareCard(s:GameState):Promise<Blob>{
 export type SharedHand = Pick<GameState, 'seed' | 'origins' | 'goal' | 'appearance'>;
 export function challengeUrl(s:SharedHand){const url=new URL(SITE_URL);url.searchParams.set('seed',s.seed);url.searchParams.set('cards',s.origins.join('.'));url.searchParams.set('goal',s.goal);url.searchParams.set('gender',s.appearance.gender);url.searchParams.set('looks',s.appearance.looks);return url.toString();}
 export function downloadBlob(blob:Blob,name:string){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);}
+
+export async function makeLineCard(first: LifeLine, second: LifeLine): Promise<Blob> {
+ const canvas = document.createElement('canvas');
+ canvas.width = 1080;
+ canvas.height = 1440;
+ const ctx = canvas.getContext('2d');
+ if (!ctx) throw new Error('对照图没存下来');
+ const split = lineDivergence(first, second);
+ const scene = split && describeDecision(first, split.left);
+ const facts = [lineFacts(first, scene?.speaker), lineFacts(second, scene?.speaker)];
+ const sameHand = challengeUrl(first.state) === challengeUrl(second.state);
+ const ink = '#253d32', brick = '#903d2c';
+ ctx.fillStyle = '#f5eedf';
+ ctx.fillRect(0, 0, 1080, 1440);
+ ctx.fillStyle = ink;
+ ctx.fillRect(60, 54, 960, 4);
+ const logo = new Image();
+ logo.src = '/brand/logo-dark.svg';
+ try {
+  await logo.decode();
+  ctx.drawImage(logo, 60, 73, 220, 52);
+ } catch {
+  ctx.font = 'bold 30px "Songti SC", serif';
+  ctx.fillText('魔都人生', 60, 108);
+ }
+ ctx.font = 'bold 67px "Songti SC", serif';
+ ctx.fillText(sameHand ? '同一手牌，两种走法' : '两条线，过成什么样', 60, 227, 960);
+ await paintPhoto(ctx, scene?.art ?? TIMELINE_COVER, [60, 262, 960, 327], scene?.art ? .18 : .40);
+ ctx.fillStyle = brick;
+ ctx.font = '27px sans-serif';
+ ctx.fillText(split ? split.left.before.age + '岁 · ' + split.left.title : '两条线的近况', 60, 637, 960);
+ const starts = [246, 646];
+ for (const [i, line] of [first, second].entries()) {
+  const x = starts[i];
+  ctx.fillStyle = ink;
+  ctx.font = 'bold 35px "Songti SC", serif';
+  ctx.fillText(lineName(line.id) + ' · ' + line.state.age + '岁', x, 698, 360);
+  const choice = split && (i === 0 ? split.left : split.right).choice;
+  const place = DISTRICTS.find(district => district.id === line.state.district)?.name ?? '上海';
+  ctx.fillStyle = '#4a5a50';
+  ctx.font = '25px sans-serif';
+  const caption = choice ?? place;
+  lines(ctx, caption.length > 38 ? caption.slice(0, 37) + '…' : caption, x, 743, 362, 34);
+ }
+ for (const [i, row] of facts[0].entries()) {
+  const y = 833 + i * 65;
+  ctx.fillStyle = facts[0][i].value === facts[1][i].value ? '#f5eedf' : '#ebdec7';
+  ctx.fillRect(60, y, 960, 64);
+  ctx.fillStyle = '#c9bea8';
+  ctx.fillRect(60, y, 960, 1);
+  ctx.fillStyle = '#566456';
+  ctx.font = '25px sans-serif';
+  ctx.fillText(row.label, 76, y + 43);
+  ctx.fillStyle = ink;
+  ctx.font = 'bold 31px sans-serif';
+  for (const [column, x] of starts.entries()) ctx.fillText(facts[column][i].value, x, y + 44, 360);
+ }
+ const hasCode = sameHand && await paintChallengeCode(ctx, challengeUrl(first.state), 1020, 1212, 184);
+ ctx.fillStyle = ink;
+ ctx.fillRect(60, 1231, hasCode ? 746 : 960, 2);
+ ctx.font = 'bold 29px sans-serif';
+ ctx.fillText(hasCode ? '扫码抽同一手牌' : '来上海，抽你自己的手牌', 60, 1301);
+ ctx.fillStyle = brick;
+ ctx.font = '23px sans-serif';
+ ctx.fillText('modulife.pages.dev', 60, 1340);
+ return await new Promise((resolve, reject) =>
+  canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('对照图没存下来')), 'image/png'));
+}
 
 export function readChallenge(params: URLSearchParams) {
  const seed = params.get('seed');
