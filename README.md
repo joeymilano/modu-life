@@ -18,7 +18,8 @@ npm run dev
 ## 已做的玩法
 
 - 18—60岁六个人生章节；42个年度回合，每年三格行动。每月收入、住房和生活费在年末统一结算。
-- 五槽40张开局卡，两个免费重抽机会，五种人生目标；挑战链接保留种子、开局卡与目标。
+- 五槽 40 张开局卡，两个免费重抽机会，五种人生目标。抽完就能复制同手牌链接，保留重抽结果、外观和目标。
+- 五种特定手牌会在 18 岁带来独立插曲，可以开支线。
 - 六城区、24地标，角色能点击地面或用WASD/方向键移动，建筑避让与寻路；也可以直接进入已选地点。
 - 八条职业与三轮面试。晋升需要在岗时间、本事和工作评审。33 岁缩编和 45 岁工作变动会改变工资、工时或岗位，自由职业和生意的收入会波动。
 - 24名人物，八名成年恋爱候选。对话按人物偏好结算吸引、信任与承诺；疏于维护关系会流失信任。
@@ -64,7 +65,7 @@ python3 scripts/browser_smoke.py
 
 颜值对开局腔势和第一次认识恋爱对象的好感有小幅加成，信任、承诺与关系结局继续由相处决定。性别不限制可认识的对象。地图里的玩家也随性别与颜值切换发型和衣着。绿裙模型目前是静态网格，会随角色移动与转向。
 
-人物立绘、40 张开局牌、小游戏场景和街景使用内置 ImageGen 生成的纪实摄影风格素材。运行时文件在 `public/art/`，提示词在 `art/portrait-and-origin-prompts.json` 、`art/shanghai-streets.json`、`art/street-cast-stills.json` 、`art/pearl-stills.json` 、`art/cast-followups.json` 和 `art/neighborhood-stills.json`。初版素材和提示词归档在 `art/source/` 与 `art/prompts.json`。24 位常驻角色的头像与立绘来自同一张图，点开通讯录的头像可以看大图和最近的共同经历。
+人物立绘、40 张开局牌、小游戏场景和街景使用内置 ImageGen 生成的纪实摄影风格素材。运行时文件在 `public/art/`，提示词在 `art/portrait-and-origin-prompts.json` 、`art/shanghai-streets.json`、`art/street-cast-stills.json` 、`art/pearl-stills.json` 、`art/cast-followups.json` 、`art/neighborhood-stills.json` 和 `art/opening-stills.json`。初版素材和提示词归档在 `art/source/` 与 `art/prompts.json`。24 位常驻角色的头像与立绘来自同一张图，点开通讯录的头像可以看大图和最近的共同经历。
 
 八名约会对象各有一次三幕初见和一场后续剧情。初见的决定会改变下一次可以选的走法。再见一面的选择会留在时间线，也能连同剧照做成车票发给朋友。陆嘉和何亮会提起第一晚发生的事。16 张约会剧照和生成提示词见 `public/art/dates/` 与 `art/date-stills.json`。
 

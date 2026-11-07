@@ -46,6 +46,12 @@ export function pearlPhoto(shot: 'arena' | 'hero' | 'receipt' | 'booth' | 'night
  return `/art/pearl/${shot}.webp`;
 }
 
+export const OPENING_STILLS = ['garage', 'dialect', 'portfolio', 'bank', 'cat'] as const;
+
+export function openingPhoto(shot: (typeof OPENING_STILLS)[number]): string {
+ return '/art/opening/' + shot + '.webp';
+}
+
 export const MATCH_STILLS = ['paper', 'coffee', 'bench', 'own-umbrella'] as const;
 
 export function matchPhoto(shot: (typeof MATCH_STILLS)[number]): string {

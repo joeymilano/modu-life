@@ -96,7 +96,8 @@ export async function makeShareCard(s:GameState):Promise<Blob>{
  g.fillStyle='#b2402b';g.font='22px sans-serif';g.fillText('modulife.pages.dev',65,1392);
  return await new Promise((resolve,reject)=>c.toBlob(b=>b?resolve(b):reject(new Error('分享卡生成失败')),'image/png'));
 }
-export function challengeUrl(s:GameState){const url=new URL(SITE_URL);url.searchParams.set('seed',s.seed);url.searchParams.set('cards',s.origins.join('.'));url.searchParams.set('goal',s.goal);url.searchParams.set('gender',s.appearance.gender);url.searchParams.set('looks',s.appearance.looks);return url.toString();}
+export type SharedHand = Pick<GameState, 'seed' | 'origins' | 'goal' | 'appearance'>;
+export function challengeUrl(s:SharedHand){const url=new URL(SITE_URL);url.searchParams.set('seed',s.seed);url.searchParams.set('cards',s.origins.join('.'));url.searchParams.set('goal',s.goal);url.searchParams.set('gender',s.appearance.gender);url.searchParams.set('looks',s.appearance.looks);return url.toString();}
 export function downloadBlob(blob:Blob,name:string){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);}
 
 export function readChallenge(params: URLSearchParams) {

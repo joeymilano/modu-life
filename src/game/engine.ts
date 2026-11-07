@@ -4,6 +4,7 @@ import { lastDayEvent } from './lastDay';
 import { workYearEvent } from './workScenes';
 import { employmentOf, monthlySalary, moveJob, NIGHT_WORK, registerReview } from './employment';
 import { EVENTS } from './events';
+import { LOAN_DUE, LOAN_INSTALLMENT } from './originStories';
 import type { ActivityKind, ChoiceResult, Effect, EventChoice, GameState, GoalId, LifeEvent, LooksLevel, OriginCard, OriginSlot, PlayerAppearance, StatKey } from './types';
 
 export const STAT_NAMES: Record<StatKey,string> = { health:'身体', spirit:'心气', skill:'本事', face:'腔势', network:'人脉' };
@@ -23,6 +24,11 @@ export const allOrigins = () => Object.values(ORIGIN_POOLS).flat();
 export function drawOrigins(seed:string, reroll=0):OriginCard[] {
   let rng=hashSeed(seed+':'+reroll);
   return (['出身','家底','天赋','牵绊','秘密'] as OriginSlot[]).map(slot=>{const [r,next]=randomStep(rng);rng=next;const pool=ORIGIN_POOLS[slot];return pool[Math.floor(r*pool.length)];});
+}
+export function rerollOrigin(seed: string, round: number, current: OriginCard): OriginCard {
+ const candidates = ORIGIN_POOLS[current.slot].filter(card => card.id !== current.id);
+ const [roll] = randomStep(hashSeed(seed + ':swap:' + round + ':' + current.slot));
+ return candidates[Math.floor(roll * candidates.length)];
 }
 export function newSeed():string {const values=new Uint32Array(1);if(globalThis.crypto?.getRandomValues)globalThis.crypto.getRandomValues(values);else values[0]=Date.now();return values[0].toString(36).toUpperCase().padStart(6,'0').slice(0,7);}
 export function chapterOf(age:number){return Math.min(5,Math.floor((age-18)/7));}
@@ -183,9 +189,14 @@ export function nextYear(state:GameState) {
     s.stats.health=clamp(s.stats.health-Math.round((body+(late?4:0))*activeMonths/12));
     s.stats.spirit=clamp(s.stats.spirit-Math.round((mind+(late?3:0))*activeMonths/12));}
   if(s.partnerId){const rel=s.relationships[s.partnerId];const keptInTouch=rel.memories.some(m=>m.startsWith(s.age+'岁 · '));if(!keptInTouch){rel.trust=clamp(rel.trust-4);rel.commitment=clamp(rel.commitment-2);}}
-  s.cash+=income-expense;s.totalEarned+=income;if(income>0)s.yearsEmployed++;
+  const repayment=s.flags.includes(LOAN_DUE)?LOAN_INSTALLMENT:0;
+  s.cash+=income-expense-repayment;s.totalEarned+=income;if(income>0)s.yearsEmployed++;
   const notices:string[]=[];
   let note=income?`工资到账 ¥${income.toLocaleString()}，固定开支 ¥${expense.toLocaleString()}。`:`这一年没有固定工资，生活开支 ¥${expense.toLocaleString()}。`;
+  if(repayment){
+    s.flags=s.flags.filter(flag=>flag!==LOAN_DUE);
+    note+=` 这期助学贷款已扣 ¥${repayment.toLocaleString()}。`;
+  }
   if(employment.closedMonths>0)note+=` 旧岗位入账 ¥${employment.earned.toLocaleString()}，当前岗位计 ${activeMonths} 个月。`;
   if(s.cash<0){const shortage=-s.cash;s.cash=6000;s.rescues++;s.stats.spirit=clamp(s.stats.spirit-8);s.housing=0;s.flags=[...new Set([...s.flags,'needed_help'])];notices.push(`周转差了 ¥${shortage.toLocaleString()}。朋友帮你垫了一笔，你搬回合租房，手上留下 ¥6,000。`);s.journal.push({age:s.age,title:'先把这关过了',text:'朋友帮忙垫了周转钱，你搬回合租房。收好行李，先把明天的面试地址存下来。',tag:'重整'});}
   s.stats.health=clamp(s.stats.health-(s.age>40?3:1));s.stats.spirit=clamp(s.stats.spirit-2);
@@ -199,7 +210,7 @@ export function nextYear(state:GameState) {
   s.journal.push({age:s.age,title:`${s.age}岁年度账本`,text:note,tag:'账本'});
   if(s.employment)s.employment={...employment,closedMonths:0,earned:0};
   s.age++;s.actions=3;s.ended=s.age>=60;s.pendingYearEvent=!s.ended;
-  return {state:s,income,expense,note,notice,payroll};
+  return {state:s,income,expense,note,notice,payroll,repayment};
 }
 export function relationshipLabel(s:GameState,id:string){const r=s.relationships[id];if(!r?.met)return '未遇见';if(s.partnerId===id)return r.trust>75?'彼此笃定':'正在一起';if(r.trust>=70&&r.attraction>=50)return '心照不宣';if(r.trust>=45)return '熟悉的人';return '刚认识';}
 export function commitRelationship(s:GameState,id:string):GameState {const rel=s.relationships[id];if(!rel?.met||rel.trust<55||rel.attraction<45)throw new Error('再多了解彼此一点，现在还没到这一步。');let next=structuredClone(s);next.partnerId=id;next.relationships[id].commitment=clamp(rel.commitment+25);next.flags=[...new Set([...next.flags,'committed'])];next.journal.push({age:s.age,title:`和${CAST.find(c=>c.id===id)?.name}一起`,text:'你们吃完饭，顺路一起去买了牙刷。回去的路上，谁也没再说客气话。',tag:'关系'});return next;}
