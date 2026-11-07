@@ -90,6 +90,12 @@ export function selectEvent(s:GameState,kind:ActivityKind|'year',npcId?:string):
   if(npcId){const personal=candidates.filter(e=>e.speakerId===npcId);if(personal.length)candidates=personal;else candidates=candidates.filter(e=>!e.speakerId);}
   const continuing=candidates.filter(e=>e.chainId&&(e.chainStep||0)>0);if(continuing.length)candidates=continuing;
   if(candidates.length){const [r]=randomStep(s.rng);const total=candidates.reduce((n,e)=>n+(e.weight||1),0);let weight=r*total;const picked=candidates.find(e=>(weight-=e.weight||1)<0)||candidates[0];
+    if(picked.id==='laser_story-1'){
+      const remembered=s.flags.includes('pearl_appeal')?'他把你退过四块的那张小票压在玻璃下面，说这是第一版防伪标。'
+        :s.flags.includes('pearl_help')?'当年一起抬桌子的爷叔坐在隔壁。他用拐杖敲了敲凳腿，给你留个位置。'
+        :s.flags.includes('pearl_drink')?'你先认出了柜台上那台卡纸的打印机。那天跟着你喝的人，现在管收银。':null;
+      if(remembered)return {...picked,text:picked.text+' '+remembered};
+    }
     if(picked.id==='year-20'&&s.housing===3)return {...picked,title:'有房，也得看合同',text:'家里有房可住。物业送来一叠维修文件，老妈让你看看，哪些需要自己掏钱。'};
     if(picked.id==='year-23'&&!s.jobId)return {...picked,title:'朋友第一笔像样工资',text:'朋友的工资到了，在群里发了个红包。你抢到两块三，顺手又点开了招聘软件。',choices:picked.choices.map((c,i)=>i===0?{...c,label:'接一份临时小项目',reply:'项目做完，四千块到账。你给那张收款截图点了收藏。'}:c)};
     if(picked.id==='year-28'&&s.housing===3)return {...picked,text:'朋友发来新房钥匙，你点了赞。旁边自家的维修清单还摊着，今天得先打电话找师傅。'};

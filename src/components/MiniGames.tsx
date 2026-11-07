@@ -1,24 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
-import type { Career, CastMember, Effect, PlayerAppearance } from '../game/types';
+import { useEffect, useState } from 'react';
+import type { Career, CastMember, Effect } from '../game/types';
 import { finishDate, romanceQuestions, type Question } from '../game/dates';
 import { datePhoto, workPhoto } from '../game/art';
-import { hashSeed } from '../game/engine';
 import Icon from './Icon';
-import { Portrait, PlayerPortrait } from './Portrait';
-
-export function LaserGame({seed,cash,appearance={gender:'male',looks:'everyday'},age=18,onFinish}:{seed:string;cash:number;appearance?:PlayerAppearance;age?:number;onFinish:(effect:Effect,text:string)=>void}){
- const [phase,setPhase]=useState<'intro'|'warn'|'fire'|'done'>('intro'),[wave,setWave]=useState(0),[lane,setLane]=useState(1),[hits,setHits]=useState(0);
- const current=useRef(lane);current.current=lane;const hitRef=useRef(0),finished=useRef(false);const threat=hashSeed(seed+':laser:'+wave)%3;
- useEffect(()=>{if(phase==='warn'){const timer=setTimeout(()=>{if(current.current===threat){hitRef.current++;setHits(hitRef.current);}setPhase('fire');},wave<2?1500:1050);return()=>clearTimeout(timer);}if(phase==='fire'){const timer=setTimeout(()=>{if(wave>=4)setPhase('done');else{setWave(w=>w+1);setPhase('warn');}},450);return()=>clearTimeout(timer);}},[phase,wave,threat]);
- useEffect(()=>{const key=(e:KeyboardEvent)=>{if(phase!=='warn')return;if(e.key==='ArrowLeft'||e.key==='a'){e.preventDefault();setLane(l=>Math.max(0,l-1));}if(e.key==='ArrowRight'||e.key==='d'){e.preventDefault();setLane(l=>Math.min(2,l+1));}if(['1','2','3'].includes(e.key))setLane(Number(e.key)-1);};window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key);},[phase]);
- const finish=(effect:Effect,text:string)=>{if(finished.current)return;finished.current=true;onFinish({...effect,setFlags:['laser_done',...(effect.setFlags||[])]},text);};
- return <div className="laser-game"><div className="mini-eyebrow">城市怪谈 / 外滩限定</div><h2>四元柠檬水保卫战</h2><p className="mini-lead">吸管刚插进去，对岸的塔红了。<br/>“不是吧，我就喝一口。”</p>
- <div className={'laser-arena phase-'+phase}>
- <div className="laser-status">{phase==='intro'?'消费记录异常，正在扫描':phase==='done'?'扫描结束，你还在上海':phase==='warn'?'红色区域即将被扫到，快换位置！':'侬好，防御塔已上线'}</div>
- <div className="laser-lanes">{[0,1,2].map(i=><button key={i} aria-label={'移动到'+['左侧','中间','右侧'][i]} aria-pressed={lane===i} className={'laser-lane '+(i===threat&&phase!=='intro'&&phase!=='done'?'danger ':'')+(lane===i?'occupied':'')} onClick={()=>setLane(i)}>{i===threat&&phase==='fire'&&<span className="beam"/>}{lane===i&&<span className="tiny-player"><PlayerPortrait appearance={appearance} size={42} age={age}/></span>}<span className="lane-number">{i+1}</span></button>)}</div>
- <div className="laser-hud"><span>第 {Math.min(5,wave+1)} / 5 轮</span><span>擦伤 {hits} 次</span></div></div>
- {phase==='intro'?<div className="mini-options"><button className="primary" onClick={()=>setPhase('warn')}><Icon name="bolt"/>拿稳柠檬水，开始躲</button><button className="secondary" disabled={cash<80} onClick={()=>finish({cash:-80,face:5,spirit:3},'你花八十块套上咖啡杯套。红光扫了一圈，放行了。吸管里还是那口四元柠檬水。')}>借个咖啡杯套伪装 · ¥80</button><button className="text-button" onClick={()=>finish({network:8,spirit:7,face:-2},'路人一看你手里的杯子，熟练地撑开伞，把你拉进阴影里。伞上贴着六个字，蜜雪用户专用。')}>喊路人搭把手</button><small>点击三条步道换位置，或按 ← → / 1 2 3。先看红色预警。</small></div>:phase==='done'?<div className="mini-options"><p>{hits===0?'一滴没洒，冰块都还在':hits<=2?'袖口蹭黑了，柠檬水还剩大半杯。也算赚到。':'路人把你拉回来，看了看杯子，说下次换个袋子装'}</p><button className="primary" onClick={()=>finish({health:-hits*3,spirit:12-hits*2,face:8-hits,network:hits>=3?5:2,setFlags:hits===0?['laser_master']:[]},hits===0?'你躲过了五轮扫描，四元柠檬水一滴没洒。有人鼓掌，有人问你教程发哪里。你说下次带个杯套也行。':`扫描结束。你擦伤了${hits}次，路人帮你掸了掸灰。“来都来了，喝完再走。”`)}>喝完再走 <Icon name="arrow"/></button></div>:<p className="mini-help">点步道移动 · 红色预告 → 激光扫过 · 剩下 {5-wave} 轮</p>}</div>;
-}
+import { Portrait } from './Portrait';
 
 function interviewOpening(text:string, practical:[string,string], bluff:[string,string], alternative:[string,string]):Question{
  return {text,answers:[practical,bluff,alternative].map(([label,reply],index)=>({label,reply,points:[2,0,1][index]}))};

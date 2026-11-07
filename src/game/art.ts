@@ -37,6 +37,10 @@ export function workPhoto(shot: WorkPhoto): string {
  return `/art/work/${shot}.webp`;
 }
 
+export function pearlPhoto(shot: 'arena' | 'hero' | 'receipt' | 'booth' | 'night-office'): string {
+ return `/art/pearl/${shot}.webp`;
+}
+
 export type StreetPhoto = DistrictId | 'cover-station' | 'station' | 'keys' | 'kitchen' | 'ferry' | 'table' | 'bookshop'
  | 'first-night-room' | 'first-night-shift' | 'first-night-ferry';
 

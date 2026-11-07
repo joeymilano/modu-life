@@ -1,0 +1,125 @@
+.laser-arena {
+  position: relative;
+  margin-top: 19px;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: 4px 4px 0 0;
+  background: #182830;
+}
+.laser-backdrop, .laser-beam { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.laser-backdrop { object-fit: fill; }
+.laser-beam { z-index: 3; }
+.beam-glow { fill: none; stroke: #ff544b; stroke-width: 12; opacity: .8; filter: blur(4px); }
+.beam-core { fill: none; stroke: #fff1c5; stroke-width: 2.5; }
+.laser-status {
+  position: absolute; z-index: 4; left: 50%; top: 10px; transform: translateX(-50%);
+  width: max-content; max-width: 94%; text-align: center; padding: 6px 10px; overflow: hidden;
+  background: #142126eb; color: #fff5e2; border-radius: 3px; font-size: 12px; font-weight: 600;
+}
+.laser-status[data-impact="hit"] { background: #821c23; }
+.laser-status[data-impact="blocked"] { color: #291f17; background: #f4ce86; }
+.laser-countdown {
+  position: absolute; inset: auto 0 0; height: 2px; background: #ef7464;
+  transform-origin: left; animation: burn-fuse linear forwards;
+}
+@keyframes burn-fuse { to { transform: scaleX(0); } }
+@media (prefers-reduced-motion: reduce) { .laser-countdown { animation: none; } }
+.laser-lanes {
+  position: absolute; inset: auto 0 0; height: 32%; min-height: 77px; z-index: 2;
+  display: grid; grid-template-columns: repeat(3,1fr);
+  border-top: 1px solid #fff5e28a; background: #14212644;
+}
+.laser-lane {
+  position: relative; min-width: 0; padding: 0; background: #14212677; color: #fff5e2;
+  border-inline-end: 1px solid #fff5e270; touch-action: manipulation;
+}
+.laser-lane:last-child { border-inline-end: 0; }
+.laser-lane.occupied { background: #25483b99; }
+.laser-lane.danger {
+  background: repeating-linear-gradient(135deg,#891c2a90 0 12px,#bd393caa 12px 24px);
+  box-shadow: inset 0 0 0 2px #fa725e;
+}
+.laser-warning {
+  position: absolute; top: 4px; left: 50%; transform: translateX(-50%); padding: 1px 6px;
+  background: #681221; border-radius: 2px; color: #fff1db; font-size: 10px; white-space: nowrap;
+}
+.laser-lane .lane-number { position: absolute; inset: auto 0 5px; text-align: center; font-size: 11px; font-weight: 600; line-height: 1.2; color: #fff5e2; }
+.laser-lane .tiny-player {
+  position: absolute; z-index: 2; display: grid; place-items: center;
+  width: 42px; height: 42px; left: calc(50% - 21px); bottom: 21px;
+  border-radius: 50%; box-shadow: 0 0 0 2px #fff5e2,0 4px 13px #071b1d99;
+}
+.laser-lane .tiny-player .player-portrait-head { border: 0; }
+.tiny-player.under-umbrella { box-shadow: 0 0 0 3px #ffdc91; }
+.umbrella-mark {
+  position: absolute; right: -11px; top: -6px; display: grid; place-items: center;
+  border-radius: 50%; width: 18px; height: 18px; color: #2d2920; background: #ffdc91; font-size: 10px; font-weight: 700;
+}
+.laser-hud {
+  display: grid; grid-template-columns: auto auto minmax(0,1fr); align-items: center; gap: 13px;
+  padding: 5px 8px 5px 12px; min-height: 48px; border-radius: 0 0 4px 4px;
+  background: #142126; color: #fff5e2; font-size: 12px;
+}
+.laser-hud>:last-child { justify-self: end; }
+.laser-umbrella {
+  min-height: 36px; padding: 5px 10px; border-radius: 3px;
+  color: #392918; background: #f4ce86; font-size: 12px; font-weight: 700;
+}
+.laser-umbrella:hover:not(:disabled) { background: #ffe5b3; }
+.laser-game .mini-options small { color: #4d655b; font-size: 12px; }
+.pearl-page { min-height: 100svh; background: #142128; color: #f6eddc; }
+.pearl-top {
+  display: flex; justify-content: space-between; gap: 12px; align-items: center;
+  max-width: 1380px; margin: auto; padding: 17px clamp(16px,5vw,65px); border-bottom: 1px solid #d1c1a94f;
+}
+.pearl-top button {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 5px 8px;
+  color: #f4e3c5; border: 1px solid #d1c1a96c; border-radius: 3px; background: transparent;
+}
+.pearl-top small { font-size: 12px; color: #e1c58c; }
+.pearl-layout {
+  display: grid; grid-template-columns: minmax(0,1fr) minmax(0,.94fr); align-items: start;
+  gap: clamp(16px,3vw,40px); max-width: 1380px; margin: auto; padding: clamp(15px,4vw,48px);
+}
+.pearl-hero {
+  position: relative; min-height: 590px; height: 100%; isolation: isolate;
+  display: flex; align-items: flex-end; padding: clamp(17px,4vw,46px);
+  border-radius: 5px; overflow: hidden; background: #22373d;
+}
+.pearl-hero img, .pearl-hero::after { position: absolute; inset: 0; width: 100%; height: 100%; }
+.pearl-hero img { z-index: -2; object-fit: cover; object-position: 68% center; }
+.pearl-hero::after { content: ''; z-index: -1; background: linear-gradient(0deg,#121a21fb,transparent 68%); }
+.pearl-hero h1 { font: 700 clamp(34px,4.3vw,61px)/1.12 var(--serif); max-width: 9em; margin: 7px 0 14px; color: #ffefd1; }
+.pearl-hero p { max-width: 31em; line-height: 1.6; color: #f4d9a6; font-size: 14px; }
+.pearl-hero .eyebrow { color: #ffc980; font-size: 12px; }
+.pearl-board { min-width: 0; background: #f5efe0; color: #283b35; border-radius: 5px; overflow: hidden; }
+.pearl-board .laser-game, .pearl-result { padding: clamp(19px,3vw,40px); }
+.pearl-board h2 { font: 700 clamp(24px,3vw,36px)/1.2 var(--serif); }
+.pearl-board .mini-lead { color: #435c52; }
+.pearl-result .eyebrow { color: #943f30; font-size: 12px; margin-bottom: 9px; }
+.pearl-result>p:not(.eyebrow) { color: #435c52; font-size: 15px; line-height: 1.7; margin-top: 12px; }
+.pearl-result img { display: block; width: 100%; max-height: 218px; object-fit: cover; margin-top: 20px; border-radius: 3px; }
+.pearl-score { display: flex; flex-wrap: wrap; gap: 9px; margin: 16px 0; padding: 12px 0; border-block: 1px dashed #a9a38c; }
+.pearl-score span { font-size: 13px; color: #3c5549; }
+.pearl-score b { font-size: 22px; margin-right: 3px; }
+.pearl-result-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.pearl-result-actions .primary { background: #8f342a; }
+.pearl-link-field { display: grid; gap: 6px; margin-top: 13px; font-size: 12px; }
+.pearl-link-field input { width: 100%; padding: 9px; border: 1px solid #aeaa99; color: #243a33; background: #fff8ed; }
+.pearl-status { margin-top: 10px; min-height: 1.35em; color: #435c52; font-size: 12px; }
+.screen-home .pearl-entry {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 39px;
+  padding: 5px 0; border: 0; background: transparent; color: #ffe4aa; font-size: 13px; font-weight: 700;
+}
+.screen-home .pearl-entry:hover { text-decoration: underline; text-underline-offset: 4px; }
+@media (max-width: 850px) {
+  .pearl-layout { grid-template-columns: minmax(0,1fr); gap: 12px; }
+  .pearl-hero { min-height: 185px; height: auto; }
+  .pearl-hero img { object-position: 64% 49%; }
+  .pearl-hero h1 { max-width: none; font-size: 33px; margin-bottom: 6px; }
+  .pearl-hero p { font-size: 13px; }
+  .laser-lanes { min-height: 74px; }
+  .laser-lane .tiny-player { transform: scale(.82); bottom: 17px; }
+  .laser-game .mini-options small { font-size: 11px; }
+}

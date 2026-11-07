@@ -1,3 +1,4 @@
+import { pearlPhoto } from './art';
 import type { ActivityKind, Effect, EventChoice, LifeEvent } from './types';
 
 type O = [label:string, reply:string, effect:Effect, check?:EventChoice['check']];
@@ -1214,19 +1215,19 @@ C('laser_story',0,18,'explore','防御塔值夜班','你举着便宜奶茶经过
  ['靠走位完成三次闪避','鞋底有点忙，旁边的人已经笑弯腰。',{health:-3,face:8,spirit:6,setFlags:['laser_dodger']}],
  ['找同样拿平价饮料的人组队','你们发现，笑着走过去也算一种通关。',{network:7,spirit:5,setFlags:['cheap_drink_alliance']}],
 ],{tag:'魔都规则怪谈'}),
-C('laser_story',1,25,'business','防激光套餐年费版','有人来谈新生意，想把高端杯套和防御塔豁免证一起卖，另送一次主理人紧急救援。',[
- ['卖给焦虑的人，先赚一笔','套餐卖出去了，你也开始解释为什么证书失效。',{cash:9000,face:10,network:-7,setFlags:['laser_seller']}],
- ['改成明确写着玩笑的纪念品','少赚一点，大家知道自己买的是什么。',{cash:2500,network:5,skill:4}],
- ['不卖认证，组织一次平价散步','什么都没豁免，大家还是玩得很开心。',{network:7,health:4,spirit:5}],
-],{tag:'魔都规则怪谈'}),
+C('laser_story',1,25,'business','防激光套餐年费版','有人拿了两只杯套来找你，一只八块，一只八十。样子都一样，贵的那只多印了个章。他问你要不要入一股。',[
+ ['就印这个章 · 先卖一批','杯套发了两箱。最早来问的那个人拿着杯子回来，说红灯照扫，卖的时候可没说只能用一次。',{cash:9000,face:10,network:-7,setFlags:['laser_seller']}],
+ ['把章改成「防烫不防塔」','有人一口气买了三个，说老板非要约在外滩团建，带去给同事。',{cash:2500,network:5,skill:4}],
+ ['把样品退了 · 约大家去走一圈','走到外滩，卖杯套的也来了。他从包里掏出一杯柠檬水。你看了看，没套。',{network:7,health:4,spirit:5}],
+],{tag:'魔都规则怪谈',illustration:pearlPhoto('booth')}),
 C('laser_story',2,40,'social','当年被你救过的人','一个人认出你，说好多年前奶茶防御战那晚，你递过他一只杯套，或者带他找过路。',[
  ['问他这些年过得怎么样','梗聊完以后，你们真的交换了生活。',{network:8,spirit:5}],
  ['把当年的生意也说清','有些笑话如果收了真金白银，就该有交代。',{cash:-1200,face:4,network:7,removeFlags:['laser_seller']}],
  ['提议再走一次那段江边','今天不需要任何认证，也不用跑得很快。',{health:5,network:7}],
 ]),
-C('laser_story',3,58,'explore','防御塔换了攻击目标','新的快闪展征集建议。有人说继续追奶茶，有人说不如专门提醒插队和乱扔垃圾。你拿着一杯普通柠檬水走过去。',[
+C('laser_story',3,58,'explore','防御塔换了攻击目标','值班室的灯还亮着。师傅给遥控器换了两节五号电池，问以后要不要把红光改成排队提醒。你把那杯四块钱的柠檬水放到他手边。',[
  ["让红光追一次乱扔垃圾的人","插队的人刚想跨过去，红光已经照到鞋尖。后面一排柠檬水举了起来。",{network:11,spirit:9,setFlags:['laser_rewritten']}],
  ["划一块平价饮料安全区","安全区第一天就坐满了，隔壁卖咖啡的过来问他能不能也坐。",{network:12,health:4,setFlags:['laser_rewritten']}],
  ["把认证杯套撕了，当面喝一口","红光停了一下。灯控师傅低头拍遥控器，说你等等，电池好像没电了。",{spirit:13,face:5,setFlags:['laser_rewritten']}],
-],{tag:'魔都规则怪谈'}),
+],{tag:'魔都规则怪谈',illustration:pearlPhoto('night-office')}),
 ];

@@ -1,6 +1,7 @@
 import { allOrigins, ending, publicOriginNames } from './engine';
-import { endingPhoto, playerArt, LOOKS, streetPhoto } from './art';
+import { endingPhoto, pearlPhoto, playerArt, LOOKS, streetPhoto } from './art';
 import { DISTRICTS, GOALS } from './content';
+import { PEARL_DELAYS, pearlHash, pearlRank, type PearlScore } from './pearl';
 import type { GameState } from './types';
 export const SITE_URL='https://modulife.pages.dev';
 function lines(ctx:CanvasRenderingContext2D,text:string,x:number,y:number,max:number,lineHeight:number){let line='';for(const c of text){if(ctx.measureText(line+c).width>max){ctx.fillText(line,x,y);y+=lineHeight;line=c;}else line+=c;}ctx.fillText(line,x,y);return y;}
@@ -34,16 +35,16 @@ function photoCaption(ctx: CanvasRenderingContext2D, label: string, x: number, y
  ctx.fillText(label, x + 16, y + 27);
 }
 
-async function paintChallengeCode(ctx: CanvasRenderingContext2D, state: GameState): Promise<boolean> {
+async function paintChallengeCode(ctx: CanvasRenderingContext2D, url: string, right = 1020, y = 1248, size = 180): Promise<boolean> {
  try {
   const { default: makeCode } = await import('qrcode-generator');
   const code = makeCode(0, 'M');
-  code.addData(challengeUrl(state));
+  code.addData(url);
   code.make();
   const modules = code.getModuleCount();
-  const unit = Math.max(1, Math.floor(180 / (modules + 8)));
+  const unit = Math.max(1, Math.floor(size / (modules + 8)));
   const edge = (modules + 8) * unit;
-  const x = 1020 - edge, y = 1248;
+  const x = right - edge;
   ctx.save();
   ctx.fillStyle = '#fff';
   ctx.fillRect(x, y, edge, edge);
@@ -89,7 +90,7 @@ export async function makeShareCard(s:GameState):Promise<Blob>{
  }
  g.fillStyle='#62736a';g.font='22px sans-serif';g.fillText('开局这手牌',65,y);g.fillStyle='#223d3d';g.font='bold 28px sans-serif';y=lines(g,publicOriginNames(s).join(' / '),65,y+48,920,46);
  y+=80;g.font='22px sans-serif';g.fillStyle='#63766a';g.fillText('想过的日子',65,y);g.fillText('现在的积蓄',460,y);g.font='bold 36px sans-serif';g.fillStyle='#223d3d';g.fillText(GOALS.find(x=>x.id===s.goal)?.name||'',65,y+53);g.fillText('¥'+s.cash.toLocaleString(),460,y+53,355);
- const hasCode = await paintChallengeCode(g, s);
+ const hasCode = await paintChallengeCode(g, challengeUrl(s));
  g.strokeStyle='#b7c1b3';g.beginPath();g.moveTo(60,1310);g.lineTo(hasCode ? 835 : 1020,1310);g.stroke();
  g.fillStyle='#223d3d';g.font='bold 23px sans-serif';g.fillText(hasCode ? '扫码抽同一手牌' : '同一手牌，换你来试试',65,1357);
  g.fillStyle='#b2402b';g.font='22px sans-serif';g.fillText('modulife.pages.dev',65,1392);
@@ -106,4 +107,52 @@ export function readChallenge(params: URLSearchParams) {
  const cards = ids.flatMap(id => all.filter(card => card.id === id));
  if (cards.length !== 5 || new Set(cards.map(card => card.slot)).size !== 5) return null;
  return { seed, cards };
+}
+
+
+export function pearlChallengeUrl(seed: string, target: number) {
+ return new URL(pearlHash(seed, target), SITE_URL).toString();
+}
+
+export async function makePearlTicket(seed: string, score: PearlScore): Promise<Blob> {
+ const canvas = document.createElement('canvas');
+ canvas.width = 960;
+ canvas.height = 1200;
+ const ctx = canvas.getContext('2d');
+ if (!ctx) throw new Error('小票暂时打印不了');
+ ctx.fillStyle = '#ede1c9';
+ ctx.fillRect(0, 0, 960, 1200);
+ ctx.fillStyle = '#fbf5e8';
+ ctx.fillRect(32, 24, 896, 1152);
+ ctx.fillStyle = '#943c2b';
+ ctx.fillRect(64, 60, 832, 5);
+ ctx.font = 'bold 26px sans-serif';
+ ctx.fillText('魔都人生 · 外滩', 64, 113);
+ ctx.textAlign = 'right';
+ ctx.font = '23px monospace';
+ ctx.fillText('#' + seed, 896, 112);
+ ctx.textAlign = 'left';
+ ctx.fillStyle = '#263839';
+ ctx.font = 'bold 59px "Songti SC", serif';
+ ctx.fillText('四元柠檬水保卫战', 63, 206);
+ await paintPhoto(ctx, pearlPhoto('hero'), [64, 243, 832, 447], .35);
+ ctx.font = 'bold 77px "Songti SC", serif';
+ ctx.fillText(pearlRank(score), 64, 804);
+ ctx.font = '28px sans-serif';
+ ctx.fillText(PEARL_DELAYS.length + ' 轮 · 洒 ' + score.hits + ' 回 · 挡 ' + score.blocks + ' 回', 64, 867);
+ ctx.strokeStyle = '#a29a85';
+ ctx.setLineDash([8, 6]);
+ ctx.beginPath();
+ ctx.moveTo(64, 916);
+ ctx.lineTo(896, 916);
+ ctx.stroke();
+ if (!await paintChallengeCode(ctx, pearlChallengeUrl(seed, score.hits), 896, 945, 184)) {
+  throw new Error('小票的码还没印出来');
+ }
+ ctx.font = 'bold 29px sans-serif';
+ ctx.fillText('扫小票，躲同一轮红光', 64, 1007);
+ ctx.font = '22px sans-serif';
+ ctx.fillText('modulife.pages.dev', 64, 1050);
+ return new Promise((resolve, reject) =>
+  canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('小票暂时打印不了')), 'image/png'));
 }

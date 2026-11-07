@@ -111,16 +111,7 @@
 .room-scene .clue.c1{top:12%;left:7%;}
 .room-scene .clue.c2{top:auto;bottom:15%;right:9%;}
 .room-scene .clue.c3{top:44%;left:53%;}
-.laser-arena{background:#173c36 url('/art/encounters/pearl.webp') center 28%/cover;}
-.laser-status{top:12px;left:50%;right:auto;transform:translateX(-50%);width:max-content;max-width:90%;z-index:3;padding:6px 12px;border-radius:3px;background:#142126eb;color:#fff5e2;font-size:12px;}
-.laser-hud{inset:auto 0 0;padding:6px 12px;background:#142126eb;color:#fff5e2;font-size:11px;}
-.laser-lanes{background:linear-gradient(transparent,#102f29d9);}
-.laser-lane{border-left:1px solid #f6d7a42b;}
-.laser-lane:last-child{border-right:1px solid #f6d7a42b;}
-.laser-lane .lane-number{color:#fff5e2;font-size:11px;}
-.phase-warn .laser-lane.danger::after{color:#fff5e2;background:#a32627;top:5px;left:7px;right:7px;border-radius:2px;font-size:11px;}
-.laser-lane .tiny-player{width:42px;height:42px;left:calc(50% - 21px);bottom:22px;border-radius:50%;box-shadow:0 0 0 2px #fff5e2,0 4px 13px #071b1d99;}
-.laser-lane .tiny-player .player-portrait-head{border:0;}
+
 @media(min-width:1450px){.look-option{height:430px;}.event-modal{max-width:1020px;padding-left:400px;}.event-visual{width:355px;}}
 @media(max-width:1150px) and (min-width:851px){.look-option{height:330px;}.look-caption{left:18px;bottom:18px;}.look-caption h3{font-size:26px;}.player-identity{padding-bottom:12px;margin-bottom:12px;}.player-identity b{font-size:16px;}.player-identity span:not(.identity-seal){font-size:8px;}.screen-home .hero-city{left:20%;}}
 @media(max-width:850px){
@@ -192,8 +183,6 @@
 .modal{color:var(--ink);}
 .modal.romance-modal{max-width:1080px;}
 .portrait-full{border-radius:0;}
-.laser-lane{background:#092b2238;}
-.laser-lane.occupied{background:#89a88b20;}
 @media(max-width:850px){.event-content{padding:0;}.date-modal .dialogue-game{padding:0;}.romance-content{padding:12px 0;}}
 .owl-hotspot{position:absolute;left:0;top:0;pointer-events:auto;visibility:hidden;will-change:transform;border:1px solid #b79b65;border-radius:3px;background:#214638;color:#ffedc2;font-size:10px;padding:7px 9px;box-shadow:0 3px 12px #15302644;white-space:nowrap;min-height:32px;display:flex;align-items:center;gap:9px;}
 .owl-hotspot>span{font-size:8px;color:#d8bf88;}
