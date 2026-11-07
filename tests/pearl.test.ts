@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createGame, drawOrigins, resolveChoice, selectEvent } from '../src/game/engine';
 import { activeLine, forkLife, recordDecision, replayScene, startBook, switchLine } from '../src/game/lifeLines';
-import { pearlHash, pearlLanes, pearlRank, pearlReward, readPearlChallenge } from '../src/game/pearl';
+import { PEARL_DELAYS, pearlHash, pearlLanes, pearlRank, pearlReward, pearlRoundCount, pearlRounds, readPearlChallenge } from '../src/game/pearl';
 import { streetLead } from '../src/game/streetLeads';
 import { draftFromEvent } from '../src/game/timelines';
 import type { LifeEvent } from '../src/game/types';
@@ -20,6 +20,21 @@ describe('Bund lemonade challenge', () => {
   expect(readPearlChallenge('#timeline=X')).toBeNull();
   expect(readPearlChallenge('#pearl=%3Cscript%3E')).toBeNull();
   expect(readPearlChallenge('#pearl=AA&hits=6')?.target).toBeUndefined();
+ });
+
+ it('uses the original five timings for old invites and preserves the six-wave rules in a new receipt', () => {
+  const seed = 'RED-SCAN';
+  expect(pearlRounds(seed, 1).map(wave => wave.warn)).toEqual(PEARL_DELAYS);
+  const hash = pearlHash(seed, 6, 2);
+  expect(readPearlChallenge(hash)).toEqual({ seed, target: 6, rules: 2 });
+  expect(readPearlChallenge('#pearl=RED-SCAN&hits=6')?.target).toBeUndefined();
+  expect(readPearlChallenge('#pearl=RED-SCAN&v=7')).toBeNull();
+  const waves = pearlRounds(seed, 2);
+  expect(waves).toHaveLength(pearlRoundCount(2));
+  expect(waves.map(wave => wave.kind)).toEqual(['single', 'single', 'double', 'lock', 'double', 'lock']);
+  expect(waves.filter(wave => wave.kind === 'double').every(wave => [3, 5, 6].includes(wave.mask))).toBe(true);
+  expect(waves.filter(wave => wave.kind === 'lock').every(wave => wave.warn - wave.lockAt! >= 600 && wave.mask === 0)).toBe(true);
+  expect(pearlRounds(readPearlChallenge(hash)!.seed, 2)).toEqual(waves);
  });
 
  it('awards a clean run separately from an umbrella save', () => {

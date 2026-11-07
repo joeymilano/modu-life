@@ -1,0 +1,46 @@
+{
+  "generator": "Built-in ImageGen",
+  "referenceCommit": "1accdc4",
+  "frames": {
+    "public/art/pearl/arena.webp": {
+      "prompt": "Create a single landscape 3:2 photorealistic location photograph to replace the game arena photograph in the attached reference. Preserve the same exact straight-on camera composition and calm horizontal geometry for the game overlay: Puxi promenade with the Lujiazui skyline beyond the Huangpu; Shanghai Oriental Pearl Tower centered precisely horizontally, its upper large sphere center near x=50% and y=25% of frame. New camera lower, around waist height, floor perspective highly readable; distant straight rail horizontal around y=56-60%, bottom 41% empty broad wet dark-grey granite promenade with subtle perspective seams, no obstacles for players. Real Shanghai after a shower at clear late blue hour, subtle reflection of the skyline on opaque river, warm practical old iron lamp just to left near x=14% and right near x=86%, soft amber pools on dark damp stone, no huge streaks or dramatic rain. Authentic location portrait with architectural accuracy and varied lit offices, enough light on the paving to be readable as a game. Keep upper area useful for small HUD with natural evening sky. Human-scale and restrained real professional photography, specific Shanghai tower silhouette and no extra spheres. No people, UI, graphic lines, neon, digital effects, laser, labels, type, strong vignette, saturated cyan/magenta, CGI or illustration.",
+      "reference": "public/art/pearl/arena.webp"
+    },
+    "public/art/pearl/hero.webp": {
+      "prompt": "Original vertical 2:3 press still for a humorous fictional Shanghai narrative game. Grounded and tense after a rain shower on Shanghai's Bund just after dusk, fictional 23-year-old Chinese woman in navy cotton rain jacket, dark hair tied back, at half-waist camera height on Puxi promenade, turning over her shoulder at something bright just off camera, half amused half alarmed, eyes very readable. She instinctively cups one hand around an ordinary clear cup with lemon slices, no brand and no text, mid-chest. At far distance, accurate recognizable Oriental Pearl Tower across water centered to her left, an extremely restrained red practical glow on one tower sphere and dim red reflection along one sleeve, enough to suggest the joke without a ray. Damp paving and low fencing, muted blue dusk with local cream street light and real human skin. Useful crop with face and drink both centered within middle two-thirds, character and skyline visible at narrow portrait or wide horizontal crops. A real moment rather than fashion or tourist poster, noncommercial. No neon effects, graphic elements, labels, cinematic flares, artificial skin, or 3D illustration."
+    },
+    "public/art/pearl/clean.webp": {
+      "prompt": "Landscape 3:2 original photographic still in a grounded contemporary Shanghai game. After a passing shower just after dusk at the Bund, closeup of one plain clear thin plastic takeaway cup of cold lemonade still filled almost to the brim, several realistically irregular lemon slices, some ice, a slightly bent straw. On a worn wet dark-grey granite waterfront railing plinth, unobtrusive faint warm lights of the Shanghai skyline through modest optical soft focus behind, accurate silhouette hint of Oriental Pearl far behind, tiny condensation. Normal 50mm lens slightly low over cup, real photograph and subtle dry joke that the cup survived. Cup centered and vertically in middle 60 percent for 16:9 and 3:2 crops. No logos, writing, graphic or brand, no CGI and no stock advertising polish."
+    },
+    "public/art/pearl/spill.webp": {
+      "prompt": "Landscape 3:2 original cinematic still from a playful contemporary Shanghai narrative game. A half-full plain clear plastic cup of lemonade with its lid tilted loose, two ice cubes and a lemon slice on dark rain-damp granite stone of the actual-feeling Bund promenade. A practical paper napkin being offered from one side by a real human hand with credible fingers, subtle warm light from a lamppost, background subdued blue evening and edge of iron riverside rail, not overlit. Place cup with human gesture centrally to fit both wide and mobile, visible texture, natural mildly funny mess, not a commercial product shoot. No logos, captions, text, fake glows, 3D look, giant splash or elaborate effects."
+    }
+  },
+  "runnerSharedPrompt": "Create a single standalone photorealistic full-body game sprite of the same fictional adult in the provided reference. True transparent alpha background. This is a location-photo-style cutout of a person on Shanghai's Bund just after blue hour, viewed from behind at about waist-height camera level, slight rear three-quarter so one cheek only may be visible. They are looking across the river away from the viewer, holding a plain transparent takeaway cup containing lemon water with yellow slices upright at the right side with elbow bent, free arm slightly out for balance, near-ready stance with feet casually apart on the same horizontal ground line. Show all hair, hands, both intact shoes, and cup with 8% margin all around, no cast shadows on the ground, no unrelated objects, no terrain, no framing text. Fine anatomical proportions and real fabric folds. Natural cool neutral rim light from distance, warm fill from a street lamp, still bright enough to read at 130px tall. Preserve personal hairstyle and distinctive clothing and body cues. Original believable photo with crisp alpha around hair, no illustration, no CG, no watermark, no checkerboard, no floor or background.",
+  "runners": {
+    "public/art/pearl/runners/female-everyday.webp": {
+      "reference": "public/art/portraits/player-female-everyday.webp",
+      "prompt": "Soft black hair in a loose low ponytail, ordinary navy light rain jacket, white cotton tee peeks out, dark straight jeans, simple ivory canvas bag on left shoulder, grey running shoes. Casual city commuter."
+    },
+    "public/art/pearl/runners/female-charming.webp": {
+      "reference": "public/art/portraits/player-female-charming.webp",
+      "prompt": "Chin-length dark bob, brick red cotton overshirt, dark loose grey trousers, tiny ivory bag strap and white tee, slightly scuffed black canvas shoes. Distinct red-orange fabric and relaxed shape."
+    },
+    "public/art/pearl/runners/female-stunning.webp": {
+      "reference": "public/art/portraits/player-female-stunning.webp",
+      "prompt": "Dark swept-back tied hair and small gold hoop earrings, form-fitting elegant emerald green short-sleeved silk qipao dress, skirt below the knee with natural movement, low black heels. Stylish adult poised stance, plausible wardrobe, no high-fashion studio pose."
+    },
+    "public/art/pearl/runners/male-everyday.webp": {
+      "reference": "public/art/portraits/player-male-everyday.webp",
+      "prompt": "Close-cropped black hair, charcoal weathered work jacket, dark knit and grey blue jeans with a black crossbody strap, grey walking shoes. A familiar ordinary commuter, relaxed."
+    },
+    "public/art/pearl/runners/male-charming.webp": {
+      "reference": "public/art/portraits/player-male-charming.webp",
+      "prompt": "Soft dark curls, thin round glasses barely visible from behind, warm oatmeal cardigan and deep blue loose straight trousers, plain low dark shoes. Sweater knit reads on silhouette in available light."
+    },
+    "public/art/pearl/runners/male-stunning.webp": {
+      "reference": "public/art/portraits/player-male-stunning.webp",
+      "prompt": "Dark center-parted hair, muted deep plum worn jacket over ivory top, charcoal trousers, worn cream sneakers. Clean confident stance, natural proportions."
+    }
+  }
+}

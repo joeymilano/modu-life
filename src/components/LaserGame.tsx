@@ -1,133 +1,211 @@
-import { useEffect, useRef, useState } from 'react';
-import { PEARL_DELAYS, PEARL_LANES, pearlLanes, pearlRank, type PearlResult, type PearlScore } from '../game/pearl';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+ CURRENT_PEARL_RULES, PEARL_LANES, pearlRank, pearlRounds, type PearlResult, type PearlRules,
+} from '../game/pearl';
 import { playSound } from '../game/audio';
-import { pearlPhoto } from '../game/art';
+import { pearlPhoto, pearlRunner } from '../game/art';
 import type { PlayerAppearance } from '../game/types';
 import Icon from './Icon';
-import { PlayerPortrait } from './Portrait';
 import './pearl.css';
 
 type Phase = 'intro' | 'warn' | 'fire' | 'done';
 type Umbrella = 'ready' | 'open' | 'spent';
+type Impact = 'hit' | 'blocked' | 'clear';
 
-export default function LaserGame({seed, cash=0, appearance={gender:'female',looks:'everyday'}, age=18, standalone=false, onFinish}:{
- seed:string; cash?:number; appearance?:PlayerAppearance; age?:number; standalone?:boolean; onFinish:(result:PearlResult)=>void;
-}){
- const [phase,setPhase]=useState<Phase>('intro');
- const [wave,setWave]=useState(0);
- const [lane,setLane]=useState(1);
- const [score,setScore]=useState<PearlScore>({hits:0,blocks:0});
- const [umbrella,setUmbrella]=useState<Umbrella>('ready');
- const [hidden,setHidden]=useState(document.hidden);
- const [impact,setImpact]=useState<'hit'|'blocked'|'clear'>('clear');
- const current=useRef({lane:1,umbrella:'ready' as Umbrella});
- const finished=useRef(false);
- const threat=pearlLanes(seed)[wave];
+const FLOOR_ZONES = ['68,298 227,298 197,390 0,390', '227,298 373,298 403,390 197,390', '373,298 532,298 600,390 403,390'];
+const LANE_X = [100, 300, 500];
+const IMPACT_TEXT = { hit: '洒出来了！', blocked: '这下伞替你挨了', clear: '杯子还稳着' };
+const FLASH_MS = 355;
 
- useEffect(()=>{
-  const change=()=>setHidden(document.hidden);
-  document.addEventListener('visibilitychange',change);
-  return()=>document.removeEventListener('visibilitychange',change);
- },[]);
+export default function LaserGame({ seed, cash = 0, appearance = { gender: 'female', looks: 'everyday' }, rules = CURRENT_PEARL_RULES, standalone = false, onFinish }: {
+ seed: string; cash?: number; appearance?: PlayerAppearance; rules?: PearlRules;
+ standalone?: boolean; onFinish: (result: PearlResult) => void;
+}) {
+ const waves = useMemo(() => pearlRounds(seed, rules), [seed, rules]);
+ const [phase, setPhase] = useState<Phase>('intro');
+ const [wave, setWave] = useState(0);
+ const [lane, setLane] = useState(1);
+ const [mask, setMask] = useState(0);
+ const [locked, setLocked] = useState(false);
+ const [history, setHistory] = useState<Impact[]>([]);
+ const [umbrella, setUmbrella] = useState<Umbrella>('ready');
+ const [hidden, setHidden] = useState(document.hidden);
+ const player = useRef({ lane: 1, umbrella: 'ready' as Umbrella });
+ const timing = useRef({ elapsed: 0, mask: 0, locked: false });
+ const fuse = useRef<HTMLSpanElement>(null);
+ const finished = useRef(false);
+ const cue = waves[wave];
+ const active = phase === 'warn' || phase === 'fire';
+ const aiming = phase === 'warn' && cue.kind === 'lock' && !locked;
+ const impact = history[wave];
+ const score = { hits: history.filter(item => item === 'hit').length, blocks: history.filter(item => item === 'blocked').length };
 
- useEffect(()=>{
-  if(hidden)return;
-  if(phase==='warn'){
-   const timer=setTimeout(()=>{
-    const open=current.current.umbrella==='open';
-    const caught=current.current.lane===threat;
-    setImpact(caught ? (open?'blocked':'hit') : 'clear');
-    if(caught){
-     setScore(previous=>open?{...previous,blocks:previous.blocks+1}:{...previous,hits:previous.hits+1});
-     playSound(open?'good':'bad');
+ useEffect(() => {
+  const change = () => setHidden(document.hidden);
+  document.addEventListener('visibilitychange', change);
+  return () => document.removeEventListener('visibilitychange', change);
+ }, []);
+
+ const beginWave = useCallback((index: number) => {
+  timing.current = { elapsed: 0, mask: waves[index].mask, locked: false };
+  setMask(waves[index].mask);
+  setLocked(false);
+  setWave(index);
+  setPhase('warn');
+  playSound('scan');
+ }, [waves]);
+
+ useEffect(() => {
+  if (hidden || (phase !== 'warn' && phase !== 'fire')) return;
+  let frame: number;
+  let previous = performance.now();
+  const tick = (now: number) => {
+   if (document.hidden) return;
+   const clock = timing.current;
+   clock.elapsed += Math.min(80, Math.max(0, now - previous));
+   previous = now;
+   if (phase === 'warn') {
+    if (fuse.current) fuse.current.style.transform = `scaleX(${Math.max(0, 1 - clock.elapsed / cue.warn)})`;
+    if (cue.lockAt !== undefined && !clock.locked && clock.elapsed >= cue.lockAt) {
+     clock.mask = 1 << player.current.lane;
+     clock.locked = true;
+     setMask(clock.mask);
+     setLocked(true);
+     playSound('scan');
     }
-    if(open){current.current.umbrella='spent';setUmbrella('spent');}
-    setPhase('fire');
-   },PEARL_DELAYS[wave]);
-   return()=>clearTimeout(timer);
-  }
-  if(phase==='fire'){
-   const timer=setTimeout(()=>{
-    if(wave===PEARL_DELAYS.length-1)setPhase('done');
-    else{setWave(wave+1);setPhase('warn');}
-   },370);
-   return()=>clearTimeout(timer);
-  }
- },[phase,wave,threat,hidden]);
-
- function move(next:number){
-  if(phase!=='warn'&&phase!=='intro')return;
-  current.current.lane=Math.max(0,Math.min(2,next));
-  setLane(current.current.lane);
- }
- function openUmbrella(){
-  if(phase!=='warn'||current.current.umbrella!=='ready')return;
-  current.current.umbrella='open';
-  setUmbrella('open');
- }
- useEffect(()=>{
-  const onKey=(event:KeyboardEvent)=>{
-   if(phase!=='warn'||event.altKey||event.ctrlKey||event.metaKey)return;
-   const key=event.key.toLowerCase();
-   if(key==='arrowleft'||key==='a'){event.preventDefault();move(current.current.lane-1);}
-   if(key==='arrowright'||key==='d'){event.preventDefault();move(current.current.lane+1);}
-   if(['1','2','3'].includes(key)){event.preventDefault();move(Number(key)-1);}
-   if(key==='u'){event.preventDefault();openUmbrella();}
+    if (clock.elapsed >= cue.warn) {
+     const open = player.current.umbrella === 'open';
+     const caught = Boolean(clock.mask & (1 << player.current.lane));
+     const result: Impact = caught ? (open ? 'blocked' : 'hit') : 'clear';
+     setHistory(items => [...items, result]);
+     if (caught) playSound(open ? 'good' : 'bad');
+     if (open) {
+      player.current.umbrella = 'spent';
+      setUmbrella('spent');
+     }
+     clock.elapsed = 0;
+     setPhase('fire');
+     return;
+    }
+   } else if (clock.elapsed >= FLASH_MS) {
+    if (wave === waves.length - 1) setPhase('done');
+    else beginWave(wave + 1);
+    return;
+   }
+   frame = requestAnimationFrame(tick);
   };
-  window.addEventListener('keydown',onKey);
-  return()=>window.removeEventListener('keydown',onKey);
- },[phase]);
+  frame = requestAnimationFrame(tick);
+  return () => cancelAnimationFrame(frame);
+ }, [phase, wave, cue, hidden, waves.length, beginWave]);
 
- function finish(result:PearlResult){
-  if(finished.current)return;
-  finished.current=true;
+ const move = useCallback((next: number) => {
+  if (hidden || (phase !== 'warn' && phase !== 'intro')) return;
+  player.current.lane = Math.max(0, Math.min(2, next));
+  setLane(player.current.lane);
+ }, [phase, hidden]);
+
+ const openUmbrella = useCallback(() => {
+  if (hidden || phase !== 'warn' || player.current.umbrella !== 'ready') return;
+  player.current.umbrella = 'open';
+  setUmbrella('open');
+  playSound('tap');
+ }, [phase, hidden]);
+
+ useEffect(() => {
+  const onKey = (event: KeyboardEvent) => {
+   if (phase !== 'warn' || event.altKey || event.ctrlKey || event.metaKey) return;
+   const key = event.key.toLowerCase();
+   if (key === 'arrowleft' || key === 'a') { event.preventDefault(); move(player.current.lane - 1); }
+   if (key === 'arrowright' || key === 'd') { event.preventDefault(); move(player.current.lane + 1); }
+   if (['1', '2', '3'].includes(key)) { event.preventDefault(); move(Number(key) - 1); }
+   if (key === 'u') { event.preventDefault(); openUmbrella(); }
+  };
+  window.addEventListener('keydown', onKey);
+  return () => window.removeEventListener('keydown', onKey);
+ }, [phase, move, openUmbrella]);
+
+ function finish(result: PearlResult) {
+  if (finished.current) return;
+  finished.current = true;
   onFinish(result);
  }
 
- const status=phase==='intro'?'对岸的塔亮了':phase==='done'?pearlRank(score)
-  : phase==='fire'?{hit:'洒出来了！',blocked:'伞面挨了一下',clear:'杯子还稳着'}[impact]
-  : `${PEARL_LANES[threat]}要被扫，换条道`;
+ const laneNames = PEARL_LANES.filter((_, index) => Boolean(mask & (1 << index)));
+ const status = hidden && active ? '切回这页再继续' : phase === 'intro' ? '对岸的塔亮了'
+  : phase === 'done' ? pearlRank(score)
+  : phase === 'fire' ? IMPACT_TEXT[impact ?? 'clear']
+  : aiming ? '它在瞄你，等红框锁住'
+  : cue.kind === 'double' ? `两道红光 · 去${PEARL_LANES.find((_, index) => !(mask & (1 << index)))}`
+  : cue.kind === 'lock' ? `锁在${laneNames[0]}，快闪`
+  : `${laneNames[0]}要被扫，换条道`;
+
  return <div className="laser-game">
-  {!standalone&&<div className="mini-eyebrow">魔都怪谈 · 外滩</div>}
-  <h2>{standalone?'站哪条道':'四元柠檬水保卫战'}</h2>
-  <p className="mini-lead">{standalone?'红灯亮了就换道，伞只能用一次。':'吸管刚插下去，对岸的灯就红了。'}</p>
-  <div className={'laser-arena phase-'+phase}>
-   <img className="laser-backdrop" src={pearlPhoto('arena')} alt="" width={1260} height={840} />
-   <div className="laser-status" data-impact={phase==='fire'?impact:undefined} aria-live="polite">
+  {!standalone && <>
+   <div className="mini-eyebrow">魔都怪谈 · 外滩</div>
+   <h2>四元柠檬水保卫战</h2>
+   <p className="mini-lead">吸管刚插下去，对岸的灯就红了。</p>
+  </>}
+  <div className={'laser-arena phase-' + phase} data-cue={cue.kind}
+   data-wave={wave + 1} data-mask={active && !aiming ? mask : 0} data-lock={aiming ? 'aiming' : locked ? 'locked' : undefined}>
+   <img className="laser-backdrop" src={pearlPhoto('arena')} alt="" width={1536} height={1024} />
+   <svg className="laser-floor" viewBox="0 0 600 400" preserveAspectRatio="none" aria-hidden="true">
+    {FLOOR_ZONES.map((points, index) => {
+     const zone = active && (mask & (1 << index)) ? ' zone-danger' : aiming && lane === index ? ' zone-aiming' : '';
+     return <polygon key={index} points={points} className={'laser-zone' + zone} />;
+    })}
+   </svg>
+   <div className="laser-status" data-impact={phase === 'fire' ? impact : undefined} data-aiming={aiming || undefined} aria-live="polite">
     {status}
-    {phase==='warn'&&!hidden&&<span className="laser-countdown" style={{animationDuration:PEARL_DELAYS[wave]+'ms'}}/>}
+    {phase === 'warn' && <span key={wave} ref={fuse} className="laser-countdown" />}
    </div>
-   {phase==='fire'&&<svg className="laser-beam" viewBox="0 0 600 400" preserveAspectRatio="none" aria-hidden="true">
-    <path className="beam-glow" d={`M 300 98 L ${100+200*threat} 342`}/>
-    <path className="beam-core" d={`M 300 98 L ${100+200*threat} 342`}/>
+   {phase === 'fire' && <svg className="laser-beam" viewBox="0 0 600 400" preserveAspectRatio="none" aria-hidden="true">
+    {LANE_X.filter((_, index) => Boolean(mask & (1 << index))).map(x => {
+     const blocked = impact === 'blocked' && x === LANE_X[lane];
+     const targetY = blocked ? 295 : 355;
+     const line = `M 300 98 L ${x} ${targetY}`;
+     return <g key={x}>
+      <path className="beam-glow" d={line} />
+      <path className="beam-core" d={line} />
+      <ellipse className={blocked ? 'beam-hit beam-deflect' : 'beam-hit'} cx={x} cy={targetY} rx={blocked ? 22 : 30} ry={blocked ? 9 : 5} />
+     </g>;
+    })}
    </svg>}
+   <div className={'laser-runner' + (phase === 'fire' && impact === 'hit' ? ' runner-hit' : '')}
+    style={{ left: LANE_X[lane] / 6 + '%' }} aria-hidden="true">
+    <img src={pearlRunner(appearance)} alt="" />
+    {(umbrella === 'open' || phase === 'fire' && impact === 'blocked') && <svg className="umbrella-canopy" viewBox="0 0 150 72" aria-hidden="true">
+     <path d="M7 44 Q18 8 75 5 Q132 9 143 44 Q129 35 112 44 Q95 35 75 44 Q55 35 38 44 Q21 35 7 44Z" />
+     <path className="umbrella-ribs" d="M75 5 Q49 16 38 44 M75 5 Q101 16 112 44 M75 6V66" />
+    </svg>}
+   </div>
    <div className="laser-lanes">
-    {PEARL_LANES.map((label,i)=><button key={label} type="button" aria-label={'移动到'+label} aria-pressed={lane===i}
-     className={'laser-lane'+(i===threat&&(phase==='warn'||phase==='fire')?' danger':'')+(lane===i?' occupied':'')}
-     onClick={()=>move(i)}>
-     {i===threat&&phase==='warn'&&<span className="laser-warning">要扫到</span>}
-     {lane===i&&<span className={'tiny-player'+(umbrella==='open'?' under-umbrella':'')}>
-      <PlayerPortrait appearance={appearance} size={42} age={age}/>
-      {umbrella==='open'&&<span className="umbrella-mark" aria-hidden="true">伞</span>}
-     </span>}
-     <span className="lane-number">{i+1} · {label}</span>
+    {PEARL_LANES.map((label, i) => <button key={label} type="button" aria-label={'移动到' + label} aria-pressed={lane === i}
+     className={'laser-lane' + (active && (mask & (1 << i)) ? ' danger' : '') + (lane === i ? ' occupied' : '')}
+     onClick={() => move(i)}>
+     <span className="lane-number">{i + 1} · {label}</span>
     </button>)}
    </div>
   </div>
-  <div className="laser-hud"><span>{Math.min(PEARL_DELAYS.length,wave+1)} / {PEARL_DELAYS.length} 轮</span><span>洒了 {score.hits} 回</span>
-   {phase==='warn'||phase==='fire'?<button className="laser-umbrella" disabled={phase!=='warn'||umbrella!=='ready'} onClick={openUmbrella}
-    aria-label="撑一次伞">{umbrella==='ready'?'撑一次伞':umbrella==='open'?'伞已撑开':'伞用过了'}</button>:<span>挡住 {score.blocks} 回</span>}
+  <div className="laser-hud">
+   <span>{wave + 1} / {waves.length} 轮</span>
+   <ol className="laser-rounds" aria-label="本轮记录">
+    {waves.map((_, index) => <li key={index} data-impact={history[index]} aria-current={active && index === wave ? 'step' : undefined}
+     aria-label={history[index] ? IMPACT_TEXT[history[index]] : '还未经过'} />)}
+   </ol>
+   <span>洒了 {score.hits} 回</span>
+   {phase === 'done' ? <span>挡住 {score.blocks} 回</span> : <button className="laser-umbrella" disabled={phase !== 'warn' || umbrella !== 'ready' || hidden}
+    onClick={openUmbrella} aria-label="撑一次伞">{umbrella === 'ready' ? '撑一次伞' : umbrella === 'open' ? '伞已撑开' : '伞用过了'}</button>}
   </div>
-  {phase==='intro'&&<div className="mini-options">
-   <button className="primary" onClick={()=>setPhase('warn')}><Icon name="bolt"/>拿稳柠檬水，开始躲</button>
-   {!standalone&&<>
-    <button className="secondary" disabled={cash<80} onClick={()=>finish({method:'sleeve'})}>借个咖啡杯套伪装 · ¥80</button>
-    <button className="text-button" onClick={()=>finish({method:'neighbor'})}>喊路人搭把手</button>
+  {phase === 'intro' && <div className="mini-options">
+   <button className="primary" onClick={() => beginWave(0)}><Icon name="bolt" />拿稳柠檬水，开始躲</button>
+   {!standalone && <>
+    <button className="secondary" disabled={cash < 80} onClick={() => finish({ method: 'sleeve' })}>借个咖啡杯套伪装 · ¥80</button>
+    <button className="text-button" onClick={() => finish({ method: 'neighbor' })}>喊路人搭把手</button>
    </>}
-   <small>点步道换位置。键盘可按 1 2 3 或 ← →，按 U 撑伞。</small>
+   <small>点步道换位置，也可按 1 2 3 或 ← →。按 U 撑伞。</small>
   </div>}
-  {phase==='done'&&<div className="mini-options">
-   <button className="primary" onClick={()=>finish({method:'run',score})}>{standalone?'拿走这张小票':'喝完再走'} <Icon name="arrow"/></button>
+  {phase === 'done' && <div className="mini-options">
+   <button className="primary" onClick={() => finish({ method: 'run', score })}>{standalone ? '拿走这张小票' : '喝完再走'} <Icon name="arrow" /></button>
   </div>}
  </div>;
 }

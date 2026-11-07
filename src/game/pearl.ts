@@ -4,9 +4,15 @@ import { pearlPhoto } from './art';
 
 export const PEARL_DELAYS = [1560, 1320, 1130, 960, 820];
 export const PEARL_LANES = ['左侧', '中间', '右侧'] as const;
+export const CURRENT_PEARL_RULES = 2;
+export const PEARL_PATH = '/pearl/';
+export const isPearlPath = (path: string) => [PEARL_PATH, PEARL_PATH.slice(0, -1), PEARL_PATH + 'index.html'].includes(path);
+export type PearlRules = 1 | typeof CURRENT_PEARL_RULES;
 export type PearlScore = { hits: number; blocks: number };
 export type PearlResult = { method: 'run'; score: PearlScore } | { method: 'sleeve' } | { method: 'neighbor' };
-export type PearlChallenge = { seed: string; target?: number };
+export type PearlChallenge = { seed: string; target?: number; rules?: PearlRules };
+export type PearlWave = { kind: 'single' | 'double' | 'lock'; mask: number; warn: number; lockAt?: number };
+export const pearlRoundCount = (rules: PearlRules = 1) => rules === 1 ? PEARL_DELAYS.length : 6;
 
 export function pearlLanes(seed: string): number[] {
  let rng = hashSeed(seed + ':pearl');
@@ -23,6 +29,20 @@ export function pearlLanes(seed: string): number[] {
   lanes.push((lanes.at(-1)! + 1 + Math.floor(roll * 2)) % 3);
  }
  return lanes;
+}
+
+export function pearlRounds(seed: string, rules: PearlRules): PearlWave[] {
+ const lanes = pearlLanes(seed);
+ const single = (index: number, warn: number): PearlWave => ({ kind: 'single', mask: 1 << lanes[index], warn });
+ if (rules === 1) return PEARL_DELAYS.map((warn, index) => single(index, warn));
+ return [
+  single(0, 1550),
+  single(1, 1280),
+  { kind: 'double', mask: 5, warn: 1390 },
+  { kind: 'lock', mask: 0, warn: 1710, lockAt: 850 },
+  { kind: 'double', mask: 7 ^ (1 << lanes[3]), warn: 1060 },
+  { kind: 'lock', mask: 0, warn: 1450, lockAt: 850 },
+ ];
 }
 
 export function pearlRank({hits, blocks}: PearlScore) {
@@ -45,7 +65,7 @@ export function pearlReward(result: PearlResult): { effect: Effect; text: string
  return {
   effect: { health: -hits * 3, spirit: 12 - hits * 2, face: 8 - hits, network: hits >= 3 ? 5 : 2,
    setFlags: ['laser_done', 'pearl_run', ...(clean ? ['laser_master'] : [])] },
-  text: clean ? '五轮下来一滴没洒。路人问你怎么练的，你说刚才排队的时候练过。'
+  text: clean ? '红光停了，一滴没洒。路人问你怎么练的，你说刚才排队的时候练过。'
    : hits === 0 ? '伞开得正好，冰块全在。你把伞还给阿姨，她先摸了摸伞尖。'
    : `你洒了 ${hits} 回。最后一次红光过去，旁边有人递纸巾，问冰块还要不要。`,
  };
@@ -54,13 +74,19 @@ export function pearlReward(result: PearlResult): { effect: Effect; text: string
 export function readPearlChallenge(hash: string): PearlChallenge | null {
  if (!hash.startsWith('#pearl=')) return null;
  const params = new URLSearchParams(hash.slice(1));
- const seed = params.get('pearl'), target = params.get('hits');
+ const seed = params.get('pearl'), target = params.get('hits'), version = params.get('v');
  if (!seed || !/^[a-z0-9-]{1,32}$/i.test(seed)) return null;
- return { seed, target: target !== null && /^[0-5]$/.test(target) ? Number(target) : undefined };
+ if (version !== null && version !== '1' && version !== '2') return null;
+ const rules = version === '2' ? CURRENT_PEARL_RULES : 1;
+ return {
+  seed,
+  target: target !== null && /^\d$/.test(target) && Number(target) <= pearlRoundCount(rules) ? Number(target) : undefined,
+  ...(rules !== 1 && { rules }),
+ };
 }
 
-export function pearlHash(seed: string, target?: number): string {
- return '#pearl=' + encodeURIComponent(seed) + (target === undefined ? '' : '&hits=' + target);
+export function pearlHash(seed: string, target?: number, rules: PearlRules = 1): string {
+ return '#pearl=' + encodeURIComponent(seed) + (rules === 1 ? '' : '&v=' + rules) + (target === undefined ? '' : '&hits=' + target);
 }
 
 export function pearlReceipt(state: GameState): LifeEvent | undefined {

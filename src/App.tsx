@@ -30,7 +30,7 @@ import RentalGame from './components/RentalGame';
 import { rentalNegotiation } from './game/rental';
 import LaserGame from './components/LaserGame';
 import './opening-draw.css';
-import { pearlHash, pearlReward, readPearlChallenge } from './game/pearl';
+import { CURRENT_PEARL_RULES, isPearlPath, pearlHash, pearlReward, readPearlChallenge, type PearlChallenge } from './game/pearl';
 const PearlArcade=lazy(()=>import('./components/PearlArcade'));
 const CityScene=lazy(()=>import('./components/CityScene'));
 const ParallelShanghai=lazy(()=>import('./components/ParallelShanghai'));
@@ -52,17 +52,19 @@ export default function App(){
  function setGame(state:GameState){setBook(current=>current?updateLife(current,state):startBook(state));}
  const [timelineDraft,setTimelineDraft]=useState<Timeline>();
  const [timelineHash,setTimelineHash]=useState(window.location.hash),[parallel,setParallel]=useState(isParallelHash(window.location.hash));
- const [pearl,setPearl]=useState(()=>readPearlChallenge(window.location.hash));
+ const pearlLanding=isPearlPath(window.location.pathname);
+ const [pearl,setPearl]=useState<PearlChallenge|null>(()=>readPearlChallenge(window.location.hash)??(pearlLanding?{seed:newSeed(),rules:CURRENT_PEARL_RULES}:null));
  useEffect(()=>{
-  const sync=()=>{const hash=window.location.hash;setTimelineHash(hash);setPearl(readPearlChallenge(hash));if(isParallelHash(hash))setParallel(true);};
+  const sync=()=>{const hash=window.location.hash;setTimelineHash(hash);setPearl(readPearlChallenge(hash)??(pearlLanding?{seed:newSeed(),rules:CURRENT_PEARL_RULES}:null));if(isParallelHash(hash))setParallel(true);};
   window.addEventListener('hashchange',sync);
   return()=>window.removeEventListener('hashchange',sync);
- },[]);
+ },[pearlLanding]);
  function closeParallel(){
   if(isParallelHash(window.location.hash))history.replaceState(null,'',window.location.pathname+window.location.search);
   setTimelineHash('');setTimelineDraft(undefined);setParallel(false);
  }
  function closePearl(){
+  if(pearlLanding){window.location.assign('/');return;}
   if(readPearlChallenge(window.location.hash))history.replaceState(null,'',window.location.pathname+window.location.search);
   setPearl(null);
  }
@@ -260,14 +262,14 @@ export default function App(){
   <span className="story-lead-dot"/><span><small>{item===cardLead?'手牌带来的事':game.age===18?'今晚':'有消息'} · {DISTRICTS.find(place=>place.id===item.event.district)?.name}</small><b>{item.message}</b></span>
   <Icon name="arrow" size={17}/>
  </button>)}</div>:null;
- if(pearl)return <Suspense fallback={<LoadCity/>}><PearlArcade key={pearl.seed+'-'+pearl.target} challenge={pearl} onClose={closePearl}/></Suspense>;
+ if(pearl)return <Suspense fallback={<LoadCity/>}><PearlArcade key={pearl.seed+'-'+pearl.target+'-'+pearl.rules} challenge={pearl} onClose={closePearl} audio={audio} onAudio={toggleAudio}/></Suspense>;
  if(parallel)return <Suspense fallback={<LoadCity/>}><ParallelShanghai onClose={closeParallel} hash={timelineHash} preset={timelineDraft}/></Suspense>;
  return <div className={'app screen-'+screen+(compact?' is-compact':'')}>
  <header className="topbar"><Brand onClick={()=>{setScreen('home');setModal(null);}}/><nav className="topbar-actions"><button className="icon-button" title={audio?'关闭声音':'打开声音'} aria-label={audio?'关闭声音':'打开声音'} onClick={toggleAudio}><Icon name={audio?'sound':'mute'}/></button>{screen==='play'&&<button className="nav-button scene-switch" aria-pressed={map3d} onClick={()=>{setMap3d(!map3d);setWalking(false);setDestination(null);setSelected(null);}}><Icon name="eye" size={17}/><span>{map3d?'街景':'3D 地图'}</span></button>}{screen==='play'&&map3d&&<button className="icon-button" aria-label={night?'切换白天':'切换夜景'} onClick={()=>setNight(n=>!n)}><Icon name={night?'sun':'moon'}/></button>}<button className="nav-button" onClick={()=>setModal(screen==='play'?'journal':'help')}><Icon name={screen==='play'?'book':'eye'} size={17}/><span>{screen==='play'?'人生记事':'怎么玩'}</span></button><button className="nav-button outlined" onClick={()=>setModal('saves')}><Icon name="save" size={17}/><span>存档</span></button>{(screen==='play'||screen==='end')&&game&&<button className="nav-button time-nav" aria-label="时间线" onClick={()=>setModal('lines')}><Icon name="map" size={17}/><span>时间线</span></button>}</nav></header>
  {screen==='home'&&<main className="home-screen"><div className="home-copy"><h1 className="game-title"><img src="/brand/logo-poster.svg" alt="魔都人生" width="524" height="534" fetchPriority="high"/></h1><p className="home-description">{challenge?<>朋友递来一手牌<br/>{challenge.cards.slice(0,2).map(card=>card.name).join(' · ')}</>:<>刚到上海南站，手机响了三声<br/>看房、顶班、去码头，你先回谁？</>}</p><div className="home-start"><div className="mode-select" aria-label="选择游戏模式">
  <button className="mode-entry main-mode" onClick={beginDraw}><b>我的人生</b><span>{challenge?'接这手牌':'开局抽卡'} <Icon name="arrow" size={17}/></span></button>
  <button className="mode-entry guest-mode" onClick={()=>setParallel(true)}><b>重走别人的人生</b><span>去平行上海 <Icon name="arrow" size={17}/></span></button>
- </div><button className="pearl-entry" onClick={()=>{window.location.hash=pearlHash(newSeed());}}><Icon name="bolt" size={17}/>先躲一轮激光</button>{game&&<button className="continue-button" onClick={()=>{setScreen(game.ended?'end':'play');setModal(null);}}>继续上回 · {game.name}的{game.age}岁 <Icon name="chevron" size={16}/></button>}</div></div><div className="hero-city"><picture>
+ </div><button className="pearl-entry" onClick={()=>{window.location.hash=pearlHash(newSeed(),undefined,CURRENT_PEARL_RULES);}}><Icon name="bolt" size={17}/>先躲一轮激光</button>{game&&<button className="continue-button" onClick={()=>{setScreen(game.ended?'end':'play');setModal(null);}}>继续上回 · {game.name}的{game.age}岁 <Icon name="chevron" size={16}/></button>}</div></div><div className="hero-city"><picture>
   <source media="(max-width: 600px)" srcSet={streetPhoto('cover-south-station-mobile')}/>
   <img className="home-key-art" src={streetPhoto('cover-south-station')} alt="雨中的上海南站，一位旅客拉着行李箱，在站外低头看手机" fetchPriority="high"/>
  </picture><div className="hero-shade"/></div><div className="home-bottom"><span className="ticker-label">申城小报</span><div className="ticker"><span>外滩发布柠檬水预警</span><span>公园相亲角下雨，摊主撑伞继续</span><span>安福路面馆招一晚帮工，管饭</span></div></div></main>}
@@ -402,7 +404,7 @@ export default function App(){
  setTimelineDraft(draftFromEvent(event,choiceId,outcome.text,game.age,sceneDistrict));
  closeOutcome();setParallel(true);
  }}>把这一幕发给朋友 <Icon name="map" size={17}/></button>}</div></div>}
- {mini?.type==='laser'&&game&&<LaserGame seed={game.seed} cash={game.cash} appearance={game.appearance} age={game.age} onFinish={result=>{const reward=pearlReward(result);miniFinish(reward.effect,reward.text);}}/>}
+ {mini?.type==='laser'&&game&&<LaserGame seed={game.seed} cash={game.cash} appearance={game.appearance} onFinish={result=>{const reward=pearlReward(result);miniFinish(reward.effect,reward.text);}}/>}
  {mini?.type==='rental'&&game&&<RentalGame initialEvidence={mini.evidence} onTalk={openRental}/>}
  {mini?.type==='dialogue'&&game&&(mini.person?
   <DialogueGame person={mini.person} skill={game.stats.skill} cash={game.cash} flags={game.flags} onParting={picks=>openParting(mini.person,picks)}/>:

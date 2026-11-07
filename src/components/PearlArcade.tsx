@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { pearlPhoto } from '../game/art';
-import { pearlRank, type PearlChallenge, type PearlScore } from '../game/pearl';
+import { pearlRank, pearlRoundCount, type PearlChallenge, type PearlScore } from '../game/pearl';
 import { downloadBlob, makePearlTicket, pearlChallengeUrl } from '../game/share';
 import Icon from './Icon';
 import LaserGame from './LaserGame';
 
-export default function PearlArcade({challenge, onClose}: {challenge: PearlChallenge; onClose: () => void}) {
+export default function PearlArcade({challenge, onClose, audio, onAudio}: {
+ challenge: PearlChallenge; onClose: () => void; audio: boolean; onAudio: () => void;
+}) {
  const [round, setRound] = useState(0);
  const [score, setScore] = useState<PearlScore>();
  const [status, setStatus] = useState('');
@@ -14,7 +16,7 @@ export default function PearlArcade({challenge, onClose}: {challenge: PearlChall
  const resultHeading = useRef<HTMLHeadingElement>(null);
  const board = useRef<HTMLElement>(null);
  const title = useRef<HTMLHeadingElement>(null);
- const {seed, target} = challenge;
+ const {seed, target, rules = 1} = challenge;
 
  useEffect(() => {
   window.scrollTo(0, 0);
@@ -24,7 +26,7 @@ export default function PearlArcade({challenge, onClose}: {challenge: PearlChall
   if (score) resultHeading.current?.focus();
  }, [score]);
 
- const link = score ? pearlChallengeUrl(seed, score.hits) : '';
+ const link = score ? pearlChallengeUrl(seed, score.hits, rules) : '';
  const comparison = score && target !== undefined
   ? score.hits === target ? '你们洒得一样多。'
    : score.hits < target ? `你比朋友少洒 ${target - score.hits} 回。`
@@ -45,7 +47,7 @@ export default function PearlArcade({challenge, onClose}: {challenge: PearlChall
   if (!score || printing) return;
   setPrinting(true);
   try {
-   downloadBlob(await makePearlTicket(seed, score), `外滩小票-${seed}.png`);
+   downloadBlob(await makePearlTicket(seed, score, rules), `外滩小票-${seed}.png`);
    setStatus('小票已下载');
   } catch {
    setStatus('小票没印出来，可以先发挑战链接');
@@ -65,13 +67,15 @@ export default function PearlArcade({challenge, onClose}: {challenge: PearlChall
  return <main className="pearl-page">
   <header className="pearl-top">
    <button type="button" onClick={onClose}>← 回魔都</button>
-   <small>外滩 · #{seed}</small>
+   <div><small>外滩 · {pearlRoundCount(rules)} 轮 · #{seed}</small>
+    <button type="button" onClick={onAudio} aria-label={audio ? '关闭声音' : '打开声音'}><Icon name={audio ? 'sound' : 'mute'} size={17}/></button>
+   </div>
   </header>
   <div className="pearl-layout">
    <section className="pearl-hero">
-    <img src={pearlPhoto('hero')} alt="外滩游客举着柠檬水，对岸亮起红光" width={1260} height={840}/>
+    <img src={pearlPhoto('hero')} alt="雨后的外滩，拿柠檬水的旅客听见动静回头" width={850} height={1275}/>
     <div>
-     <h1 ref={title} tabIndex={-1}>四元柠檬水保卫战</h1>
+     <h1 ref={title} tabIndex={-1} aria-label="四元柠檬水保卫战"><span>四元柠檬水</span><span>保卫战</span></h1>
      <p>{target === undefined ? '吸管刚插下去，对岸的灯就红了。' : target === 0 ? '朋友刚才一滴没洒。换你拿杯子。' : `朋友刚在这儿洒了 ${target} 回。换你拿杯子。`}</p>
     </div>
    </section>
@@ -81,7 +85,8 @@ export default function PearlArcade({challenge, onClose}: {challenge: PearlChall
      <h2 ref={resultHeading} tabIndex={-1}>{pearlRank(score)}</h2>
      <div className="pearl-score"><span>洒了 <b>{score.hits}</b> 回</span><span>挡住 <b>{score.blocks}</b> 回</span></div>
      <p>{comparison}</p>
-     <img src={pearlPhoto('booth')} alt="小摊桌上的柠檬水和空杯套" width={1260} height={840}/>
+     <img src={pearlPhoto(score.hits ? 'spill' : 'clean')}
+      alt={score.hits ? '洒在石板上的冰块和递过来的纸巾' : '江边的柠檬水还满着'} width={1320} height={880}/>
      <div className="pearl-result-actions">
       <button type="button" className="primary" onClick={copyLink}><Icon name="share" size={17}/>复制挑战链接</button>
       <button type="button" className="secondary" disabled={printing} onClick={printTicket}><Icon name="download" size={17}/>{printing?'打印中':'下载小票'}</button>
@@ -91,7 +96,7 @@ export default function PearlArcade({challenge, onClose}: {challenge: PearlChall
       <input value={link} readOnly autoFocus onFocus={event => event.target.select()}/>
      </label>}
      <p className="pearl-status" role="status">{status}</p>
-    </div> : <LaserGame key={round} seed={seed} standalone onFinish={result=>{if(result.method==='run')setScore(result.score);}}/>}
+    </div> : <LaserGame key={round} seed={seed} rules={rules} standalone onFinish={result=>{if(result.method==='run')setScore(result.score);}}/>}
    </section>
   </div>
  </main>;

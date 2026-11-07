@@ -44,8 +44,12 @@ export function workPhoto(shot: WorkPhoto): string {
  return `/art/work/${shot}.webp`;
 }
 
-export function pearlPhoto(shot: 'arena' | 'hero' | 'receipt' | 'booth' | 'night-office'): string {
+export function pearlPhoto(shot: 'arena' | 'hero' | 'receipt' | 'booth' | 'night-office' | 'clean' | 'spill'): string {
  return `/art/pearl/${shot}.webp`;
+}
+
+export function pearlRunner(appearance: PlayerAppearance): string {
+ return `/art/pearl/runners/${appearance.gender}-${appearance.looks}.webp`;
 }
 
 export const TIMELINE_COVER = '/art/timelines/ferry.webp';

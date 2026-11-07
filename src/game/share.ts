@@ -1,7 +1,7 @@
 import { allOrigins, ending, publicOriginNames } from './engine';
 import { endingPhoto, LIFE_ALBUM_AGES, pearlPhoto, playerArt, LOOKS, streetPhoto, TIMELINE_COVER } from './art';
 import { DISTRICTS, GOALS } from './content';
-import { PEARL_DELAYS, pearlHash, pearlRank, type PearlScore } from './pearl';
+import { PEARL_PATH, pearlHash, pearlRank, pearlRoundCount, type PearlRules, type PearlScore } from './pearl';
 import { describeDecision, lineDivergence, lineFacts } from './lineComparison';
 import { lineName, type LifeLine } from './lifeLines';
 import type { GameState } from './types';
@@ -205,11 +205,13 @@ export function readChallenge(params: URLSearchParams) {
 }
 
 
-export function pearlChallengeUrl(seed: string, target: number) {
- return new URL(pearlHash(seed, target), SITE_URL).toString();
+export function pearlChallengeUrl(seed: string, target: number, rules: PearlRules = 1) {
+ const url = new URL(rules === 1 ? '/' : PEARL_PATH, SITE_URL);
+ url.hash = pearlHash(seed, target, rules);
+ return url.toString();
 }
 
-export async function makePearlTicket(seed: string, score: PearlScore): Promise<Blob> {
+export async function makePearlTicket(seed: string, score: PearlScore, rules: PearlRules = 1): Promise<Blob> {
  const canvas = document.createElement('canvas');
  canvas.width = 960;
  canvas.height = 1200;
@@ -230,18 +232,18 @@ export async function makePearlTicket(seed: string, score: PearlScore): Promise<
  ctx.fillStyle = '#263839';
  ctx.font = 'bold 59px "Songti SC", serif';
  ctx.fillText('四元柠檬水保卫战', 63, 206);
- await paintPhoto(ctx, pearlPhoto('hero'), [64, 243, 832, 447], .35);
+ await paintPhoto(ctx, pearlPhoto(score.hits ? 'spill' : 'clean'), [64, 243, 832, 447], .55);
  ctx.font = 'bold 77px "Songti SC", serif';
  ctx.fillText(pearlRank(score), 64, 804);
  ctx.font = '28px sans-serif';
- ctx.fillText(PEARL_DELAYS.length + ' 轮 · 洒 ' + score.hits + ' 回 · 挡 ' + score.blocks + ' 回', 64, 867);
+ ctx.fillText(pearlRoundCount(rules) + ' 轮 · 洒 ' + score.hits + ' 回 · 挡 ' + score.blocks + ' 回', 64, 867);
  ctx.strokeStyle = '#a29a85';
  ctx.setLineDash([8, 6]);
  ctx.beginPath();
  ctx.moveTo(64, 916);
  ctx.lineTo(896, 916);
  ctx.stroke();
- if (!await paintChallengeCode(ctx, pearlChallengeUrl(seed, score.hits), 896, 945, 184)) {
+ if (!await paintChallengeCode(ctx, pearlChallengeUrl(seed, score.hits, rules), 896, 945, 184)) {
   throw new Error('小票的码还没印出来');
  }
  ctx.font = 'bold 29px sans-serif';
