@@ -100,6 +100,32 @@ export type SharedHand = Pick<GameState, 'seed' | 'origins' | 'goal' | 'appearan
 export function challengeUrl(s:SharedHand){const url=new URL(SITE_URL);url.searchParams.set('seed',s.seed);url.searchParams.set('cards',s.origins.join('.'));url.searchParams.set('goal',s.goal);url.searchParams.set('gender',s.appearance.gender);url.searchParams.set('looks',s.appearance.looks);return url.toString();}
 export function downloadBlob(blob:Blob,name:string){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);}
 
+export async function makeStoryPhoto(shot: string, title: string, choice: string, invite: string): Promise<Blob> {
+ const canvas = document.createElement('canvas');
+ canvas.width = 1080;
+ canvas.height = 1080;
+ const ctx = canvas.getContext('2d');
+ if (!ctx) throw new Error('这张照片没洗出来');
+ ctx.fillStyle = '#f4efe3';
+ ctx.fillRect(0, 0, 1080, 1080);
+ ctx.fillStyle = '#253d32';
+ ctx.fillRect(48, 45, 984, 3);
+ ctx.font = 'bold 40px "Songti SC", serif';
+ ctx.fillText(title, 48, 106, 984);
+ await paintPhoto(ctx, shot, [48, 137, 984, 656]);
+ ctx.fillStyle = '#993d2e';
+ ctx.font = 'bold 25px sans-serif';
+ ctx.fillText('魔都人生 · 平行上海', 48, 855);
+ ctx.fillStyle = '#253d32';
+ ctx.font = 'bold 37px "Songti SC", serif';
+ const caption = lines(ctx, choice, 48, 912, 748, 48);
+ ctx.font = '23px sans-serif';
+ ctx.fillText('扫码走另一条线', 48, Math.max(1000, caption + 48));
+ if (!await paintChallengeCode(ctx, invite, 1032, 838, 180)) throw new Error('照片上的码没印出来');
+ return new Promise((resolve, reject) => canvas.toBlob(blob =>
+  blob ? resolve(blob) : reject(new Error('这张照片没洗出来')), 'image/png'));
+}
+
 export async function makeLineCard(first: LifeLine, second: LifeLine): Promise<Blob> {
  const canvas = document.createElement('canvas');
  canvas.width = 1080;

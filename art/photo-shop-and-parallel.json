@@ -1,0 +1,105 @@
+{
+  "generator": "Built-in ImageGen",
+  "referenceCommit": "9324039",
+  "style": "Original fictional Shanghai live-action production stills. The photo shop and its four endings share the same actors, blue curtain and everyday practical light.",
+  "assets": [
+    {
+      "file": "public/art/photo-shop/counter.webp",
+      "references": [
+        "public/art/portraits/song.webp",
+        "public/art/portraits/sun.webp"
+      ],
+      "prompt": "Single original 3:2 landscape still for a live-action contemporary Shanghai narrative game. Retain recognizable fictional actors from supplied references. Real 35-50mm unit photography with honest expressions, believable everyday modern neighborhood and visual texture, plausible hands and objects, crisp but naturally exposed; Shanghai street-level observations, restrained palette with soft daylight or practical light, no grading gimmicks, no CGI or painting. Primary face or gesture in the central two-thirds for a desktop hero and mobile crop. No graphic overlays, elaborate staging, captions, logos, legible signs or gibberish writing. At 6:40 p.m. in an ordinary old quick-print photo shop in a former Shanghai shikumen lane, just before permanent closing at this address. Seen from the customer side of a low scuffed pale-grey formica counter. At center-right the reference silver-haired Shanghai woman in navy cotton jacket slides a small plain off-white photo-paper box toward the reference adult male photographer in faded plum corduroy overshirt (at far right three-quarter, not dominating). She has short reading glasses halfway down her nose and an impatient expression as if waiting for his answer; he looks toward the rainy glass door. Against wall a slightly wrinkled cobalt-blue backdrop curtain on a rail, old print envelopes in a few drawers, mismatched swivel stools. Quiet cool late day outside and ordinary warm white tube over counter. For key art place both faces right of center, spare textured left space, portrait of grandma visible and face readable even in small crop."
+    },
+    {
+      "file": "public/art/photo-shop/livestream.webp",
+      "references": [
+        "public/art/portraits/song.webp"
+      ],
+      "prompt": "Single original 3:2 landscape still for a live-action contemporary Shanghai narrative game. Retain recognizable fictional actors from supplied references. Real 35-50mm unit photography with honest expressions, believable everyday modern neighborhood and visual texture, plausible hands and objects, crisp but naturally exposed; Shanghai street-level observations, restrained palette with soft daylight or practical light, no grading gimmicks, no CGI or painting. Primary face or gesture in the central two-thirds for a desktop hero and mobile crop. No graphic overlays, elaborate staging, captions, logos, legible signs or gibberish writing. Same old Shanghai photo print shop with faded cobalt curtain. Grandma in reference navy jacket sits on a plain low stool, center-left, gazes directly at someone at right with wry skepticism, mouth about to say something. A much younger male producer from the right adjusts the small circular LED ring light on a metal stand, phone in mount (screen facing subject), no faces other than grandma in focus. A grey photo box and black extension cable on floor, parts of the window and drying prints, real flat evening light and a mildly irritating hotspot from small LED. The commercial apparatus looks cheap and intrudes into a place that feels real, documentary scene."
+    },
+    {
+      "file": "public/art/photo-shop/neighbors.webp",
+      "references": [
+        "public/art/portraits/song.webp",
+        "public/art/portraits/sun.webp"
+      ],
+      "prompt": "Single original 3:2 landscape still for a live-action contemporary Shanghai narrative game. Retain recognizable fictional actors from supplied references. Real 35-50mm unit photography with honest expressions, believable everyday modern neighborhood and visual texture, plausible hands and objects, crisp but naturally exposed; Shanghai street-level observations, restrained palette with soft daylight or practical light, no grading gimmicks, no CGI or painting. Primary face or gesture in the central two-thirds for a desktop hero and mobile crop. No graphic overlays, elaborate staging, captions, logos, legible signs or gibberish writing. Same contemporary Shanghai quick-print photo shop. Landlord's hand just visible on door edge off to right with keys. Silver-haired Song grandma in navy with realistic wrinkles at center holds a few white-edged photographic print envelopes low, looking at the grown woman customer opposite her in soft focus. A small adult mother-daughter pair waits just outside door in warm grey evening. Reference photographer Sun in faded plum is partly seen behind grandma, reaching toward the normal silver camera on the counter. Worn cobalt portrait curtain and old grey counter provide continuity. The cramped shop is busy with real people, not posed, pale late-day ambient and one practical tube light."
+    },
+    {
+      "file": "public/art/photo-shop/script.webp",
+      "references": [
+        "public/art/portraits/sun.webp"
+      ],
+      "prompt": "Single original 3:2 landscape still for a live-action contemporary Shanghai narrative game. Retain recognizable fictional actors from supplied references. Real 35-50mm unit photography with honest expressions, believable everyday modern neighborhood and visual texture, plausible hands and objects, crisp but naturally exposed; Shanghai street-level observations, restrained palette with soft daylight or practical light, no grading gimmicks, no CGI or painting. Primary face or gesture in the central two-thirds for a desktop hero and mobile crop. No graphic overlays, elaborate staging, captions, logos, legible signs or gibberish writing. After the old Shanghai photo shop has closed, the reference male photographer in faded plum overshirt stands outside its pulled-down old light-grey shutter on a mild overcast day. Two young adult tourists in contemporary street clothes seen from behind hold a phone up to the closed door, one looking up in confusion. The photographer stands to the side, holding a brown paper camera repair bag and a small folded paper, deciding whether to tell them they came to the wrong place. A narrow adjoining lane and cream brick. Understated dry comic realism, spare shutters, no legible sign. Late morning muted daylight."
+    },
+    {
+      "file": "public/art/photo-shop/address.webp",
+      "references": [
+        "public/art/portraits/song.webp"
+      ],
+      "prompt": "Single original 3:2 landscape still for a live-action contemporary Shanghai narrative game. Retain recognizable fictional actors from supplied references. Real 35-50mm unit photography with honest expressions, believable everyday modern neighborhood and visual texture, plausible hands and objects, crisp but naturally exposed; Shanghai street-level observations, restrained palette with soft daylight or practical light, no grading gimmicks, no CGI or painting. Primary face or gesture in the central two-thirds for a desktop hero and mobile crop. No graphic overlays, elaborate staging, captions, logos, legible signs or gibberish writing. Newly moved cramped photo service counter in a Shanghai neighborhood dry-cleaner, morning. Silver-haired Song grandma in navy is behind a tiny functional counter, both eyes visible and intent, explaining something to a young adult customer partly seen in profile, gestures to the inner room where the old cobalt photo backdrop has been installed beside coat racks. A small silver and black camera at elbow, bunch of normal freshly cleaned coats bagged in transparent plastic, plain price clips turned away. Slight mix of cool white light and daylight from the storefront, colors live but not saturated. Busy opening, authentic everyday levity, close and imperfect."
+    },
+    {
+      "file": "public/art/photo-shop/group.webp",
+      "references": [
+        "public/art/portraits/song.webp",
+        "public/art/portraits/sun.webp"
+      ],
+      "prompt": "Single original 3:2 landscape still for a live-action contemporary Shanghai narrative game. Retain recognizable fictional actors from supplied references. Real 35-50mm unit photography with honest expressions, believable everyday modern neighborhood and visual texture, plausible hands and objects, crisp but naturally exposed; Shanghai street-level observations, restrained palette with soft daylight or practical light, no grading gimmicks, no CGI or painting. Primary face or gesture in the central two-thirds for a desktop hero and mobile crop. No graphic overlays, elaborate staging, captions, logos, legible signs or gibberish writing. A just-developed commemorative neighborhood group photograph inside a little Shanghai quick-print shop on the final evening. Silver-haired Song grandma in navy, four adult neighbors of varied ages squeezed shoulder to shoulder in front of cobalt blue ID photo backdrop. The reference adult male photographer in plum corduroy has run into the left end of frame, half laughing with a slight natural movement; one middle-aged woman is still looking at him and someone has a shopping bag in lap. No repeat faces, no one composed fashion-style. One bounced small flash, honest individual skin and imperfectly synchronized expressions. Photograph fills frame, no collage or added border."
+    },
+    {
+      "file": "public/art/photo-shop/id.webp",
+      "references": [
+        "public/art/portraits/song.webp"
+      ],
+      "prompt": "Single original 3:2 landscape still for a live-action contemporary Shanghai narrative game. Retain recognizable fictional actors from supplied references. Real 35-50mm unit photography with honest expressions, believable everyday modern neighborhood and visual texture, plausible hands and objects, crisp but naturally exposed; Shanghai street-level observations, restrained palette with soft daylight or practical light, no grading gimmicks, no CGI or painting. Primary face or gesture in the central two-thirds for a desktop hero and mobile crop. No graphic overlays, elaborate staging, captions, logos, legible signs or gibberish writing. One clean rectangular ID photo print lies centered on a real grey formica counter with a faint natural shadow, held at just one corner by the hand of its subject, a silver-haired Chinese Shanghai woman in her seventies. The real printed photo shows the reference older woman with a navy cotton shirt, cobalt portrait backdrop, head centered and a mischievous slight smile that almost meets ID photo requirements. A worn envelope partly off frame, no text. Clear physically real paper texture and ordinary soft window light. Photo occupies at least central 52% of image width, angle close enough to overhead that her expression is very readable. Restrained live-action final insert shot."
+    },
+    {
+      "file": "public/art/timelines/last-train.webp",
+      "prompt": "Original photorealistic asset for a fictional Shanghai game. Real materials, subdued practical light, lively individual human behavior, correct anatomy. No typography, labels, 3D render, illustration, scene template, or style imitation. Horizontal 3:2 live-action still for a story called Before the Last Train Leaves. At 11:20 p.m. in Shanghai Jiangsu Road underground metro station in 2017. Empty-ish ordinary tiles and cool fluorescent panels, a plain silver subway train with a narrow green stripe on the far side of modern glass platform safety doors. A 22-year-old Chinese woman in an ordinary faded tobacco jacket and canvas tote stands right of center on platform, mid-motion, sees a message on her phone and turns to look back toward the concourse. No readable signage, train interior with just a couple natural late commuters. Tension in her posture, actual ordinary low-light camera exposure, nothing neon, no digital effect. Main face centered at x=62% y=40%, story legible in horizontal crop. Real on-location Chinese indie film photograph, muted green and neutral steel."
+    },
+    {
+      "file": "public/art/timelines/zhangjiang-desk.webp",
+      "prompt": "Original photorealistic asset for a fictional Shanghai game. Real materials, subdued practical light, lively individual human behavior, correct anatomy. No typography, labels, 3D render, illustration, scene template, or style imitation. Horizontal 3:2 still from a contemporary Shanghai movie. Shanghai Zhangjiang office after work in 2024, modern but unglamorous big open plan, desk 37 of a tech team moving out, boxes tucked under unadorned desks, half shut laptop. A fictional Chinese woman age 29 in soft brown cardigan, black hair tied casually, seated beside an out-of-focus adult Chinese male coworker in his mid-20s who has crouched beside the chair to ask something privately. Her hand lightly pins an unsigned one-page relocation form on a battered desktop. Eye height low as seated coworker, natural white overhead and late daylight, subtly worried attentive expression. Industrial park window far behind. No clean studio ad, no legible text on paper, no dramatic color cast, no signs, realistic unposed cinematography."
+    },
+    {
+      "file": "public/art/timelines/shoe-repair.webp",
+      "references": [
+        "public/art/portraits/father.webp"
+      ],
+      "prompt": "Original photorealistic asset for a fictional Shanghai game. Real materials, subdued practical light, lively individual human behavior, correct anatomy. No typography, labels, 3D render, illustration, scene template, or style imitation. Horizontal 3:2 contemporary Shanghai live-action unit still. An old working shoe repair stall off Yuyuan Road in the shade under plane trees. The fictional father from reference looks seven years older with a little more grey, in faded grey cotton work clothes with rolled sleeves. He pauses to count something with his finger on a scratched narrow plywood tabletop beside a used mechanical cobbler's patcher sewing machine, eyes down. A young adult lifestyle videographer (from behind, partly out of focus at right) has slid an ordinary contract over. A row of mismatched shoes in modest shelf not staged, oil-stained tools, no readable lettering, natural daylight. Candid ordinary close observer composition with face and gesturing hand close to center, real skin and no polished studio composition."
+    },
+    {
+      "file": "public/art/timelines/third-chair.webp",
+      "references": [
+        "public/art/portraits/aunt.webp"
+      ],
+      "prompt": "Original photorealistic asset for a fictional Shanghai game. Real materials, subdued practical light, lively individual human behavior, correct anatomy. No typography, labels, 3D render, illustration, scene template, or style imitation. Horizontal 3:2 live-action still for a Chinese narrative game. Inside a small, believable Hong Kong-style tea restaurant near People's Square, Shanghai, Sunday afternoon daylight through front window. A table at eye-level with two young adult Chinese people in ordinary clothes, a dark-haired woman opposite camera leaning over the flipped unbranded laminated menu to share a quietly funny remark. A third slightly pulled-out empty chair nearest the camera with the referenced older woman's burgundy windbreaker draped over the back, as its owner just stepped to get toothpicks. Edge of a plain glass cup of milky tea, worn light-grey table and window, simple modern ordinary setting. Distinct three-person dynamic with one person missing. Soft daylight, natural faces, no readable writing, realistic 45mm photo."
+    },
+    {
+      "file": "public/art/timelines/pearl-quay.webp",
+      "prompt": "Original 3:2 live-action narrative game photograph, recognizable fictional Shanghai and real props. A dry comedy seen by an ordinary 35mm camera. Preserve grounded city details and clear human moments. No added text, readable labels, logo, illustration, garish neon, giant energy beam, CGI, or overdone effects. Weekday Shanghai Bund ferry quay near a waiting line of real commuters seen from just behind a fictional adult Chinese man in a navy cotton jacket. He has stopped with a plain clear takeaway cup containing lemon slices at waist height, looking at his illuminated phone in his other hand, both objects visible in the middle; he notices a very narrow unexpected muted red glint across the edge of the transparent cup and stainless rail, like a real light reflection. Across hazy Huangpu, recognizable distant Oriental Pearl Tower and natural pale sky. Morning practical cool light, discreet comedy and the feeling the ferry is about to board; people have their usual bags and pay no attention. No written UI on the phone, ordinary perspective and camera height."
+    },
+    {
+      "file": "public/art/timelines/pearl-kiosk.webp",
+      "prompt": "Original 3:2 live-action narrative game photograph, recognizable fictional Shanghai and real props. A dry comedy seen by an ordinary 35mm camera. Preserve grounded city details and clear human moments. No added text, readable labels, logo, illustration, garish neon, giant energy beam, CGI, or overdone effects. Five years later on the Pudong side of Shanghai's Huangpu ferry, Friday late morning. A fictional young adult male shopkeeper in an old navy jacket pushes one plain transparent cup of lemon drink across a small roadside kiosk's functional chipped grey counter to a customer just off-camera, with a small plain note tucked under the cup and a paper wrap. His expression is one of tired recognition, almost a smile. Taped windows, tiny plastic tray of change, real ferry exit rails and warm daylight, no fancy decor. Subtle same-navy clothing hints that the shopkeeper looks like the player, no double exposed effects. Face and hand and single cup framed in center."
+    },
+    {
+      "file": "public/art/portraits/sun.webp",
+      "references": [
+        "public/art/portraits/sun.webp"
+      ],
+      "prompt": "Original photorealistic asset for a fictional Shanghai game. Real materials, subdued practical light, lively individual human behavior, correct anatomy. No typography, labels, 3D render, illustration, scene template, or style imitation. Vertical 2:3 mid-thigh live-action still of the same fictional independent photographer. Keep his recognizable young adult face, neat crop of hair and muted plum corduroy overshirt over charcoal tee, olive equipment strap. He sits with shoulder against a worn Shanghai shikumen quick photo shop counter, looking over the top of a little black and silver mechanical film camera he is winding; a natural private grin only just beginning. Camera well below his face. Out-of-focus faded cobalt portrait backdrop and old photo drawers behind him, neutral side daylight, honest real skin and believable hands. Whole hair visible, eyes around y=25%, face at x=50% and free of props. No bokeh effect or added graphic.",
+      "headCrop": "public/art/portraits/head/sun.webp"
+    },
+    {
+      "file": "public/art/portraits/song.webp",
+      "references": [
+        "public/art/portraits/song.webp"
+      ],
+      "prompt": "Original photorealistic asset for a fictional Shanghai game. Real materials, subdued practical light, lively individual human behavior, correct anatomy. No typography, labels, 3D render, illustration, scene template, or style imitation. Vertical 2:3 mid-thigh live-action still of the same fictional elderly Shanghai woman, preserve face, long silver hair gathered loosely down her back, navy cotton jacket and real age lines. At the doorway of a modest Shanghai quick photo print shop, she holds an unmarked off-white photo envelope down near her waist. Her body is about to step through the door and she looks back at someone at camera left with a quiet amused challenge, like she just asked why the younger person is so slow. Slight eyebrow raise, lips closed, natural unretouched skin and real wrinkles, daylight with the blue curtain and one small drawer soft behind. Whole hair visible, face centered, eyes at y=25%, not an ID photo or studio portrait.",
+      "headCrop": "public/art/portraits/head/song.webp"
+    }
+  ]
+}

@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { CITY_TIMELINES, ticketFromHash, validateTicket, walk, type Ticket } from '../src/game/timelines';
+import { describe, expect, it, vi } from 'vitest';
+import { CITY_TIMELINES, readTickets, removeTicket, saveTicket, ticketFromHash, validateTicket, walk, type Ticket } from '../src/game/timelines';
 
 describe('parallel timelines', () => {
   const ticket = (): Ticket => structuredClone({ version: 1, timeline: CITY_TIMELINES[0] });
@@ -45,5 +45,33 @@ describe('parallel timelines', () => {
     expect(walk(timeline, [{ pick: 0 }]).next).toBe(1);
     expect(walk(timeline, [{ pick: 1 }]).next).toBe(2);
     expect(walk(timeline, [{ pick: 1 }, { pick: 0 }]).next).toBeNull();
+  });
+
+  it('keeps four distinct photo endings when the photo shop ticket is reopened', () => {
+    const story = ticketFromHash('#story=last-photo');
+    const photos = [0, 1].flatMap(first => [0, 1].map(second => {
+      const restored = validateTicket({ ...story, route: [{ pick: first }, { pick: second }] });
+      const { steps, next } = walk(restored.timeline, restored.route!);
+      expect(next).toBeNull();
+      return steps[1].option.shot;
+    }));
+    expect(photos).toEqual(['script', 'address', 'group', 'id'].map(name => `/art/photo-shop/${name}.webp`));
+
+    const modified = structuredClone(story);
+    modified.timeline.turns[1].options[0].shot = 'https://example.com/tracking.webp';
+    expect(validateTicket(modified).timeline.turns[1].options[0].shot).toBeUndefined();
+  });
+
+  it('collapses old duplicate receipts and keeps only one copy on replay', () => {
+    const receipt: Ticket = { ...ticketFromHash('#story=last-photo'), route: [{ pick: 0 }, { pick: 1 }] };
+    let stored = JSON.stringify([receipt, validateTicket(receipt)]);
+    vi.stubGlobal('localStorage', { getItem: () => stored, setItem: (_: string, data: string) => { stored = data; } });
+    try {
+      expect(readTickets()).toHaveLength(1);
+      expect(saveTicket(receipt)).toHaveLength(1);
+      expect(removeTicket(receipt)).toHaveLength(0);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });

@@ -2,13 +2,14 @@ import type { EventChoice, LifeEvent } from './types';
 import { PARK_TICKET_SCENES } from './matchmaking';
 import { FIRST_NIGHT_STILLS, MATCH_STILLS, OPENING_STILLS, TABLE_STILLS, datePhoto, farewellPhoto, matchPhoto, openingPhoto, pearlPhoto, rentalPhoto, streetPhoto, tablePhoto, workPhoto } from './art';
 import { CAST } from './content';
+import { PHOTO_SHOP_STILLS, PHOTO_SHOP_STORY, photoShopStill } from './photoShop';
 
 export interface Turn {
   date: string;
   place: string;
   scene: string;
   shot?: string;
-  options: { move: string; after: string; next: number | null }[];
+  options: { move: string; after: string; next: number | null; shot?: string }[];
 }
 
 export interface Timeline {
@@ -32,8 +33,18 @@ export interface Ticket {
 }
 
 const end = null;
+const archiveShots = {
+  station: '/art/timelines/last-train.webp',
+  office: '/art/timelines/zhangjiang-desk.webp',
+  shoe: '/art/timelines/shoe-repair.webp',
+  chair: '/art/timelines/third-chair.webp',
+  pearlFirst: '/art/timelines/pearl-quay.webp',
+  pearlLater: '/art/timelines/pearl-kiosk.webp',
+};
 const ticketShots = new Set([
   streetPhoto('station'),
+  ...Object.values(archiveShots),
+  ...PHOTO_SHOP_STILLS.map(photoShopStill),
   ...FIRST_NIGHT_STILLS.map(streetPhoto),
   ...MATCH_STILLS.map(matchPhoto),
   ...OPENING_STILLS.map(openingPhoto),
@@ -85,7 +96,7 @@ export const CITY_TIMELINES: Timeline[] = [
     original: '那晚我坐上了末班车。七年后，公司搬去昆山，爸的修鞋摊还在原来的地方。现在路过，他还是把大一码的拖鞋推到我脚下。',
     turns: [
       {
-        date: '2017年 · 22岁', place: '江苏路站',
+        date: '2017年 · 22岁', place: '江苏路站', shot: archiveShots.station,
         scene: '闸机还有三分钟关。新老板发来地址，明早去张江报到。爸也发了一条，缝鞋机压了手，问你明天能不能替半天。下面跟着一句「算了，侬上班」。',
         options: [
           { move: '上车，明早准时到张江', after: '你在车门边回了个「好」。打完才发现，这个好不知道是回给谁的。', next: 1 },
@@ -93,7 +104,7 @@ export const CITY_TIMELINES: Timeline[] = [
         ],
       },
       {
-        date: '2024年 · 29岁', place: '张江 · 工位 37',
+        date: '2024年 · 29岁', place: '张江 · 工位 37', shot: archiveShots.office,
         scene: '公司搬昆山，工资照发，地铁加班车单程九十分钟。你刚算完，组里小周蹲下来问「师傅，你走我也走，行伐？」签字表传到你这儿了。',
         options: [
           { move: '签，和小周一起去昆山', after: '第一个月你们拼车。后来小周嫌油费贵，自己考了驾照。礼拜五，他顺路把你送到爸的摊前。', next: end },
@@ -101,7 +112,7 @@ export const CITY_TIMELINES: Timeline[] = [
         ],
       },
       {
-        date: '2024年 · 29岁', place: '愚园路 · 修鞋摊',
+        date: '2024年 · 29岁', place: '愚园路 · 修鞋摊', shot: archiveShots.shoe,
         scene: '你当年晚到半天，试用没过。如今牌子上写着「修鞋配钥匙」，底下新添一行「奢侈品修复」。探店博主递来合同，今晚带货，抽四成。爸拿手指头在桌上算。',
         options: [
           { move: '签一场，镜头只拍手', after: '直播卖出十七双护理券。关灯之后，爸问你「刚刚那个说我手好看的，是真人伐？」', next: end },
@@ -115,7 +126,7 @@ export const CITY_TIMELINES: Timeline[] = [
     original: '我站起来去买单。后来阿姨还给我发过几张照片，我挑了张人民公园的给她点了赞。',
     turns: [
       {
-        date: '星期日下午两点', place: '人民广场 · 港式茶餐厅',
+        date: '星期日下午两点', place: '人民广场 · 港式茶餐厅', shot: archiveShots.chair,
         scene: '人是阿姨介绍的，阿姨也来了。对方把两份餐牌都翻到最后一页，说「你也被交代过，房子的事早点问清爽？」阿姨刚好去拿牙签。',
         options: [
           { move: '直说房是租的，问要不要续杯', after: '对方把菜单合上，说「巧了，我的首付也是租的，每个月还我妈」。你们加点了一份西多士，阿姨回来的时候只剩一个角。', next: end },
@@ -129,7 +140,7 @@ export const CITY_TIMELINES: Timeline[] = [
     original: '我把柠檬水扔了，刷卡上班。第二天打卡机说我入职十年了，还给我发了个十周年红包。里面有五块。',
     turns: [
       {
-        date: '2026年 · 早上八点五十', place: '外滩 · 轮渡口',
+        date: '2026年 · 早上八点五十', place: '外滩 · 轮渡口', shot: archiveShots.pearlFirst,
         scene: '你刚戳开四块钱的柠檬水，东方明珠扫过来一道红光。手机收到两条来自自己的语音。一条说「把杯子给我，别迟到」，另一条说「上船，我这边已经周五了」。今天明明是周一。',
         options: [
           { move: '端着柠檬水上船', after: '船到浦东，售票员把船票撕成两张。一张是今天，另一张是五年后。', next: 1 },
@@ -137,7 +148,7 @@ export const CITY_TIMELINES: Timeline[] = [
         ],
       },
       {
-        date: '2031年 · 星期五', place: '浦东 · 江边小卖部',
+        date: '2031年 · 星期五', place: '浦东 · 江边小卖部', shot: archiveShots.pearlLater,
         scene: '来接你的那个人穿着你的旧外套。公司去年倒了，TA 在渡口卖柠檬水。收摊前只剩一杯，贴了张便签「带回去给周一的我」。',
         options: [
           { move: '把这杯带回周一', after: '你把杯子放在工位上。坐你隔壁的人一看配方，问你下班有没有空，一起去找个摊位。', next: end },
@@ -245,7 +256,12 @@ export const CITY_TIMELINES: Timeline[] = [
       },
     ],
   },
+  PHOTO_SHOP_STORY,
 ];
+
+export function timelineShot(timeline: Timeline, index: number) {
+  return timeline.turns[index]?.shot ?? CITY_TIMELINES.find(story => story.id === timeline.id)?.turns[index]?.shot;
+}
 
 function object(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('这张票认不出来');
@@ -284,7 +300,7 @@ export function validateTicket(value: unknown): Ticket {
         if (next !== null && (typeof next !== 'number' || !Number.isInteger(next) || next <= index || next >= count)) {
           throw new Error('时间线接不上');
         }
-        return { move: field(choice.move, 32), after: field(choice.after, 160), next };
+        return { move: field(choice.move, 32), after: field(choice.after, 160), next, ...validShot(choice.shot) };
       }),
     };
   });
@@ -316,7 +332,7 @@ export function walk(timeline: Timeline, route: Move[]) {
   const steps = route.map(move => {
     if (next === null) throw new Error('这条走法已经走到头了');
     const turn: Turn = timeline.turns[next];
-    const option = move.pick === 2 ? { move: '我有个别的办法', after: move.note!, next: null } : turn.options[move.pick];
+    const option: Turn['options'][number] = move.pick === 2 ? { move: '我有个别的办法', after: move.note!, next: null } : turn.options[move.pick];
     if (!option) throw new Error('这条走法接不上');
     next = option.next;
     return { turn, option };
@@ -330,9 +346,15 @@ export function isTicketHash(hash: string) {
 
 export function ticketLink(ticket: Ticket) {
   const url = new URL(window.location.pathname, window.location.origin);
-  if (!ticket.route?.length && CITY_TIMELINES.includes(ticket.timeline)) {
-    url.hash = 'story=' + ticket.timeline.id;
-    return url.toString();
+  if (!ticket.route?.length) {
+    const original = CITY_TIMELINES.find(story => story.id === ticket.timeline.id);
+    if (original) {
+      const normal = (timeline: Timeline) => JSON.stringify(validateTicket({ version: 1, timeline }).timeline);
+      if (original === ticket.timeline || normal(original) === normal(ticket.timeline)) {
+        url.hash = 'story=' + original.id;
+        return url.toString();
+      }
+    }
   }
   const bytes = new TextEncoder().encode(JSON.stringify(ticket));
   url.hash = 'timeline=' + btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -355,22 +377,30 @@ const STORAGE_KEY = 'modu-life-timeline-tickets';
 export function readTickets(): Ticket[] {
   try {
     const stored: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    const seen = new Set<string>();
     return Array.isArray(stored) ? stored.slice(0, 36).flatMap(value => {
-      try { return [validateTicket(value)]; } catch { return []; }
+      try {
+        const ticket = validateTicket(value);
+        const key = JSON.stringify(ticket);
+        if (seen.has(key)) return [];
+        seen.add(key);
+        return [ticket];
+      } catch { return []; }
     }) : [];
   } catch { return []; }
 }
 
 export function saveTicket(ticket: Ticket) {
   const entries = readTickets();
-  const match = JSON.stringify(ticket);
-  const updated = [ticket, ...entries.filter(entry => JSON.stringify(entry) !== match)].slice(0, 36);
+  const normalized = validateTicket(ticket);
+  const match = JSON.stringify(normalized);
+  const updated = [normalized, ...entries.filter(entry => JSON.stringify(entry) !== match)].slice(0, 36);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
   return updated;
 }
 
 export function removeTicket(ticket: Ticket) {
-  const match = JSON.stringify(ticket);
+  const match = JSON.stringify(validateTicket(ticket));
   const updated = readTickets().filter(entry => JSON.stringify(entry) !== match);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
   return updated;

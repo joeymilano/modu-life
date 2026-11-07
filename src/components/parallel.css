@@ -35,34 +35,42 @@
 .parallel-kicker { margin-bottom: 14px; }
 .parallel-stamp { color: var(--red); }
 .parallel-hero {
-  isolation: isolate; position: relative; overflow: hidden; margin: 28px 0 44px;
-  min-height: 320px; display: flex; align-items: center; padding: clamp(25px, 6vw, 72px);
-  border-radius: 3px; color: #f5e8ca; background: #1a2022;
+  isolation: isolate; position: relative; overflow: hidden; margin: 24px 0 36px;
+  min-height: clamp(330px,38vw,475px); display: flex; align-items: flex-end;
+  padding: clamp(24px,5vw,64px); border-radius: 3px; color: #fff3de; background: #1a2022;
 }
-.parallel-hero::before {
-  position: absolute; content: ''; z-index: -2; inset: 0;
-  background: linear-gradient(90deg,#1a2022f5 5%,#1a2022ba 35%,transparent 73%), url('/art/shanghai-streets/cover-parallel.webp') center 37% / cover;
+.parallel-hero > img { position: absolute; z-index: -2; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 39%; }
+.parallel-hero::after {
+  position: absolute; content: ''; z-index: -1; inset: 0; pointer-events: none;
+  background: linear-gradient(90deg,#15201ff2 0%,#15201fae 28%,transparent 63%), linear-gradient(0deg,#121e1e94,transparent 55%);
 }
-.parallel-hero h1 { font-size: clamp(38px, 6.3vw, 88px); letter-spacing: -.04em; }
-.parallel-hero p { margin: 12px 0 24px; font-size: clamp(14px, 2vw, 20px); }
+.parallel-hero h1 { font-family: inherit; font-size: clamp(13px,1.4vw,17px); font-weight: 600; line-height: 1.3; letter-spacing: .12em; margin-bottom: 12px; }
+.parallel-hero h2 { font-size: clamp(35px,4.85vw,67px); letter-spacing: -.02em; }
+.parallel-hero p { margin: 12px 0 21px; font-size: clamp(14px,1.5vw,18px); }
 .parallel-hero-copy { z-index: 1; }
 .parallel-shelf { margin-top: 32px; }
 .parallel-shelf-head { justify-content: space-between; }
 .parallel-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 16px; }
 .parallel-ticket {
-  display: grid; gap: 8px; text-align: left; padding: clamp(16px, 3vw, 27px);
+  display: block; text-align: left; padding: 0;
   background: #faf4e5; color: var(--ink); border: 1px solid #bab7a4;
   border-left: 4px solid #b23f30; border-radius: 4px; overflow-wrap: anywhere;
 }
 .parallel-ticket:hover { background: #fffaf0; border-color: var(--red); }
+.parallel-ticket-copy { display: grid; gap: 8px; padding: clamp(16px,3vw,27px); }
 .parallel-ticket strong { font: 700 clamp(21px, 3vw, 31px) / 1.25 var(--serif); }
-.parallel-ticket small, .parallel-ticket span { color: var(--muted); font-size: 13px; }
+.parallel-ticket small, .parallel-ticket-copy > span { color: var(--muted); font-size: 13px; }
 .parallel-ticket .parallel-ticket-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 6px; color: var(--red); }
 .parallel-ticket-meta b { font-size: 12px; padding: 2px 7px; border: 1px solid currentColor; border-radius: 20px; }
 .parallel-ticket-meta svg { margin-left: auto; }
+.parallel-catalog { grid-template-columns: repeat(3, minmax(0,1fr)); }
+.illustrated-ticket { display: grid; grid-template-rows: auto 1fr; align-items: start; overflow: hidden; border-left-width: 1px; }
+.parallel-ticket-cover { display: block; width: 100%; aspect-ratio: 16/9; object-fit: cover; object-position: 50% 40%; background: #263a36; }
+.illustrated-ticket .parallel-ticket-copy { padding: clamp(12px,1.65vw,22px); gap: 6px; }
+.illustrated-ticket strong { font-size: clamp(20px,2.45vw,32px); }
 .parallel-empty { color: var(--muted); border: 1px dashed var(--rule); padding: 16px; }
 .parallel-layout { display: grid; grid-template-columns: minmax(190px, .9fr) minmax(0, 2.65fr); gap: clamp(22px, 5vw, 70px); padding-top: 36px; }
-.parallel-map { border-right: 1px solid var(--rule); padding: 6px 20px 0 0; overflow-wrap: anywhere; }
+.parallel-map { grid-column: 1; grid-row: 1; border-right: 1px solid var(--rule); padding: 6px 20px 0 0; overflow-wrap: anywhere; }
 .parallel-map ol { list-style: none; padding: 0; margin: 24px 0; }
 .parallel-map li { position: relative; margin-left: 6px; padding: 0 0 20px 20px; border-left: 1px solid #9ba492; }
 .parallel-map li::before { content: ''; position: absolute; top: 4px; left: -5px; width: 9px; height: 9px; border-radius: 50%; background: var(--ink); }
@@ -72,10 +80,15 @@
 .parallel-map button:hover { text-decoration: underline; }
 .parallel-siblings { display: grid; gap: 6px; }
 .parallel-siblings > span { font-size: 13px; color: var(--muted); }
-.parallel-stage { min-width: 0; }
+.parallel-stage { grid-column: 2; grid-row: 1; min-width: 0; }
 .parallel-scene { border-top: 3px double var(--rule); padding-top: 22px; }
 .parallel-scene h1 { margin: 12px 0 14px; }
-.parallel-scene p { font-size: clamp(16px, 2vw, 20px); }
+.parallel-scene p { margin-top: 12px; font-size: clamp(16px, 2vw, 20px); }
+.parallel-scene-photo, .parallel-ending-photo { display: block; width: 100%; object-fit: cover; aspect-ratio: 3/2; object-position: 50% 43%; border-radius: 3px; }
+.parallel-scene-photo { max-height: 390px; object-position: 50% 60%; }
+.parallel-ending-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 16px; }
+.parallel-ending-head .parallel-quiet { color: var(--red); }
+.parallel-ending-photo { max-height: 590px; margin-top: 18px; }
 .parallel-previous { padding: 12px 16px; background: #e5e5d5; border-left: 3px solid #6e806c; margin: 0 0 20px; }
 .parallel-choices { display: grid; gap: 10px; margin: 22px 0 6px; }
 .parallel-choices button { display: grid; grid-template-columns: 28px 1fr auto; align-items: center; gap: 12px; min-height: 54px; padding: 10px 16px; background: #fcf7ea; border: 1px solid var(--rule); border-radius: 3px; color: var(--ink); text-align: left; }
@@ -102,30 +115,24 @@
 .parallel-field textarea { resize: vertical; }
 .parallel-status { position: sticky; bottom: 12px; width: fit-content; padding: 9px 14px; margin-top: 12px; background: var(--ink); color: #fff3dd; border-radius: 4px; }
 .parallel-link { max-width: 850px; margin-top: 8px; }
+@media (min-width: 681px) and (max-width: 1000px) { .parallel-catalog { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 @media (max-width: 680px) {
-  .parallel-hero { min-height: 330px; margin-top: 18px; align-items: flex-end; }
-  .parallel-hero::before {
-    background-image: linear-gradient(0deg,#1a2022 0%,#1a2022ce 29%,transparent 65%), url('/art/shanghai-streets/cover-parallel.webp');
-    background-position: 94% center;
+  .parallel-hero { min-height: 370px; margin-top: 18px; padding: 19px; }
+  .parallel-hero > img { object-position: 66% 45%; }
+  .parallel-hero::after {
+    background: linear-gradient(0deg,#15201ff5 0%,#15201fbe 31%,transparent 73%);
   }
-  .parallel-hero h1 { font-size: clamp(28px, 7.6vw, 38px); }
+  .parallel-hero h2 { font-size: clamp(28px,8vw,40px); }
   .parallel-grid, .parallel-layout, .parallel-results, .parallel-fields { grid-template-columns: 1fr; }
+  .illustrated-ticket { grid-template-columns: 34% minmax(0,1fr); grid-template-rows: 1fr; align-items: stretch; }
+  .parallel-ticket-cover { height: 100%; min-height: 110px; aspect-ratio: auto; }
+  .parallel-ticket-meta svg { width: 15px; }
   .parallel-layout { padding-top: 20px; }
-  .parallel-map { border: 0; border-bottom: 1px solid var(--rule); padding: 0 0 10px; }
+  .parallel-stage, .parallel-map { grid-area: auto; }
+  .parallel-map { border: 0; border-top: 1px solid var(--rule); padding: 16px 0 0; }
   .parallel-map ol { margin: 14px 0 0; }
   .parallel-map li { padding-bottom: 10px; }
   .parallel-hero .parallel-actions { gap: 8px; }
   .parallel-hero .parallel-primary, .parallel-hero .parallel-outline { padding-inline: 10px; font-size: 13px; }
 }
 .parallel-map .parallel-fork-link{display:block;color:var(--red);font-size:12px;}
-.photographic-location {
-  position: relative; isolation: isolate; display: flex; align-items: end;
-  min-height: clamp(155px,24vw,290px); overflow: hidden; padding: clamp(14px,2.5vw,28px);
-  background: #20342d; color: #fff0d3;
-}
-.photographic-location img { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; }
-.ticket-shot img { object-position: 50% 40%; }
-.photographic-location::before { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(0deg,#172b25ec,transparent 90%); }
-.photographic-location .parallel-stamp { color: #f3c987; }
-.photographic-location h1 { margin-bottom: 0; font-size: clamp(29px,4.3vw,54px); }
-@media (max-width: 600px) { .ticket-shot { aspect-ratio: 16 / 10; } }
