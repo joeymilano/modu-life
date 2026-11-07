@@ -1,0 +1,67 @@
+{
+  "generator": "Built-in ImageGen",
+  "referenceCommit": "c070bd3",
+  "direction": "Observational contemporary Shanghai film stills. Keep Wang Ayi's burgundy jacket and short perm, and Tang Yuan's round glasses, dark bob and gray cotton shirt recognizable across visits and age stages. Match the worn folding table across the three long-table scenes. Prefer natural daylight and actual gestures over posed front-facing portraits.",
+  "delivery": "Four vertical 2:3 portraits and matching 240 px crops. Ten landscape 3:2 event stills, including three new park return scenes.",
+  "assets": {
+    "public/art/portraits/aunt.webp": {
+      "reference": "public/art/portraits/aunt.webp",
+      "prompt": "Vertical 2:3 environmental portrait, approximately 55-year-old Shanghainese woman Wang Ayi; keep reference fictional actor's face, short brown-black perm, burgundy windbreaker and ecru canvas bag. In People's Park at the edge of the matchmaking rows, standing instead of crouching. Her hand is gathering the strap of a closed dark blue umbrella as she smiles warmly at a familiar adult walking past, focused slightly camera-left, honest skin with fine lines and unretouched cheeks. Soft morning light filtered by plane trees, sparse elders talking beside only a few paper notices behind, realistic everyday clothing. Frame hair to upper thigh, face in central third at y=29%, her eyes visible for an avatar crop."
+    },
+    "public/art/portraits/tang.webp": {
+      "reference": "public/art/portraits/tang.webp",
+      "prompt": "Vertical 2:3 environmental portrait. Retain the reference actor young adult Tang Yuan's recognizable face, fine round metal glasses, straight short black bob with middle part, charcoal work shirt and worn rust backpack. New composition in a quiet Shanghai neighborhood at the edge of a breakfast counter, leaning a little sideways to pick up a bag of takeaway from just off camera, giving a small, wry smile to an adult she's talking with. Rain has passed, light from old open storefront spills onto her face, real untidy hair and slight skin texture, not posing. Visible head to upper thigh, face at x=50% y=29%, clean eye area for an avatar crop. Shop interior and trees resolve naturally without logo or legible signs."
+    },
+    "public/art/portraits/tang-midlife.webp": {
+      "reference": "public/art/portraits/tang-midlife.webp",
+      "prompt": "Vertical 2:3 environmental portrait. Same recognizable fictional Tang Yuan, now 47, straight dark bob with a few silver strands at temple, round metal glasses, charcoal cotton work shirt over plain tee. Shanghai neighborhood activity room, beside an old folding table with a chipped corner and stack of cups, she is holding a ring with one dull brass door key and looking at a neighbor off frame with a practical easy half smile. Window light and believable wall paint, soft real eye lines, early gray and natural skin. Face at x=50%, eyes at y=29%, head to upper thigh, real hand anatomy. She has kept her sense of humor."
+    },
+    "public/art/portraits/tang-senior.webp": {
+      "reference": "public/art/portraits/tang-senior.webp",
+      "prompt": "Vertical 2:3 environmental portrait of the same recognizable fictional Tang Yuan from the reference, now 61, silver streaks in her familiar bob, fine round glasses and faded slate-blue work shirt. Ordinary Shanghai community activity room with open door and window light, her wrists resting lightly on the edge of a well-used folding table, pauses before pouring tea and catches an adult neighbor's eye just beside the camera. Natural early sixties face with eye creases and smile lines, not heavily aged or airbrushed. Soft gray-green walls and wood, no props near her face. Visible head to upper thigh, face central x=50%, eyes at y=29%, single clear figure."
+    },
+    "public/art/matchmaking/paper.webp": {
+      "reference": "public/art/matchmaking/paper.webp",
+      "prompt": "Wide horizontal 3:2 story still in Shanghai People's Park matchmaking corner just after morning rain. Same fictional older woman in burgundy jacket and canvas bag, side-on, she stops partway through clipping an ordinary printed notice to an open dark-blue umbrella, pulling it off with one hand as she realizes the adult beside her has seen the listing; a small colorful binder clip and page visually clear but writing unreadable. Skeptical raised eyebrow visible in three-quarter view, no smile at lens. A few elders trading pages in the distance, rainwater only in realistic small patches on gray paving, natural soft light through real leaves. Center face and hand in middle 60% width."
+    },
+    "public/art/matchmaking/coffee.webp": {
+      "reference": "public/art/matchmaking/coffee.webp",
+      "prompt": "Wide horizontal 3:2 story still in an ordinary tea shop by Shanghai People's Park. Retain the fictional Tang Yuan's distinctive young adult face, round glasses, short bob, gray overshirt and muted reddish straps. Shot from other end of a small laminate table by window, she is comparing two differently folded printouts, tapping one page with one finger while still gripping one cup of half-finished milk tea, eyebrows up at companion just out of shot as she catches a euphemism. Two real plastic cups with condensation, ordinary chairs and rain clearing beyond window. Place face, paper and cup at center 65% of frame, daylight white balance, candid moment."
+    },
+    "public/art/matchmaking/bench.webp": {
+      "reference": "public/art/matchmaking/bench.webp",
+      "prompt": "Wide horizontal 3:2 story still, Shanghai People's Park worn wooden bench by stone path, adult Tang Yuan from reference with short dark bob and round glasses, wearing slate cotton overshirt and rust canvas pack. Camera sits a little lower and to the side of the empty half of the bench. She turns to hand off a single resume with a smaller folded note clipped on it, eyes on the papers and quietly amused, one dry half of bench and one folded umbrella remain. There is a takeaway pastry bag near her elbow, tree-filtered daylight and soft ordinary park walkers beyond. Clear meaningful props, central framing."
+    },
+    "public/art/matchmaking/own-umbrella.webp": {
+      "reference": "public/art/matchmaking/own-umbrella.webp",
+      "prompt": "Wide horizontal 3:2 candid Shanghai People's Park story still. Keep same fictional Wang Ayi, burgundy jacket, short perm, canvas bag. Her navy umbrella is closed and propped along the fence. She takes her clear-cased phone out of her bag, holds it halfway toward the adult neighbor and uses her other hand to smooth her hair behind an ear. Slight embarrassment and resolve in her face as she asks for a photo for herself. Nobody looking into lens. A few other elders packing up in natural mid-ground and one metal folding stool. Early daylight after a passing shower, central framing to keep phone and eyes visible."
+    },
+    "public/art/matchmaking/lease.webp": {
+      "reference": "public/art/portraits/tang.webp",
+      "prompt": "Wide 3:2 fictional contemporary Shanghai story scene. Keep Tang Yuan's recognizable adult face, short center-part bob, thin round glasses and charcoal jacket, red backpack. Inside the entrance of an ordinary old Shanghai rental flat off a side street near People's Square. She leans with shoulder against the doorframe and looks down at two house keys with one scuffed cream key tag on a wooden entry cabinet beside a folded, short rental offer. Half-turned toward unseen adult companion as if asking whether the rent sounds right, expression wry and skeptical. Window daylight at end of corridor, old white tile, unluxurious clean room, no readable print, no boxes cluttering the shot. Keep keys and face central, credible light."
+    },
+    "public/art/matchmaking/work.webp": {
+      "reference": "public/art/portraits/tang.webp",
+      "prompt": "Wide 3:2 fictional contemporary Shanghai story scene. Keep Tang Yuan's recognizable adult face, short black bob, thin round metal glasses, charcoal work shirt and rust backpack. In a modest neighborhood community office by People's Park with an open window and stacked chairs, she is unfolding a plain volunteer rota across a scarred folding table, thumb tucked underneath one edge, and turns toward the off-camera adult friend with a knowing grin at what the job ad left out. One wall clock, water cups and one old calculator with no discernible brand, daylight from side, worn floor and honest skin. Central focus on her face and the sheet of paper. No legible lettering, no one posing for camera."
+    },
+    "public/art/matchmaking/market.webp": {
+      "reference": "public/art/portraits/aunt.webp",
+      "prompt": "Wide 3:2 fictional contemporary Shanghai life game story scene. Same fictional older Wang Ayi, short perm, burgundy shell and canvas bag, at an authentic old Shanghai neighborhood market fish stall at about 9 in the morning. One middle-aged vendor in a blue apron occupies the far edge sorting two modest yellow croakers from an ice tray while Wang Ayi laughs in profile at an older ordinary man in gray with his cloth grocery bag already open. Her hand holds a single slightly bent printed portrait of herself (only back facing camera), and she is half turned to talk to the unseen adult friend who came with her. A place that feels used every day, sensible stalls, neutral daylight across the open market entrance, believable hand gestures. Faces clustered around middle, keep details readable on mobile. One photo, no title."
+    },
+    "public/art/long-table/folded-table.webp": {
+      "reference": "public/art/portraits/tang.webp",
+      "propReference": "public/art/long-table/folded-table.webp",
+      "prompt": "Around 34, still black short bob with just a tiny bit of gray and round metal glasses. Outside a Shanghai lane tailor moving out, Tang Yuan is actually lifting a small dark walnut-brown rectangular gateleg folding table into daylight. It has a single small diagonal chipped-off corner at the front right and four simple wood legs, one short. One hinged half is folded down, and her other hand points to the chip while she is mid-sentence toward an adult just outside camera. Shoot side-on from the shop threshold, enough frame to see one worn fold joint, plank and chair. In the background a sleeve of a garment on a shop rack and an unhurried neighbor carrying a tote. Real lane daylight, unposed expression and clear ordinary spatial depth."
+    },
+    "public/art/long-table/table-inside.webp": {
+      "reference": "public/art/portraits/tang-midlife.webp",
+      "propReference": "public/art/long-table/folded-table.webp",
+      "prompt": "Around 47, practical gray cotton shirt with cuff turned once and a little silver in her familiar bob. She and an adult companion just outside frame have brought an old dark walnut-brown rectangular gateleg folding table indoors to a modest Shanghai residential activity room. She has just pulled the soft metal tape measure across the table, expression curious as she realizes how much room is left for two chairs. Keep the same small diagonal missing corner at front right, similar rectangular top and simple sturdy old legs. New viewpoint from just inside open doorway, natural sidelight and cream painted wall with wall outlet, stack of four plain cups and an unused yellow extension cord. Leave modest negative space between her and the camera so the gesture reads. Lived-in and unposed."
+    },
+    "public/art/long-table/empty-chair.webp": {
+      "reference": "public/art/portraits/tang-senior.webp",
+      "propReference": "public/art/long-table/folded-table.webp",
+      "prompt": "Now around 56–60, the same recognizably older fictional Chinese woman Tang Yuan with round glasses, silver-streaked familiar black bob and washed slate-blue cotton shirt. She is pulling out one old chair near the door for a young adult visitor (only their hand and the closed umbrella with a broken rib at the right edge are visible). Tang looks at the chair, grinning as she gets the chair leg over a little door sill. Include the same worn dark walnut-brown rectangular gateleg folding table with a small diagonal missing corner at front right. Soft late afternoon side daylight from the modest community room window, cups and a little screwdriver on the table, a lived-in plain cream wall with a few screw holes. Crop-safe central face and gesture. A warmly funny end-of-story moment."
+    }
+  }
+}

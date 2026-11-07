@@ -87,7 +87,12 @@ export function longTableYear(state: GameState): LifeEvent | undefined {
    : '唐圆从储藏间拖来一张旧折桌，少了一小块桌角。';
   return { ...keepTheRoom, text: memory + ' ' + keepTheRoom.text };
  }
- if (age >= 32 && age <= 44 && !seenEvents.includes(takeTheTable.id)) return takeTheTable;
+ if (age >= 32 && age <= 44 && !seenEvents.includes(takeTheTable.id)) {
+  const memory = flags.includes('match-market-table') ? '你一眼认出桌腿下面塞过旧菜单的那张桌子。'
+   : flags.includes('match-worked-together') ? '你们当年在这张桌上排过班，桌板背面还有你划错的那一道。'
+   : flags.includes('match-neighbor') ? '你们住隔壁那会儿，楼道里也放过一张差不多的桌。搬进来的头两天，谁也没好意思把它挪走。' : '';
+  return memory ? { ...takeTheTable, text: takeTheTable.text + memory } : takeTheTable;
+ }
  return undefined;
 }
 

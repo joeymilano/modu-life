@@ -1,5 +1,5 @@
 import type { EventChoice, LifeEvent } from './types';
-import { PARK_TICKET_SCENES } from './matchmaking';
+import { PARK_RETURN_TICKET_SCENES, PARK_TICKET_SCENES } from './matchmaking';
 import { FERRY_STILLS, FIRST_NIGHT_STILLS, MATCH_STILLS, OPENING_STILLS, TABLE_STILLS, datePhoto, farewellPhoto, ferryPhoto, matchPhoto, offerPhoto, openingPhoto, pearlPhoto, rentalPhoto, stallPhoto, streetPhoto, tablePhoto, workPhoto } from './art';
 import { CAREERS, CAST } from './content';
 import { PHOTO_SHOP_STILLS, PHOTO_SHOP_STORY, photoShopStill } from './photoShop';
@@ -43,6 +43,7 @@ const archiveShots = {
 };
 const ticketShots = new Set([
   streetPhoto('station'),
+  streetPhoto('people'),
   ...Object.values(archiveShots),
   ...PHOTO_SHOP_STILLS.map(photoShopStill),
   ...FIRST_NIGHT_STILLS.map(streetPhoto),
@@ -89,6 +90,35 @@ const parkStory: Timeline = {
       date: ['下午', '摊主还没来', '收伞前'][index],
       place: ['公园门口 · 奶茶店', '人民公园 · 长椅', '人民公园 · 相亲角'][index],
       scene: event.text, shot: event.illustration, options: event.choices.slice(0, 2).map(choice => ticketOption(choice, null)),
+    })),
+  ],
+};
+
+const parkReturn: Timeline = {
+  id: 'park-next-year', kind: 'life', title: '第二年，汪阿姨没来', author: '魔都人生',
+  original: '我去了鱼摊。汪阿姨果然在，正跟人争哪条鱼算大的。中午一桌五个人，只有鱼摊老板没吃到鱼，他把饭吃完就去称虾了。',
+  turns: [
+    {
+      date: '又到礼拜天', place: '人民公园 · 老位置', shot: streetPhoto('people'),
+      scene: '相亲角开了半天，那把蓝伞一直没撑起来。唐圆发来两条消息，说这回有个活，顺路还能看间房。汪阿姨也发了，只有四个字「鱼摊见面」。',
+      options: [
+        { move: '去公园门口找唐圆', after: '她把没喝完的奶茶递给你腾手，从包里抽出两张纸。', next: 1 },
+        { move: '去菜场找汪阿姨', after: '你在卖豆腐的摊位借过一下，前面有人拿两只鱼袋比大小。', next: 4 },
+      ],
+    },
+    {
+      date: '过了十分钟', place: '公园门口', shot: matchPhoto('bench'),
+      scene: '一张是租房地址，一张是招工的排班表。唐圆看了眼手机。房东十一点就要走，社区活动室的试班也快开始了。',
+      options: [
+        { move: '先去楼上看那间房', after: '你们上到二楼才发现，楼下晒衣服的人就是房东。', next: 2 },
+        { move: '先去问活动室怎么排班', after: '唐圆把租房地址折起来。你看她在表上画了个圈，圈的是试班。', next: 3 },
+      ],
+    },
+    ...PARK_RETURN_TICKET_SCENES.map((event, index) => ({
+      date: ['上午十一点', '试班之前', '九点零五'][index],
+      place: ['公园后街 · 二楼', '街坊活动室', '菜场 · 小黄鱼摊'][index],
+      scene: event.text, shot: event.illustration,
+      options: (index === 1 ? [event.choices[1], event.choices[2]] : event.choices.slice(0, 2)).map(choice => ticketOption(choice, null)),
     })),
   ],
 };
@@ -161,6 +191,7 @@ export const CITY_TIMELINES: Timeline[] = [
     ],
   },
   parkStory,
+  parkReturn,
   {
     id: 'half-table', kind: 'life', title: '折起来只有半张', author: '魔都人生',
     original: '那天我让收废品的把桌腿带走了。二十一年后，唐圆从桌底撕出半张报纸。我一看，还是那年给旧桌脚垫的。',

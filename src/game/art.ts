@@ -94,7 +94,7 @@ export function rentalPhoto(shot: (typeof RENTAL_STILLS)[number]): string {
  return '/art/rental/' + shot + '.webp';
 }
 
-export const MATCH_STILLS = ['paper', 'coffee', 'bench', 'own-umbrella'] as const;
+export const MATCH_STILLS = ['paper', 'coffee', 'bench', 'own-umbrella', 'lease', 'work', 'market'] as const;
 
 export function matchPhoto(shot: (typeof MATCH_STILLS)[number]): string {
  return '/art/matchmaking/' + shot + '.webp';
