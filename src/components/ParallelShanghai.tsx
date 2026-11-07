@@ -217,7 +217,8 @@ export default function ParallelShanghai({ onClose, hash, preset }: {
     const { timeline, route = [] } = ticket;
     const { steps, next } = walk(timeline, route);
     const current = next === null ? null : timeline.turns[next];
-    const photo = next === null ? undefined : storyPhotos.get(timeline.id)?.[next];
+    const backdrop = next === null ? undefined : storyPhotos.get(timeline.id)?.[next];
+    const photo = current?.shot ?? (backdrop && streetPhoto(backdrop));
     const last = steps.at(-1);
     const number = route.length + 1;
     const movePath = route.map(move => 'ABC'[move.pick]).join('·') || '起点';
@@ -246,8 +247,8 @@ export default function ParallelShanghai({ onClose, hash, preset }: {
         {current ? <>
           {last && <p className="parallel-previous" aria-live="polite">{last.option.after}</p>}
           <div className="parallel-scene" key={next}>
-            <div className={photo ? 'parallel-location photographic-location' : 'parallel-location'}>
-              {photo && <img src={streetPhoto(photo)} alt="" />}
+            <div className={'parallel-location'+(photo?' photographic-location':'')+(current.shot?' ticket-shot':'')}>
+              {photo && <img src={photo} alt="" />}
               <div><span className="parallel-stamp">{current.date}</span>
               <h1 ref={titleRef} tabIndex={-1}>{current.place}</h1></div>
             </div>

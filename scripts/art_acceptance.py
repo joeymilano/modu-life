@@ -19,10 +19,10 @@ with sync_playwright() as pw:
     p=ctx.new_page();p.on('pageerror',lambda e:errors.append(str(e)))
     p.goto(BASE+'?seed=ARTLOOKS');p.wait_for_load_state('networkidle')
     art_dir=Path('public/art')
-    assets=[file.relative_to(art_dir).as_posix() for folder in ('portraits','origins','encounters') for file in (art_dir/folder).rglob('*.webp')]
+    assets=[file.relative_to(art_dir).as_posix() for folder in ('portraits','origins','encounters','dates') for file in (art_dir/folder).rglob('*.webp')]
     assets.extend(file.relative_to(art_dir).as_posix() for file in (art_dir/'shanghai-streets').glob('first-night-*.webp'))
     assets.append('shanghai-streets/cover-station.webp')
-    assert len(assets)==106, len(assets)
+    assert len(assets)==122, len(assets)
     for asset in assets:
         r=p.request.get(BASE+'art/'+asset);assert r.status==200,(asset,r.status)
         assert r.headers.get('content-type','').startswith('image/'),(asset,r.headers)
@@ -90,8 +90,13 @@ with sync_playwright() as pw:
     p.locator('.romance-grid button').nth(4).click();p.wait_for_timeout(300)
     assert p.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
     p.screenshot(path=str(OUT/'date-mobile.png'),full_page=True)
-    for i in [1,2,2]:
+    for turn,i in enumerate([1,2,2]):
         p.locator('.dialogue-answers button').nth(i).click();p.locator('.dialogue-reply .primary').click()
+        if turn==0:
+            shot=p.locator('.date-visual .date-shot.visible')
+            shot.wait_for()
+            assert shot.get_attribute('src')=='/art/dates/qiao-meeting.webp'
+            assert shot.evaluate('async img=>{await img.decode();return img.naturalWidth>1000}')
     p.locator('.outcome-content .primary').click()
     assert json.loads(p.evaluate('localStorage.getItem("modu-life-v1")'))['relationships']['qiao']['met']
     print(json.dumps({'passed':True,'appearance_combinations':6,'assets':len(assets),'save_export_reload':True,'legacy_save_migrated':True,'large_romance_portraits':8,'mobile_date_completed':True,'page_errors':errors},ensure_ascii=False))

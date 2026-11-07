@@ -1,9 +1,12 @@
 import type { LifeEvent } from './types';
+import { datePhoto, streetPhoto } from './art';
+import { CAST } from './content';
 
 export interface Turn {
   date: string;
   place: string;
   scene: string;
+  shot?: string;
   options: { move: string; after: string; next: number | null }[];
 }
 
@@ -28,6 +31,14 @@ export interface Ticket {
 }
 
 const end = null;
+const ticketShots = new Set([
+  streetPhoto('station'),
+  ...CAST.filter(person => person.role === 'romance').map(person => datePhoto(person.id, 'return')),
+]);
+
+function validShot(value: unknown) {
+  return typeof value === 'string' && ticketShots.has(value) ? { shot: value } : {};
+}
 export const CITY_TIMELINES: Timeline[] = [
   {
     id: 'last-train', kind: 'life', title: '末班车开走之前', author: '魔都人生',
@@ -127,6 +138,7 @@ export function validateTicket(value: unknown): Ticket {
       date: field(turn.date, 28),
       place: field(turn.place, 24),
       scene: field(turn.scene, 220),
+      ...validShot(turn.shot),
       options: turn.options.map(item => {
         const choice = object(item);
         const next = choice.next;
@@ -219,6 +231,6 @@ export function draftFromEvent(event: LifeEvent, selected: string, result: strin
   return {
     id: crypto.randomUUID(), kind: 'life', title: event.title.slice(0, 28), author: '',
     original: result.slice(0, 160),
-    turns: [{ date: age + '岁', place: district, scene: event.text.slice(0, 220), options }],
+    turns: [{ date: age + '岁', place: district, scene: event.text.slice(0, 220), ...validShot(event.illustration), options }],
   };
 }

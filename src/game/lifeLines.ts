@@ -2,6 +2,7 @@ import { CAST } from './content';
 import { ACTIVITY_NAMES, SAVE_KEY, selectEvent, validateSave } from './engine';
 import { streetLead } from './streetLeads';
 import { nightOwlLetter } from './encounters';
+import { returnDate } from './dateReturns';
 import type { ActivityKind, GameState, LifeEvent } from './types';
 
 export const MAX_LINES = 8;
@@ -59,6 +60,10 @@ export function clearReplay(book: LifeBook): LifeBook {
 }
 
 export function replayScene(state: GameState, scene: SceneRef): LifeEvent | null {
+  if (scene.kind === 'romance' && scene.npc) {
+    const date = returnDate(state, scene.npc);
+    if (date?.id === scene.eventId) return date;
+  }
   const event = scene.kind === 'owl' ? nightOwlLetter(state) :
     scene.kind === 'lead' ? streetLead(state)?.event : selectEvent(state, scene.kind, scene.npc);
   return event?.id === scene.eventId ? event : null;

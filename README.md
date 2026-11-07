@@ -64,9 +64,9 @@ python3 scripts/browser_smoke.py
 
 人物立绘、40 张开局牌、小游戏场景和街景使用内置 ImageGen 生成的纪实摄影风格素材。运行时文件在 `public/art/`，提示词在 `art/portrait-and-origin-prompts.json` 和 `art/shanghai-streets.json`。初版素材和提示词归档在 `art/source/` 与 `art/prompts.json`。人物头像和立绘来自同一张图，运行时按用途加载不同尺寸。
 
-八名约会对象各有三段对话，关系可以继续约见、停在朋友或到此为止。陆嘉和何亮还会提起第一晚发生的事。「同手牌挑战」可以从游玩中复制，收件人打开就能用原牌开始。
+八名约会对象各有一次三幕初见和一场后续剧情。初见的决定会改变下一次可以选的走法。再见一面的选择会留在时间线，也能连同剧照做成车票发给朋友。陆嘉和何亮会提起第一晚发生的事。16 张约会剧照和生成提示词见 `public/art/dates/` 与 `art/date-stills.json`。
 
-新增浏览器验收：`python3 scripts/art_acceptance.py`，覆盖六种形象、106 个美术文件、保存／导出／旧档迁移、约会大图、看房线索和手机约会流程。
+`python3 scripts/art_acceptance.py` 覆盖六种形象、122 个美术文件、保存／导出／旧档迁移、约会剧照、看房线索和手机约会流程。
 
 
 ## 公开发布

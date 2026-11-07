@@ -12,6 +12,10 @@ export function playerArt(appearance: PlayerAppearance, full = true): string {
  return portraitArt('player-' + appearance.gender + '-' + appearance.looks, full);
 }
 
+export function datePhoto(personId: string, scene: 'meeting' | 'return'): string {
+ return `/art/dates/${personId}-${scene}.webp`;
+}
+
 export type StreetPhoto = DistrictId | 'cover-station' | 'station' | 'keys' | 'kitchen' | 'ferry' | 'table' | 'bookshop'
  | 'first-night-room' | 'first-night-shift' | 'first-night-ferry';
 

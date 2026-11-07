@@ -90,16 +90,21 @@
 .event-body{font-size:13px;line-height:1.95;}
 .event-choices>button{padding:13px 12px;}
 .event-choices>button b{font-size:12px;}
-.date-modal{max-width:960px;min-height:610px;padding-left:385px;overflow:hidden;}
-.date-visual{position:absolute;inset:0 auto 0 0;width:345px;background:#17372d;overflow:hidden;}
-.date-visual>.portrait-full{height:100%;width:100%;}
+.date-modal{max-width:1080px;}
+.date-modal .dialogue-game{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.96fr);padding:0;min-height:535px;}
+.date-modal .dialogue-content{align-self:center;padding:38px clamp(24px,3.2vw,48px);}
+.date-visual{position:relative;background:#17372d;overflow:hidden;}
+.date-visual>.portrait-full{position:absolute;inset:0;height:100%;width:100%;}
+.date-visual>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;}
+.date-visual>img.visible{opacity:1;animation:dateShotEnter .2s ease-out;}
+@keyframes dateShotEnter{from{opacity:.25}to{opacity:1}}
 .date-visual-caption{display:none;position:absolute;z-index:2;left:28px;right:20px;bottom:35px;color:#eedcb7;}
 .date-visual-caption>b{display:block;font-family:var(--serif);font-size:41px;margin:13px 0 12px;}
 .date-visual-caption>small{font-size:9px;letter-spacing:1px;}
-.date-modal .dialogue-head>.portrait{display:none;}
 .date-modal .dialogue-head{display:block;}
 .date-modal .dialogue-head h2{font-size:30px;}
 .date-modal .dialogue-head p{max-width:none;}
+.date-modal .dialogue-answers button{font-size:14px;line-height:1.4;}
 .room-scene{position:relative;aspect-ratio:4/3;overflow:hidden;margin-top:22px;border-radius:4px;background:#445344;}
 .room-scene>img{display:block;width:100%;height:100%;object-fit:cover;}
 .room-scene .clue{background:#f9efdded;box-shadow:0 3px 16px #192d2855;border:1px solid #b58c49;}
@@ -173,8 +178,10 @@
  .event-content h2{font-size:25px;}
  .event-meta{padding-right:0;}
  .event-speaker{display:none;}
- .date-modal{padding:0 22px 25px;min-height:0;overflow-y:auto;}
- .date-visual{position:relative;width:calc(100% + 44px);height:270px;margin:0 -22px 22px;}
+ .date-modal .dialogue-game{display:block;min-height:0;}
+ .date-modal .dialogue-content{padding:19px 22px 25px;}
+ .date-visual{aspect-ratio:16/10;}
+ .date-visual .portrait-full img{object-position:50% 25%;}
  .date-visual:after{content:'';position:absolute;inset:45% 0 0;background:linear-gradient(transparent,#142420e8);}
  .date-visual-caption{display:block;left:22px;bottom:22px;}
  .date-visual-caption>b{font-size:30px;margin:8px 0;}
@@ -297,3 +304,4 @@
 .challenge-copy{padding:22px 26px}
 .challenge-copy input{width:100%;padding:12px;border:1px solid #b6b9a9;color:#263b33;background:#f4f0e6}
 @media(prefers-reduced-motion:reduce){.look-option img{transition:none}}
+@media(prefers-reduced-motion:reduce){.date-visual>img.visible{animation:none}}

@@ -1,4 +1,5 @@
-import type { CastMember, Effect } from './types';
+import type { CastMember, Effect, GameState } from './types';
+import { CAST } from './content';
 
 type Answer={label:string;reply:string;points:number;cost?:number; intent?:'date'|'friend'|'leave'};
 export type Question={text:string;answers:Answer[]};
@@ -53,7 +54,7 @@ const scenes: Record<string, { middle: Question; end: Question; date: string; un
    { label: '把图收了，吃饭哪能还谈工作', reply: '她卷得太快，纸角又折了一道。', points: 0 },
   ] },
   end: parting('她把没吃完的面打包。走到门口，又问你礼拜天是不是也醒得早。', '约周日早饭，迟到的人买豆浆', '她问甜的还是咸的，先替你记在手机里。', '她把设计展的地址发给你，叫你路过就进去。', '她把图纸换到没湿的那只手上，朝你挥了下。'),
-  date: '周日她早到了六分钟。桌上有两杯豆浆，一杯糖还没搅开。',
+  date: '她发来一个七点的闹钟截图。你问她早饭几点吃，她说闹钟是给你看的。',
   uncertain: '她说要看看周末的排班。后来发来的那张图，纸角的水印还在。',
  },
  ning: {
@@ -63,7 +64,7 @@ const scenes: Record<string, { middle: Question; end: Question; date: string; un
    { label: '看看多少钱，要不要赔', reply: '他解释了半天回滚，面已经结成了一团。', points: 0 },
   ] },
   end: parting('出门两边都有地铁口。他问要不要从远一点的那个走。', '走远一点，下回也走这条', '他把地图收起来了，过马路时提醒你那段绿灯特别短。', '他说下次带你去园区食堂，周四的红烧肉靠谱。', '他等你过了闸机，才往另一个口走。'),
-  date: '下一次他提前关了工作群通知。走到红灯，他说这回没人催他回去。',
+  date: '他把远一点的出口在地图上标了星，说这周五从这里走。',
   uncertain: '到家他发了一张地铁口的照片，圈出一段你们刚才走错的路。',
  },
  lin: {
@@ -73,7 +74,7 @@ const scenes: Record<string, { middle: Question; end: Question; date: string; un
    { label: '放回去，反过来谁也看不出', reply: '她把盘子往自己面前拖了一寸，没让你伸手。', points: 0 },
   ] },
   end: parting('她把餐巾翻过来，画了一个长得像你的葱油饼。', '下回去找家饼更大的', '她把画塞给你，说下次见面拿这个认人。', '她说画可以带走，下次给你画一张正脸。', '她折起餐巾，给老板留在了账单底下。'),
-  date: '第二次见面她先问老板这回有没有点错桌，问完才坐下。',
+  date: '她把餐巾上的画拍了下来。「下次我就带这个。你带零钱。」',
   uncertain: '她把葱油饼画发给了你。你存图时，发现文件名叫「第一个咬的人」。',
  },
  chen: {
@@ -83,7 +84,7 @@ const scenes: Record<string, { middle: Question; end: Question; date: string; un
    { label: '等他们聊完，再给你加点辣', reply: '他把辣油推回来一半，说刚才差点又上了班。', points: 2 },
   ] },
   end: parting('门口贴着早市时间。他看了半天，说自己开店前很久没逛过。', '找个不开门的早上，一起去早市', '他拿笔把休息日圈出来，说你挑摊，他带零钱。', '他给你指了个卖年糕的摊位，说周三去得早还有热的。', '他站在店门口发了会儿呆，才想起自行车停哪。'),
-  date: '早市他没点咖啡，拿了杯豆浆喝，买第二杯时问你还来不来。',
+  date: '他给早市那天留了空，还问你几点算早。你说七点，他把刚打的「六点半」删掉了。',
   uncertain: '他把早市地址发来了，说万一你自己先去，别从菜摊那头进。',
  },
  qiao: {
@@ -93,7 +94,7 @@ const scenes: Record<string, { middle: Question; end: Question; date: string; un
    { label: '都点了，临时改什么', reply: '她没再看表，倒是把书包背到了肩上。', points: 0 },
   ] },
   end: parting('她在进站前停了一下，说考场附近好像有家挺好的店。', '等你考完去吃，时间你来定', '她把考试日期发给你，说别在开考前发「加油」。', '她说等出分了告诉你，能不能庆祝再说。', '她点点头，刷闸机前又看了眼表。'),
-  date: '她出考场的第一条消息问店还开着伐。成绩她一字没提，先点了热菜。',
+  date: '她把考场附近那家店存成了「考完再说」。名字也发给了你。',
   uncertain: '她在回家路上发了店名。考试那天过了几小时，消息才回到你这儿。',
  },
  yang: {
@@ -103,7 +104,7 @@ const scenes: Record<string, { middle: Question; end: Question; date: string; un
    { label: '躲一下，假装没看见', reply: '杨帆还是站起来了。回座位时他忘了刚才聊到哪。', points: 0 },
   ] },
   end: parting('出门时他把物业便签翻了个面，问你平时哪天比较空。', '下回就我们俩，周五行伐', '他说周五有空，低头把「有空」改成了具体的七点。', '他问你愿不愿意来社区吃顿饭，楼里有人做酒酿。', '他陪你等了会儿车，把外套拉链拉到了顶。'),
-  date: '周五七点他到了，手机放在包里。临走前才想起今天没人找他漏水。',
+  date: '他回家确认了排班，给你发了「周五七点」。这次没补一句「到时候看」。',
   uncertain: '他发来周五的排班，说得等另一位同事确认。你没把那晚排满。',
  },
  lu: {
@@ -113,7 +114,7 @@ const scenes: Record<string, { middle: Question; end: Question; date: string; un
    { label: '让台下随便拍，出点事故才有流量', reply: '她拔掉那根松的线，让你先别拍。', points: 0 },
   ] },
   end: parting('最后一首弹完，陆嘉把线卷好，外面只剩一家烧烤摊亮着。', '走，吃完约下一场', '她扛起包，说这回可以站第一排，手机拿低一点就行。', '她发了演出表，说有空来听，带朋友也行。', '她把最短的那根线塞回包里，送你走到楼梯口。'),
-  date: '下一场你到了才发现她在音箱旁放了两瓶水，其中一瓶写了你的姓。',
+  date: '陆嘉把下一场的地址发过来，问你姓怎么写。你问干吗，她说怕后台那群人又把水拿错。',
   uncertain: '她发来一小段录音，末尾是收线声。她说下场时间还没定。',
  },
  he: {
@@ -123,7 +124,7 @@ const scenes: Record<string, { middle: Question; end: Question; date: string; un
    { label: '顺便让他给这桌也打个折', reply: '他把纸巾拿下来，说这家又不是他家开的。', points: 0 },
   ] },
   end: parting('面吃完了。他翻手机找出一张新菜照片，问你是不是敢吃猪肝。', '敢，下回你掌勺，我带醋', '他说醋店里有，叫你带空肚子。', '他说那有新菜时叫你来试，不用给面子。', '他把那张照片又看一眼，说回去还得再试一次。'),
-  date: '下回他给你留了最靠厨房的座。猪肝上桌时，醋已经搁在你手边。',
+  date: '他给你留了个靠厨房的位子。「进来别看菜单。醋我给你放好。」',
   uncertain: '他发了一张后厨的照片，说今晚又排上了队。猪肝还在菜单上。',
  },
 };
@@ -139,16 +140,42 @@ export function romanceQuestions(person: CastMember, flags: string[]): Question[
  return [{ ...original, text: reminder }, scene.middle, scene.end];
 }
 
+const DATE_ANSWERS = ['again', 'waiting', 'friends', 'left'] as const;
+export type DateAnswer = typeof DATE_ANSWERS[number];
+const dateFlag = (personId: string, answer: DateAnswer) => `date-${personId}-${answer}`;
+
+export function dateAnswer(state: GameState, personId: string): DateAnswer | undefined {
+ const stored = DATE_ANSWERS.find(answer => state.flags.includes(dateFlag(personId, answer)));
+ if (stored) return stored;
+ const name = CAST.find(person => person.id === personId)?.name;
+ const scene = scenes[personId];
+ if (!name || !scene) return undefined;
+ // The previous version kept the parting reply in the journal without storing an answer flag.
+ const last = state.journal.slice().reverse().find(entry => entry.title === `和${name}见一面`);
+ const intent = scene.end.answers.find(answer => answer.reply === last?.text)?.intent;
+ if (intent === 'friend') return 'friends';
+ if (intent === 'leave') return 'left';
+ return undefined;
+}
+
+export function dateAnswerEffect(personId: string, answer: DateAnswer): Effect {
+ return {
+  setFlags: [dateFlag(personId, answer)],
+  removeFlags: DATE_ANSWERS.filter(value => value !== answer).map(value => dateFlag(personId, value)),
+ };
+}
+
 export function finishDate(person: CastMember, answer: Answer, score: number, cost: number): { effect: Effect; text: string } {
  const scene = scenes[person.id];
  if (answer.intent === 'friend') return {
-  effect: { cash: -cost, trust: 4 + score * 2, network: 4, spirit: 3 },
+  effect: { cash: -cost, trust: 4 + score * 2, network: 4, spirit: 3, ...dateAnswerEffect(person.id, 'friends') },
   text: answer.reply,
  };
- if (answer.intent === 'leave') return { effect: { cash: -cost, trust: score, spirit: 1 }, text: answer.reply };
+ if (answer.intent === 'leave') return { effect: { cash: -cost, trust: score, spirit: 1, ...dateAnswerEffect(person.id, 'left') }, text: answer.reply };
  const mutual = score >= 5;
  return {
-  effect: { cash: -cost, trust: score * 3 - 2, attraction: score * 4 - 5, commitment: mutual ? 4 : 0, spirit: score >= 4 ? 6 : -2 },
+  effect: { cash: -cost, trust: score * 3 - 2, attraction: score * 4 - 5, commitment: mutual ? 4 : 0, spirit: score >= 4 ? 6 : -2,
+   romanticInvitation: true, ...dateAnswerEffect(person.id, mutual ? 'again' : 'waiting') },
   text: mutual ? scene.date : scene.uncertain,
  };
 }

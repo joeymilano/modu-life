@@ -9,7 +9,7 @@ export interface PlayerAppearance { gender: Gender; looks: LooksLevel; }
 export interface Effect {
  cash?: number; health?: number; spirit?: number; skill?: number; face?: number; network?: number;
  trust?: number; attraction?: number; commitment?: number;
- setFlags?: string[]; removeFlags?: string[]; job?: string; housing?: number; love?: boolean;
+ setFlags?: string[]; removeFlags?: string[]; job?: string; housing?: number; love?: boolean; romanticInvitation?: boolean;
 }
 export interface EventChoice {
  id: string; label: string; hint?: string; effect: Effect; reply: string;

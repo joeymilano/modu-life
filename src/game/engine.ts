@@ -40,11 +40,17 @@ function applyEffect(state:GameState,effect:Effect,npcId?:string):GameState {
   if(effect.housing!==undefined)s.housing=clamp(effect.housing,0,3);
   s.flags=[...new Set([...s.flags,...(effect.setFlags||[])])].filter(f=>!(effect.removeFlags||[]).includes(f));
   const relationTarget=npcId||s.partnerId;
+  if(effect.romanticInvitation&&s.partnerId&&relationTarget&&s.partnerId!==relationTarget){
+    const current=s.relationships[s.partnerId];
+    current.trust=clamp(current.trust-12);
+    if(!s.flags.includes('dating_others'))s.flags.push('dating_others');
+  }
   if(relationTarget&&s.relationships[relationTarget]){
     const rel=s.relationships[relationTarget];
     const firstImpression=!rel.met&&CAST.some(c=>c.id===relationTarget&&c.role==='romance')?LOOKS_BONUS[s.appearance.looks].attraction:0;
     rel.met=true;rel.trust=clamp(rel.trust+(effect.trust||0));rel.attraction=clamp(rel.attraction+(effect.attraction||0)+firstImpression);rel.commitment=clamp(rel.commitment+(effect.commitment||0));
     if(effect.love&&rel.trust>=40&&rel.attraction>=35)s.partnerId=relationTarget;
+    if(effect.love===false&&s.partnerId===relationTarget)s.partnerId=null;
   }
   return s;
 }
