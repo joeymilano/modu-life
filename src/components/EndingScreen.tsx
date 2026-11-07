@@ -1,6 +1,7 @@
 import { ending, publicOriginNames } from '../game/engine';
-import { endingPhoto } from '../game/art';
+import { endingPhoto, LIFE_ALBUM_AGES } from '../game/art';
 import { lastDayMemory } from '../game/lastDay';
+import { longTableMemory } from '../game/longTable';
 import type { GameState } from '../game/types';
 import Icon from './Icon';
 import { PlayerPortrait } from './Portrait';
@@ -17,6 +18,7 @@ export default function EndingScreen({ game, sharing, onShare, onChallenge, onDr
 }) {
  const result = ending(game);
  const memory = lastDayMemory(game);
+ const table = longTableMemory(game);
  const contacts = Object.values(game.relationships).filter(person => person.met).length;
 
  return <main className="ending-screen">
@@ -29,14 +31,10 @@ export default function EndingScreen({ game, sharing, onShare, onChallenge, onDr
   <section className="ending-media" aria-label="这一路的照片">
    <img className="ending-scene" src={endingPhoto(result.id)} alt="" fetchPriority="high"/>
    <div className="ending-portraits">
-    <figure>
-     <PlayerPortrait appearance={game.appearance} age={18} full/>
-     <figcaption>18 岁 <span>刚到上海</span></figcaption>
-    </figure>
-    <figure>
-     <PlayerPortrait appearance={game.appearance} age={game.age} full/>
-     <figcaption>{game.age} 岁 <span>{game.name}</span></figcaption>
-    </figure>
+    {LIFE_ALBUM_AGES.map(age => <figure key={age}>
+     <PlayerPortrait appearance={game.appearance} age={age} full/>
+     <figcaption>{age} 岁 {age===18 ? <span>刚到上海</span> : age===60 ? <span>{game.name}</span> : null}</figcaption>
+    </figure>)}
    </div>
   </section>
 
@@ -50,6 +48,11 @@ export default function EndingScreen({ game, sharing, onShare, onChallenge, onDr
     <p className="eyebrow">{memory.age} 岁 · {memory.tag}</p>
     <h2>{memory.title}</h2>
     <p>{memory.text}</p>
+   </article>}
+   {table&&<article className="ending-memory ending-table-memory">
+    <img src={table.illustration} alt="" loading="lazy"/>
+    <div><p className="eyebrow">{table.age} 岁 · {table.tag}</p>
+     <h2>{table.title}</h2><p>{table.text}</p></div>
    </article>}
    <div className="ending-origin">
     <p>当年的这手牌</p>

@@ -19,7 +19,7 @@ with sync_playwright() as pw:
     p=ctx.new_page();p.on('pageerror',lambda e:errors.append(str(e)))
     p.goto(BASE+'?seed=ARTLOOKS');p.wait_for_load_state('networkidle')
     art_dir=Path('public/art')
-    assets=[file.relative_to(art_dir).as_posix() for folder in ('portraits','origins','encounters','dates','endings','work','pearl','matchmaking','opening','rental','timelines') for file in (art_dir/folder).rglob('*.webp')]
+    assets=[file.relative_to(art_dir).as_posix() for folder in ('portraits','origins','encounters','dates','endings','work','pearl','matchmaking','opening','rental','timelines','long-table') for file in (art_dir/folder).rglob('*.webp')]
     assets.extend(file.relative_to(art_dir).as_posix() for file in (art_dir/'shanghai-streets').glob('*.webp'))
     for asset in assets:
         r=p.request.get(BASE+'art/'+asset);assert r.status==200,(asset,r.status)

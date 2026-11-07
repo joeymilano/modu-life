@@ -142,7 +142,7 @@
 .wide-shot-modal .event-photo > img { position: absolute; inset: 0; object-position: center; }
 .wide-shot-modal .event-photo > img:is([src$="/first-night-room-bill.webp"], [src$="/first-night-shift-rota.webp"]) { object-position: 64% center; }
 .date-parting-modal .event-body { white-space: pre-line; }
-.date-parting-modal .event-choices small:empty { display: none; }
+.date-parting-modal .event-choices small:empty, .long-table-modal .event-choices small:empty { display: none; }
 .date-parting-modal h2:focus { outline: none; }
 .date-bill {
   display: inline-block; margin-top: 12px; padding: 4px 8px;

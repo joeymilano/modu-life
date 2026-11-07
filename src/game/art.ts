@@ -9,7 +9,7 @@ const agedHeads = new Set(['mao', 'he', 'lu']);
 export function portraitArt(id: string, full: boolean, age = 18): string {
  const aged = age >= 53 && agedHeads.has(id);
  if (full && aged) return '/art/endings/farewell-' + id + '.webp';
- const stage = aged ? '-senior' : '';
+ const stage = aged || (id === 'tang' && age >= 53) ? '-senior' : id === 'tang' && age >= 32 ? '-midlife' : '';
  return '/art/portraits/' + (full ? '' : 'head/') + id + stage + '.webp';
 }
 
@@ -17,6 +17,8 @@ export function playerArt(appearance: PlayerAppearance, full = true, age = 18): 
  const stage = age >= 53 ? '-senior' : age >= 32 ? '-midlife' : '';
  return portraitArt('player-' + appearance.gender + '-' + appearance.looks + stage, full);
 }
+
+export const LIFE_ALBUM_AGES = [18, 46, 60] as const;
 
 const endingScenes: Record<string, string> = {
  million: 'wealth', comfortable: 'wealth', love: 'love', companions: 'love',
@@ -52,6 +54,12 @@ export const OPENING_STILLS = ['garage', 'dialect', 'portfolio', 'bank', 'cat'] 
 
 export function openingPhoto(shot: (typeof OPENING_STILLS)[number]): string {
  return '/art/opening/' + shot + '.webp';
+}
+
+export const TABLE_STILLS = ['folded-table', 'table-inside', 'empty-chair'] as const;
+
+export function tablePhoto(shot: (typeof TABLE_STILLS)[number]): string {
+ return '/art/long-table/' + shot + '.webp';
 }
 
 export const RENTAL_STILLS = ['room', 'wall', 'contract', 'window', 'talk', 'upstairs'] as const;

@@ -1,6 +1,6 @@
 import type { EventChoice, LifeEvent } from './types';
 import { PARK_TICKET_SCENES } from './matchmaking';
-import { FIRST_NIGHT_STILLS, MATCH_STILLS, OPENING_STILLS, datePhoto, farewellPhoto, matchPhoto, openingPhoto, pearlPhoto, rentalPhoto, streetPhoto, workPhoto } from './art';
+import { FIRST_NIGHT_STILLS, MATCH_STILLS, OPENING_STILLS, TABLE_STILLS, datePhoto, farewellPhoto, matchPhoto, openingPhoto, pearlPhoto, rentalPhoto, streetPhoto, tablePhoto, workPhoto } from './art';
 import { CAST } from './content';
 
 export interface Turn {
@@ -37,6 +37,7 @@ const ticketShots = new Set([
   ...FIRST_NIGHT_STILLS.map(streetPhoto),
   ...MATCH_STILLS.map(matchPhoto),
   ...OPENING_STILLS.map(openingPhoto),
+  ...TABLE_STILLS.map(tablePhoto),
   ...(['receipt', 'booth', 'night-office'] as const).map(pearlPhoto),
   ...(['mao', 'he', 'lu'] as const).map(farewellPhoto),
   ...(['reorg', 'overtime', 'shift', 'invoice', 'return'] as const).map(workPhoto),
@@ -146,6 +147,44 @@ export const CITY_TIMELINES: Timeline[] = [
     ],
   },
   parkStory,
+  {
+    id: 'half-table', kind: 'life', title: '折起来只有半张', author: '魔都人生',
+    original: '那天我让收废品的把桌腿带走了。二十一年后，唐圆从桌底撕出半张报纸。我一看，还是那年给旧桌脚垫的。',
+    turns: [
+      {
+        date: '32岁 · 下午四点半', place: '人民广场附近 · 改衣铺', shot: tablePhoto('folded-table'),
+        scene: '改衣铺要搬。唐圆拖出一张折桌，说收废品的人五点到。桌板缺了一角，合页也松。她说修好六百八，问你还要不要。',
+        options: [
+          { move: '凑六百八，修好放楼下', after: '你们把桌子支起来。隔天有人拿它给孩子包书皮，回去时还多留了一卷胶带。', next: 1 },
+          { move: '把桌腿卸了，桌板问问有没有人要', after: '收废品的人只拿走了桌腿。唐圆把桌板靠到门后，过了好久才想起来自己还留着。', next: 2 },
+        ],
+      },
+      {
+        date: '46岁 · 楼道动工前', place: '街坊活动室 · 门口', shot: tablePhoto('table-inside'),
+        scene: '楼道修下水，桌子得挪。街坊活动室刚腾出来，唐圆拿尺量过，塞进去能剩两把椅子。她问要拿来做点什么。',
+        options: [
+          { move: '周末开个修补台，先修伞', after: '来拿伞的人又带了口锅，说锅把松了，反正你工具都拿出来了。唐圆翻开记账本。', next: 3 },
+          { move: '就留把椅子，谁来都能坐', after: '门上没挂牌。楼上有人照样认得这张桌，哪边缺角都不用再问。', next: 3 },
+        ],
+      },
+      {
+        date: '53岁 · 礼拜六', place: '街坊活动室 · 窗边', shot: tablePhoto('empty-chair'),
+        scene: '唐圆给桌板配了两条腿。你刚把椅子拉出来，楼上有人来问能不能借桌子用半天。她手里是一把断了两根骨的伞。',
+        options: [
+          { move: '借给她，顺便把伞打开看看', after: '你们研究了半天，先修好了一根。她说明天再来，剩下一根想自己试试。', next: end },
+          { move: '椅子给她，我去坐头班船', after: '唐圆追到门口，问头班几点。你们谁也不知道，最后她也跟了过来。', next: end },
+        ],
+      },
+      {
+        date: '53岁 · 又一个礼拜六', place: '街坊活动室 · 窗边', shot: tablePhoto('empty-chair'),
+        scene: '靠门还空着一张椅子。隔壁新来的年轻人提着伞站了会儿，问周六能不能跟你们学。唐圆把桌角的杯子往里收了收。',
+        options: [
+          { move: '坐过来，先数伞有几根骨头', after: '她数错了一遍。第三遍你们两个数出来还不一样，唐圆把伞倒过来，掉出一根早断掉的。', next: end },
+          { move: '把工具交给她，周六让她开门', after: '她从你手里接过钥匙，问桌角要不要补。唐圆说那个先留着，来过的人都认它。', next: end },
+        ],
+      },
+    ],
+  },
   {
     id: 'rental-fine-print', kind: 'life', title: '房租下面那一行', author: '魔都人生',
     original: '我赶着回去搬箱子，直接签了。月底多出来的三百写的是设备费。我晚上去看设备，隔壁炒到十一点，排风机比我先下班。',

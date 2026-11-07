@@ -1,5 +1,5 @@
 import { allOrigins, ending, publicOriginNames } from './engine';
-import { endingPhoto, pearlPhoto, playerArt, LOOKS, streetPhoto, TIMELINE_COVER } from './art';
+import { endingPhoto, LIFE_ALBUM_AGES, pearlPhoto, playerArt, LOOKS, streetPhoto, TIMELINE_COVER } from './art';
 import { DISTRICTS, GOALS } from './content';
 import { PEARL_DELAYS, pearlHash, pearlRank, type PearlScore } from './pearl';
 import { describeDecision, lineDivergence, lineFacts } from './lineComparison';
@@ -74,11 +74,9 @@ export async function makeShareCard(s:GameState):Promise<Blob>{
   const portraitsY = sceneY + 250;
   await Promise.all([
    paintPhoto(g, endingPhoto(final.id), [60, sceneY, 960, 234]),
-   paintPhoto(g, playerArt(s.appearance), [60, portraitsY, 471, 288], 0),
-   paintPhoto(g, playerArt(s.appearance, true, s.age), [549, portraitsY, 471, 288], .20),
+   ...LIFE_ALBUM_AGES.map((age,i) => paintPhoto(g, playerArt(s.appearance,true,age), [60+i*324, portraitsY, 312, 288], .12)),
   ]);
-  photoCaption(g, '18 岁 · 刚到上海', 60, portraitsY + 250, 471);
-  photoCaption(g, s.age + ' 岁 · ' + s.name, 549, portraitsY + 250, 471);
+  LIFE_ALBUM_AGES.forEach((age,i) => photoCaption(g, age+' 岁', 60+i*324, portraitsY+250, 312));
   y = portraitsY + 338;
  } else {
   const imageY = Math.max(y + 60, 540);

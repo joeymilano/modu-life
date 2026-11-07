@@ -2,6 +2,7 @@ import { CAREERS, CAST, GOALS, ORIGIN_POOLS } from './content';
 import { FIRST_NIGHT_FLAG, firstNightYear } from './firstNight';
 import { lastDayEvent } from './lastDay';
 import { workYearEvent } from './workScenes';
+import { longTableBudget, longTableYear } from './longTable';
 import { employmentOf, monthlySalary, moveJob, NIGHT_WORK, registerReview } from './employment';
 import { EVENTS } from './events';
 import { LOAN_DUE, LOAN_INSTALLMENT } from './originStories';
@@ -93,9 +94,21 @@ export function eligibleEvent(e:LifeEvent,s:GameState,kind:ActivityKind|'year'):
   if((e.chainId==='project_credit'||e.chainId==='layoff_story')&&e.chainStep===0&&!s.jobId)return false;
   return e.category===kind&&(!e.district||e.district===s.district)&&(!e.minAge||s.age>=e.minAge)&&(!e.maxAge||s.age<=e.maxAge)&&(!e.once||!s.seenEvents.includes(e.id))&&!s.seenEvents.includes(e.id)&&(!e.requiredFlags||e.requiredFlags.every(f=>s.flags.includes(f)))&&(!e.forbiddenFlags||e.forbiddenFlags.every(f=>!s.flags.includes(f)));
 }
+function adaptYearLetter(picked:LifeEvent,s:GameState):LifeEvent {
+  if(picked.id==='year-20'&&s.housing===3)return {...picked,title:'有房，也得看合同',text:'家里有房可住。物业送来一叠维修文件，老妈让你看看，哪些需要自己掏钱。'};
+  if(picked.id==='year-23'&&!s.jobId)return {...picked,title:'朋友第一笔像样工资',text:'朋友的工资到了，在群里发了个红包。你抢到两块三，顺手又点开了招聘软件。',choices:picked.choices.map((c,i)=>i===0?{...c,label:'接一份临时小项目',reply:'项目做完，四千块到账。你给那张收款截图点了收藏。'}:c)};
+  if(picked.id==='year-28'&&s.housing===3)return {...picked,text:'朋友发来新房钥匙，你点了赞。旁边自家的维修清单还摊着，今天得先打电话找师傅。'};
+  if(picked.id==='year-32'&&!s.jobId)return {...picked,title:'本事还在手上',text:'旧同事打来电话，问上次那个问题怎么解决。你一边啃面包，一边给他画了张图。'};
+  return picked;
+}
+export function oldYearLetter(state:GameState):LifeEvent|undefined {
+  const event=EVENTS.find(item=>item.id===`year-${state.age}`);
+  return event&&adaptYearLetter(event,state);
+}
 export function selectEvent(s:GameState,kind:ActivityKind|'year',npcId?:string):LifeEvent {
-  const annual = kind === 'year' ? firstNightYear(s) ?? lastDayEvent(s) ?? workYearEvent(s) : undefined;
-  if (annual && !s.seenEvents.includes(annual.id)) return annual;
+  const annual = kind === 'year' ? [firstNightYear(s), lastDayEvent(s), workYearEvent(s), longTableYear(s)]
+    .find(event=>event&&!s.seenEvents.includes(event.id)) : undefined;
+  if (annual) return annual;
   let candidates=EVENTS.filter(e=>eligibleEvent(e,s,kind));
   if(npcId){const personal=candidates.filter(e=>e.speakerId===npcId);if(personal.length)candidates=personal;else candidates=candidates.filter(e=>!e.speakerId);}
   const continuing=candidates.filter(e=>e.chainId&&(e.chainStep||0)>0);if(continuing.length)candidates=continuing;
@@ -106,11 +119,7 @@ export function selectEvent(s:GameState,kind:ActivityKind|'year',npcId?:string):
         :s.flags.includes('pearl_drink')?'你先认出了柜台上那台卡纸的打印机。那天跟着你喝的人，现在管收银。':null;
       if(remembered)return {...picked,text:picked.text+' '+remembered};
     }
-    if(picked.id==='year-20'&&s.housing===3)return {...picked,title:'有房，也得看合同',text:'家里有房可住。物业送来一叠维修文件，老妈让你看看，哪些需要自己掏钱。'};
-    if(picked.id==='year-23'&&!s.jobId)return {...picked,title:'朋友第一笔像样工资',text:'朋友的工资到了，在群里发了个红包。你抢到两块三，顺手又点开了招聘软件。',choices:picked.choices.map((c,i)=>i===0?{...c,label:'接一份临时小项目',reply:'项目做完，四千块到账。你给那张收款截图点了收藏。'}:c)};
-    if(picked.id==='year-28'&&s.housing===3)return {...picked,text:'朋友发来新房钥匙，你点了赞。旁边自家的维修清单还摊着，今天得先打电话找师傅。'};
-    if(picked.id==='year-32'&&!s.jobId)return {...picked,title:'本事还在手上',text:'旧同事打来电话，问上次那个问题怎么解决。你一边啃面包，一边给他画了张图。'};
-    return picked;}
+    return adaptYearLetter(picked,s);}
   return routineEvent(s,kind,npcId);
 }
 export function routineEvent(s:GameState,kind:ActivityKind|'year',npcId?:string):LifeEvent {
@@ -186,7 +195,9 @@ export function nextYear(state:GameState) {
   const employment=employmentOf(s);
   const activeMonths=s.jobId?12-employment.closedMonths:0;
   const currentPay=Math.round(budget.salary*activeMonths*variable);
-  const income=employment.earned+currentPay,rentExpense=budget.rent*12,expense=rentExpense+budget.living*12;
+  const table=longTableBudget(state);
+  const workIncome=employment.earned+currentPay;
+  const income=workIncome+table.income,rentExpense=budget.rent*12,expense=rentExpense+budget.living*12;
   const payroll=employment.closedMonths>0?{previous:employment.earned,current:currentPay,months:activeMonths}:undefined;
   const pressure:Record<string,[number,number]>={tech:[5,5],finance:[3,8],creative:[3,4],service:[6,3],public:[2,2],freelance:[2,3],business:[4,4],trade:[4,5]};
   if(s.jobId){const [body,mind]=pressure[s.jobId]||[2,2];const late=s.flags.includes(NIGHT_WORK);
@@ -194,9 +205,10 @@ export function nextYear(state:GameState) {
     s.stats.spirit=clamp(s.stats.spirit-Math.round((mind+(late?3:0))*activeMonths/12));}
   if(s.partnerId){const rel=s.relationships[s.partnerId];const keptInTouch=rel.memories.some(m=>m.startsWith(s.age+'岁 · '));if(!keptInTouch){rel.trust=clamp(rel.trust-4);rel.commitment=clamp(rel.commitment-2);}}
   const repayment=s.flags.includes(LOAN_DUE)?LOAN_INSTALLMENT:0;
-  s.cash+=income-expense-repayment;s.totalEarned+=income;if(income>0)s.yearsEmployed++;
+  s.cash+=income-expense-repayment;s.totalEarned+=income;if(workIncome>0)s.yearsEmployed++;
   const notices:string[]=[];
-  let note=income?`工资到账 ¥${income.toLocaleString()}，固定开支 ¥${expense.toLocaleString()}。`:`这一年没有固定工资，生活开支 ¥${expense.toLocaleString()}。`;
+  let note=workIncome?`工资到账 ¥${workIncome.toLocaleString()}，固定开支 ¥${expense.toLocaleString()}。`:`这一年没有固定工资，生活开支 ¥${expense.toLocaleString()}。`;
+  if(table.income)note+=` 长桌修补台入账 ¥${table.income.toLocaleString()}。`;
   if(state.leaseRent!==undefined)note+=` 这份租约全年房租 ¥${rentExpense.toLocaleString()}。`;
   if(repayment){
     s.flags=s.flags.filter(flag=>flag!==LOAN_DUE);
@@ -204,7 +216,7 @@ export function nextYear(state:GameState) {
   }
   if(employment.closedMonths>0)note+=` 旧岗位入账 ¥${employment.earned.toLocaleString()}，当前岗位计 ${activeMonths} 个月。`;
   if(s.cash<0){const shortage=-s.cash;s.cash=6000;s.rescues++;s.stats.spirit=clamp(s.stats.spirit-8);s.housing=0;delete s.leaseRent;s.flags=[...new Set([...s.flags,'needed_help'])];notices.push(`周转差了 ¥${shortage.toLocaleString()}。朋友帮你垫了一笔，你搬回合租房，手上留下 ¥6,000。`);s.journal.push({age:s.age,title:'先把这关过了',text:'朋友帮忙垫了周转钱，你搬回合租房。收好行李，先把明天的面试地址存下来。',tag:'重整'});}
-  s.stats.health=clamp(s.stats.health-(s.age>40?3:1));s.stats.spirit=clamp(s.stats.spirit-2);
+  s.stats.health=clamp(s.stats.health-(s.age>40?3:1)-(table.income?2:0));s.stats.spirit=clamp(s.stats.spirit-2+table.spirit);
   if(s.stats.health<15){
     const care=Math.min(s.cash,3000);
     s.stats.health=35;s.stats.spirit=clamp(s.stats.spirit+5);s.cash-=care;
@@ -215,7 +227,7 @@ export function nextYear(state:GameState) {
   s.journal.push({age:s.age,title:`${s.age}岁年度账本`,text:note,tag:'账本'});
   if(s.employment)s.employment={...employment,closedMonths:0,earned:0};
   s.age++;s.actions=3;s.ended=s.age>=60;s.pendingYearEvent=!s.ended;
-  return {state:s,income,expense,rentExpense:state.leaseRent===undefined?undefined:rentExpense,note,notice,payroll,repayment};
+  return {state:s,income,tableIncome:table.income,expense,rentExpense:state.leaseRent===undefined?undefined:rentExpense,note,notice,payroll,repayment};
 }
 export function relationshipLabel(s:GameState,id:string){const r=s.relationships[id];if(!r?.met)return '未遇见';if(s.partnerId===id)return r.trust>75?'彼此笃定':'正在一起';if(r.trust>=70&&r.attraction>=50)return '心照不宣';if(r.trust>=45)return '熟悉的人';return '刚认识';}
 export function commitRelationship(s:GameState,id:string):GameState {const rel=s.relationships[id];if(!rel?.met||rel.trust<55||rel.attraction<45)throw new Error('再多了解彼此一点，现在还没到这一步。');let next=structuredClone(s);next.partnerId=id;next.relationships[id].commitment=clamp(rel.commitment+25);next.flags=[...new Set([...next.flags,'committed'])];next.journal.push({age:s.age,title:`和${CAST.find(c=>c.id===id)?.name}一起`,text:'你们吃完饭，顺路一起去买了牙刷。回去的路上，谁也没再说客气话。',tag:'关系'});return next;}

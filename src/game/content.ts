@@ -68,6 +68,10 @@ export const CAST: CastMember[] = [
   {id:'song',name:'宋奶奶',ageOffset:45,title:'弄堂老住户',district:'xinzhuang',role:'mentor',description:'记性有时不好，谁帮过她却从来不会忘。',trait:'humor',color:'#967e86',gender:'female'},
 ];
 
+export function castTitle(person: CastMember, age: number) {
+ return person.id === 'tang' && age >= 32 ? '街坊活动室志愿者' : person.title;
+}
+
 const card = (slot:OriginSlot,id:string,name:string,rarity:OriginCard['rarity'],subtitle:string,description:string,tag:string,accent:string,effect:OriginCard['effect']):OriginCard=>({slot,id,name,rarity,subtitle,description,tag,accent,effect});
 export const ORIGIN_POOLS: Record<OriginSlot,OriginCard[]> = {
  '出身':[

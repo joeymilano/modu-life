@@ -14,7 +14,7 @@
 .ending-description { color: #435a4e; font-size: 15px; line-height: 1.8; max-width: 35em; }
 .ending-media { grid-area: photos; display: grid; gap: 8px; min-width: 0; }
 .ending-scene { display: block; width: 100%; aspect-ratio: 2.1 / 1; object-fit: cover; border-radius: 3px; }
-.ending-portraits { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+.ending-portraits { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
 .ending-portraits figure { margin: 0; position: relative; min-width: 0; aspect-ratio: 4 / 4.55; background: #293f37; border-radius: 3px; overflow: hidden; }
 .ending-portraits .player-portrait-full { position: absolute; inset: 0; }
 .ending-portraits .player-portrait-full img { object-position: center 25%; }
@@ -32,6 +32,8 @@
 .ending-memory { padding: 17px 0; border-bottom: 1px solid #b8b9a5; }
 .ending-memory h2 { margin: 5px 0 4px; font: 700 19px/1.4 var(--serif); }
 .ending-memory p:last-child { color: #435a4e; font-size: 14px; line-height: 1.75; }
+.ending-table-memory { display: grid; grid-template-columns: 112px minmax(0,1fr); align-items: start; gap: 12px; }
+.ending-table-memory img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 3px; }
 .ending-origin { margin-top: 19px; }
 .ending-origin ul { display: flex; flex-wrap: wrap; gap: 6px; padding: 0; margin: 7px 0 0; list-style: none; }
 .ending-origin li { padding: 3px 7px; border: 1px solid #b8b9a5; color: #435a4e; border-radius: 2px; font-size: 11px; }
@@ -50,7 +52,7 @@
   .ending-description { font-size: 14px; }
   .ending-scene { aspect-ratio: 2.5 / 1; }
   .ending-portraits figure { aspect-ratio: 1 / 1.02; }
-  .ending-portraits figcaption { padding: 16px 8px 7px; }
+  .ending-portraits figcaption { padding: 16px 7px 7px; flex-direction: column; gap: 2px; }
   .ending-portraits figcaption span { font-size: 10px; }
 }
 @media (max-width: 380px) {

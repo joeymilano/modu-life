@@ -1,4 +1,4 @@
-import { DISTRICTS } from '../game/content';
+import { castTitle, DISTRICTS } from '../game/content';
 import { relationshipLabel } from '../game/engine';
 import type { CastMember, GameState } from '../game/types';
 import { Portrait } from './Portrait';
@@ -14,7 +14,7 @@ export default function ContactProfile({person, game, onBack}: {
   <div className="contact-profile-info">
    <button type="button" className="text-button" autoFocus onClick={onBack}>← 通讯录</button>
    <h2>{person.name}</h2>
-   <p className="contact-profile-place">{person.title} · {district}</p>
+   <p className="contact-profile-place">{castTitle(person,game.age)} · {district}</p>
    <p>{person.description}</p>
    <div className="contact-profile-status">
     <b>{relationshipLabel(game,person.id)}</b>

@@ -1,11 +1,9 @@
 import { CAST } from './content';
-import { ACTIVITY_NAMES, SAVE_KEY, selectEvent, validateSave } from './engine';
+import { ACTIVITY_NAMES, oldYearLetter, SAVE_KEY, selectEvent, validateSave } from './engine';
 import { streetLead } from './streetLeads';
 import { nightOwlLetter } from './encounters';
 import { returnDate } from './dateReturns';
 import { firstDateParting } from './dates';
-import { EVENTS } from './events';
-import { workYearEvent } from './workScenes';
 import { parkVisit } from './matchmaking';
 import { openingLead } from './originStories';
 import { ALL_RENTAL_CLUES, rentalNegotiation } from './rental';
@@ -78,10 +76,6 @@ export function replayScene(state: GameState, scene: SceneRef): LifeEvent | null
     const event = person && scene.picks && firstDateParting(state, person, scene.picks);
     return event?.id === scene.eventId ? event : null;
   }
-  // A newer annual story can take precedence over a saved year's original letter.
-  if (scene.kind === 'year' && scene.eventId === `year-${state.age}` && (state.age === 59 || workYearEvent(state))) {
-    return EVENTS.find(event => event.id === scene.eventId) ?? null;
-  }
   if (scene.kind === 'romance' && scene.npc) {
     const date = returnDate(state, scene.npc);
     if (date?.id === scene.eventId) return date;
@@ -90,7 +84,10 @@ export function replayScene(state: GameState, scene: SceneRef): LifeEvent | null
     scene.kind === 'lead' ? streetLead(state)?.event :
     scene.kind === 'match' ? parkVisit(state)?.event :
     scene.kind === 'origin' ? openingLead(state)?.event : selectEvent(state, scene.kind, scene.npc);
-  return event?.id === scene.eventId ? event : null;
+  if (event?.id === scene.eventId) return event;
+  // Saved branches can point to a year's original letter after a new scene takes its place.
+  if (scene.kind === 'year' && scene.eventId === `year-${state.age}`) return oldYearLetter(state) ?? null;
+  return null;
 }
 
 export function recordDecision(book: LifeBook, state: GameState, event: LifeEvent, choiceId: string, npc?: string): LifeBook {
