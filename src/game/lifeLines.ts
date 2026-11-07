@@ -4,6 +4,7 @@ import { streetLead } from './streetLeads';
 import { nightOwlLetter } from './encounters';
 import { returnDate } from './dateReturns';
 import { EVENTS } from './events';
+import { workYearEvent } from './workScenes';
 import type { ActivityKind, GameState, LifeEvent } from './types';
 
 export const MAX_LINES = 8;
@@ -61,8 +62,8 @@ export function clearReplay(book: LifeBook): LifeBook {
 }
 
 export function replayScene(state: GameState, scene: SceneRef): LifeEvent | null {
-  // Existing saves may have bookmarked the original generic age-59 letter.
-  if (scene.kind === 'year' && scene.eventId === 'year-59' && state.age === 59) {
+  // A newer annual story can take precedence over a saved year's original letter.
+  if (scene.kind === 'year' && scene.eventId === `year-${state.age}` && (state.age === 59 || workYearEvent(state))) {
     return EVENTS.find(event => event.id === scene.eventId) ?? null;
   }
   if (scene.kind === 'romance' && scene.npc) {

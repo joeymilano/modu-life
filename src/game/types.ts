@@ -9,6 +9,7 @@ export interface PlayerAppearance { gender: Gender; looks: LooksLevel; }
 export interface Effect {
  cash?: number; health?: number; spirit?: number; skill?: number; face?: number; network?: number;
  trust?: number; attraction?: number; commitment?: number;
+ payRate?: number;
  setFlags?: string[]; removeFlags?: string[]; job?: string; housing?: number; love?: boolean; romanticInvitation?: boolean;
 }
 export interface EventChoice {
@@ -28,10 +29,12 @@ export interface Career { id: string; name: string; entry: string; salary: numbe
 export interface Goal { id: GoalId; name: string; subtitle: string; description: string; }
 export interface Relationship { attraction: number; trust: number; commitment: number; met: boolean; memories: string[]; }
 export interface JournalEntry { age: number; title: string; text: string; tag: string; }
+export interface Employment { sinceAge: number; reviews: number; reviewedAt?: number; rate: number; closedMonths: number; earned: number; }
 export interface GameState {
  version: 1; seed: string; rng: number; name: string; age: number; actions: number; goal: GoalId;
  appearance: PlayerAppearance;
  district: DistrictId; cash: number; stats: Record<StatKey,number>; jobId: string|null; jobRank: number; housing: number;
+ employment?: Employment;
  origins: string[]; flags: string[]; seenEvents: string[]; relationships: Record<string,Relationship>; partnerId: string|null;
  journal: JournalEntry[]; pendingYearEvent: boolean; ended: boolean; totalEarned: number; yearsEmployed: number; rescues: number;
 }

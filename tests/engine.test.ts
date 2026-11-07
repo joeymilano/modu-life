@@ -16,7 +16,24 @@ describe('人生规则',()=>{
  it('年度事件不消耗三格行动，普通事件只扣一格',()=>{let s=createGame('C','申申','free',drawOrigins('C'));s=annual(s);expect(s.actions).toBe(3);const e=selectEvent(s,'rest');s=resolveChoice(s,e,freeChoice(s,e).id).state;expect(s.actions).toBe(2);});
  it('没钱也有恢复路线，不提前删除人生',()=>{let s=annual(createGame('D','小申','wealth',drawOrigins('D')));s.cash=0;s.jobId=null;const r=nextYear(s);expect(r.state.age).toBe(19);expect(r.state.ended).toBe(false);expect(r.state.cash).toBe(6000);expect(r.state.rescues).toBe(1);});
  it('一次选择不能重复消费最后一格时间',()=>{let s=annual(createGame('E','小申','love',drawOrigins('E')));s.actions=1;const e=selectEvent(s,'rest');s=resolveChoice(s,e,freeChoice(s,e).id).state;expect(()=>resolveChoice(s,e,freeChoice(s,e).id)).toThrow();});
- it('晋升依据阈值，初级不会错误跳过一级',()=>{let s=annual(createGame('F','小申','craft',drawOrigins('F')));s.jobId='tech';s.jobRank=0;s.stats.skill=28;const e:LifeEvent={id:'test-career',title:'工作',text:'工作',category:'career',choices:[{id:'ok',label:'继续',reply:'继续',effect:{}}]};s=resolveChoice(s,e,'ok').state;expect(s.jobRank).toBe(0);s.stats.skill=70;s=resolveChoice(s,e,'ok').state;expect(s.jobRank).toBe(2);});
+ it('晋升需要在岗时间和年度工作评审，学本事不会直接升职',()=>{
+   let s=annual(createGame('F','小申','craft',drawOrigins('F')));
+   const e:LifeEvent={id:'test-career',title:'工作',text:'工作',category:'career',choices:[{id:'ok',label:'继续',reply:'继续',effect:{}}]};
+   const hire={...e,choices:[{...e.choices[0],effect:{job:'tech'}}]};
+   s=resolveChoice(s,hire,'ok').state;
+   s.stats.skill=90;
+   s=resolveChoice(s,{...e,category:'learn'},'ok').state;
+   expect(s.jobRank).toBe(0);
+   s={...s,age:19,actions:3};
+   s=resolveChoice(s,e,'ok').state;
+   expect(s.jobRank).toBe(1);
+   s=resolveChoice(s,e,'ok').state;
+   expect(s.employment?.reviews).toBe(1);
+   for(const age of [20,21,22]){
+     s=resolveChoice({...s,age,actions:3},e,'ok').state;
+     expect(s.jobRank).toBe(age===22?2:1);
+   }
+ });
  it('选择未见人物的事件不会给其他人错误增加信任',()=>{let s=annual(createGame('G','小申','love',drawOrigins('G')));const e:LifeEvent={id:'test-trust',title:'约会',text:'聊聊',category:'romance',choices:[{id:'yes',label:'听',reply:'听完了',effect:{trust:12,attraction:8}}]};const before=s.relationships.xia.trust;s=resolveChoice(s,e,'yes','xia').state;expect(s.relationships.xia.trust).toBe(before+12);expect(s.relationships.ning.met).toBe(false);});
  it('导入档案拒绝非法年龄、未知职业和非有限金额',()=>{const s=createGame('H','小申','free',drawOrigins('H'));expect(()=>validateSave({...s,age:999})).toThrow();expect(()=>validateSave({...s,jobId:'injected'})).toThrow();expect(()=>validateSave({...s,cash:NaN})).toThrow();expect(validateSave(s)).toEqual(s);});
  it('工作压力和关系疏于维护确实有代价',()=>{let s=annual(createGame('I','小申','love',drawOrigins('I')));s.jobId='finance';s.stats.health=80;s.stats.spirit=80;s.partnerId='xia';s.relationships.xia.trust=80;const r=nextYear(s).state;expect(r.stats.spirit).toBeLessThan(75);expect(r.relationships.xia.trust).toBe(76);});

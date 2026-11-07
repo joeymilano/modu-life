@@ -1,5 +1,5 @@
 import type { LifeEvent } from './types';
-import { datePhoto, farewellPhoto, streetPhoto } from './art';
+import { datePhoto, farewellPhoto, streetPhoto, workPhoto } from './art';
 import { CAST } from './content';
 
 export interface Turn {
@@ -34,6 +34,7 @@ const end = null;
 const ticketShots = new Set([
   streetPhoto('station'),
   ...(['mao', 'he', 'lu'] as const).map(farewellPhoto),
+  ...(['reorg', 'overtime', 'shift', 'invoice', 'return'] as const).map(workPhoto),
   ...CAST.filter(person => person.role === 'romance').map(person => datePhoto(person.id, 'return')),
 ]);
 

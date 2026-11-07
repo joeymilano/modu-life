@@ -31,6 +31,12 @@ export function datePhoto(personId: string, scene: 'meeting' | 'return'): string
  return `/art/dates/${personId}-${scene}.webp`;
 }
 
+export type WorkPhoto = 'reorg' | 'overtime' | 'shift' | 'invoice' | 'return' | 'interview-office' | 'interview-shop';
+
+export function workPhoto(shot: WorkPhoto): string {
+ return `/art/work/${shot}.webp`;
+}
+
 export type StreetPhoto = DistrictId | 'cover-station' | 'station' | 'keys' | 'kitchen' | 'ferry' | 'table' | 'bookshop'
  | 'first-night-room' | 'first-night-shift' | 'first-night-ferry';
 

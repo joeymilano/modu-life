@@ -1,6 +1,8 @@
 import { CAREERS, CAST, GOALS, ORIGIN_POOLS } from './content';
 import { FIRST_NIGHT_FLAG, firstNightYear } from './firstNight';
 import { lastDayEvent } from './lastDay';
+import { workYearEvent } from './workScenes';
+import { employmentOf, monthlySalary, moveJob, NIGHT_WORK, registerReview } from './employment';
 import { EVENTS } from './events';
 import type { ActivityKind, ChoiceResult, Effect, EventChoice, GameState, GoalId, LifeEvent, LooksLevel, OriginCard, OriginSlot, PlayerAppearance, StatKey } from './types';
 
@@ -37,7 +39,9 @@ function validateAppearance(value:unknown):PlayerAppearance {
 function applyEffect(state:GameState,effect:Effect,npcId?:string):GameState {
   const s=structuredClone(state);s.cash=Math.round(s.cash+(effect.cash||0));
   for(const key of Object.keys(STAT_NAMES) as StatKey[])s.stats[key]=clamp(s.stats[key]+(effect[key]||0));
-  if(effect.job!==undefined){s.jobId=effect.job==='unemployed'?null:CAREERS.some(c=>c.id===effect.job)?effect.job:s.jobId;s.jobRank=0;}
+  if(effect.job==='unemployed')moveJob(s,null);
+  else if(effect.job&&CAREERS.some(c=>c.id===effect.job))moveJob(s,effect.job);
+  if(effect.payRate!==undefined&&s.jobId)s.employment={...employmentOf(s),rate:effect.payRate};
   if(effect.housing!==undefined)s.housing=clamp(effect.housing,0,3);
   s.flags=[...new Set([...s.flags,...(effect.setFlags||[])])].filter(f=>!(effect.removeFlags||[]).includes(f));
   const relationTarget=npcId||s.partnerId;
@@ -69,8 +73,7 @@ export function createGame(seed:string,name:string,goal:GoalId,cards:OriginCard[
   return state;
 }
 export function monthlyBudget(s:GameState){
-  const career=CAREERS.find(c=>c.id===s.jobId);
-  const salary=career?Math.round(career.salary*(1+s.jobRank*.65)):0;
+  const salary=monthlySalary(s);
   const rent=[1800,3300,5500,1000][s.housing]||1800;
   const living=1800+(s.partnerId?600:0)+(s.age>=40?500:0);
   return {salary,rent,living,net:salary-rent-living};
@@ -81,7 +84,7 @@ export function eligibleEvent(e:LifeEvent,s:GameState,kind:ActivityKind|'year'):
   return e.category===kind&&(!e.district||e.district===s.district)&&(!e.minAge||s.age>=e.minAge)&&(!e.maxAge||s.age<=e.maxAge)&&(!e.once||!s.seenEvents.includes(e.id))&&!s.seenEvents.includes(e.id)&&(!e.requiredFlags||e.requiredFlags.every(f=>s.flags.includes(f)))&&(!e.forbiddenFlags||e.forbiddenFlags.every(f=>!s.flags.includes(f)));
 }
 export function selectEvent(s:GameState,kind:ActivityKind|'year',npcId?:string):LifeEvent {
-  const annual = kind === 'year' ? firstNightYear(s) ?? lastDayEvent(s) : undefined;
+  const annual = kind === 'year' ? firstNightYear(s) ?? lastDayEvent(s) ?? workYearEvent(s) : undefined;
   if (annual && !s.seenEvents.includes(annual.id)) return annual;
   let candidates=EVENTS.filter(e=>eligibleEvent(e,s,kind));
   if(npcId){const personal=candidates.filter(e=>e.speakerId===npcId);if(personal.length)candidates=personal;else candidates=candidates.filter(e=>!e.speakerId);}
@@ -149,30 +152,48 @@ export function resolveChoice(state:GameState,event:LifeEvent,choiceId:string,np
   if(choice.check){success=roll*100<checkChance(state,choice);const extra=success?choice.check.success:choice.check.failure;s=applyEffect(s,extra,npcId||event.speakerId);text+=' '+(success?choice.check.successText:choice.check.failureText);effect={...effect};for(const [key,value] of Object.entries(extra)){if(typeof value==='number')(effect as Record<string,unknown>)[key]=Number((effect as Record<string,unknown>)[key]||0)+value;}}
   if(state.pendingYearEvent)s.pendingYearEvent=false;else s.actions=Math.max(0,s.actions-1);
   if(!event.id.startsWith('routine-'))s.seenEvents=[...new Set([...s.seenEvents,event.id])];
+  if(event.category==='career'&&!event.id.startsWith('mini-')&&s.jobId===state.jobId){
+    const rank=registerReview(s);
+    if(rank)text+=` 年度评审过了，接下来做${rank}。`;
+  }
   s.journal.push({age:s.age,title:event.title,text,tag:event.tag||ACTIVITY_NAMES[event.category as ActivityKind]||'这一年'});
   const target=npcId||event.speakerId||((choice.effect.trust||choice.effect.attraction||choice.effect.commitment)?s.partnerId||undefined:undefined);
   if(target&&s.relationships[target]){const rel=s.relationships[target];rel.met=true;rel.memories=[...rel.memories,`${s.age}岁 · ${event.title}`].slice(-8);if(rel.trust<20&&s.partnerId===target){s.partnerId=null;s.journal.push({age:s.age,title:'分开一阵',text:'最近几次聊天都没讲完。你们约出来，把东西还了，决定先分开。',tag:'关系'});}}
-  if(s.jobId){const career=CAREERS.find(c=>c.id===s.jobId);if(career){const nextRank=Math.max(0,career.thresholds.filter(t=>s.stats.skill>=t).length-1);s.jobRank=Math.min(3,Math.max(s.jobRank,nextRank));}}
   s.cash=Math.max(0,s.cash);
   return {state:s,title:event.title,text,effect,success};
 }
-export function nextYear(state:GameState):{state:GameState;income:number;expense:number;note:string} {
+export function nextYear(state:GameState) {
   if(state.ended)throw new Error('这一生已经结算。');if(state.pendingYearEvent)throw new Error('先把眼前这件事处理好。');
   const s=structuredClone(state),budget=monthlyBudget(s);
   const [yearRoll,nextRng]=randomStep(s.rng);s.rng=nextRng;
   const variable=s.jobId==='freelance'?.7+yearRoll*.6:s.jobId==='business'?.55+yearRoll*.9:1;
-  const income=Math.round(budget.salary*12*variable),expense=(budget.rent+budget.living)*12;
+  const employment=employmentOf(s);
+  const activeMonths=s.jobId?12-employment.closedMonths:0;
+  const currentPay=Math.round(budget.salary*activeMonths*variable);
+  const income=employment.earned+currentPay,expense=(budget.rent+budget.living)*12;
+  const payroll=employment.closedMonths>0?{previous:employment.earned,current:currentPay,months:activeMonths}:undefined;
   const pressure:Record<string,[number,number]>={tech:[5,5],finance:[3,8],creative:[3,4],service:[6,3],public:[2,2],freelance:[2,3],business:[4,4],trade:[4,5]};
-  if(s.jobId){const [body,mind]=pressure[s.jobId]||[2,2];s.stats.health=clamp(s.stats.health-body);s.stats.spirit=clamp(s.stats.spirit-mind);}
+  if(s.jobId){const [body,mind]=pressure[s.jobId]||[2,2];const late=s.flags.includes(NIGHT_WORK);
+    s.stats.health=clamp(s.stats.health-Math.round((body+(late?4:0))*activeMonths/12));
+    s.stats.spirit=clamp(s.stats.spirit-Math.round((mind+(late?3:0))*activeMonths/12));}
   if(s.partnerId){const rel=s.relationships[s.partnerId];const keptInTouch=rel.memories.some(m=>m.startsWith(s.age+'岁 · '));if(!keptInTouch){rel.trust=clamp(rel.trust-4);rel.commitment=clamp(rel.commitment-2);}}
-  s.cash+=income-expense;s.totalEarned+=income;if(s.jobId)s.yearsEmployed++;
+  s.cash+=income-expense;s.totalEarned+=income;if(income>0)s.yearsEmployed++;
+  const notices:string[]=[];
   let note=income?`工资到账 ¥${income.toLocaleString()}，固定开支 ¥${expense.toLocaleString()}。`:`这一年没有固定工资，生活开支 ¥${expense.toLocaleString()}。`;
-  if(s.cash<0){const shortage=-s.cash;s.cash=6000;s.rescues++;s.stats.spirit=clamp(s.stats.spirit-8);s.housing=0;s.flags=[...new Set([...s.flags,'needed_help'])];note+=` 周转缺口 ¥${shortage.toLocaleString()}。你接受了一次互助，搬回预算内的房间，手上留下 ¥6,000，重新找机会。`;s.journal.push({age:s.age,title:'先把这关过了',text:'朋友帮忙垫了周转钱，你搬回合租房。收好行李，先把明天的面试地址存下来。',tag:'重整'});}
+  if(employment.closedMonths>0)note+=` 旧岗位入账 ¥${employment.earned.toLocaleString()}，当前岗位计 ${activeMonths} 个月。`;
+  if(s.cash<0){const shortage=-s.cash;s.cash=6000;s.rescues++;s.stats.spirit=clamp(s.stats.spirit-8);s.housing=0;s.flags=[...new Set([...s.flags,'needed_help'])];notices.push(`周转差了 ¥${shortage.toLocaleString()}。朋友帮你垫了一笔，你搬回合租房，手上留下 ¥6,000。`);s.journal.push({age:s.age,title:'先把这关过了',text:'朋友帮忙垫了周转钱，你搬回合租房。收好行李，先把明天的面试地址存下来。',tag:'重整'});}
   s.stats.health=clamp(s.stats.health-(s.age>40?3:1));s.stats.spirit=clamp(s.stats.spirit-2);
-  if(s.stats.health<15){s.stats.health=35;s.stats.spirit=clamp(s.stats.spirit+5);s.cash=Math.max(0,s.cash-3000);note+=' 身体提醒你歇一歇。调整以后，继续生活。';}
+  if(s.stats.health<15){
+    const care=Math.min(s.cash,3000);
+    s.stats.health=35;s.stats.spirit=clamp(s.stats.spirit+5);s.cash-=care;
+    notices.push(care?`这年身体撑不住，花了 ¥${care.toLocaleString()} 调养。`:'这年身体撑不住，先歇了一阵。');
+  }
+  const notice=notices.join(' ');
+  if(notice)note+=' '+notice;
   s.journal.push({age:s.age,title:`${s.age}岁年度账本`,text:note,tag:'账本'});
+  if(s.employment)s.employment={...employment,closedMonths:0,earned:0};
   s.age++;s.actions=3;s.ended=s.age>=60;s.pendingYearEvent=!s.ended;
-  return {state:s,income,expense,note};
+  return {state:s,income,expense,note,notice,payroll};
 }
 export function relationshipLabel(s:GameState,id:string){const r=s.relationships[id];if(!r?.met)return '未遇见';if(s.partnerId===id)return r.trust>75?'彼此笃定':'正在一起';if(r.trust>=70&&r.attraction>=50)return '心照不宣';if(r.trust>=45)return '熟悉的人';return '刚认识';}
 export function commitRelationship(s:GameState,id:string):GameState {const rel=s.relationships[id];if(!rel?.met||rel.trust<55||rel.attraction<45)throw new Error('再多了解彼此一点，现在还没到这一步。');let next=structuredClone(s);next.partnerId=id;next.relationships[id].commitment=clamp(rel.commitment+25);next.flags=[...new Set([...next.flags,'committed'])];next.journal.push({age:s.age,title:`和${CAST.find(c=>c.id===id)?.name}一起`,text:'你们吃完饭，顺路一起去买了牙刷。回去的路上，谁也没再说客气话。',tag:'关系'});return next;}
@@ -204,6 +225,8 @@ export function validateSave(value:unknown):GameState {
   if(!s.stats||Object.keys(STAT_NAMES).some(k=>!finite(s.stats[k as StatKey],0,100)))throw new Error('人物状态不完整。');
   if(!finite(s.jobRank,0,3)||!finite(s.housing,0,3)||!Number.isInteger(s.housing)||!finite(s.totalEarned,0,1e12)||!finite(s.yearsEmployed,0,42)||!finite(s.rescues,0,1000))throw new Error('年度资料不完整。');
   if(s.jobId!==null&&!CAREERS.some(c=>c.id===s.jobId))throw new Error('职业资料不匹配。');
+  const work=s.employment;
+  if(work!==undefined&&(!work||!Number.isInteger(work.sinceAge)||!finite(work.sinceAge,18,s.age)||!Number.isInteger(work.reviews)||!finite(work.reviews,0,42)||(work.reviewedAt!==undefined&&(!Number.isInteger(work.reviewedAt)||!finite(work.reviewedAt,work.sinceAge,s.age)))||!finite(work.rate,.5,1)||!Number.isInteger(work.closedMonths)||!finite(work.closedMonths,0,12)||!Number.isInteger(work.earned)||!finite(work.earned,0,1e7)))throw new Error('工作记录不完整。');
   for(const k of ['origins','flags','seenEvents'] as const)if(!Array.isArray(s[k])||s[k].length>1500||s[k].some(x=>typeof x!=='string'||x.length>120))throw new Error('档案记录无效。');
   if(s.origins.length!==5||s.origins.some(id=>!allOrigins().some(c=>c.id===id)))throw new Error('开局卡片不存在。');
   if(!Array.isArray(s.journal)||s.journal.length>1000||s.journal.some(j=>!j||!finite(j.age,18,60)||typeof j.title!=='string'||j.title.length>200||typeof j.text!=='string'||j.text.length>5000||typeof j.tag!=='string'||j.tag.length>80))throw new Error('人生记录损坏。');

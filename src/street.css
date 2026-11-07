@@ -151,3 +151,10 @@
     position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden;
   }
 }
+
+.career-review {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 13px;
+  margin: 15px 0; padding: 11px 0; border-block: 1px solid #c6c8b5; color: #314e42;
+}
+.career-review b { font-size: 14px; }
+.career-review span { font-size: 12px; white-space: nowrap; }

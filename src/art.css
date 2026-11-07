@@ -187,6 +187,9 @@
  .date-visual-caption>b{font-size:30px;margin:8px 0;}
  .date-visual-caption>small{font-size:8px;}
  .date-modal .dialogue-head{display:none;}
+ .work-interview-modal .dialogue-head{display:block;}
+ .work-interview-modal .dialogue-head h2{font-size:22px;}
+ .work-interview-modal .mini-eyebrow{display:none;}
  .date-modal .mini-eyebrow{padding-right:0;font-size:9px;}
  .event-modal .modal-close,.date-modal .modal-close{z-index:5;background:#f5eddaed;top:12px;right:12px;}
 }
