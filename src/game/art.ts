@@ -4,8 +4,11 @@ export const LOOKS:{id:LooksLevel;name:string;line:string;flavor:string;face:num
  {id:'charming',name:'颇有姿色',line:'出门常被问路，偶尔被要微信',flavor:'有点回头率',face:8,attraction:3},
  {id:'stunning',name:'惊艳全场',line:'路过咖啡店，主理人亲自开门',flavor:'回头率超标',face:16,attraction:6},
 ];
-export function portraitArt(id: string, full: boolean): string {
- return '/art/portraits/' + (full ? '' : 'head/') + id + '.webp';
+const agedHeads = new Set(['mao', 'he', 'lu']);
+
+export function portraitArt(id: string, full: boolean, age = 18): string {
+ const stage = !full && age >= 53 && agedHeads.has(id) ? '-senior' : '';
+ return '/art/portraits/' + (full ? '' : 'head/') + id + stage + '.webp';
 }
 
 export function playerArt(appearance: PlayerAppearance, full = true, age = 18): string {
@@ -41,8 +44,14 @@ export function pearlPhoto(shot: 'arena' | 'hero' | 'receipt' | 'booth' | 'night
  return `/art/pearl/${shot}.webp`;
 }
 
+export const FIRST_NIGHT_STILLS = [
+ 'first-night-arrival', 'first-night-room', 'first-night-shift', 'first-night-ferry',
+ 'first-night-room-bill', 'first-night-room-viewing', 'first-night-shift-rota',
+ 'first-night-shift-handover', 'first-night-ferry-oranges', 'first-night-ferry-gig',
+] as const;
+
 export type StreetPhoto = DistrictId | 'cover-station' | 'station' | 'keys' | 'kitchen' | 'ferry' | 'table' | 'bookshop'
- | 'first-night-room' | 'first-night-shift' | 'first-night-ferry';
+ | (typeof FIRST_NIGHT_STILLS)[number];
 
 export function streetPhoto(photo: StreetPhoto): string {
  return '/art/shanghai-streets/' + photo + '.webp';

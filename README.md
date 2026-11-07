@@ -63,7 +63,7 @@ python3 scripts/browser_smoke.py
 
 颜值对开局腔势和第一次认识恋爱对象的好感有小幅加成，信任、承诺与关系结局继续由相处决定。性别不限制可认识的对象。地图里的玩家也随性别与颜值切换发型和衣着。绿裙模型目前是静态网格，会随角色移动与转向。
 
-人物立绘、40 张开局牌、小游戏场景和街景使用内置 ImageGen 生成的纪实摄影风格素材。运行时文件在 `public/art/`，提示词在 `art/portrait-and-origin-prompts.json` 、`art/shanghai-streets.json`、`art/street-cast-stills.json` 和 `art/pearl-stills.json`。初版素材和提示词归档在 `art/source/` 与 `art/prompts.json`。人物头像和立绘来自同一张图，运行时按用途加载不同尺寸。
+人物立绘、40 张开局牌、小游戏场景和街景使用内置 ImageGen 生成的纪实摄影风格素材。运行时文件在 `public/art/`，提示词在 `art/portrait-and-origin-prompts.json` 、`art/shanghai-streets.json`、`art/street-cast-stills.json` 、`art/pearl-stills.json` 和 `art/cast-followups.json`。初版素材和提示词归档在 `art/source/` 与 `art/prompts.json`。人物头像和立绘来自同一张图，运行时按用途加载不同尺寸。
 
 八名约会对象各有一次三幕初见和一场后续剧情。初见的决定会改变下一次可以选的走法。再见一面的选择会留在时间线，也能连同剧照做成车票发给朋友。陆嘉和何亮会提起第一晚发生的事。16 张约会剧照和生成提示词见 `public/art/dates/` 与 `art/date-stills.json`。
 

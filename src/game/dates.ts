@@ -129,15 +129,23 @@ const scenes: Record<string, { middle: Question; end: Question; date: string; un
  },
 };
 
+const firstDateMemories: Record<string, [flag: string, line: string][]> = {
+ lu: [
+  ['night-recorded-song', '陆嘉把你录的那段发过来。「下次剥橘子离话筒远点。」周末的演出又改了时间，她问你这回还有空伐。'],
+  ['night-heard-last-song', '陆嘉问上次那首歌你听到哪一句了。你刚要回，她又发来一条，说周末的演出提前一小时。'],
+  ['night-saved-box', '陆嘉从包里滚出两个有疤的橘子，说这次可别落在轮渡口。周末演出又临时改了时间。'],
+ ],
+ he: [
+  ['night-took-rota', '何亮一坐下，差点又问你周六几点来。他把菜单转过来，改问三十八块一碗的白饭够买几斤米。'],
+  ['night-offer', '何亮认出你来了。「蓝围裙还挂着呢。」他坐下把菜单转过来，指给你看三十八块一碗的白饭。'],
+ ],
+};
+
 export function romanceQuestions(person: CastMember, flags: string[]): Question[] {
  const scene = scenes[person.id];
  const original = firstDates[person.id];
- const reminder = person.id === 'lu' && flags.includes('night-saved-box')
-  ? '陆嘉从包里滚出两个有疤的橘子，说这次可别落在轮渡口。周末演出又临时改了时间。'
-  : person.id === 'he' && flags.includes('night-offer')
-  ? '何亮认出你来了。「蓝围裙还挂着呢。」他坐下把菜单转过来，指给你看三十八块一碗的白饭。'
-  : original.text;
- return [{ ...original, text: reminder }, scene.middle, scene.end];
+ const memory = firstDateMemories[person.id]?.find(([flag]) => flags.includes(flag));
+ return [memory ? { ...original, text: memory[1] } : original, scene.middle, scene.end];
 }
 
 const DATE_ANSWERS = ['again', 'waiting', 'friends', 'left'] as const;

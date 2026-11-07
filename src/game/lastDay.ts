@@ -3,9 +3,13 @@ import type { GameState, LifeEvent } from './types';
 
 const tag = '最后一站';
 
-const closingScenes: { opening: string; event: LifeEvent }[] = [
+const closingScenes: { opening: string; event: LifeEvent; echoes: [flag: string, line: string][] }[] = [
  {
   opening: 'first-night-keys',
+  echoes: [
+   ['night-fronted-bill', '工具箱里还有半块冰箱贴。他用指甲刮了刮上面的胶，问你那张借条当年是不是也贴在这块下面。'],
+   ['night-shared-later', '他把两把钥匙递过来，说这回还是你先挑。'],
+  ],
   event: {
    id: 'last-day-keys', title: '两把旧钥匙', category: 'year', tag, district: 'xinzhuang', speakerId: 'mao',
    illustration: farewellPhoto('mao'),
@@ -19,6 +23,7 @@ const closingScenes: { opening: string; event: LifeEvent }[] = [
  },
  {
   opening: 'first-night-till',
+  echoes: [['night-took-rota', '纸里还夹了一张你签过的班表。他指着最后一栏，说那时候你每次都比班表写的晚走十分钟。']],
   event: {
    id: 'last-day-receipt', title: '最后一张手写账单', category: 'year', tag, district: 'anfu', speakerId: 'he',
    illustration: farewellPhoto('he'),
@@ -32,6 +37,10 @@ const closingScenes: { opening: string; event: LifeEvent }[] = [
  },
  {
   opening: 'first-night-box',
+  echoes: [
+   ['night-recorded-song', '她把手机音量开大。录音里先响起剥橘子皮的声音，过了几秒，才听见那晚的吉他。'],
+   ['night-heard-last-song', '船上一阵风。她哼起那晚最后一首，唱到弹错的那段，还是停了一拍。'],
+  ],
   event: {
    id: 'last-day-orange', title: '这次箱底没漏', category: 'year', tag, district: 'bund', speakerId: 'lu',
    illustration: farewellPhoto('lu'),
@@ -47,8 +56,11 @@ const closingScenes: { opening: string; event: LifeEvent }[] = [
 
 export function lastDayEvent(state: GameState): LifeEvent | undefined {
  if (state.age !== 59) return undefined;
- return closingScenes.find(({opening, event}) =>
-  state.seenEvents.includes(opening) && !state.seenEvents.includes(event.id))?.event;
+ const scene = closingScenes.find(({opening, event}) =>
+  state.seenEvents.includes(opening) && !state.seenEvents.includes(event.id));
+ if (!scene) return undefined;
+ const echo = scene.echoes.find(([flag]) => state.flags.includes(flag));
+ return echo ? { ...scene.event, text: scene.event.text + ' ' + echo[1] } : scene.event;
 }
 
 export function lastDayMemory(state: GameState) {

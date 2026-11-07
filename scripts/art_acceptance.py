@@ -22,7 +22,7 @@ with sync_playwright() as pw:
     assets=[file.relative_to(art_dir).as_posix() for folder in ('portraits','origins','encounters','dates','endings','work','pearl') for file in (art_dir/folder).rglob('*.webp')]
     assets.extend(file.relative_to(art_dir).as_posix() for file in (art_dir/'shanghai-streets').glob('first-night-*.webp'))
     assets.append('shanghai-streets/cover-station.webp')
-    assert len(assets)==167, len(assets)
+    assert len(assets)==177, len(assets)
     for asset in assets:
         r=p.request.get(BASE+'art/'+asset);assert r.status==200,(asset,r.status)
         assert r.headers.get('content-type','').startswith('image/'),(asset,r.headers)

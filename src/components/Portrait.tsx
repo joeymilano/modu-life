@@ -1,9 +1,11 @@
 import type { CastMember, OriginCard, PlayerAppearance } from '../game/types';
 import { playerArt, portraitArt } from '../game/art';
 
-export function Portrait({ person, size = 64, full = false }: { person: CastMember; size?: number; full?: boolean }) {
+export function Portrait({ person, size = 64, full = false, age = 18, decorative = false }: {
+ person: CastMember; size?: number; full?: boolean; age?: number; decorative?: boolean;
+}) {
  return <div className={'portrait ' + (full ? 'portrait-full' : 'portrait-head')} style={full ? undefined : { width: size, height: size }}>
-  <img src={portraitArt(person.id, full)} alt={person.name} decoding="async" loading="lazy" />
+  <img src={portraitArt(person.id, full, age)} alt={decorative ? '' : person.name} decoding="async" loading="lazy" />
  </div>;
 }
 

@@ -13,7 +13,7 @@ export interface Effect {
  setFlags?: string[]; removeFlags?: string[]; job?: string; housing?: number; love?: boolean; romanticInvitation?: boolean;
 }
 export interface EventChoice {
- id: string; label: string; hint?: string; effect: Effect; reply: string;
+ id: string; label: string; hint?: string; senderId?: string; effect: Effect; reply: string;
  check?: { stat: StatKey; threshold: number; success: Effect; failure: Effect; successText: string; failureText: string };
 }
 export interface LifeEvent {

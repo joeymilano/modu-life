@@ -1,5 +1,5 @@
 import type { LifeEvent } from './types';
-import { datePhoto, farewellPhoto, pearlPhoto, streetPhoto, workPhoto } from './art';
+import { FIRST_NIGHT_STILLS, datePhoto, farewellPhoto, pearlPhoto, streetPhoto, workPhoto } from './art';
 import { CAST } from './content';
 
 export interface Turn {
@@ -33,6 +33,7 @@ export interface Ticket {
 const end = null;
 const ticketShots = new Set([
   streetPhoto('station'),
+  ...FIRST_NIGHT_STILLS.map(streetPhoto),
   ...(['receipt', 'booth', 'night-office'] as const).map(pearlPhoto),
   ...(['mao', 'he', 'lu'] as const).map(farewellPhoto),
   ...(['reorg', 'overtime', 'shift', 'invoice', 'return'] as const).map(workPhoto),
