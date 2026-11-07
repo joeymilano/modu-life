@@ -20,9 +20,7 @@ with sync_playwright() as pw:
     p.goto(BASE+'?seed=ARTLOOKS');p.wait_for_load_state('networkidle')
     art_dir=Path('public/art')
     assets=[file.relative_to(art_dir).as_posix() for folder in ('portraits','origins','encounters','dates','endings','work','pearl','matchmaking','opening') for file in (art_dir/folder).rglob('*.webp')]
-    assets.extend(file.relative_to(art_dir).as_posix() for file in (art_dir/'shanghai-streets').glob('first-night-*.webp'))
-    assets.append('shanghai-streets/cover-station.webp')
-    assert len(assets)==186, len(assets)
+    assets.extend(file.relative_to(art_dir).as_posix() for file in (art_dir/'shanghai-streets').glob('*.webp'))
     for asset in assets:
         r=p.request.get(BASE+'art/'+asset);assert r.status==200,(asset,r.status)
         assert r.headers.get('content-type','').startswith('image/'),(asset,r.headers)

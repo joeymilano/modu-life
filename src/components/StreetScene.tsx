@@ -8,7 +8,7 @@ export default function StreetScene({ district, disabled, onVisit, onNightOwl }:
 }) {
   return <div className="street-scene">
     <div className="street-frame" data-district={district.id} key={district.id}>
-      <img src={streetPhoto(district.id)} alt="" width={764} height={508} />
+      <img src={streetPhoto(district.id)} alt="" width={1536} height={1024} decoding="async" />
       <div className="street-name">
         <span>{district.en}</span>
         <h1>{district.name}</h1>

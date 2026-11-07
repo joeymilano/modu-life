@@ -64,7 +64,7 @@ export const FIRST_NIGHT_STILLS = [
  'first-night-shift-handover', 'first-night-ferry-oranges', 'first-night-ferry-gig',
 ] as const;
 
-export type StreetPhoto = DistrictId | 'cover-station' | 'station' | 'keys' | 'kitchen' | 'ferry' | 'table' | 'bookshop'
+export type StreetPhoto = DistrictId | 'cover-lilong' | 'station' | 'keys' | 'kitchen' | 'ferry' | 'table' | 'bookshop'
  | (typeof FIRST_NIGHT_STILLS)[number];
 
 export function streetPhoto(photo: StreetPhoto): string {

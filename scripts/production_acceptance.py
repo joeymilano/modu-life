@@ -34,8 +34,17 @@ with sync_playwright() as p:
  page.wait_for_timeout(700);page.screenshot(path=str(OUT/'ending-desktop.png'),full_page=True)
  # The actual rendered app supplies a dedicated social preview, without remote images.
  page.get_by_role('button',name='魔都人生首页').click();page.set_viewport_size({'width':1200,'height':630})
- page.add_style_tag(content='.toast,.screen-home .topbar,.home-bottom,.screen-home .home-start{display:none}.screen-home .home-screen{height:630px;min-height:630px;padding:40px 0 40px 6%}.screen-home .home-copy{padding:0;min-height:0}.screen-home .home-copy h1.game-title{margin:0 0 24px}.game-title img{width:350px}.screen-home .home-description{font-size:16px}.screen-home .hero-city{inset:0 0 0 28%}')
- page.wait_for_timeout(700);page.screenshot(path=str(OUT/'social-preview.png'))
+ page.add_style_tag(content='''
+    .toast,.screen-home .topbar,.home-bottom,.screen-home .home-start { display:none }
+    .screen-home .home-screen { height:630px;min-height:630px;padding:40px 0 40px 6% }
+    .screen-home .home-copy { padding:0;min-height:0 }
+    .screen-home .home-copy h1.game-title { margin:0 0 24px }
+    .screen-home .game-title img { width:300px }
+ ''')
+ page.locator('.home-key-art').evaluate('img=>img.decode()')
+ page.locator('.game-title img').evaluate('img=>img.decode()')
+ page.evaluate('new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))')
+ page.screenshot(path=str(OUT/'social-preview.png'))
  assert Image.open(OUT/'social-preview.png').size==(1200,630)
  report={'production_build':'passed','offline_reload':'passed','share_png':'1080x1440','social_preview':'1200x630','terminal_transition':'59 to 60 through UI','errors':errors}
  (OUT/'production-acceptance.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
