@@ -1,5 +1,5 @@
 const CACHE = 'modu-life-' + (self.__BUILD_ID || 'development');
-const PRECACHE = self.__PRECACHE || ['/', '/pearl/', '/favicon.svg', '/manifest.webmanifest', '/models/manifest.json'];
+const PRECACHE = self.__PRECACHE || ['/', '/pearl/', '/stall/', '/favicon.svg', '/manifest.webmanifest', '/models/manifest.json'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(PRECACHE)).then(() => self.skipWaiting()));
@@ -23,8 +23,8 @@ self.addEventListener('fetch', event => {
   }
 
   if (request.mode === 'navigate' || url.pathname === '/models/manifest.json') {
-    const isPearl = ['/pearl', '/pearl/', '/pearl/index.html'].includes(url.pathname);
-    const key = request.mode === 'navigate' ? (isPearl ? '/pearl/' : '/') : request;
+    const entry = /^\/(pearl|stall)(?:\/|\/index\.html)?$/.exec(url.pathname);
+    const key = request.mode === 'navigate' ? (entry ? '/' + entry[1] + '/' : '/') : request;
     event.respondWith(fetch(request).then(response =>
       response.ok ? cacheResponse(key, response) : response
     ).catch(() => caches.match(key, { ignoreVary: true })));

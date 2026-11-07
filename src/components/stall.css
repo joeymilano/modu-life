@@ -67,3 +67,77 @@
  .stall-workbench .secondary { min-height: 44px; }
  .stall-order-action .secondary { min-height: 44px; }
 }
+
+.stall-share { margin-top: 13px; }
+.stall-share-actions, .stall-replay { display: flex; flex-wrap: wrap; gap: 7px; }
+.stall-share-actions button { padding: 8px 10px; min-height: 40px; }
+.stall-share label { display: grid; gap: 4px; margin-top: 9px; font-size: 12px; }
+.stall-share input { width: 100%; padding: 8px; }
+.stall-share p[role="status"] { margin-top: 5px; font-size: 12px; }
+.stall-replay { margin-top: 8px; gap: 7px 14px; }
+.stall-replay button { min-height: 38px; }
+.stall-intro h2:focus { outline: 0; }
+
+.stall-page { min-height: 100svh; color: #263d33; background: #1c2925; padding: 0 clamp(14px,4vw,66px) 40px; }
+.stall-page-top {
+ display: flex; justify-content: space-between; align-items: center; gap: 12px;
+ min-height: 60px; max-width: 1320px; margin: auto; color: #f2e6cc; font-size: 13px;
+}
+.stall-page-top > a { flex: 0 0 auto; color: inherit; text-decoration: none; }
+.stall-page-top > a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.stall-page-top > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stall-arcade-layout {
+ display: grid; grid-template-columns: minmax(248px,.67fr) minmax(0,1.56fr);
+ gap: 12px; align-items: stretch; max-width: 1320px; margin: auto;
+}
+.stall-hero {
+ position: relative; display: flex; align-items: flex-end; min-height: 590px; overflow: hidden;
+ isolation: isolate; color: #fff1d4; background: #28372f;
+}
+.stall-hero::after { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(0deg,#14201cee,transparent 57%); }
+.stall-hero img { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; object-position: 52% 46%; }
+.stall-hero > div { padding: clamp(19px,4vw,46px); }
+.stall-hero span { color: #e8c58f; font-size: 13px; }
+.stall-hero h1 { margin: 10px 0 9px; font: 700 clamp(39px,6vw,83px)/1.01 var(--serif); }
+.stall-hero p { font-size: 14px; line-height: 1.5; color: #f7e5c5; }
+.stall-arcade-board { min-width: 0; background: #f4eee1; }
+.stall-challenge-banner {
+ display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+ padding: 13px clamp(14px,3vw,34px); background: #e7dac1; color: #453b2a; font-size: 13px;
+}
+.stall-challenge-banner span { color: #64513b; font-size: 12px; }
+.stall-arcade-board .stall-intro { display: block; }
+.stall-arcade-intro > img { display: none; }
+.stall-arcade-intro .stall-intro-copy { max-width: 690px; margin-top: clamp(8px,2vw,27px); }
+.stall-menu { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; margin-top: 21px; }
+.stall-menu > div { position: relative; min-width: 0; }
+.stall-menu img { display: block; width: 100%; aspect-ratio: 2.5; object-fit: cover; }
+.stall-menu b { position: absolute; left: 0; bottom: 0; padding: 4px 9px; color: #fff1d6; background: #24382eeb; font-size: 12px; }
+.stall-arcade-result > img { min-height: 0; height: auto; display: block; aspect-ratio: 2.65; object-position: center 65%; }
+.stall-arcade-result .stall-intro-copy { padding-block: 23px 26px; }
+.stall-arcade-result .stall-result { max-width: 500px; }
+
+@media(max-width: 900px) {
+ .stall-arcade-layout { grid-template-columns: minmax(0,1fr); }
+ .stall-hero { min-height: clamp(250px,44svh,420px); }
+ .stall-hero img { object-position: 50% 12%; }
+ .stall-hero h1 { font-size: clamp(39px,9vw,67px); }
+ .stall-arcade-intro .stall-intro-copy { display: flex; flex-direction: column; align-items: flex-start; margin-top: 0; }
+ .stall-arcade-intro .stall-intro-copy ul { order: 1; margin-bottom: 0; }
+ .stall-arcade-intro .stall-intro-copy .primary { min-height: 44px; margin-top: 13px; }
+ .stall-menu { display: none; }
+ .stall-page[data-started="true"] .stall-hero {
+  position: absolute; width: 1px; min-height: 0; height: 1px; overflow: hidden; clip-path: inset(50%);
+ }
+}
+@media(max-width: 430px) {
+ .stall-page { padding-inline: 10px; }
+ .stall-page-top { min-height: 48px; font-size: 12px; }
+ .stall-arcade-layout { gap: 8px; }
+ .stall-hero { min-height: clamp(225px,38svh,330px); }
+ .stall-arcade-result .stall-intro-copy { padding: 16px 17px 23px; }
+}
+
+.screen-home .home-quick-games { display: flex; flex-wrap: wrap; align-items: center; gap: 0 19px; }
+.screen-home .home-quick-games a { pointer-events: auto; text-decoration: none; }
+.screen-home .home-quick-games a:hover { text-decoration: underline; }

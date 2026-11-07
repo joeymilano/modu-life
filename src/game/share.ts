@@ -1,11 +1,13 @@
 import { allOrigins, ending } from './engine';
-import { endingPhoto, LIFE_ALBUM_AGES, pearlPhoto, playerArt, streetPhoto, TIMELINE_COVER } from './art';
+import { endingPhoto, LIFE_ALBUM_AGES, pearlPhoto, playerArt, stallPhoto, streetPhoto, TIMELINE_COVER } from './art';
 import { CAREERS, DISTRICTS } from './content';
 import { PEARL_PATH, pearlHash, pearlRank, pearlRoundCount, type PearlRules, type PearlScore } from './pearl';
 import { describeDecision, lineDivergence, lineFacts } from './lineComparison';
 import { lineName, type LifeLine } from './lifeLines';
 import type { GameState } from './types';
-export const SITE_URL='https://modulife.pages.dev';
+import { SITE_URL } from './site';
+import { STALL_ORDER_COUNT, stallRank } from './stall';
+import { stallChallengeUrl, type StallChallenge } from './stallChallenge';
 function lines(ctx:CanvasRenderingContext2D,text:string,x:number,y:number,max:number,lineHeight:number){let line='';for(const c of text){if(ctx.measureText(line+c).width>max){ctx.fillText(line,x,y);y+=lineHeight;line=c;}else line+=c;}ctx.fillText(line,x,y);return y;}
 type PhotoFrame = [x: number, y: number, width: number, height: number];
 
@@ -304,6 +306,51 @@ export function pearlChallengeUrl(seed: string, target: number, rules: PearlRule
  const url = new URL(rules === 1 ? '/' : PEARL_PATH, SITE_URL);
  url.hash = pearlHash(seed, target, rules);
  return url.toString();
+}
+
+export async function makeStallTicket(challenge: StallChallenge & { target: NonNullable<StallChallenge['target']> }): Promise<Blob> {
+ const { seed, target } = challenge;
+ const canvas = document.createElement('canvas');
+ canvas.width = 960;
+ canvas.height = 1200;
+ const ctx = canvas.getContext('2d');
+ if (!ctx) throw new Error('小票暂时打印不了');
+ ctx.fillStyle = '#e8dbc0';
+ ctx.fillRect(0, 0, 960, 1200);
+ ctx.fillStyle = '#faf4e6';
+ ctx.fillRect(28, 22, 904, 1156);
+ ctx.fillStyle = cardRust;
+ ctx.fillRect(60, 54, 840, 4);
+ ctx.font = 'bold 25px sans-serif';
+ ctx.fillText('魔都人生 · 莘庄晚市', 60, 109);
+ ctx.textAlign = 'right';
+ ctx.fillText('#' + seed, 900, 109, 420);
+ ctx.textAlign = 'left';
+ ctx.fillStyle = cardInk;
+ ctx.font = 'bold 58px ' + cardSerif;
+ ctx.fillText('两口锅，八张单', 60, 182);
+ await paintPhoto(ctx, stallPhoto(target.waste || target.served < 6 ? 'receipt-rush' : 'receipt-clean'), [60, 213, 840, 450], .58);
+ ctx.font = 'bold 64px ' + cardSerif;
+ ctx.fillText(stallRank(target), 60, 760, 840);
+ ctx.font = '30px sans-serif';
+ ctx.fillText(`出单 ${target.served}/${STALL_ORDER_COUNT} · 损耗 ${target.waste} 份`, 64, 833);
+ ctx.strokeStyle = '#a99e88';
+ ctx.setLineDash([8, 6]);
+ ctx.beginPath();
+ ctx.moveTo(60, 882);
+ ctx.lineTo(900, 882);
+ ctx.stroke();
+ if (!await paintChallengeCode(ctx, stallChallengeUrl(challenge), 900, 900, 270)) {
+  throw new Error('小票的码还没印出来');
+ }
+ ctx.fillStyle = cardInk;
+ ctx.font = 'bold 37px ' + cardSerif;
+ ctx.fillText('扫一下，接同一批单', 60, 1000, 580);
+ ctx.fillStyle = cardRust;
+ ctx.font = '24px sans-serif';
+ ctx.fillText('modulife.pages.dev/stall', 62, 1063);
+ return new Promise((resolve, reject) => canvas.toBlob(blob =>
+  blob ? resolve(blob) : reject(new Error('小票暂时打印不了')), 'image/png'));
 }
 
 export async function makePearlTicket(seed: string, score: PearlScore, rules: PearlRules = 1): Promise<Blob> {

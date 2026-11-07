@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest';
 import { createGame, drawOrigins, nextYear, resolveChoice } from '../src/game/engine';
 import { activeLine, decodeLife, encodeLife, forkLife, recordDecision, replayScene, startBook } from '../src/game/lifeLines';
-import { moveStall, settleStall, stallCommitment, stallScore, startStall, STALL_STEPS, waitingOrders, type StallMove } from '../src/game/stall';
+import { moveStall, settleStall, stallCommitment, stallSchedule, stallScore, startStall, STALL_STEPS, waitingOrders, type StallMove } from '../src/game/stall';
 import { draftFromEvent } from '../src/game/timelines';
 import type { GameState } from '../src/game/types';
 
@@ -14,14 +14,14 @@ it.each([
  ['B', [sheng(0), guo(1), wait, serve(1), serve(2), serve(3), serve(4), sheng(0), guo(1), wait, serve(5), serve(6), serve(7), serve(8)]],
  ['A', [guo(0), sheng(1), serve(1), wait, serve(2), serve(3), serve(4), guo(0), sheng(1), serve(5), serve(7), serve(6), serve(8), wait]],
 ] as const)('lets a player serve every ticket on the %s schedule', (seed, moves) => {
- const shift = moves.reduce(moveStall, startStall(seed, 19, 3));
+ const shift = moves.reduce(moveStall, startStall(stallSchedule(seed, 19, 3)));
  expect(shift.step).toBe(STALL_STEPS);
  expect(stallScore(shift)).toEqual({ served: 8, waste: 0 });
  expect(moveStall(shift, wait)).toBe(shift);
 });
 
 it('keeps invalid moves free, gives the last promised step, and charges unsold portions', () => {
- const original = startStall('B', 19, 3);
+ const original = startStall(0);
  expect(moveStall(original, serve(1))).toBe(original);
  expect(moveStall(original, serve(8))).toBe(original);
  let shift = moveStall(original, sheng(0));

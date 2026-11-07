@@ -52,7 +52,7 @@ export function offerPhoto(careerId: string): string {
  return `/art/job-offers/${careerId}.webp`;
 }
 
-export function stallPhoto(shot: 'counter' | 'sheng' | 'guo' | 'rush' | 'close' | 'burnt' | 'empty') {
+export function stallPhoto(shot: 'counter' | 'sheng' | 'guo' | 'rush' | 'close' | 'burnt' | 'empty' | 'hero' | 'receipt-clean' | 'receipt-rush') {
  return `/art/stall/${shot}.webp`;
 }
 

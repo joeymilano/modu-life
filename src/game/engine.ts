@@ -32,7 +32,7 @@ export function rerollOrigin(seed: string, round: number, current: OriginCard): 
  const [roll] = randomStep(hashSeed(seed + ':swap:' + round + ':' + current.slot));
  return candidates[Math.floor(roll * candidates.length)];
 }
-export function newSeed():string {const values=new Uint32Array(1);if(globalThis.crypto?.getRandomValues)globalThis.crypto.getRandomValues(values);else values[0]=Date.now();return values[0].toString(36).toUpperCase().padStart(6,'0').slice(0,7);}
+export { newSeed } from './seed';
 export function chapterOf(age:number){return Math.min(5,Math.floor((age-18)/7));}
 const DEFAULT_APPEARANCE: PlayerAppearance = {gender:'male',looks:'everyday'};
 const LOOKS_BONUS: Record<LooksLevel,{face:number;attraction:number}> = {

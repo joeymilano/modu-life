@@ -2,6 +2,7 @@ import { stallPhoto } from './art';
 import type { GameState, LifeEvent } from './types';
 
 export const STALL_STEPS = 14;
+export const STALL_MAX_WASTE = STALL_STEPS * 2;
 export const STALL_DISHES = {
  sheng: { name: '生煎', heat: 2 },
  guo: { name: '锅贴', heat: 1 },
@@ -16,6 +17,7 @@ export type StallShift = {
  pans: [Batch | null, Batch | null]; waste: number; message: string;
 };
 export type StallScore = { served: number; waste: number };
+export type StallSchedule = 0 | 1;
 export type StallMove =
  { type: 'cook'; pan: PanIndex; dish: Dish } | { type: 'serve'; order: number } | { type: 'discard'; pan: PanIndex } | { type: 'wait' };
 
@@ -29,12 +31,16 @@ const ORDERS: readonly StallOrder[] = [
  { id: 7, dish: 'sheng', arrives: 9, deadline: 13, person: 'gao', line: '替同事买，他说他不饿。' },
  { id: 8, dish: 'guo', arrives: 9, deadline: 13, person: 'aunt', line: '我就站这儿，不催你。' },
 ];
+export const STALL_ORDER_COUNT = ORDERS.length;
 const alternate: Record<Dish, Dish> = { sheng: 'guo', guo: 'sheng' };
 
-export function startStall(seed: string, age: number, actions: number): StallShift {
- const reverse = ((seed.charCodeAt(0) || 0) + age + actions) % 2 === 1;
+export function stallSchedule(seed: string, age: number, actions: number): StallSchedule {
+ return ((seed.charCodeAt(0) || 0) + age + actions) % 2 === 1 ? 1 : 0;
+}
+
+export function startStall(schedule: StallSchedule): StallShift {
  return {
-  step: 0, orders: reverse ? ORDERS.map(order => ({ ...order, dish: alternate[order.dish] })) : ORDERS,
+  step: 0, orders: schedule ? ORDERS.map(order => ({ ...order, dish: alternate[order.dish] })) : ORDERS,
   status: ORDERS.map(() => 'waiting'), pans: [null, null], waste: 0,
   message: '顾爷叔到了。吴师傅把单子夹在你眼前。',
  };
@@ -55,6 +61,13 @@ export function servingPan(shift: StallShift, dish: Dish): PanIndex | undefined 
 
 export function stallScore(shift: StallShift): StallScore {
  return { served: shift.status.filter(state => state === 'served').length, waste: shift.waste };
+}
+
+export function stallRank({ served, waste }: StallScore) {
+ if (served === STALL_ORDER_COUNT && !waste) return '一张单都没跑';
+ if (served >= 6) return '还有人问明天开不开';
+ if (served >= 4) return '备用围裙留给你';
+ return '下回先倒杯水';
 }
 
 export function moveStall(shift: StallShift, move: StallMove): StallShift {
@@ -156,7 +169,7 @@ export function settleStall(state: GameState, score: StallScore): LifeEvent {
 export function replayStall(state: GameState, id: string): LifeEvent | null {
  if (state.district !== 'xinzhuang' || state.pendingYearEvent || state.ended || state.actions <= 0) return null;
  const match = /^stall-v1-([0-8])-(0|[1-9]\d?)$/.exec(id);
- return match && Number(match[2]) <= STALL_STEPS * 2
+ return match && Number(match[2]) <= STALL_MAX_WASTE
   ? settleStall(state, { served: Number(match[1]), waste: Number(match[2]) }) : null;
 }
 

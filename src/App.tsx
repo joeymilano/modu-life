@@ -29,7 +29,8 @@ import { eventPhoto, interviewPhoto, LOOKS, streetPhoto } from './game/art';
 import { DialogueGame } from './components/MiniGames';
 import RentalGame from './components/RentalGame';
 import StallGame from './components/StallGame';
-import { isStallSettlement, settleStall, stallCommitment, type StallScore } from './game/stall';
+import { isStallSettlement, settleStall, stallCommitment, stallSchedule, type StallScore } from './game/stall';
+import { STALL_PATH } from './game/stallChallenge';
 import { rentalNegotiation } from './game/rental';
 import LaserGame from './components/LaserGame';
 import './opening-draw.css';
@@ -307,7 +308,7 @@ export default function App(){
  {screen==='home'&&<main className="home-screen"><div className="home-copy"><h1 className="game-title"><img src="/brand/logo-poster.svg" alt="魔都人生" width="524" height="534" fetchPriority="high"/></h1><p className="home-description">{challenge?<>朋友递来一手牌<br/>{challenge.cards.slice(0,2).map(card=>card.name).join(' · ')}</>:<>刚到上海南站，手机响了三声<br/>看房、顶班、去码头，你先回谁？</>}</p><div className="home-start"><div className="mode-select" aria-label="选择游戏模式">
  <button className="mode-entry main-mode" onClick={beginDraw}><b>我的人生</b><span>{challenge?'接这手牌':'开局抽卡'} <Icon name="arrow" size={17}/></span></button>
  <button className="mode-entry guest-mode" onClick={()=>setParallel(true)}><b>重走别人的人生</b><span>去平行上海 <Icon name="arrow" size={17}/></span></button>
- </div><button className="pearl-entry" onClick={()=>{window.location.hash=pearlHash(newSeed(),undefined,CURRENT_PEARL_RULES);}}><Icon name="bolt" size={17}/>先躲一轮激光</button>{game&&<button className="continue-button" onClick={()=>{setScreen(game.ended?'end':'play');setModal(null);}}>继续上回 · {game.name}的{game.age}岁 <Icon name="chevron" size={16}/></button>}</div></div><div className="hero-city"><picture>
+ </div><div className="home-quick-games"><button className="pearl-entry" onClick={()=>{window.location.hash=pearlHash(newSeed(),undefined,CURRENT_PEARL_RULES);}}><Icon name="bolt" size={17}/>先躲一轮激光</button><a className="pearl-entry" href={STALL_PATH}><Icon name="coffee" size={17}/>去小吃街顶班</a></div>{game&&<button className="continue-button" onClick={()=>{setScreen(game.ended?'end':'play');setModal(null);}}>继续上回 · {game.name}的{game.age}岁 <Icon name="chevron" size={16}/></button>}</div></div><div className="hero-city"><picture>
   <source media="(max-width: 600px)" srcSet={streetPhoto('cover-south-station-mobile')}/>
   <img className="home-key-art" src={streetPhoto('cover-south-station')} alt="上海南站的雨棚下，一位旅客扶着行李箱望向公交站" fetchPriority="high"/>
  </picture><div className="hero-shade"/></div><div className="home-bottom"><span className="ticker-label">申城小报</span><div className="ticker"><span>外滩发布柠檬水预警</span><span>公园相亲角下雨，摊主撑伞继续</span><span>安福路面馆招一晚帮工，管饭</span></div></div></main>}
@@ -447,7 +448,7 @@ export default function App(){
  }}>把这一幕发给朋友 <Icon name="map" size={17}/></button>}</div></div>}
  {mini?.type==='laser'&&game&&<LaserGame seed={game.seed} cash={game.cash} appearance={game.appearance} onFinish={result=>{const reward=pearlReward(result);miniFinish(reward.effect,reward.text);}}/>}
  {mini?.type==='rental'&&game&&<RentalGame initialEvidence={mini.evidence} onTalk={openRental}/>}
- {mini?.type==='stall'&&game&&<StallGame seed={game.seed} age={game.age} actions={game.actions} onCloseBooks={closeStallBooks}/>}
+ {mini?.type==='stall'&&game&&<StallGame seed={game.seed} age={game.age} schedule={stallSchedule(game.seed,game.age,game.actions)} onCloseBooks={closeStallBooks}/>}
  {mini?.type==='dialogue'&&game&&(mini.person?
   <DialogueGame person={mini.person} skill={game.stats.skill} cash={game.cash} flags={game.flags} onParting={picks=>openParting(mini.person,picks)}/>:
   <DialogueGame career={mini.career} skill={game.stats.skill} cash={game.cash} flags={game.flags} onFinish={miniFinish} onOffer={openJobOffer}/>)}
