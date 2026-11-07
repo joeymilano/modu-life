@@ -11,7 +11,7 @@ function scene(id: string, art: StreetPhoto, title: string, text: string, choice
 }
 
 const arrival = scene('arrival', 'first-night-arrival', '出站前的三条消息',
-  '上海南站。雨刮到扶梯底下，行李箱有个轮子不转了。手机一亮，三个人都在等你回话。', [
+  '上海南站。雨刚停，出站口还在滴水。行李箱有个轮子卡住了。你停下来踢了两下，兜里手机连震三声。', [
     { label: '回毛小毛 · 房间先帮我留着', hint: '莘庄那间九点前能看。侬出站了伐？', senderId: 'mao',
       reply: '毛小毛发来楼栋号，又补一条语音。「先别付钱。他跟我说的是两千，跟你说的是多少？」', effect: { setFlags: ['night-room'] } },
     { label: '回何亮 · 今晚我来顶班', hint: '今晚缺个人。来就给你留一碗，工钱今天结。', senderId: 'he',
