@@ -33,6 +33,7 @@ with sync_playwright() as pw:
             annual(p)
             saved=json.loads(p.evaluate('localStorage.getItem("modu-life-v1")'))
             assert saved['appearance']=={'gender':gender,'looks':looks}
+            if p.get_by_role('button',name='3D 地图').count():p.get_by_role('button',name='3D 地图').click()
             p.locator('[data-avatar-gender]').wait_for()
             assert p.locator('[data-avatar-gender]').get_attribute('data-avatar-gender')==gender
             assert p.locator('[data-avatar-looks]').get_attribute('data-avatar-looks')==looks
@@ -65,7 +66,7 @@ with sync_playwright() as pw:
     p.get_by_role('button',name='关闭',exact=True).click()
     # Mobile date, cast and image framing.
     p.set_viewport_size({'width':390,'height':844})
-    p.get_by_role('button',name='地点',exact=True).click();hotspot(p,'江风约会')
+    hotspot(p,'江风约会')
     p.screenshot(path=str(OUT/'romance-cast-mobile.png'),full_page=True)
     p.locator('.romance-grid button').nth(4).click();p.wait_for_timeout(300)
     assert p.evaluate('document.documentElement.scrollWidth<=innerWidth+1')

@@ -1,4 +1,5 @@
 import { CAREERS, CAST, GOALS, ORIGIN_POOLS } from './content';
+import { FIRST_NIGHT_FLAG, firstNightYear } from './firstNight';
 import { EVENTS } from './events';
 import type { ActivityKind, ChoiceResult, Effect, EventChoice, GameState, GoalId, LifeEvent, LooksLevel, OriginCard, OriginSlot, PlayerAppearance, StatKey } from './types';
 
@@ -49,7 +50,7 @@ function applyEffect(state:GameState,effect:Effect,npcId?:string):GameState {
 }
 export function createGame(seed:string,name:string,goal:GoalId,cards:OriginCard[],appearance:PlayerAppearance=DEFAULT_APPEARANCE):GameState {
   const selectedAppearance=validateAppearance(appearance);
-  let state:GameState={version:1,seed:seed.slice(0,32),rng:hashSeed(seed),name:name.trim().slice(0,12)||'小申',age:18,actions:3,goal,appearance:selectedAppearance,district:'bund',cash:36000,stats:{health:80,spirit:75,skill:28,face:30+LOOKS_BONUS[selectedAppearance.looks].face,network:20},jobId:null,jobRank:0,housing:0,origins:cards.map(c=>c.id),flags:[],seenEvents:[],relationships:Object.fromEntries(CAST.map(c=>[c.id,{attraction:10,trust:15,commitment:0,met:false,memories:[]}])),partnerId:null,journal:[],pendingYearEvent:true,ended:false,totalEarned:0,yearsEmployed:0,rescues:0};
+  let state:GameState={version:1,seed:seed.slice(0,32),rng:hashSeed(seed),name:name.trim().slice(0,12)||'小申',age:18,actions:3,goal,appearance:selectedAppearance,district:'bund',cash:36000,stats:{health:80,spirit:75,skill:28,face:30+LOOKS_BONUS[selectedAppearance.looks].face,network:20},jobId:null,jobRank:0,housing:0,origins:cards.map(c=>c.id),flags:[FIRST_NIGHT_FLAG],seenEvents:[],relationships:Object.fromEntries(CAST.map(c=>[c.id,{attraction:10,trust:15,commitment:0,met:false,memories:[]}])),partnerId:null,journal:[],pendingYearEvent:true,ended:false,totalEarned:0,yearsEmployed:0,rescues:0};
   for(const card of cards)state=applyEffect(state,card.effect);
   if(state.flags.some(f=>/own.?home|有房|home_owner/i.test(f)))state.housing=3;
   state.cash=Math.max(3000,state.cash);
@@ -57,7 +58,7 @@ export function createGame(seed:string,name:string,goal:GoalId,cards:OriginCard[
     state.cash=Math.min(state.cash,24000);
     state.journal.push({age:18,title:'副卡暂时不给刷',text:'刷卡失败。老爸回了四个字，自己想办法。你翻遍账户，还能凑出两万四。',tag:'开局牵绊'});
   }
-  state.journal.push({age:18,title:'来都来了',text:`带着「${cards[0]?.name}」的出身，和一点不服气，${state.name}在上海开了局。`,tag:'开局'});
+  state.journal.push({age:18,title:'到上海了',text:'车门开了。手机刚切回信号，连着响了三声。',tag:'开局'});
   return state;
 }
 export function monthlyBudget(s:GameState){
@@ -73,6 +74,8 @@ export function eligibleEvent(e:LifeEvent,s:GameState,kind:ActivityKind|'year'):
   return e.category===kind&&(!e.district||e.district===s.district)&&(!e.minAge||s.age>=e.minAge)&&(!e.maxAge||s.age<=e.maxAge)&&(!e.once||!s.seenEvents.includes(e.id))&&!s.seenEvents.includes(e.id)&&(!e.requiredFlags||e.requiredFlags.every(f=>s.flags.includes(f)))&&(!e.forbiddenFlags||e.forbiddenFlags.every(f=>!s.flags.includes(f)));
 }
 export function selectEvent(s:GameState,kind:ActivityKind|'year',npcId?:string):LifeEvent {
+  const opening = kind === 'year' ? firstNightYear(s) : undefined;
+  if (opening && !s.seenEvents.includes(opening.id)) return opening;
   let candidates=EVENTS.filter(e=>eligibleEvent(e,s,kind));
   if(npcId){const personal=candidates.filter(e=>e.speakerId===npcId);if(personal.length)candidates=personal;else candidates=candidates.filter(e=>!e.speakerId);}
   const continuing=candidates.filter(e=>e.chainId&&(e.chainStep||0)>0);if(continuing.length)candidates=continuing;

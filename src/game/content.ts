@@ -1,41 +1,41 @@
 import type { Career, CastMember, District, Goal, OriginCard, OriginSlot } from './types';
 
 export const DISTRICTS: District[] = [
-  { id:'bund', name:'外滩', en:'THE BUND', subtitle:'江风不收钱，房东要收', color:'#3b7475', hotspots:[
-    {id:'bund-river',name:'江边长椅',kind:'rest',position:[-7,2],caption:'吹吹风，缓口气'},
-    {id:'bund-photo',name:'四元观景位',kind:'explore',position:[-3,-2],caption:'柠檬水拿稳，对面亮红灯了'},
-    {id:'bund-ferry',name:'摆渡口',kind:'social',position:[3,2],caption:'过个江，碰到个熟人'},
-    {id:'bund-date',name:'江风约会',kind:'romance',position:[7,-2],caption:'约会免费，结果自负'},
+  { id:'bund', name:'外滩', en:'THE BUND', subtitle:'有船就能过江', color:'#3b7475', hotspots:[
+    {id:'bund-river',name:'江边长椅',kind:'rest',position:[-7,2],caption:'背后有人在练萨克斯'},
+    {id:'bund-photo',name:'四元观景位',kind:'explore',position:[-3,-2],caption:'四块钱一杯，对面塔顶亮了'},
+    {id:'bund-ferry',name:'摆渡口',kind:'social',position:[3,2],caption:'靠栏杆等船，也等人'},
+    {id:'bund-date',name:'江风约会',kind:'romance',position:[7,-2],caption:'说好了带件挡风的衣服'},
   ]},
-  { id:'anfu', name:'安福路', en:'ANFU ROAD', subtitle:'人均主理人，顾客在哪里', color:'#9c7059', hotspots:[
-    {id:'anfu-cafe',name:'不急咖啡',kind:'business',position:[-7,2],caption:'咖啡还没卖，房租先到了'},
-    {id:'anfu-walk',name:'梧桐散步',kind:'romance',position:[-3,-2],caption:'走三百米，拍了两百张'},
-    {id:'anfu-studio',name:'三楼工作室',kind:'career',position:[3,2],caption:'甲方说挺好，尾款再等等'},
-    {id:'anfu-book',name:'转角旧书店',kind:'learn',position:[7,-2],caption:'老板说买书能抵咖啡钱'},
+  { id:'anfu', name:'安福路', en:'ANFU ROAD', subtitle:'梧桐底下全是座', color:'#9c7059', hotspots:[
+    {id:'anfu-cafe',name:'不急咖啡',kind:'business',position:[-7,2],caption:'陈恺在门口算这个月房租'},
+    {id:'anfu-walk',name:'梧桐散步',kind:'romance',position:[-3,-2],caption:'走累了就在邮筒边坐会儿'},
+    {id:'anfu-studio',name:'三楼工作室',kind:'career',position:[3,2],caption:'三楼窗户亮着，上去敲门'},
+    {id:'anfu-book',name:'转角旧书店',kind:'learn',position:[7,-2],caption:'书上有前任读者的批注'},
   ]},
-  { id:'people', name:'人民广场', en:"PEOPLE'S SQUARE", subtitle:'公司查学历，阿姨查房产', color:'#687956', hotspots:[
-    {id:'people-match',name:'相亲角',kind:'romance',position:[-7,2],caption:'阿姨已打开尽调表'},
-    {id:'people-job',name:'周二招聘会',kind:'career',position:[-3,-2],caption:'先排队，再聊年薪'},
-    {id:'people-park',name:'公园棋摊',kind:'social',position:[3,2],caption:'赢了不许走，输了重来'},
-    {id:'people-night',name:'地铁口夜校',kind:'learn',position:[7,-2],caption:'六点下班，七点点名'},
+  { id:'people', name:'人民广场', en:"PEOPLE'S SQUARE", subtitle:'相亲摊摆到树荫里', color:'#687956', hotspots:[
+    {id:'people-match',name:'相亲角',kind:'romance',position:[-7,2],caption:'汪阿姨说先别急着填表'},
+    {id:'people-job',name:'周二招聘会',kind:'career',position:[-3,-2],caption:'门口有人帮忙改简历'},
+    {id:'people-park',name:'公园棋摊',kind:'social',position:[3,2],caption:'顾爷叔又把棋盘支起来了'},
+    {id:'people-night',name:'地铁口夜校',kind:'learn',position:[7,-2],caption:'迟到了，从后门进'},
   ]},
-  { id:'lujiazui', name:'陆家嘴', en:'LUJIAZUI', subtitle:'楼有多高，班就有多晚', color:'#587c80', hotspots:[
-    {id:'lujia-office',name:'云端写字楼',kind:'career',position:[-7,2],caption:'人还在电梯，群已经炸了'},
-    {id:'lujia-party',name:'下班社交局',kind:'social',position:[-3,-2],caption:'先加微信，名字以后再认'},
-    {id:'lujia-rent',name:'样板间看房',kind:'housing',position:[3,2],caption:'江景房，窗户不能开'},
-    {id:'lujia-invest',name:'小本生意会',kind:'business',position:[7,-2],caption:'PPT说下月就回本'},
+  { id:'lujiazui', name:'陆家嘴', en:'LUJIAZUI', subtitle:'写字楼还亮着', color:'#587c80', hotspots:[
+    {id:'lujia-office',name:'云端写字楼',kind:'career',position:[-7,2],caption:'沈经理让你带电脑上去'},
+    {id:'lujia-party',name:'下班社交局',kind:'social',position:[-3,-2],caption:'有人单独留了个座'},
+    {id:'lujia-rent',name:'样板间看房',kind:'housing',position:[3,2],caption:'站在门口也看得见江'},
+    {id:'lujia-invest',name:'小本生意会',kind:'business',position:[7,-2],caption:'桌上放着合伙协议'},
   ]},
-  { id:'zhangjiang', name:'张江', en:'ZHANGJIANG', subtitle:'灯没关，发布还没过', color:'#6b8185', hotspots:[
-    {id:'zhang-code',name:'深夜研发楼',kind:'career',position:[-7,2],caption:'刚上线，老板问能改伐'},
-    {id:'zhang-class',name:'技能充电站',kind:'learn',position:[-3,-2],caption:'收藏的课，今天真看一节'},
-    {id:'zhang-pitch',name:'路演小剧场',kind:'business',position:[3,2],caption:'先别说估值，产品拿来看看'},
-    {id:'zhang-lawn',name:'午休草坪',kind:'rest',position:[7,-2],caption:'十二点半，工位查无此人'},
+  { id:'zhangjiang', name:'张江', en:'ZHANGJIANG', subtitle:'门卫认得你的车', color:'#6b8185', hotspots:[
+    {id:'zhang-code',name:'深夜研发楼',kind:'career',position:[-7,2],caption:'大厅还能刷卡进'},
+    {id:'zhang-class',name:'技能充电站',kind:'learn',position:[-3,-2],caption:'讲师留了最后一排空座'},
+    {id:'zhang-pitch',name:'路演小剧场',kind:'business',position:[3,2],caption:'今天轮到新团队上台'},
+    {id:'zhang-lawn',name:'午休草坪',kind:'rest',position:[7,-2],caption:'带饭的人都坐在树下'},
   ]},
-  { id:'xinzhuang', name:'莘庄', en:'XINZHUANG', subtitle:'终点站到了，房租还没到期', color:'#8c815d', hotspots:[
-    {id:'xin-rent',name:'弄堂租房处',kind:'housing',position:[-7,2],caption:'中介说这间很抢手'},
-    {id:'xin-neighbor',name:'邻里小饭桌',kind:'social',position:[-3,-2],caption:'阿姨又烧多了，叫你带个碗'},
-    {id:'xin-rest',name:'小区长椅',kind:'rest',position:[3,2],caption:'坐一会，看看谁家狗又跑了'},
-    {id:'xin-street',name:'晚风小吃街',kind:'explore',position:[7,-2],caption:'加辣免费，纸巾另拿'},
+  { id:'xinzhuang', name:'莘庄', en:'XINZHUANG', subtitle:'地铁到头，家还得走一段', color:'#8c815d', hotspots:[
+    {id:'xin-rent',name:'弄堂租房处',kind:'housing',position:[-7,2],caption:'中介说晚上八点还能看'},
+    {id:'xin-neighbor',name:'邻里小饭桌',kind:'social',position:[-3,-2],caption:'楼下阿姨叫你带个碗'},
+    {id:'xin-rest',name:'小区长椅',kind:'rest',position:[3,2],caption:'长椅上有半张报纸'},
+    {id:'xin-street',name:'晚风小吃街',kind:'explore',position:[7,-2],caption:'老板刚把第一笼生煎端出来'},
   ]},
 ];
 

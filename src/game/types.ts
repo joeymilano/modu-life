@@ -16,7 +16,7 @@ export interface EventChoice {
  check?: { stat: StatKey; threshold: number; success: Effect; failure: Effect; successText: string; failureText: string };
 }
 export interface LifeEvent {
- id: string; title: string; text: string; speakerId?: string; category: ActivityKind | 'year';
+ id: string; title: string; text: string; speakerId?: string; illustration?: string; category: ActivityKind | 'year';
  district?: DistrictId; minAge?: number; maxAge?: number; requiredFlags?: string[]; forbiddenFlags?: string[];
  once?: boolean; chainId?: string; chainStep?: number; choices: EventChoice[]; tag?: string; weight?: number;
 }

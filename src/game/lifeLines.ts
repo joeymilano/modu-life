@@ -1,5 +1,6 @@
 import { CAST } from './content';
 import { ACTIVITY_NAMES, SAVE_KEY, selectEvent, validateSave } from './engine';
+import { streetLead } from './streetLeads';
 import { nightOwlLetter } from './encounters';
 import type { ActivityKind, GameState, LifeEvent } from './types';
 
@@ -8,7 +9,7 @@ const MAX_POINTS = 24;
 export const SAVE_SIZE_LIMIT = 2_000_000;
 
 interface SceneRef {
-  kind: ActivityKind | 'year' | 'owl';
+  kind: ActivityKind | 'year' | 'owl' | 'lead';
   eventId: string;
   npc?: string;
 }
@@ -58,14 +59,16 @@ export function clearReplay(book: LifeBook): LifeBook {
 }
 
 export function replayScene(state: GameState, scene: SceneRef): LifeEvent | null {
-  const event = scene.kind === 'owl' ? nightOwlLetter(state) : selectEvent(state, scene.kind, scene.npc);
-  return event.id === scene.eventId ? event : null;
+  const event = scene.kind === 'owl' ? nightOwlLetter(state) :
+    scene.kind === 'lead' ? streetLead(state)?.event : selectEvent(state, scene.kind, scene.npc);
+  return event?.id === scene.eventId ? event : null;
 }
 
 export function recordDecision(book: LifeBook, state: GameState, event: LifeEvent, choiceId: string, npc?: string): LifeBook {
   const line = activeLine(book);
   const { journal, ...before } = line.state;
-  const kind = event.tag === '夜猫子来信' ? 'owl' : event.category;
+  const kind = event.tag === '夜猫子来信' ? 'owl' :
+    streetLead(line.state)?.event.id === event.id ? 'lead' : event.category;
   const defaultEvent = replayScene(line.state, { kind, eventId: event.id });
   const scene: SceneRef = {
     kind, eventId: event.id,
@@ -132,7 +135,7 @@ function label(value: unknown, max: number) {
 function sceneRef(value: unknown): SceneRef {
   const raw = record(value);
   const kind = label(raw.kind, 12) as SceneRef['kind'];
-  if (kind !== 'year' && kind !== 'owl' && !Object.hasOwn(ACTIVITY_NAMES, kind)) throw new Error('这段故事认不出来');
+  if (kind !== 'year' && kind !== 'owl' && kind !== 'lead' && !Object.hasOwn(ACTIVITY_NAMES, kind)) throw new Error('这段故事认不出来');
   const npc = raw.npc === undefined ? undefined : label(raw.npc, 32);
   if (npc && !CAST.some(person => person.id === npc)) throw new Error('这位人物认不出来');
   return { kind, npc, eventId: label(raw.eventId, 120) };

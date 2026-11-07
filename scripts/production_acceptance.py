@@ -14,13 +14,13 @@ with sync_playwright() as p:
  page.get_by_role('button',name='开局抽卡').click();page.get_by_role('button',name='全部揭晓').click();page.wait_for_timeout(700)
  page.get_by_role('button',name='就这手牌，进上海').click();page.locator('.event-choices button').first.click();page.locator('.outcome-content .primary').click();page.wait_for_timeout(600)
  with page.expect_download(timeout=20000) as download:
-  page.get_by_role('button',name='晒晒这段人生').click()
+  page.get_by_role('button',name='生成人生卡').click()
  download.value.save_as(str(OUT/'人生分享卡.png'))
  assert Image.open(OUT/'人生分享卡.png').size==(1080,1440)
  # Reload after disconnecting: HTML, application, scene and manifest remain available.
  ctx.set_offline(True);page.reload();page.wait_for_load_state('networkidle')
  page.get_by_role('button',name='继续上回').click();page.wait_for_timeout(700)
- assert page.locator('canvas').count()==1
+ assert page.locator('.street-frame img').evaluate('(img)=>img.complete && img.naturalWidth>0')
  assert '18' in page.locator('.age-row').inner_text()
  page.screenshot(path=str(OUT/'offline-play.png'),full_page=True)
  ctx.set_offline(False)

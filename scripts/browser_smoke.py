@@ -91,6 +91,7 @@ with sync_playwright() as p:
     page.get_by_role('button',name='继续上回').click()
     assert '19' in page.locator('.age-row').inner_text()
     # All district transitions and night view must render without errors.
+    page.get_by_role('button',name='3D 地图').click()
     for name in ['安福路','人民广场','陆家嘴','张江','外滩']:
         page.locator('.district-nav button').filter(has_text=name).click()
         page.wait_for_timeout(350)
@@ -109,7 +110,7 @@ with sync_playwright() as p:
     m.screenshot(path=str(OUT/'draw-mobile.png'),full_page=True)
     m.get_by_role('button',name='就这手牌，进上海').click();choose_year(m)
     m.wait_for_timeout(700);m.screenshot(path=str(OUT/'play-mobile.png'),full_page=True)
-    m.get_by_role('button',name='地点',exact=True).click()
+    m.get_by_role('button',name='手头的事',exact=True).click()
     m.screenshot(path=str(OUT/'places-mobile.png'),full_page=True)
     assert m.locator('.places-sidebar.mobile-open').is_visible()
     print(json.dumps({'passed':True,'desktop':'1440×1000','mobile':'390×844','laser':'5波真实闪避','interview':'3轮通过','romance':'关系独立记忆','annual':'18→19','rental':'3线索后签约','save':'手动＋自动＋刷新恢复','districts':'六区与夜景','page_errors':errors},ensure_ascii=False))

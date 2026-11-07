@@ -41,7 +41,7 @@
 }
 .parallel-hero::before {
   position: absolute; content: ''; z-index: -2; inset: 0;
-  background: linear-gradient(90deg,#12362e 16%,#12362eda 50%,#12362e40), url('/art/shanghai-night.webp') 65% 24% / cover;
+  background: linear-gradient(90deg,#12362e 16%,#12362eda 50%,#12362e40), url('/art/after-hours/cover.webp') 65% 24% / cover;
 }
 .parallel-hero h1 { font-size: clamp(50px, 8vw, 112px); letter-spacing: -.06em; }
 .parallel-hero p { margin: 12px 0 24px; font-size: clamp(14px, 2vw, 20px); }
@@ -122,3 +122,12 @@
 }
 .parallel-hero h1{font-size:clamp(38px,6.3vw,88px);}
 .parallel-map .parallel-fork-link{display:block;color:var(--red);font-size:12px;}
+.illustrated-location {
+  position: relative; isolation: isolate; display: flex; align-items: end;
+  min-height: clamp(155px,24vw,290px); overflow: hidden; padding: clamp(14px,2.5vw,28px);
+  background: #20342d; color: #fff0d3;
+}
+.illustrated-location img { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; }
+.illustrated-location::before { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(0deg,#172b25ec,transparent 90%); }
+.illustrated-location .parallel-stamp { color: #f3c987; }
+.illustrated-location h1 { margin-bottom: 0; font-size: clamp(29px,4.3vw,54px); }
