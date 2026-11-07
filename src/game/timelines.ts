@@ -40,7 +40,8 @@ const ticketShots = new Set([
   ...(['receipt', 'booth', 'night-office'] as const).map(pearlPhoto),
   ...(['mao', 'he', 'lu'] as const).map(farewellPhoto),
   ...(['reorg', 'overtime', 'shift', 'invoice', 'return'] as const).map(workPhoto),
-  ...CAST.filter(person => person.role === 'romance').map(person => datePhoto(person.id, 'return')),
+  ...CAST.filter(person => person.role === 'romance').flatMap(person => [datePhoto(person.id, 'parting'), datePhoto(person.id, 'return')]),
+  datePhoto('lin', 'meeting'),
 ]);
 
 function validShot(value: unknown) {
@@ -144,6 +145,36 @@ export const CITY_TIMELINES: Timeline[] = [
     ],
   },
   parkStory,
+  {
+    id: 'scallion-bill', kind: 'life', title: '隔壁桌的葱油饼', author: '魔都人生',
+    original: '我说了句「放回去」，林佳没理我，自己跟隔壁道了歉。散的时候她把餐巾留在账单底下。我过了两天再去找，老板说早擦桌子了。',
+    turns: [
+      {
+        date: '周五 · 刚上菜', place: '莘庄 · 面馆', shot: datePhoto('lin', 'meeting'),
+        scene: '林佳已经咬了一口。老板端着另一只空盘过来，说这张饼是隔壁桌的。隔壁坐着一大一小。小的踮着脚，正好看见林佳手里的缺口。',
+        options: [
+          { move: '掏二十八块，请老板给隔壁重做', after: '隔壁收下了新饼，把桌上的辣酱推了过来。林佳问你要了张干餐巾。', next: 1 },
+          { move: '举手认错，问隔壁明早能不能赔一张', after: '小孩说行，但要看着师傅现做。林佳问你八点起得来伐。', next: 2 },
+        ],
+      },
+      {
+        date: '当天 · 买完单', place: '莘庄 · 桌边', shot: datePhoto('lin', 'parting'),
+        scene: '林佳在餐巾上画了个葱油饼，画了两道眉毛。她说右边那道画重了，你刚才掏钱包的时候就皱成这样。',
+        options: [
+          { move: '把画收好，问下回几点见', after: '她指了指你装餐巾的兜，说下回把这张带来，背面还能画。', next: end },
+          { move: '请她签字，拿去冲抵刚才的二十八', after: '她签了个「林老板」。你抬手喊老板，两个人同时答应了。', next: end },
+        ],
+      },
+      {
+        date: '周六 · 早上八点', place: '莘庄 · 早点摊', shot: datePhoto('lin', 'return'),
+        scene: '锅里最后一张饼跟脸盆差不多大。昨晚的小孩等在窗口，身后还跟着弟弟。林佳接过油纸袋，问你想吃里面那块，还是边上脆的。',
+        options: [
+          { move: '脆的给他们，咱俩分中间', after: '她答应得很快。走到路口她问，你昨天是不是也把脆的那一口留给她了。', next: end },
+          { move: '整张赔给他们，咱俩去吃粢饭团', after: '她点了两个都加脆的。等老板拿糖罐时，她问你下周还起不起得来。', next: end },
+        ],
+      },
+    ],
+  },
 ];
 
 function object(value: unknown): Record<string, unknown> {

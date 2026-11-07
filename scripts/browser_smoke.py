@@ -1,8 +1,8 @@
 from playwright.sync_api import sync_playwright
-import json, time
+import json, os, time
 from pathlib import Path
 
-BASE='http://localhost:5173/'
+BASE=os.getenv('GAME_URL','http://localhost:5173/').rstrip('/')+'/'
 OUT=Path('outputs')
 OUT.mkdir(exist_ok=True)
 errors=[]
@@ -63,7 +63,8 @@ with sync_playwright() as p:
     # First date uses its own questions and records the selected person.
     go_hotspot(page,'江风约会')
     page.locator('.romance-grid button').first.click()
-    next_dialogue(page,[0,1,0])
+    next_dialogue(page,[0,1])
+    page.locator('.date-parting-modal .event-choices button').first.click()
     page.locator('.outcome-content .primary').click()
     snapshot=json.loads(page.evaluate('localStorage.getItem("modu-life-v1")'))
     assert snapshot['actions']==0

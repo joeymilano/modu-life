@@ -32,7 +32,7 @@ export function farewellPhoto(person: 'mao' | 'he' | 'lu'): string {
  return `/art/endings/farewell-${person}.webp`;
 }
 
-export function datePhoto(personId: string, scene: 'meeting' | 'return'): string {
+export function datePhoto(personId: string, scene: 'meeting' | 'parting' | 'return'): string {
  return `/art/dates/${personId}-${scene}.webp`;
 }
 

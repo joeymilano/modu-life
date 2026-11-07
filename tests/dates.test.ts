@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { CAST } from '../src/game/content';
-import { dateAnswer, finishDate, romanceQuestions } from '../src/game/dates';
+import { dateAnswer, finishDate, firstDateParting, romanceQuestions } from '../src/game/dates';
 import { returnDate } from '../src/game/dateReturns';
 import { createGame, drawOrigins, resolveChoice } from '../src/game/engine';
 import { activeLine, decodeLife, encodeLife, forkLife, recordDecision, replayScene, startBook, switchLine } from '../src/game/lifeLines';
@@ -75,6 +75,32 @@ describe('date scenes', () => {
   expect(validateTicket({ version: 1, timeline: draft }).timeline.turns[0].shot).toBe(date.illustration);
   draft.turns[0].shot = 'https://example.com/unrelated.webp';
   expect(validateTicket({ version: 1, timeline: draft }).timeline.turns[0].shot).toBeUndefined();
+ });
+
+ it('forks a first date with the conversation and bill intact across export', () => {
+  const lin = cast.find(person => person.id === 'lin')!;
+  const state = { ...newGame(), cash: 100 };
+  const event = firstDateParting(state, lin, [2, 0])!;
+  expect(firstDateParting({ ...state, cash: 27 }, lin, [2, 0])).toBeUndefined();
+  expect(firstDateParting({ ...state, cash: 0 }, lin, [2, 2])).toBeDefined();
+  expect(event.choices.map(choice => choice.effect.cash)).toEqual([-28, -28, -28]);
+  const original = resolveChoice(state, event, 'date');
+  expect(original.state.cash).toBe(72);
+  expect(original.state.actions).toBe(state.actions - 1);
+  expect(dateAnswer(original.state, 'lin')).toBe('again');
+  expect(firstDateParting(original.state, lin, [2, 0])).toBeUndefined();
+  const saved = recordDecision(startBook(state), original.state, event, 'date');
+  const fork = decodeLife(encodeLife(forkLife(saved, 0)));
+  const branch = activeLine(fork);
+  const restored = replayScene(branch.state, branch.replay!)!;
+  expect(restored).toEqual(event);
+  const other = resolveChoice(branch.state, restored, 'friend');
+  expect(other.state.cash).toBe(72);
+  expect(dateAnswer(other.state, 'lin')).toBe('friends');
+  expect(returnDate(other.state, 'lin')?.tag).toBe('朋友见面');
+  expect(dateAnswer(activeLine(switchLine(fork, 0)).state, 'lin')).toBe('again');
+  const timeline = { ...draftFromEvent(restored, 'friend', other.text, 18, '莘庄'), author: '小申' };
+  expect(validateTicket({ version: 1, timeline }).timeline.turns[0].shot).toBe('/art/dates/lin-parting.webp');
  });
 
  it('only reduces a current partner’s trust when another romantic invitation is chosen', () => {

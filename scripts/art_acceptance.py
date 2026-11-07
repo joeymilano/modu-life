@@ -88,13 +88,16 @@ with sync_playwright() as pw:
     p.locator('.romance-grid button').nth(4).click();p.wait_for_timeout(300)
     assert p.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
     p.screenshot(path=str(OUT/'date-mobile.png'),full_page=True)
-    for turn,i in enumerate([1,2,2]):
+    for turn,i in enumerate([1,2]):
         p.locator('.dialogue-answers button').nth(i).click();p.locator('.dialogue-reply .primary').click()
         if turn==0:
             shot=p.locator('.date-visual .date-shot.visible')
             shot.wait_for()
             assert shot.get_attribute('src')=='/art/dates/qiao-meeting.webp'
             assert shot.evaluate('async img=>{await img.decode();return img.naturalWidth>1000}')
+    parting=p.locator('.date-parting-modal')
+    assert parting.locator('.event-photo img').evaluate('async img=>{await img.decode();return img.naturalWidth>1000}')
+    parting.get_by_role('button',name='送到这里就好').click()
     p.locator('.outcome-content .primary').click()
     assert json.loads(p.evaluate('localStorage.getItem("modu-life-v1")'))['relationships']['qiao']['met']
     print(json.dumps({'passed':True,'appearance_combinations':6,'assets':len(assets),'save_export_reload':True,'legacy_save_migrated':True,'large_romance_portraits':8,'mobile_date_completed':True,'page_errors':errors},ensure_ascii=False))

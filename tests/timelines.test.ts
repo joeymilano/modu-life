@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CITY_TIMELINES, validateTicket, walk, type Ticket } from '../src/game/timelines';
+import { CITY_TIMELINES, ticketFromHash, validateTicket, walk, type Ticket } from '../src/game/timelines';
 
 describe('parallel timelines', () => {
   const ticket = (): Ticket => structuredClone({ version: 1, timeline: CITY_TIMELINES[0] });
@@ -35,5 +35,15 @@ describe('parallel timelines', () => {
     const trail = walk(result.timeline, result.route!);
     expect(trail.next).toBeNull();
     expect(trail.steps[0].option.after).toBe('我先打个电话');
+  });
+
+  it('opens Lin Jia’s shared story and shows different art on the two routes', () => {
+    const { timeline } = validateTicket(ticketFromHash('#story=scallion-bill'));
+    expect(timeline.turns.map(turn => turn.shot)).toEqual([
+      '/art/dates/lin-meeting.webp', '/art/dates/lin-parting.webp', '/art/dates/lin-return.webp',
+    ]);
+    expect(walk(timeline, [{ pick: 0 }]).next).toBe(1);
+    expect(walk(timeline, [{ pick: 1 }]).next).toBe(2);
+    expect(walk(timeline, [{ pick: 1 }, { pick: 0 }]).next).toBeNull();
   });
 });

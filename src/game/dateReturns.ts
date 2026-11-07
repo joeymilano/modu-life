@@ -1,5 +1,5 @@
 import { datePhoto } from './art';
-import { dateAnswer, dateAnswerEffect } from './dates';
+import { dateAnswer, dateAnswerEffect, hasDated } from './dates';
 import { CAST } from './content';
 import type { Effect, EventChoice, GameState, LifeEvent } from './types';
 
@@ -79,10 +79,6 @@ const returns: Record<string, ReturnScene> = {
   leave: ['说以后就当普通客人', '他合上账本。临走给你抓了两颗薄荷糖，跟给前面一桌的一样。', { spirit: 3 }],
  },
 };
-
-export function hasDated(state: GameState, personId: string): boolean {
- return state.seenEvents.some(id => id.startsWith(`mini-${personId}-`));
-}
 
 export function returnDate(state: GameState, personId: string): LifeEvent | undefined {
  const story = returns[personId];

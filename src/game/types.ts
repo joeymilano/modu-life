@@ -16,10 +16,12 @@ export interface EventChoice {
  id: string; label: string; hint?: string; senderId?: string; effect: Effect; reply: string;
  check?: { stat: StatKey; threshold: number; success: Effect; failure: Effect; successText: string; failureText: string };
 }
+export type FirstDatePicks = readonly [number, number];
 export interface LifeEvent {
  id: string; title: string; text: string; speakerId?: string; illustration?: string; category: ActivityKind | 'year';
  district?: DistrictId; minAge?: number; maxAge?: number; requiredFlags?: string[]; forbiddenFlags?: string[];
  once?: boolean; chainId?: string; chainStep?: number; choices: EventChoice[]; tag?: string; weight?: number;
+ firstDate?: FirstDatePicks;
 }
 export interface OriginCard { id: string; slot: OriginSlot; name: string; rarity: 'SSR'|'SR'|'R'|'N'; subtitle: string; description: string; tag: string; accent: string; effect: Effect; }
 export interface CastMember { id: string; name: string; ageOffset: number; title: string; district: DistrictId; role: 'romance'|'friend'|'family'|'rival'|'mentor'; description: string; trait: 'sincerity'|'ambition'|'freedom'|'security'|'humor'; color: string; gender: 'female'|'male'; }

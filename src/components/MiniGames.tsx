@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import type { Career, CastMember, Effect } from '../game/types';
-import { finishDate, romanceQuestions, type Question } from '../game/dates';
+import type { Career, CastMember, Effect, FirstDatePicks } from '../game/types';
+import { romanceQuestions, type Question } from '../game/dates';
 import { datePhoto, workPhoto } from '../game/art';
 import Icon from './Icon';
 import { Portrait } from './Portrait';
@@ -55,55 +55,57 @@ function interviewQuestions(career:Career):Question[]{return [
  {label:'问做这份工作的人，最近最难解决什么。',reply:'对方笑了一下：“这个问题问得蛮好。”',points:2},
  {label:'都可以，我比较能吃苦。',reply:'“明白了。”这句结束得有点快。',points:0}]}
 ];}
-export function DialogueGame({person,career,skill,cash,flags,onFinish}:{
- person?:CastMember;career?:Career;skill:number;cash:number;flags:string[];onFinish:(effect:Effect,text:string)=>void;
-}){
- const [round,setRound]=useState(0);
+type DialogueProps = {skill:number;cash:number;flags:string[]} & (
+ {person:CastMember;career?:never;onParting:(picks:FirstDatePicks)=>void;onFinish?:never} |
+ {person?:never;career:Career;onParting?:never;onFinish:(effect:Effect,text:string)=>void}
+);
+
+export function DialogueGame({person,career,skill,cash,flags,onFinish,onParting}:DialogueProps){
+ const [picks,setPicks]=useState<number[]>([]);
  const [selected,setSelected]=useState<number|null>(null);
- const [points,setPoints]=useState(0);
- const [spent,setSpent]=useState(0);
  const [shotReady,setShotReady]=useState(false);
- const shot=person?datePhoto(person.id,'meeting'):career?workPhoto(['service','business'].includes(career.id)?'interview-shop':'interview-office'):null;
- const showShot=shot&&(!person||round>0);
- const questions=person?romanceQuestions(person,flags):interviewQuestions(career!);
+ const round=picks.length;
+ const shot=person?datePhoto(person.id,'meeting'):workPhoto(['service','business'].includes(career.id)?'interview-shop':'interview-office');
+ const showShot=!person||round>0;
+ const questions=person?romanceQuestions(person,flags):interviewQuestions(career);
  const question=questions[round];
  const answer=selected===null?null:question.answers[selected];
+ const earlier=picks.map((pick,index)=>questions[index].answers[pick]);
+ const spent=earlier.reduce((total,item)=>total+(item.cost??0),0);
 
  useEffect(()=>{
-  if(!shot||!person)return;
-  const preload=new Image();
-  preload.src=shot;
+  if(!person)return;
+  for(const src of [shot,datePhoto(person.id,'parting')])new Image().src=src;
  },[shot,person]);
 
  function next(){
-  if(!answer)return;
-  const score=points+answer.points,cost=spent+(answer.cost||0);
+  if(!answer||selected===null)return;
+  if(onParting&&round===1){
+   onParting([picks[0],selected]);
+   return;
+  }
   if(round<2){
-   setPoints(score);setSpent(cost);setRound(round+1);setSelected(null);
+   setPicks([...picks,selected]);setSelected(null);
    return;
   }
-  if(person){
-   const result=finishDate(person,answer,score,cost);
-   onFinish(result.effect,result.text);
-   return;
-  }
+  if(!career||!onFinish)return;
+  const score=earlier.reduce((total,item)=>total+item.points,answer.points);
   const success=score+skill/25>=5.5;
-  onFinish({job:success?career!.id:undefined,skill:success?4:7,face:success?5:1,spirit:success?8:-3},
-   success?`拿到${career!.entry}的offer，月薪 ¥${career!.salary.toLocaleString()} 起。你走出楼门，给家里发了张截图。`:
+  onFinish({job:success?career.id:undefined,skill:success?4:7,face:success?5:1,spirit:success?8:-3},
+   success?`拿到${career.entry}的offer，月薪 ¥${career.salary.toLocaleString()} 起。你走出楼门，给家里发了张截图。`:
    '没拿到offer。电梯里，你把答得最差的那道题记进手机，准备回去再练一遍。');
  }
 
  return <div className="dialogue-game">
-  {shot&&<div className="date-visual">
+  <div className="date-visual">
    {person&&!shotReady&&<Portrait person={person} full/>}
    {showShot&&<img className={'date-shot'+(shotReady?' visible':'')} src={shot} alt=""
     onLoad={()=>setShotReady(true)}/>}
    <div className="date-visual-caption"><b>{person?.name??career?.name}</b>{person&&<small>{person.title}</small>}</div>
-  </div>}
+  </div>
   <div className="dialogue-content">
    {!person&&<div className="mini-eyebrow">{career?.name}</div>}
    <div className="dialogue-head">
-    {!person&&!shot&&<div className="interview-badge"><Icon name="case" size={37}/></div>}
     <div><h2>{person?person.name:'面试'}</h2>{person&&<p>{person.title}</p>}</div>
    </div>
    <div className="round-dots">{questions.map((_,i)=><span key={i} className={i<=round?'done':''}/>)}
@@ -115,7 +117,7 @@ export function DialogueGame({person,career,skill,cash,flags,onFinish}:{
      onClick={()=>setSelected(i)}><span>{String.fromCharCode(65+i)}</span>{ans.label}{ans.cost?' · ¥'+ans.cost:''}<Icon name="chevron" size={16}/></button>)}
    </div>
    {answer&&<div className="dialogue-reply"><p>{answer.reply}</p>
-    <button className="primary" onClick={next}>{round===2?'看看这次怎么样':'接着聊'}<Icon name="arrow" size={17}/></button>
+    <button className="primary" onClick={next}>{person&&round===1?'要走了':round===2?'看看这次怎么样':'接着聊'}<Icon name="arrow" size={17}/></button>
    </div>}
   </div>
  </div>;

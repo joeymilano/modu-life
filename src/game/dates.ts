@@ -1,5 +1,6 @@
-import type { CastMember, Effect, GameState } from './types';
+import type { CastMember, Effect, FirstDatePicks, GameState, LifeEvent } from './types';
 import { CAST } from './content';
+import { datePhoto } from './art';
 
 type Answer={label:string;reply:string;points:number;cost?:number; intent?:'date'|'friend'|'leave'};
 export type Question={text:string;answers:Answer[]};
@@ -31,7 +32,7 @@ const firstDates:Record<string,Question>={
  lu:{text:'陆嘉说周末临时多了一场演出，原定的见面得改。',answers:[
   {label:'你演完我们吃夜宵',reply:'她发来后台出口的位置，又补了句想吃烧烤。',points:0},
   {label:'我去台下，结束了你来找我',reply:'“好，别站最前面拍我鼻孔。”',points:2},
-  {label:'那把演出推了，先陪我',reply:'“临时改我会提前说，推演出不行。”',points:0}]},
+  {label:'我卡着点到，就不来后台了',reply:'「行。我把门票留在吧台，你报名字。」',points:0}]},
  he:{text:'何亮端详菜单，说这家的锅气还没他家后厨大。',answers:[
   {label:'你先尝一口，再写差评',reply:'他夹了一筷子，说还行，先放过。',points:0},
   {label:'贵总有贵的道理',reply:'他指着三十八块的白米饭，半天没接话。',points:0},
@@ -73,7 +74,7 @@ const scenes: Record<string, { middle: Question; end: Question; date: string; un
    { label: '我也咬一口，这下两个人都有份', reply: '她忍着笑，把老板叫来结了这盘的钱。', points: 2, cost: 28 },
    { label: '放回去，反过来谁也看不出', reply: '她把盘子往自己面前拖了一寸，没让你伸手。', points: 0 },
   ] },
-  end: parting('她把餐巾翻过来，画了一个长得像你的葱油饼。', '下回去找家饼更大的', '她把画塞给你，说下次见面拿这个认人。', '她说画可以带走，下次给你画一张正脸。', '她折起餐巾，给老板留在了账单底下。'),
+  end: parting('她翻过餐巾，在一个葱油饼上画眉毛。画完一边，她抬头看了看你。', '下回去找家饼更大的', '她把画塞给你，说下次见面拿这个认人。', '她说画可以带走，下次给你画一张正脸。', '她折起餐巾，给老板留在了账单底下。'),
   date: '她把餐巾上的画拍了下来。「下次我就带这个。你带零钱。」',
   uncertain: '她把葱油饼画发给了你。你存图时，发现文件名叫「第一个咬的人」。',
  },
@@ -113,7 +114,7 @@ const scenes: Record<string, { middle: Question; end: Question; date: string; un
    { label: '帮你跟台下说稍等，水先喝一口', reply: '她隔着线堆比了个拇指，你这才看见她一直没喝水。', points: 2 },
    { label: '让台下随便拍，出点事故才有流量', reply: '她拔掉那根松的线，让你先别拍。', points: 0 },
   ] },
-  end: parting('最后一首弹完，陆嘉把线卷好，外面只剩一家烧烤摊亮着。', '走，吃完约下一场', '她扛起包，说这回可以站第一排，手机拿低一点就行。', '她发了演出表，说有空来听，带朋友也行。', '她把最短的那根线塞回包里，送你走到楼梯口。'),
+  end: parting('楼梯口闻得到孜然味。陆嘉朝门外努了努嘴，隔壁那家还没收摊。', '走，吃完约下一场', '她扛起包，说这回可以站第一排，手机拿低一点就行。', '她发了演出表，说有空来听，带朋友也行。', '她把最短的那根线塞回包里，送你走到楼梯口。'),
   date: '陆嘉把下一场的地址发过来，问你姓怎么写。你问干吗，她说怕后台那群人又把水拿错。',
   uncertain: '她发来一小段录音，末尾是收线声。她说下场时间还没定。',
  },
@@ -127,6 +128,17 @@ const scenes: Record<string, { middle: Question; end: Question; date: string; un
   date: '他给你留了个靠厨房的位子。「进来别看菜单。醋我给你放好。」',
   uncertain: '他发了一张后厨的照片，说今晚又排上了队。猪肝还在菜单上。',
  },
+};
+
+const afterDinner: Record<string, [string, string, string]> = {
+ xia: ['打包前，她把干餐巾也夹进了图纸。', '她要了那张照片，说桌上的葱花也拍得蛮清楚。', '那张图一直放在她身后，椅背把湿角压平了。'],
+ ning: ['你帮他拌的那碗面，他连碗底两颗花生都捞掉了。', '结账时他手机又响了。他隔着裤兜把它按掉。', '他把剩下的面装进袋子，盒盖按了三遍。'],
+ lin: ['隔壁收下新饼，把辣酱推了过来。', '买单时老板说，开店十几年，头一回有两个人为一张饼自首。', '老板给隔壁重做了一张。林佳把那块咬过的吃完了。'],
+ chen: ['结账时那个人还站在外面，问加面单能不能扫码。', '他跟那人聊完，回来往碗里倒了两勺醋。', '你们把那碟辣油分完了，谁都没去拿纸巾。'],
+ qiao: ['换过的两样菜上得快，你们到地铁口时还早了四分钟。', '她把打包袋换到左手，右手空出来刷码。', '她没等主菜，跟你走到门口才说这顿她转一半。'],
+ yang: ['邻居走远了又折回来，给你们一人抓了把瓜子。', '那位邻居从物业门口经过，隔着窗给你们比了个拇指。', '直到买完单，他才想起来刚才说的是你那边的事。'],
+ lu: ['你找来的那根线挺长，她卷了两圈还拖着地。', '台下后来跟着你拍起了手。她一上来，先唱了那首能跟着打拍子的。', '你手机里的那段只拍到了半首。她看见了，手上一顿，又接着卷。'],
+ he: ['他再没起身，倒是拿筷子给隔壁指了老板站的地方。', '隔壁真以为他是伙计，递来一张纸，让他再加个荷包蛋。', '他买了单，拿起小票看了一眼，说白饭果然没打折。'],
 };
 
 const firstDateMemories: Record<string, [flag: string, line: string][]> = {
@@ -146,6 +158,30 @@ export function romanceQuestions(person: CastMember, flags: string[]): Question[
  const original = firstDates[person.id];
  const memory = firstDateMemories[person.id]?.find(([flag]) => flags.includes(flag));
  return [memory ? { ...original, text: memory[1] } : original, scene.middle, scene.end];
+}
+
+export function hasDated(state: GameState, personId: string): boolean {
+ return state.seenEvents.some(id => id.startsWith(`mini-${personId}-`));
+}
+
+export function firstDateParting(state: GameState, person: CastMember, picks: FirstDatePicks): LifeEvent | undefined {
+ if (person.role !== 'romance' || state.pendingYearEvent || state.ended || state.actions <= 0) return undefined;
+ if (hasDated(state, person.id)) return undefined;
+ const [arrival, middle, parting] = romanceQuestions(person, state.flags);
+ const earlier = [arrival.answers[picks[0]], middle.answers[picks[1]]];
+ if (earlier.some(answer => !answer)) return undefined;
+ const score = earlier.reduce((sum, answer) => sum + answer.points, 0);
+ const bill = earlier.reduce((sum, answer) => sum + (answer.cost ?? 0), 0);
+ if (state.cash < bill && bill > 0) return undefined;
+ return {
+  id: `mini-${person.id}-${state.age}-${state.actions}`, category: 'romance', tag: '临走前',
+  title: `和${person.name}见一面`, text: `${afterDinner[person.id][picks[1]]}\n${parting.text}`, speakerId: person.id, district: person.district,
+  illustration: datePhoto(person.id, 'parting'), firstDate: picks,
+  choices: parting.answers.map(answer => {
+   const { effect, text } = finishDate(person, answer, score + answer.points, bill + (answer.cost ?? 0));
+   return { id: answer.intent!, label: answer.label, effect, reply: text };
+  }),
+ };
 }
 
 const DATE_ANSWERS = ['again', 'waiting', 'friends', 'left'] as const;

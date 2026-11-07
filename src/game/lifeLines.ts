@@ -3,20 +3,22 @@ import { ACTIVITY_NAMES, SAVE_KEY, selectEvent, validateSave } from './engine';
 import { streetLead } from './streetLeads';
 import { nightOwlLetter } from './encounters';
 import { returnDate } from './dateReturns';
+import { firstDateParting } from './dates';
 import { EVENTS } from './events';
 import { workYearEvent } from './workScenes';
 import { parkVisit } from './matchmaking';
 import { openingLead } from './originStories';
-import type { ActivityKind, GameState, LifeEvent } from './types';
+import type { ActivityKind, FirstDatePicks, GameState, LifeEvent } from './types';
 
 export const MAX_LINES = 8;
 const MAX_POINTS = 24;
 export const SAVE_SIZE_LIMIT = 2_000_000;
 
 interface SceneRef {
-  kind: ActivityKind | 'year' | 'owl' | 'lead' | 'match' | 'origin';
+  kind: ActivityKind | 'year' | 'owl' | 'lead' | 'match' | 'origin' | 'date';
   eventId: string;
   npc?: string;
+  picks?: FirstDatePicks;
 }
 
 interface ForkPoint {
@@ -64,6 +66,11 @@ export function clearReplay(book: LifeBook): LifeBook {
 }
 
 export function replayScene(state: GameState, scene: SceneRef): LifeEvent | null {
+  if (scene.kind === 'date') {
+    const person = CAST.find(item => item.id === scene.npc);
+    const event = person && scene.picks && firstDateParting(state, person, scene.picks);
+    return event?.id === scene.eventId ? event : null;
+  }
   // A newer annual story can take precedence over a saved year's original letter.
   if (scene.kind === 'year' && scene.eventId === `year-${state.age}` && (state.age === 59 || workYearEvent(state))) {
     return EVENTS.find(event => event.id === scene.eventId) ?? null;
@@ -82,12 +89,13 @@ export function replayScene(state: GameState, scene: SceneRef): LifeEvent | null
 export function recordDecision(book: LifeBook, state: GameState, event: LifeEvent, choiceId: string, npc?: string): LifeBook {
   const line = activeLine(book);
   const { journal, ...before } = line.state;
-  const kind = event.tag === '开局插曲' ? 'origin' : event.id.startsWith('matchmaking-') ? 'match' : event.tag === '夜猫子来信' ? 'owl' :
+  const kind = event.firstDate ? 'date' : event.tag === '开局插曲' ? 'origin' : event.id.startsWith('matchmaking-') ? 'match' : event.tag === '夜猫子来信' ? 'owl' :
     streetLead(line.state)?.event.id === event.id ? 'lead' : event.category;
   const defaultEvent = replayScene(line.state, { kind, eventId: event.id });
   const scene: SceneRef = {
     kind, eventId: event.id,
-    npc: defaultEvent?.title === event.title && defaultEvent.text === event.text ? undefined : npc,
+    npc: event.firstDate ? event.speakerId : defaultEvent?.title === event.title && defaultEvent.text === event.text ? undefined : npc,
+    ...(event.firstDate && { picks: event.firstDate }),
   };
   const chosen = event.choices.find(choice => choice.id === choiceId);
   const points = chosen && event.choices.length > 1
@@ -150,10 +158,15 @@ function label(value: unknown, max: number) {
 function sceneRef(value: unknown): SceneRef {
   const raw = record(value);
   const kind = label(raw.kind, 12) as SceneRef['kind'];
-  if (kind !== 'year' && kind !== 'owl' && kind !== 'lead' && kind !== 'match' && kind !== 'origin' && !Object.hasOwn(ACTIVITY_NAMES, kind)) throw new Error('这段故事认不出来');
+  if (kind !== 'year' && kind !== 'owl' && kind !== 'lead' && kind !== 'match' && kind !== 'origin' && kind !== 'date' && !Object.hasOwn(ACTIVITY_NAMES, kind)) throw new Error('这段故事认不出来');
   const npc = raw.npc === undefined ? undefined : label(raw.npc, 32);
   if (npc && !CAST.some(person => person.id === npc)) throw new Error('这位人物认不出来');
-  return { kind, npc, eventId: label(raw.eventId, 120) };
+  const eventId = label(raw.eventId, 120);
+  if (kind === 'date') {
+    if (!CAST.some(person => person.id === npc && person.role === 'romance') || !Array.isArray(raw.picks) || raw.picks.length !== 2) throw new Error('这次约会读不出来');
+    return { kind, npc, eventId, picks: [integer(raw.picks[0], 0, 2), integer(raw.picks[1], 0, 2)] };
+  }
+  return { kind, npc, eventId };
 }
 
 export function decodeLife(value: unknown): LifeBook {

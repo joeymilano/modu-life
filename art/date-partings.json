@@ -1,0 +1,112 @@
+{
+  "generator": "Built-in ImageGen",
+  "referenceCommit": "57ce37e",
+  "portraitSharedPrompt": "Identity-preserving rework from the provided fictional game character portrait. Original 2:3 vertical cinematic live-action Shanghai game portrait, from just above the head down to mid-thigh. Keep the person clearly recognizable. Natural 50mm lens at eye height, the top of the hair and entire face visible and centered horizontally, eyes about 26% from the top. Person looking off-camera, catch a real fleeting expression in an ongoing action, with locally accurate everyday detail. Real skin texture and plausible hands, ordinary white balance and soft contrast, colors true to place, subtle film grain. Clearly readable face and separate silhouette in a short 4:3 crop. No illustration, game render, airbrush, glossy fashion campaign, beauty light, heavy darkness, readable letters, logo, poster or border.",
+  "partingSharedPrompt": "Use the supplied fictional character image only as the adult identity reference. New original 3:2 landscape cinematic live-action Shanghai location photograph for the last beat of a narrative game scene. 45mm normal full-frame lens, slight environmental context, no lens distortion, off-camera gaze, real skin and a quietly specific expression, anatomically natural hands, subtle film texture and true-to-life color. The face and meaningful prop or action must stay in the central 46% horizontally so both show in a near-square desktop crop and a shallow mobile crop. Use moderate depth of field, photographically believable existing light, no yellow color cast. No CGI, illustration, skin smoothing, action posing, fantasy light, readable words, subtitles, logo, or border.",
+  "characters": {
+    "xia": {
+      "portrait": {
+        "path": "public/art/portraits/xia.webp",
+        "head": "public/art/portraits/head/xia.webp",
+        "reference": "public/art/portraits/xia.webp",
+        "prompt": "许小雯. Young adult architect. Preserve her distinctive thin dark rectangular glasses, dark hair in a slightly loose bun, dark washed navy overshirt with rolled sleeves and face. She's halfway down a side entrance of an Anfu Road architecture office, turning as someone props the narrow door for her, soft laugh with mouth closed, holding one rolled drawing and wearing a worn charcoal canvas bag. Blue daylight bounce and warm Shanghai red brick, no white collar stock pose."
+      },
+      "parting": {
+        "path": "public/art/dates/xia-parting.webp",
+        "reference": "public/art/dates/xia-meeting.webp",
+        "prompt": "The young adult architect in the supplied fictional reference, identical recognizable face with thin rectangular glasses, hair tied back messily and navy overshirt. She has just stepped out of a small Shanghai noodle shop after dinner. Soft interior light falls from open paneled door onto her face; she is looking toward the person beside camera, smiling a little as she adjusts an opaque white takeaway bag, rolled pale paper plans tucked under her other elbow. Her face around x=53%, y=31%, hands holding bag around x=56%, y=57%. Old wood frame and city dusk on the sidewalk, no readable sign."
+      }
+    },
+    "ning": {
+      "portrait": {
+        "path": "public/art/portraits/ning.webp",
+        "head": "public/art/portraits/head/ning.webp",
+        "reference": "public/art/portraits/ning.webp",
+        "prompt": "周宁. Young adult engineer, same long narrow face, wiry black rectangular glasses, lightly messy short hair and deep blue jacket. A sunlit Zhangjiang campus turnstile, standing under a concrete overhang, white earbud held halfway out as he takes a second to understand what his offscreen colleague just said, shoulders slightly twisted, genuine mild amusement. Subtle pale green reflection, ordinary matte fabric and shadows."
+      },
+      "parting": {
+        "path": "public/art/dates/ning-parting.webp",
+        "reference": "public/art/dates/ning-meeting.webp",
+        "prompt": "The young adult engineer in supplied fictional identity reference, same narrow dark glasses, slightly tousled short hair, ordinary stone-blue jacket. After dinner at a Shanghai street corner beneath a metro entrance canopy, looking up from the route on his lowered phone, quietly wondering if the person next to camera wants to take the long way. Practical pale station light on face and teal reflections on glass, two quiet passersby farther back and real curb. Face x=52%, y=34%, phone held low x=54%, y=59%; no legible sign, arrows, route maps or words."
+      }
+    },
+    "lin": {
+      "portrait": {
+        "path": "public/art/portraits/lin.webp",
+        "head": "public/art/portraits/head/lin.webp",
+        "reference": "public/art/portraits/lin.webp",
+        "prompt": "林佳. Young adult Shanghai illustrator. Same short straight dark bob with fringe, small cheek dimples and recognizable face, mustard cotton work jacket. Sitting at her stall on the lane just outside a neighborhood bookshop, touching a pencil to the edge of an old drawing pad, about to laugh at the unseen person who just sat down. Real window-light bounce with gentle yellow-green in the middle-distance, pencil and sketchbook low in the picture, cool shade on face."
+      },
+      "parting": {
+        "path": "public/art/dates/lin-parting.webp",
+        "reference": "public/art/dates/lin-meeting.webp",
+        "prompt": "The young adult illustrator in supplied fictional identity reference, same black blunt bob and narrow eyes, now wearing her faded navy overshirt at the same inexpensive Xinzhuang noodle shop as her meeting still. In this beat she turns over a folded ivory paper napkin on the table and with a dark pen sketches a very simple lopsided circle with a tiny face, as she suppresses a grin looking down. Crumbs, black pen, pale empty plate and a corner of the warm wooden table. Gentle sidelight from shop front, blue fabric and cream paper. Camera from the person across the table; capture face at about x=52%, y=30%, napkin and hands near x=55%, y=61%."
+      }
+    },
+    "chen": {
+      "portrait": {
+        "path": "public/art/portraits/chen.webp",
+        "head": "public/art/portraits/head/chen.webp",
+        "reference": "public/art/portraits/chen.webp",
+        "prompt": "陈恺. Young adult neighborhood coffee shop manager, same short irregular dark curls and scruffy jaw, dark olive jacket. Sitting at the doorway of his closed side-street café on his day off, holding a squat Chinese takeaway cup in one hand, listening quietly to someone outside frame. Loose shoulder posture and small smile, mildly uneven stubble, sunlit cement wall and lived-in window. No large cafe signs or pose."
+      },
+      "parting": {
+        "path": "public/art/dates/chen-parting.webp",
+        "reference": "public/art/dates/chen-meeting.webp",
+        "prompt": "The young adult café manager from supplied fictional actor reference, identical short messy curls, unshaven jaw and dark olive work jacket. Late afternoon on the quiet Shanghai side street outside a neighborhood noodle shop after eating, he has stopped beside the shop door to look at a small pale paper notice at the frame edge, then gives a sideways glance and a little smile to the offscreen person alongside him. Left hand loosely grips a reusable old bike handle visible at lower edge. Face x=55%, y=35%, paper off to left with no readable writing, brick and pale reflected window light."
+      }
+    },
+    "qiao": {
+      "portrait": {
+        "path": "public/art/portraits/qiao.webp",
+        "head": "public/art/portraits/head/qiao.webp",
+        "reference": "public/art/portraits/qiao.webp",
+        "prompt": "乔敏. Young adult financial analyst. Preserve restrained oval face, slightly hooded eyes, swept hair tied at the back, smart dark charcoal work jacket over a white tee and cream cloth bag. Lujiazui at 5:40pm, caught halfway up the public concourse steps, tucking a small soft blue study booklet into her bag and looking back at someone beside her with a restrained smile. Reflected natural sunlight from a glass office, a dark background separate from the face."
+      },
+      "parting": {
+        "path": "public/art/dates/qiao-parting.webp",
+        "reference": "public/art/dates/qiao-meeting.webp",
+        "prompt": "The young adult financial analyst from fictional reference, preserve exact adult face and tied-back dark hair, same charcoal blazer over a light blouse and pale canvas book tote. At a Shanghai Metro concourse just before the gate, she momentarily turns back toward camera's left, thumb hooked under her bag strap, deciding whether to suggest meeting again. High windows reflect a little evening light off pale tiled wall. Transit gates and muted people defocused farther back, keep windows near x=35% and her face at x=55% y=34%; plausible station geometry, no legible sign or characters."
+      }
+    },
+    "yang": {
+      "portrait": {
+        "path": "public/art/portraits/yang.webp",
+        "head": "public/art/portraits/head/yang.webp",
+        "reference": "public/art/portraits/yang.webp",
+        "prompt": "杨帆. Young adult Shanghai community worker. Preserve brushed-aside short dark hair, realistic soft cheek and recognizable nose, sand cotton field jacket and faded gray-blue shirt. Caught passing a folded building notice to someone outside a local block's stairwell door, offscreen arm only implied, unforced smile, shoulders slightly sideways. Bright natural courtyard light, faded teal gate and simple brickwork, no readable text."
+      },
+      "parting": {
+        "path": "public/art/dates/yang-parting.webp",
+        "reference": "public/art/dates/yang-meeting.webp",
+        "prompt": "The young adult Shanghai community worker from supplied actor reference, preserve face and dark brushed-aside hair, sand field jacket over gray-blue shirt. After dinner he has stopped at a shop entrance onto a Shanghai residential alley, flips a small cream handwritten repair note over to its blank side, and holds a ballpoint, waiting for the offscreen person to tell him what time works. Eye-height view from across a little outdoor ledge, human smile a bit shy, face x=54%, y=30%, note at x=52%, y=61% with no readable markings, soft neighborhood practical lighting with natural cool sky fill."
+      }
+    },
+    "lu": {
+      "portrait": {
+        "path": "public/art/portraits/lu.webp",
+        "head": "public/art/portraits/head/lu.webp",
+        "reference": "public/art/portraits/lu.webp",
+        "prompt": "陆嘉. Young adult indie bassist and tutor. Preserve exact dark collar-length loose waves and distinctive cheekbones, worn oxblood canvas jacket. Sitting on a road case beside the loading door of a small Shanghai music venue during soundcheck, momentarily laughing at an offscreen comment, one hand around a clear bottle low in frame, a bass strap over her shoulder. Familiar cream tile, cool natural evening outside and a single warm door light, backstage rather than fashion styling."
+      },
+      "parting": {
+        "path": "public/art/dates/lu-parting.webp",
+        "reference": "public/art/dates/lu-meeting.webp",
+        "prompt": "The young adult Shanghai indie bassist from reference, exact adult face and dark wavy hair, worn oxblood canvas jacket and practical dark trousers. On the narrow stage-left landing of a small Shanghai basement venue, pausing halfway through winding a black audio cable over one hand into a single plausible loose loop, one shoulder leaning against railing, eyes look up toward offscreen visitor, slight natural grin and flushed cheek after the set. Two distant normal shop lamps through open door and cool evening, plain amp in near background. Face x=54%, y=33%; hands and loose cable just under her chest near x=53%, y=57%."
+      }
+    },
+    "he": {
+      "portrait": {
+        "path": "public/art/portraits/he.webp",
+        "head": "public/art/portraits/head/he.webp",
+        "reference": "public/art/portraits/he.webp",
+        "prompt": "何亮. Young adult Shanghai noodle shop owner. Preserve his familiar broader face, black thin glasses, short neat hair, black cotton tee and dark navy work apron. Natural three-quarter moment leaning against a small Shanghai noodle shop's stainless pass, turning with a half-smile toward an offscreen customer as he wipes the counter at the lower edge. A little flour and water on the apron, open street door supplies daylight, simple white tiles and steel, warm skin."
+      },
+      "parting": {
+        "path": "public/art/dates/he-parting.webp",
+        "reference": "public/art/dates/he-meeting.webp",
+        "prompt": "The young adult noodle shop owner from reference, same face, thin dark glasses and black cotton shirt, off shift. Sitting at the small warm noodle shop table after he has finished eating. Holding an ordinary phone just above table level, angled toward someone sitting across from him, genuine modest hopeful amusement at the other person's reaction. Face at x=52%, y=30%, phone x=57%, y=58% screen angled away and shows at most blurred food color; almost-empty noodle bowl and vinegar bottle off to the side, neutral warm window bounce at a Shanghai neighborhood restaurant with white tiles."
+      }
+    }
+  }
+}
