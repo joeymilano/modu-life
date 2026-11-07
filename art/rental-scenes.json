@@ -1,0 +1,49 @@
+{
+  "generator": "Built-in ImageGen",
+  "referenceCommit": "f4ca993",
+  "sharedPrompt": "Use the referenced generated game asset as the scene or actor continuity reference only. Create a new original photorealistic frame for a narrative life simulation in contemporary Shanghai. This must look like observed live-action location photography, not an illustration, interior rendering, commercial or stock photo. Accurate physical geometry and scale, fine real texture, natural optics, restrained true-to-life color and moderate dynamic range. No posters, captions, branding, borders, strange hands, heavy color grade, theatrical fog or neon.",
+  "assets": {
+    "room": {
+      "path": "public/art/rental/room.webp",
+      "reference": "public/art/encounters/rental.webp",
+      "prompt": "New wide 3:2 view of the same compact second-floor Minhang Shanghai sublet on an ordinary evening, observed from the open doorway at standing height, 28mm lens. Keep the playable positions: worn iron single bed with grey-and-cream checked bedding on the left, small damaged wall patch left of and above bed around x=16%, y=31%; broad barred aluminium slider window across the back, a clearly visible building kitchen exhaust fan outside centered around x=61%, y=46%; battered walnut laminate table in the lower right, simple one-page lease and black pen clearly separated around x=78%, y=77%. Right edge a doorway and light wood cabinet. Soft neutral spring evening window light, with warm reflected light from corridor and no main overhead lamp, proper scale, shadows and lived-in grain. A room someone can afford and might take despite the noise. No people, no fake signage, no added text or interface, no cartoon or CG. Keep all three props in those zones for tappable controls. Fully fill frame."
+    },
+    "wall": {
+      "path": "public/art/rental/wall.webp",
+      "reference": "public/art/encounters/rental.webp",
+      "prompt": "New 3:2 horizontal evidence insert from the exact same small Shanghai rental. Stand by the pillow of the checked bed and photograph the wall just left of the left window jamb at arm's length. Daylight reveals a small subtle fresh off-white paint patch whose bottom edge starts to blister from underlying damp, fine gray pinhead dots and one uneven paint edge. One familiar checked pillow and metal frame in lower frame for location continuity. No severe infestation or horror, no hands, no writing, honest lighting and 50mm optics. Evidence detail in the central half."
+    },
+    "contract": {
+      "path": "public/art/rental/contract.webp",
+      "reference": "public/art/encounters/rental.webp",
+      "prompt": "New 3:2 horizontal evidence insert on the same scuffed dark walnut table by the window. A clipped corner of one off-white printed rental form lying at a slight angle, a black pen and a small blue-tagged brass key beside it. Small ordinary printed rows soft enough to be indistinct, no invented or legible text, no visible personal information or logos, screen will present a faithful legible typeset excerpt next to it. A paper edge curling naturally with a real shadow. Window reflection along table edge, muted Shanghai evening daylight, natural film grain, over-the-shoulder viewpoint but no person visible.",
+      "cropPixels": [
+        480,
+        430,
+        1536,
+        1024
+      ]
+    },
+    "window": {
+      "path": "public/art/rental/window.webp",
+      "reference": "public/art/encounters/rental.webp",
+      "prompt": "New 3:2 horizontal evidence insert looking through the partly open aluminum sliding window with old metal security bars, same Shanghai walkup bedroom. Across a very narrow gap to the neighboring shop's rear wall, the familiar external circular dark-gray metal kitchen exhaust fan and cage look close, blades show mild natural motion blur inside the cage and the small motor cover believable. Old pale ceramic tile and a few electric conduits from a real rear service alley. On one edge keep a shallow in-focus glimpse of the familiar chipped frame. Evening daylight, very ordinary, no stylized lighting or diagrams."
+    },
+    "talk": {
+      "path": "public/art/rental/talk.webp",
+      "reference": "public/art/portraits/fang.webp",
+      "prompt": "New horizontal 3:2 live-action film still at a little scratched laminate table just inside an ordinary old Shanghai walk-up apartment, on a soft warm spring evening. Same recognizable fictional adult housing broker in the reference, dark hair tied back, maroon cardigan over ivory tee. She has pulled her own copy of the lease back toward herself and is pointing at one line with the cap of an uncapped pen, a little half-smile that suggests she knows the landlord's tactic. Her face near x=52%, y=33%; lease, black pen and blue-tagged keys around x=54%, y=67% kept visible in mobile and near-square crops. White tile, neutral skin, plain soft daylight and real wear. No legible paper text, no graphic overlays."
+    },
+    "upstairs": {
+      "path": "public/art/rental/upstairs.webp",
+      "reference": "public/art/encounters/rental.webp",
+      "prompt": "New wide 3:2 image of a different but related room one flight above the reference room in the same modest walk-up in Xinzhuang, Shanghai. Small and plain, a striped cotton bedcover and inexpensive desk in the right foreground, white aluminum window with view across leafy plane tree branches, natural late afternoon daylight, a water glass on the chipped painted windowsill. No fan at this height. A single small box on the floor, only enough for the person to have left the day before. Genuine modest rented room, no brochure styling, accurate natural shadows, no people, graphics or words."
+    },
+    "fang": {
+      "path": "public/art/portraits/fang.webp",
+      "reference": "public/art/portraits/fang.webp",
+      "prompt": "New portrait of the exact same fictional adult Shanghai housing broker. Preserve her specific face, tied-back hair, slightly asymmetric friendly eyes, burgundy knit cardigan over ivory tee, dark work folder and brass keys on blue plastic tag. She stands in the familiar chipped pale green stairwell of an ordinary 1990s Shanghai walk-up, body half turned, starting to raise one eyebrow as she notices something in a lease held just out of view. Slight genuine knowing smile, hand holding the single key low near waist, not looking straight into lens. Spring afternoon light through landing window illuminates one cheek and hand. Vertical 2:3 framing from hair top to waist, face around x=50%, y=27%, surrounding masonry and railing human scale.",
+      "head": "public/art/portraits/head/fang.webp"
+    }
+  }
+}

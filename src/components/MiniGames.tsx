@@ -122,10 +122,3 @@ export function DialogueGame({person,career,skill,cash,flags,onFinish,onParting}
   </div>
  </div>;
 }
-
-export function RentalGame({cash,onFinish}:{cash:number;onFinish:(effect:Effect,text:string)=>void}){
- const [clues,setClues]=useState<string[]>([]);const toggle=(s:string)=>setClues(x=>x.includes(s)?x.filter(i=>i!==s):[...x,s]);
- return <div className="rental-game"><div className="mini-eyebrow">看房实战 / 莘庄</div><h2>这房子能住伐</h2><p className="mini-lead">“采光蛮好，住过的人都说好。”<br/>点开墙角、合同和窗外看看</p><div className="room-scene"><img src="/art/encounters/rental.webp" alt="一间待租的上海卧室，窗外有排风机，桌上放着合同"/><button className={'clue c1 '+(clues.includes('wall')?'found':'')} aria-pressed={clues.includes('wall')} onClick={()=>toggle('wall')}><Icon name="eye" size={18}/>墙角</button><button className={'clue c2 '+(clues.includes('contract')?'found':'')} aria-pressed={clues.includes('contract')} onClick={()=>toggle('contract')}><Icon name="eye" size={18}/>合同</button><button className={'clue c3 '+(clues.includes('window')?'found':'')} aria-pressed={clues.includes('window')} onClick={()=>toggle('window')}><Icon name="eye" size={18}/>窗外</button></div>
- <div className="clue-list">{clues.includes('wall')&&<p><b>墙角</b> 刚刷过，手摸上去却有点潮。</p>}{clues.includes('contract')&&<p><b>合同</b> 口头月付，纸上写着一次付半年。</p>}{clues.includes('window')&&<p><b>窗外</b> 窗一开，楼下排风机的声音就来了。</p>}</div><div className="mini-options"><button className="primary" disabled={cash<6000} onClick={()=>onFinish(clues.length>=2?{cash:-6000,housing:1,skill:6,spirit:8}:{cash:-6000,housing:1,health:-8,spirit:-5},clues.length>=2?'潮湿和排风机都写进了补充约定，租金改成月付。你转完钱，方姐把钥匙递过来。':'搬进去那晚，排风机一直响到十一点。你翻开合同，没找到中介答应过的那一条。')}>{clues.length>=2?'把问题谈清楚再租':'先签了再说'} · ¥6,000</button><button className="secondary" onClick={()=>onFinish({skill:7,spirit:3,network:2},'你没签。方姐收起合同，又翻出一套房源，问你明天上午有空伐。')}>这间不合适，再找找</button><small>看过 {clues.length} / 3 处</small></div></div>;
-}
-

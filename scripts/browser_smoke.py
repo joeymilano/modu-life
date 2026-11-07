@@ -81,9 +81,11 @@ with sync_playwright() as p:
     page.get_by_role('button',name='墙角',exact=True).click()
     page.get_by_role('button',name='合同',exact=True).click()
     page.get_by_role('button',name='窗外',exact=True).click()
-    page.get_by_role('button',name='把问题谈清楚再租').click()
+    page.get_by_role('button',name='去跟方姐谈').click()
+    page.get_by_role('button',name='划掉设备费，渗水也写进去').click()
     page.locator('.outcome-content .primary').click()
-    assert json.loads(page.evaluate('localStorage.getItem("modu-life-v1")'))['housing']==1
+    lease=json.loads(page.evaluate('localStorage.getItem("modu-life-v1")'))
+    assert lease['housing']==1 and lease['leaseRent']==3000
     # Save, reload, resume. Both filesystem and browser saves remain local.
     page.get_by_role('button',name='存档',exact=True).click()
     page.get_by_role('button',name='存这里').first.click()

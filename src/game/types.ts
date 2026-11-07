@@ -9,7 +9,7 @@ export interface PlayerAppearance { gender: Gender; looks: LooksLevel; }
 export interface Effect {
  cash?: number; health?: number; spirit?: number; skill?: number; face?: number; network?: number;
  trust?: number; attraction?: number; commitment?: number;
- payRate?: number;
+ payRate?: number; leaseRent?: number;
  setFlags?: string[]; removeFlags?: string[]; job?: string; housing?: number; love?: boolean; romanticInvitation?: boolean;
 }
 export interface EventChoice {
@@ -21,7 +21,7 @@ export interface LifeEvent {
  id: string; title: string; text: string; speakerId?: string; illustration?: string; category: ActivityKind | 'year';
  district?: DistrictId; minAge?: number; maxAge?: number; requiredFlags?: string[]; forbiddenFlags?: string[];
  once?: boolean; chainId?: string; chainStep?: number; choices: EventChoice[]; tag?: string; weight?: number;
- firstDate?: FirstDatePicks;
+ firstDate?: FirstDatePicks; rentalEvidence?: number;
 }
 export interface OriginCard { id: string; slot: OriginSlot; name: string; rarity: 'SSR'|'SR'|'R'|'N'; subtitle: string; description: string; tag: string; accent: string; effect: Effect; }
 export interface CastMember { id: string; name: string; ageOffset: number; title: string; district: DistrictId; role: 'romance'|'friend'|'family'|'rival'|'mentor'; description: string; trait: 'sincerity'|'ambition'|'freedom'|'security'|'humor'; color: string; gender: 'female'|'male'; }
@@ -35,7 +35,7 @@ export interface Employment { sinceAge: number; reviews: number; reviewedAt?: nu
 export interface GameState {
  version: 1; seed: string; rng: number; name: string; age: number; actions: number; goal: GoalId;
  appearance: PlayerAppearance;
- district: DistrictId; cash: number; stats: Record<StatKey,number>; jobId: string|null; jobRank: number; housing: number;
+ district: DistrictId; cash: number; stats: Record<StatKey,number>; jobId: string|null; jobRank: number; housing: number; leaseRent?: number;
  employment?: Employment;
  origins: string[]; flags: string[]; seenEvents: string[]; relationships: Record<string,Relationship>; partnerId: string|null;
  journal: JournalEntry[]; pendingYearEvent: boolean; ended: boolean; totalEarned: number; yearsEmployed: number; rescues: number;

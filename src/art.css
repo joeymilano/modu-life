@@ -104,13 +104,6 @@
 .date-modal .dialogue-head h2{font-size:30px;}
 .date-modal .dialogue-head p{max-width:none;}
 .date-modal .dialogue-answers button{font-size:14px;line-height:1.4;}
-.room-scene{position:relative;aspect-ratio:4/3;overflow:hidden;margin-top:22px;border-radius:4px;background:#445344;}
-.room-scene>img{display:block;width:100%;height:100%;object-fit:cover;}
-.room-scene .clue{background:#f9efdded;box-shadow:0 3px 16px #192d2855;border:1px solid #b58c49;}
-.room-scene .clue.found{background:#243c35;color:#fff5e2;border-color:#eff0d8;}
-.room-scene .clue.c1{top:12%;left:7%;}
-.room-scene .clue.c2{top:auto;bottom:15%;right:9%;}
-.room-scene .clue.c3{top:44%;left:53%;}
 
 @media(min-width:1450px){.look-option{height:430px;}.event-modal{max-width:1020px;padding-left:400px;}.event-visual{width:355px;}}
 @media(max-width:1150px) and (min-width:851px){.look-option{height:330px;}.look-caption{left:18px;bottom:18px;}.look-caption h3{font-size:26px;}.player-identity{padding-bottom:12px;margin-bottom:12px;}.player-identity b{font-size:16px;}.player-identity span:not(.identity-seal){font-size:8px;}.screen-home .hero-city{left:20%;}}

@@ -52,6 +52,12 @@ export function openingPhoto(shot: (typeof OPENING_STILLS)[number]): string {
  return '/art/opening/' + shot + '.webp';
 }
 
+export const RENTAL_STILLS = ['room', 'wall', 'contract', 'window', 'talk', 'upstairs'] as const;
+
+export function rentalPhoto(shot: (typeof RENTAL_STILLS)[number]): string {
+ return '/art/rental/' + shot + '.webp';
+}
+
 export const MATCH_STILLS = ['paper', 'coffee', 'bench', 'own-umbrella'] as const;
 
 export function matchPhoto(shot: (typeof MATCH_STILLS)[number]): string {

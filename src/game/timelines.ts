@@ -1,6 +1,6 @@
 import type { EventChoice, LifeEvent } from './types';
 import { PARK_TICKET_SCENES } from './matchmaking';
-import { FIRST_NIGHT_STILLS, MATCH_STILLS, OPENING_STILLS, datePhoto, farewellPhoto, matchPhoto, openingPhoto, pearlPhoto, streetPhoto, workPhoto } from './art';
+import { FIRST_NIGHT_STILLS, MATCH_STILLS, OPENING_STILLS, datePhoto, farewellPhoto, matchPhoto, openingPhoto, pearlPhoto, rentalPhoto, streetPhoto, workPhoto } from './art';
 import { CAST } from './content';
 
 export interface Turn {
@@ -42,6 +42,7 @@ const ticketShots = new Set([
   ...(['reorg', 'overtime', 'shift', 'invoice', 'return'] as const).map(workPhoto),
   ...CAST.filter(person => person.role === 'romance').flatMap(person => [datePhoto(person.id, 'parting'), datePhoto(person.id, 'return')]),
   datePhoto('lin', 'meeting'),
+  rentalPhoto('room'), rentalPhoto('talk'), rentalPhoto('upstairs'),
 ]);
 
 function validShot(value: unknown) {
@@ -145,6 +146,36 @@ export const CITY_TIMELINES: Timeline[] = [
     ],
   },
   parkStory,
+  {
+    id: 'rental-fine-print', kind: 'life', title: '房租下面那一行', author: '魔都人生',
+    original: '我赶着回去搬箱子，直接签了。月底多出来的三百写的是设备费。我晚上去看设备，隔壁炒到十一点，排风机比我先下班。',
+    turns: [
+      {
+        date: '周六 · 傍晚', place: '莘庄 · 二楼', shot: rentalPhoto('room'),
+        scene: '房东在楼下按喇叭。方姐说一月三千，把笔往你面前一搁。你刚坐到床边，玻璃抖了一下。桌上那张合同，下面还垫着半页纸。',
+        options: [
+          { move: '把底下半页抽出来看完', after: '最下面有一行设备维护费，每月三百。你问是哪台设备，方姐朝窗外看了一眼。', next: 1 },
+          { move: '拉开窗，问楼上还有没有房', after: '隔壁开始炒晚市。你俩隔着排风机说了两遍，才听清楼上还空着。', next: 2 },
+        ],
+      },
+      {
+        date: '五分钟后', place: '二楼 · 桌边', shot: rentalPhoto('talk'),
+        scene: '方姐替你拨通房东电话。听到设备费要划掉，楼下又按了一下喇叭。方姐把电话挪开些，说能先付四千，房租按三千写。',
+        options: [
+          { move: '按这个价签，把修墙日期也写进去', after: '房东问哪面墙。方姐拍了床头那一块。周四师傅来了，进门先把床挪到了窗底下。', next: end },
+          { move: '钥匙先还回去，等他把墙修完', after: '过了两天，方姐发来一张照片。墙刷白了，床也换了个方向。照片下面她还补了一句，设备费确实划掉了。', next: end },
+        ],
+      },
+      {
+        date: '一层楼之后', place: '莘庄 · 三楼', shot: rentalPhoto('upstairs'),
+        scene: '楼上窗户对着树。你拉到底，能听见楼下有人找车钥匙。方姐把钥匙拎起来，报了每月三千六，签约先付五千二。',
+        options: [
+          { move: '租楼上，搬箱子的时候借她把手', after: '第三趟你们在拐角卡住了。方姐把你箱子翻过来，发现背面还贴着上海南站的行李条。', next: end },
+          { move: '先走，等夜里十一点再来听一遍', after: '十一点零五分，排风机停了。楼上有人练了一遍《两只老虎》。你给方姐发了句，明早带我看离地铁远的那间。', next: end },
+        ],
+      },
+    ],
+  },
   {
     id: 'scallion-bill', kind: 'life', title: '隔壁桌的葱油饼', author: '魔都人生',
     original: '我说了句「放回去」，林佳没理我，自己跟隔壁道了歉。散的时候她把餐巾留在账单底下。我过了两天再去找，老板说早擦桌子了。',

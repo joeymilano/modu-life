@@ -8,6 +8,7 @@ import { EVENTS } from './events';
 import { workYearEvent } from './workScenes';
 import { parkVisit } from './matchmaking';
 import { openingLead } from './originStories';
+import { ALL_RENTAL_CLUES, rentalNegotiation } from './rental';
 import type { ActivityKind, FirstDatePicks, GameState, LifeEvent } from './types';
 
 export const MAX_LINES = 8;
@@ -15,10 +16,11 @@ const MAX_POINTS = 24;
 export const SAVE_SIZE_LIMIT = 2_000_000;
 
 interface SceneRef {
-  kind: ActivityKind | 'year' | 'owl' | 'lead' | 'match' | 'origin' | 'date';
+  kind: ActivityKind | 'year' | 'owl' | 'lead' | 'match' | 'origin' | 'date' | 'rental';
   eventId: string;
   npc?: string;
   picks?: FirstDatePicks;
+  evidence?: number;
 }
 
 interface ForkPoint {
@@ -66,6 +68,11 @@ export function clearReplay(book: LifeBook): LifeBook {
 }
 
 export function replayScene(state: GameState, scene: SceneRef): LifeEvent | null {
+  if (scene.kind === 'rental') {
+    if (scene.evidence === undefined || state.district !== 'xinzhuang' || state.flags.includes('rental_checked')) return null;
+    const event = rentalNegotiation(scene.evidence);
+    return event.id === scene.eventId ? event : null;
+  }
   if (scene.kind === 'date') {
     const person = CAST.find(item => item.id === scene.npc);
     const event = person && scene.picks && firstDateParting(state, person, scene.picks);
@@ -89,13 +96,15 @@ export function replayScene(state: GameState, scene: SceneRef): LifeEvent | null
 export function recordDecision(book: LifeBook, state: GameState, event: LifeEvent, choiceId: string, npc?: string): LifeBook {
   const line = activeLine(book);
   const { journal, ...before } = line.state;
-  const kind = event.firstDate ? 'date' : event.tag === '开局插曲' ? 'origin' : event.id.startsWith('matchmaking-') ? 'match' : event.tag === '夜猫子来信' ? 'owl' :
+  const isRental = event.rentalEvidence !== undefined;
+  const kind = isRental ? 'rental' : event.firstDate ? 'date' : event.tag === '开局插曲' ? 'origin' : event.id.startsWith('matchmaking-') ? 'match' : event.tag === '夜猫子来信' ? 'owl' :
     streetLead(line.state)?.event.id === event.id ? 'lead' : event.category;
   const defaultEvent = replayScene(line.state, { kind, eventId: event.id });
   const scene: SceneRef = {
     kind, eventId: event.id,
-    npc: event.firstDate ? event.speakerId : defaultEvent?.title === event.title && defaultEvent.text === event.text ? undefined : npc,
+    npc: isRental || event.firstDate ? event.speakerId : defaultEvent?.title === event.title && defaultEvent.text === event.text ? undefined : npc,
     ...(event.firstDate && { picks: event.firstDate }),
+    ...(isRental && { evidence: event.rentalEvidence }),
   };
   const chosen = event.choices.find(choice => choice.id === choiceId);
   const points = chosen && event.choices.length > 1
@@ -158,10 +167,11 @@ function label(value: unknown, max: number) {
 function sceneRef(value: unknown): SceneRef {
   const raw = record(value);
   const kind = label(raw.kind, 12) as SceneRef['kind'];
-  if (kind !== 'year' && kind !== 'owl' && kind !== 'lead' && kind !== 'match' && kind !== 'origin' && kind !== 'date' && !Object.hasOwn(ACTIVITY_NAMES, kind)) throw new Error('这段故事认不出来');
+  if (kind !== 'year' && kind !== 'owl' && kind !== 'lead' && kind !== 'match' && kind !== 'origin' && kind !== 'date' && kind !== 'rental' && !Object.hasOwn(ACTIVITY_NAMES, kind)) throw new Error('这段故事认不出来');
   const npc = raw.npc === undefined ? undefined : label(raw.npc, 32);
   if (npc && !CAST.some(person => person.id === npc)) throw new Error('这位人物认不出来');
   const eventId = label(raw.eventId, 120);
+  if (kind === 'rental') return { kind, npc: 'fang', eventId, evidence: integer(raw.evidence, 0, ALL_RENTAL_CLUES) };
   if (kind === 'date') {
     if (!CAST.some(person => person.id === npc && person.role === 'romance') || !Array.isArray(raw.picks) || raw.picks.length !== 2) throw new Error('这次约会读不出来');
     return { kind, npc, eventId, picks: [integer(raw.picks[0], 0, 2), integer(raw.picks[1], 0, 2)] };

@@ -19,7 +19,7 @@ with sync_playwright() as pw:
     p=ctx.new_page();p.on('pageerror',lambda e:errors.append(str(e)))
     p.goto(BASE+'?seed=ARTLOOKS');p.wait_for_load_state('networkidle')
     art_dir=Path('public/art')
-    assets=[file.relative_to(art_dir).as_posix() for folder in ('portraits','origins','encounters','dates','endings','work','pearl','matchmaking','opening') for file in (art_dir/folder).rglob('*.webp')]
+    assets=[file.relative_to(art_dir).as_posix() for folder in ('portraits','origins','encounters','dates','endings','work','pearl','matchmaking','opening','rental') for file in (art_dir/folder).rglob('*.webp')]
     assets.extend(file.relative_to(art_dir).as_posix() for file in (art_dir/'shanghai-streets').glob('*.webp'))
     for asset in assets:
         r=p.request.get(BASE+'art/'+asset);assert r.status==200,(asset,r.status)
@@ -74,11 +74,16 @@ with sync_playwright() as pw:
     room=p.locator('.room-scene')
     assert room.evaluate('el=>getComputedStyle(el,"::before").content==="none" && getComputedStyle(el).borderBottomWidth==="0px"')
     assert room.locator('img').evaluate('async img=>{await img.decode();return img.naturalWidth>700}')
-    for clue in ('墙角','合同','窗外'):
+    for clue,key in [('墙角','wall'),('合同','contract'),('窗外','window')]:
         button=room.get_by_role('button',name=clue,exact=True)
         button.click()
         assert button.get_attribute('aria-pressed')=='true'
-    assert p.locator('.clue-list p').count()==3
+        evidence=p.locator('.rental-detail img')
+        assert evidence.get_attribute('src')==f'/art/rental/{key}.webp'
+        assert evidence.evaluate('async img=>{await img.decode();return img.naturalWidth>1000}')
+    assert p.locator('.rental-note').count()==3
+    p.get_by_role('button',name='上楼看一眼').click()
+    assert p.locator('.rental-detail img').get_attribute('src')=='/art/rental/upstairs.webp'
     p.get_by_role('button',name='关闭',exact=True).click()
     p.get_by_role('navigation',name='切换城区').get_by_role('button',name='外滩').click()
     # Mobile date, cast and image framing.

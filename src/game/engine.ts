@@ -48,7 +48,11 @@ function applyEffect(state:GameState,effect:Effect,npcId?:string):GameState {
   if(effect.job==='unemployed')moveJob(s,null);
   else if(effect.job&&CAREERS.some(c=>c.id===effect.job))moveJob(s,effect.job);
   if(effect.payRate!==undefined&&s.jobId)s.employment={...employmentOf(s),rate:effect.payRate};
-  if(effect.housing!==undefined)s.housing=clamp(effect.housing,0,3);
+  if(effect.housing!==undefined){
+    s.housing=clamp(effect.housing,0,3);
+    delete s.leaseRent;
+  }
+  if(effect.leaseRent!==undefined&&s.housing===1)s.leaseRent=effect.leaseRent;
   s.flags=[...new Set([...s.flags,...(effect.setFlags||[])])].filter(f=>!(effect.removeFlags||[]).includes(f));
   const relationTarget=npcId||s.partnerId;
   if(effect.romanticInvitation&&s.partnerId&&relationTarget&&s.partnerId!==relationTarget){
@@ -80,7 +84,7 @@ export function createGame(seed:string,name:string,goal:GoalId,cards:OriginCard[
 }
 export function monthlyBudget(s:GameState){
   const salary=monthlySalary(s);
-  const rent=[1800,3300,5500,1000][s.housing]||1800;
+  const rent=s.leaseRent??([1800,3300,5500,1000][s.housing]||1800);
   const living=1800+(s.partnerId?600:0)+(s.age>=40?500:0);
   return {salary,rent,living,net:salary-rent-living};
 }
@@ -182,7 +186,7 @@ export function nextYear(state:GameState) {
   const employment=employmentOf(s);
   const activeMonths=s.jobId?12-employment.closedMonths:0;
   const currentPay=Math.round(budget.salary*activeMonths*variable);
-  const income=employment.earned+currentPay,expense=(budget.rent+budget.living)*12;
+  const income=employment.earned+currentPay,rentExpense=budget.rent*12,expense=rentExpense+budget.living*12;
   const payroll=employment.closedMonths>0?{previous:employment.earned,current:currentPay,months:activeMonths}:undefined;
   const pressure:Record<string,[number,number]>={tech:[5,5],finance:[3,8],creative:[3,4],service:[6,3],public:[2,2],freelance:[2,3],business:[4,4],trade:[4,5]};
   if(s.jobId){const [body,mind]=pressure[s.jobId]||[2,2];const late=s.flags.includes(NIGHT_WORK);
@@ -193,12 +197,13 @@ export function nextYear(state:GameState) {
   s.cash+=income-expense-repayment;s.totalEarned+=income;if(income>0)s.yearsEmployed++;
   const notices:string[]=[];
   let note=income?`工资到账 ¥${income.toLocaleString()}，固定开支 ¥${expense.toLocaleString()}。`:`这一年没有固定工资，生活开支 ¥${expense.toLocaleString()}。`;
+  if(state.leaseRent!==undefined)note+=` 这份租约全年房租 ¥${rentExpense.toLocaleString()}。`;
   if(repayment){
     s.flags=s.flags.filter(flag=>flag!==LOAN_DUE);
     note+=` 这期助学贷款已扣 ¥${repayment.toLocaleString()}。`;
   }
   if(employment.closedMonths>0)note+=` 旧岗位入账 ¥${employment.earned.toLocaleString()}，当前岗位计 ${activeMonths} 个月。`;
-  if(s.cash<0){const shortage=-s.cash;s.cash=6000;s.rescues++;s.stats.spirit=clamp(s.stats.spirit-8);s.housing=0;s.flags=[...new Set([...s.flags,'needed_help'])];notices.push(`周转差了 ¥${shortage.toLocaleString()}。朋友帮你垫了一笔，你搬回合租房，手上留下 ¥6,000。`);s.journal.push({age:s.age,title:'先把这关过了',text:'朋友帮忙垫了周转钱，你搬回合租房。收好行李，先把明天的面试地址存下来。',tag:'重整'});}
+  if(s.cash<0){const shortage=-s.cash;s.cash=6000;s.rescues++;s.stats.spirit=clamp(s.stats.spirit-8);s.housing=0;delete s.leaseRent;s.flags=[...new Set([...s.flags,'needed_help'])];notices.push(`周转差了 ¥${shortage.toLocaleString()}。朋友帮你垫了一笔，你搬回合租房，手上留下 ¥6,000。`);s.journal.push({age:s.age,title:'先把这关过了',text:'朋友帮忙垫了周转钱，你搬回合租房。收好行李，先把明天的面试地址存下来。',tag:'重整'});}
   s.stats.health=clamp(s.stats.health-(s.age>40?3:1));s.stats.spirit=clamp(s.stats.spirit-2);
   if(s.stats.health<15){
     const care=Math.min(s.cash,3000);
@@ -210,7 +215,7 @@ export function nextYear(state:GameState) {
   s.journal.push({age:s.age,title:`${s.age}岁年度账本`,text:note,tag:'账本'});
   if(s.employment)s.employment={...employment,closedMonths:0,earned:0};
   s.age++;s.actions=3;s.ended=s.age>=60;s.pendingYearEvent=!s.ended;
-  return {state:s,income,expense,note,notice,payroll,repayment};
+  return {state:s,income,expense,rentExpense:state.leaseRent===undefined?undefined:rentExpense,note,notice,payroll,repayment};
 }
 export function relationshipLabel(s:GameState,id:string){const r=s.relationships[id];if(!r?.met)return '未遇见';if(s.partnerId===id)return r.trust>75?'彼此笃定':'正在一起';if(r.trust>=70&&r.attraction>=50)return '心照不宣';if(r.trust>=45)return '熟悉的人';return '刚认识';}
 export function commitRelationship(s:GameState,id:string):GameState {const rel=s.relationships[id];if(!rel?.met||rel.trust<55||rel.attraction<45)throw new Error('再多了解彼此一点，现在还没到这一步。');let next=structuredClone(s);next.partnerId=id;next.relationships[id].commitment=clamp(rel.commitment+25);next.flags=[...new Set([...next.flags,'committed'])];next.journal.push({age:s.age,title:`和${CAST.find(c=>c.id===id)?.name}一起`,text:'你们吃完饭，顺路一起去买了牙刷。回去的路上，谁也没再说客气话。',tag:'关系'});return next;}
@@ -241,6 +246,7 @@ export function validateSave(value:unknown):GameState {
   if(s.version!==1||typeof s.seed!=='string'||s.seed.length>32||typeof s.name!=='string'||s.name.length>12||!finite(s.age,18,60)||!Number.isInteger(s.age)||!finite(s.actions,0,3)||!Number.isInteger(s.actions)||!finite(s.cash,0,1e12)||!finite(s.rng,0,4294967295)||!GOALS.some(g=>g.id===s.goal)||!['bund','anfu','people','lujiazui','zhangjiang','xinzhuang'].includes(s.district)||typeof s.ended!=='boolean'||typeof s.pendingYearEvent!=='boolean')throw new Error('档案格式或数值不完整。');
   if(!s.stats||Object.keys(STAT_NAMES).some(k=>!finite(s.stats[k as StatKey],0,100)))throw new Error('人物状态不完整。');
   if(!finite(s.jobRank,0,3)||!finite(s.housing,0,3)||!Number.isInteger(s.housing)||!finite(s.totalEarned,0,1e12)||!finite(s.yearsEmployed,0,42)||!finite(s.rescues,0,1000))throw new Error('年度资料不完整。');
+  if(s.leaseRent!==undefined&&(s.housing!==1||!Number.isInteger(s.leaseRent)||!finite(s.leaseRent,2000,6000)))throw new Error('租约里的房租不对。');
   if(s.jobId!==null&&!CAREERS.some(c=>c.id===s.jobId))throw new Error('职业资料不匹配。');
   const work=s.employment;
   if(work!==undefined&&(!work||!Number.isInteger(work.sinceAge)||!finite(work.sinceAge,18,s.age)||!Number.isInteger(work.reviews)||!finite(work.reviews,0,42)||(work.reviewedAt!==undefined&&(!Number.isInteger(work.reviewedAt)||!finite(work.reviewedAt,work.sinceAge,s.age)))||!finite(work.rate,.5,1)||!Number.isInteger(work.closedMonths)||!finite(work.closedMonths,0,12)||!Number.isInteger(work.earned)||!finite(work.earned,0,1e7)))throw new Error('工作记录不完整。');
