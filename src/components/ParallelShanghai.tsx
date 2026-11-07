@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'rea
 import { downloadBlob } from '../game/share';
 import { playSound } from '../game/audio';
 import {
-  CITY_TIMELINES, readTickets, removeTicket, saveTicket, ticketFromHash, ticketLink, validateTicket, walk,
+  CITY_TIMELINES, isTicketHash, readTickets, removeTicket, saveTicket, ticketFromHash, ticketLink, validateTicket, walk,
   type Move, type Ticket, type Timeline, type Turn,
 } from '../game/timelines';
 import { streetPhoto, type StreetPhoto } from '../game/art';
@@ -149,7 +149,7 @@ export default function ParallelShanghai({ onClose, hash, preset }: {
   }
 
   useEffect(() => {
-    if (!hash.startsWith('#timeline=')) return;
+    if (!isTicketHash(hash)) return;
     try {
       setTicket(ticketFromHash(hash));
       setStatus('');
@@ -314,7 +314,7 @@ export default function ParallelShanghai({ onClose, hash, preset }: {
             <button className="parallel-quiet" onClick={() => setEditing('question')}>空降现实题 <Icon name="bolt" size={17} /></button>
           </div>
         </div>
-        <div className="parallel-grid parallel-service-grid">{CITY_TIMELINES.map((timeline, index) =>
+        <div className="parallel-grid">{CITY_TIMELINES.map((timeline, index) =>
           <TicketCard key={timeline.id} ticket={{ version: 1, timeline }} index={index} onClick={() => open({ version: 1, timeline })} />
         )}</div>
       </section>

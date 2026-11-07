@@ -1,6 +1,7 @@
 import { streetPhoto } from './art';
 import { firstNightLead } from './firstNight';
 import { pearlReceipt } from './pearl';
+import { parkVisit } from './matchmaking';
 import type { GameState, LifeEvent } from './types';
 
 interface StreetLead {
@@ -74,8 +75,11 @@ const leads: StreetLead[] = [
 
 export function streetLead(state: GameState) {
   if (state.pendingYearEvent || state.ended) return null;
+  const first = firstNightLead(state);
+  if (first) return first;
   const receipt = pearlReceipt(state);
-  return firstNightLead(state) ?? (receipt ? { message: '江边有人叫你去对小票', event: receipt } : null) ?? leads.find(lead =>
-    !state.seenEvents.includes(lead.event.id) && lead.available(state)
-  ) ?? null;
+  if (receipt) return { message: '江边有人叫你去对小票', event: receipt };
+  const match = state.district === 'people' ? parkVisit(state) : null;
+  if (match?.message) return { message: match.message, event: match.event };
+  return leads.find(lead => !state.seenEvents.includes(lead.event.id) && lead.available(state)) ?? null;
 }

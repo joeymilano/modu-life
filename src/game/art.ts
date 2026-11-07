@@ -7,7 +7,9 @@ export const LOOKS:{id:LooksLevel;name:string;line:string;flavor:string;face:num
 const agedHeads = new Set(['mao', 'he', 'lu']);
 
 export function portraitArt(id: string, full: boolean, age = 18): string {
- const stage = !full && age >= 53 && agedHeads.has(id) ? '-senior' : '';
+ const aged = age >= 53 && agedHeads.has(id);
+ if (full && aged) return '/art/endings/farewell-' + id + '.webp';
+ const stage = aged ? '-senior' : '';
  return '/art/portraits/' + (full ? '' : 'head/') + id + stage + '.webp';
 }
 
@@ -42,6 +44,12 @@ export function workPhoto(shot: WorkPhoto): string {
 
 export function pearlPhoto(shot: 'arena' | 'hero' | 'receipt' | 'booth' | 'night-office'): string {
  return `/art/pearl/${shot}.webp`;
+}
+
+export const MATCH_STILLS = ['paper', 'coffee', 'bench', 'own-umbrella'] as const;
+
+export function matchPhoto(shot: (typeof MATCH_STILLS)[number]): string {
+ return '/art/matchmaking/' + shot + '.webp';
 }
 
 export const FIRST_NIGHT_STILLS = [

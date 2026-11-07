@@ -1,5 +1,6 @@
-import type { LifeEvent } from './types';
-import { FIRST_NIGHT_STILLS, datePhoto, farewellPhoto, pearlPhoto, streetPhoto, workPhoto } from './art';
+import type { EventChoice, LifeEvent } from './types';
+import { PARK_TICKET_SCENES } from './matchmaking';
+import { FIRST_NIGHT_STILLS, MATCH_STILLS, datePhoto, farewellPhoto, matchPhoto, pearlPhoto, streetPhoto, workPhoto } from './art';
 import { CAST } from './content';
 
 export interface Turn {
@@ -34,6 +35,7 @@ const end = null;
 const ticketShots = new Set([
   streetPhoto('station'),
   ...FIRST_NIGHT_STILLS.map(streetPhoto),
+  ...MATCH_STILLS.map(matchPhoto),
   ...(['receipt', 'booth', 'night-office'] as const).map(pearlPhoto),
   ...(['mao', 'he', 'lu'] as const).map(farewellPhoto),
   ...(['reorg', 'overtime', 'shift', 'invoice', 'return'] as const).map(workPhoto),
@@ -43,6 +45,36 @@ const ticketShots = new Set([
 function validShot(value: unknown) {
   return typeof value === 'string' && ticketShots.has(value) ? { shot: value } : {};
 }
+function ticketOption(choice: EventChoice, next: number | null) {
+  return { move: choice.label.slice(0, 32), after: choice.reply.slice(0, 160), next };
+}
+
+const [parkOpening, ...parkFollowups] = PARK_TICKET_SCENES;
+const parkStory: Timeline = {
+  id: 'park-umbrella', kind: 'life', title: parkOpening.title, author: '魔都人生',
+  original: '我当时直接把纸夹上去了。唐圆问完地址，又问馄饨摊开没开。我俩喝完两杯奶茶，出门才发现都没带伞。',
+  turns: [
+    {
+      date: '礼拜天 · 刚停雨', place: '人民公园 · 相亲角', scene: parkOpening.text,
+      shot: parkOpening.illustration,
+      options: [
+        ticketOption(parkOpening.choices[0], 2),
+        { move: '先别挂，把纸递给我', after: '汪阿姨把笔也给你了。她刚才试过这支笔，得在手背上划两下才出水。', next: 1 },
+      ],
+    },
+    {
+      date: '过了一会儿', place: '人民公园 · 伞边', shot: parkOpening.illustration,
+      scene: '你在纸背试了试笔。汪阿姨等着你写，有个小孩过来借她的伞，她说里面还夹着人，等一等。',
+      options: [ticketOption(parkOpening.choices[1], 3), ticketOption(parkOpening.choices[2], 4)],
+    },
+    ...parkFollowups.map((event, index) => ({
+      date: ['下午', '摊主还没来', '收伞前'][index],
+      place: ['公园门口 · 奶茶店', '人民公园 · 长椅', '人民公园 · 相亲角'][index],
+      scene: event.text, shot: event.illustration, options: event.choices.slice(0, 2).map(choice => ticketOption(choice, null)),
+    })),
+  ],
+};
+
 export const CITY_TIMELINES: Timeline[] = [
   {
     id: 'last-train', kind: 'life', title: '末班车开走之前', author: '魔都人生',
@@ -110,6 +142,7 @@ export const CITY_TIMELINES: Timeline[] = [
       },
     ],
   },
+  parkStory,
 ];
 
 function object(value: unknown): Record<string, unknown> {
@@ -189,14 +222,27 @@ export function walk(timeline: Timeline, route: Move[]) {
   return { steps, next };
 }
 
+export function isTicketHash(hash: string) {
+  return hash.startsWith('#timeline=') || hash.startsWith('#story=');
+}
+
 export function ticketLink(ticket: Ticket) {
   const url = new URL(window.location.pathname, window.location.origin);
+  if (!ticket.route?.length && CITY_TIMELINES.includes(ticket.timeline)) {
+    url.hash = 'story=' + ticket.timeline.id;
+    return url.toString();
+  }
   const bytes = new TextEncoder().encode(JSON.stringify(ticket));
   url.hash = 'timeline=' + btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
   return url.toString();
 }
 
-export function ticketFromHash(hash: string) {
+export function ticketFromHash(hash: string): Ticket {
+  if (hash.startsWith('#story=')) {
+    const timeline = CITY_TIMELINES.find(story => story.id === hash.slice('#story='.length));
+    if (!timeline) throw new Error('这张票认不出来');
+    return { version: 1, timeline };
+  }
   const payload = hash.slice('#timeline='.length);
   if (!/^[-_a-zA-Z0-9]{1,22000}$/.test(payload)) throw new Error('链接没收全');
   const bytes = Uint8Array.from(atob(payload.replace(/-/g, '+').replace(/_/g, '/')), char => char.charCodeAt(0));
@@ -229,9 +275,7 @@ export function removeTicket(ticket: Ticket) {
 }
 
 export function draftFromEvent(event: LifeEvent, selected: string, result: string, age: number, district: string): Timeline {
-  const options = event.choices.filter(choice => choice.id !== selected).slice(0, 2).map(choice => ({
-    move: choice.label.slice(0, 32), after: choice.reply.slice(0, 160), next: null,
-  }));
+  const options = event.choices.filter(choice => choice.id !== selected).slice(0, 2).map(choice => ticketOption(choice, null));
   return {
     id: crypto.randomUUID(), kind: 'life', title: event.title.slice(0, 28), author: '',
     original: result.slice(0, 160),

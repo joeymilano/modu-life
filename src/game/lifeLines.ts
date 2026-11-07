@@ -5,6 +5,7 @@ import { nightOwlLetter } from './encounters';
 import { returnDate } from './dateReturns';
 import { EVENTS } from './events';
 import { workYearEvent } from './workScenes';
+import { parkVisit } from './matchmaking';
 import type { ActivityKind, GameState, LifeEvent } from './types';
 
 export const MAX_LINES = 8;
@@ -12,7 +13,7 @@ const MAX_POINTS = 24;
 export const SAVE_SIZE_LIMIT = 2_000_000;
 
 interface SceneRef {
-  kind: ActivityKind | 'year' | 'owl' | 'lead';
+  kind: ActivityKind | 'year' | 'owl' | 'lead' | 'match';
   eventId: string;
   npc?: string;
 }
@@ -71,14 +72,15 @@ export function replayScene(state: GameState, scene: SceneRef): LifeEvent | null
     if (date?.id === scene.eventId) return date;
   }
   const event = scene.kind === 'owl' ? nightOwlLetter(state) :
-    scene.kind === 'lead' ? streetLead(state)?.event : selectEvent(state, scene.kind, scene.npc);
+    scene.kind === 'lead' ? streetLead(state)?.event :
+    scene.kind === 'match' ? parkVisit(state)?.event : selectEvent(state, scene.kind, scene.npc);
   return event?.id === scene.eventId ? event : null;
 }
 
 export function recordDecision(book: LifeBook, state: GameState, event: LifeEvent, choiceId: string, npc?: string): LifeBook {
   const line = activeLine(book);
   const { journal, ...before } = line.state;
-  const kind = event.tag === '夜猫子来信' ? 'owl' :
+  const kind = event.id.startsWith('matchmaking-') ? 'match' : event.tag === '夜猫子来信' ? 'owl' :
     streetLead(line.state)?.event.id === event.id ? 'lead' : event.category;
   const defaultEvent = replayScene(line.state, { kind, eventId: event.id });
   const scene: SceneRef = {
@@ -146,7 +148,7 @@ function label(value: unknown, max: number) {
 function sceneRef(value: unknown): SceneRef {
   const raw = record(value);
   const kind = label(raw.kind, 12) as SceneRef['kind'];
-  if (kind !== 'year' && kind !== 'owl' && kind !== 'lead' && !Object.hasOwn(ACTIVITY_NAMES, kind)) throw new Error('这段故事认不出来');
+  if (kind !== 'year' && kind !== 'owl' && kind !== 'lead' && kind !== 'match' && !Object.hasOwn(ACTIVITY_NAMES, kind)) throw new Error('这段故事认不出来');
   const npc = raw.npc === undefined ? undefined : label(raw.npc, 32);
   if (npc && !CAST.some(person => person.id === npc)) throw new Error('这位人物认不出来');
   return { kind, npc, eventId: label(raw.eventId, 120) };
