@@ -153,8 +153,8 @@
   .wide-shot-modal .event-photo { height: auto; aspect-ratio: 16 / 10; }
 }
 .wide-shot-modal .event-photo > img { position: absolute; inset: 0; object-position: center; }
-.job-offer-modal h2:focus { outline: none; }
-.job-offer-modal .event-choices small:empty { display: none; }
+:is(.job-offer-modal,.birth-scene-modal) h2:focus { outline: none; }
+:is(.job-offer-modal,.birth-scene-modal) .event-choices small:empty { display: none; }
 .job-offer-modal .event-choices > button { align-items: start; }
 .job-offer-modal .event-choices > button > div > p { color: #455f52; }
 .career-content > .active-work-terms:not(.eyebrow) { color: #73472e; }
@@ -177,12 +177,12 @@
   .arrival-modal .event-photo > img { object-position: center 70%; }
   .arrival-modal .event-choices { margin-top: 14px; gap: 7px; }
   .arrival-modal .event-choices > button { padding-block: 8px; min-height: 66px; }
-  .job-offer-modal .event-photo { aspect-ratio: 2 / 1; margin-bottom: 11px; }
-  .job-offer-modal .event-photo > img { object-position: center 38%; }
-  .job-offer-modal .event-content h2 { margin-top: 12px; }
-  .job-offer-modal .event-body { margin-top: 10px; line-height: 1.6; }
-  .job-offer-modal .event-choices { margin-top: 14px; gap: 7px; }
-  .job-offer-modal .event-choices > button { padding-block: 8px; min-height: 0; }
+  :is(.job-offer-modal,.birth-scene-modal) .event-photo { aspect-ratio: 2 / 1; margin-bottom: 11px; }
+  :is(.job-offer-modal,.birth-scene-modal) .event-photo > img { object-position: center 38%; }
+  :is(.job-offer-modal,.birth-scene-modal) .event-content h2 { margin-top: 12px; }
+  :is(.job-offer-modal,.birth-scene-modal) .event-body { margin-top: 10px; line-height: 1.6; }
+  :is(.job-offer-modal,.birth-scene-modal) .event-choices { margin-top: 14px; gap: 7px; }
+  :is(.job-offer-modal,.birth-scene-modal) .event-choices > button { padding-block: 8px; min-height: 44px; }
 }
 
 @media (max-width: 850px) {

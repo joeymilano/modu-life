@@ -75,14 +75,14 @@ export function castTitle(person: CastMember, age: number) {
 const card = (slot:OriginSlot,id:string,name:string,rarity:OriginCard['rarity'],subtitle:string,description:string,tag:string,accent:string,effect:OriginCard['effect']):OriginCard=>({slot,id,name,rarity,subtitle,description,tag,accent,effect});
 export const ORIGIN_POOLS: Record<OriginSlot,OriginCard[]> = {
  '出身':[
-  card('出身','born-rich','富二代','SSR','起跑线是地下车库','家里转了钱，备注是来公司上班。','家里有人','#ad8150',{cash:380000,face:18,network:15,setFlags:['family_rich']}),
-  card('出身','born-local','弄堂小囡','SR','邻居比导航好用','认得邻居的猫，也躲不过邻居的问候。','本地熟人','#687b66',{cash:18000,network:20,setFlags:['local']}),
-  card('出身','born-migrant','沪漂毕业生','R','一个箱子，两万块钱','地图还没认全，招聘软件已经刷熟了。','从零开局','#62838b',{cash:12000,spirit:14,skill:5,setFlags:['new_arrival']}),
-  card('出身','born-scholar','奖学金常客','SR','绩点够高，工资另谈','成绩单够漂亮，第一次谈工资还是手心出汗。','学习快','#756f92',{cash:18000,skill:24,face:-7,setFlags:['scholar']}),
-  card('出身','born-suburb','郊区通勤王','R','闹钟比全家都早','地铁上能补觉、背单词，还能认出每个急刹。','耐力好','#8c8a57',{cash:16000,health:12,skill:7,setFlags:['commuter']}),
-  card('出身','born-return','海归待业中','SR','时差倒好了，工作还没','外语流利，回家被问工作时只会微笑。','跨文化','#9b796a',{cash:50000,skill:16,face:8,spirit:-8,setFlags:['returnee']}),
-  card('出身','born-trade','小店接班人','R','会算毛利，不会叫融资','家里说店以后给你。你想先看看别的路。','生意经','#a38256',{cash:30000,skill:10,network:10,setFlags:['shop_family']}),
-  card('出身','born-artist','艺考幸存者','R','作品集比行李箱重','审美在线，余额经常离线。','有作品','#9a6e67',{cash:8000,skill:18,spirit:8,setFlags:['artist']}),
+  card('出身','born-rich','富二代','SSR','起跑线是地下车库','家里说车随便开。后备厢那三箱样品顺路送一下。','家里有人','#ad8150',{cash:380000,face:18,network:15,setFlags:['family_rich']}),
+  card('出身','born-local','弄堂小囡','SR','邻居比导航好用','这条弄堂不用导航。送错的快递，最后都归你认。','本地熟人','#687b66',{cash:18000,network:20,setFlags:['local']}),
+  card('出身','born-migrant','沪漂毕业生','R','一个箱子，两万块钱','简历印了十份，招聘会出口比入口难找。','从零开局','#62838b',{cash:12000,spirit:14,skill:5,setFlags:['new_arrival']}),
+  card('出身','born-scholar','奖学金常客','SR','绩点够高，工资另谈','成绩单早就背熟了，接投影这题没考过。','学习快','#756f92',{cash:18000,skill:24,face:-7,setFlags:['scholar']}),
+  card('出身','born-suburb','郊区通勤王','R','闹钟比全家都早','进城那趟六点二十。楼下卖早饭的比闹钟还准。','耐力好','#8c8a57',{cash:16000,health:12,skill:7,setFlags:['commuter']}),
+  card('出身','born-return','海归待业中','SR','时差倒好了，工作还没','同一段实习，中英文简历上各有一个职位。','跨文化','#9b796a',{cash:50000,skill:16,face:8,spirit:-8,setFlags:['returnee']}),
+  card('出身','born-trade','小店接班人','R','会算毛利，不会叫融资','卷帘门还没抬，外面已经有人问生煎几点出。','生意经','#a38256',{cash:30000,skill:10,network:10,setFlags:['shop_family']}),
+  card('出身','born-artist','艺考幸存者','R','作品集比行李箱重','作品集重三斤，第一份付钱的活只改两毫米。','有作品','#9a6e67',{cash:8000,skill:18,spirit:8,setFlags:['artist']}),
  ],
  '家底':[
   card('家底','fund-home','家里有套房','SSR','房产证在老妈抽屉里','房子不用租，家庭群可没有退群键。','有房可住','#b18b53',{cash:20000,housing:3,network:5,setFlags:['own_home']}),

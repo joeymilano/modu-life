@@ -5,6 +5,7 @@ const payByRank = [1, 1.22, 1.45, 1.7];
 const yearsByRank = [0, 1, 4, 8];
 const reviewsByRank = [0, 1, 3, 6];
 export const NIGHT_WORK = 'work-night-shift';
+export const LONG_COMMUTE = 'work-cross-river';
 export const MAX_PAY_RATE = 1.2;
 
 export function employmentOf(state: GameState): Employment {
@@ -28,7 +29,7 @@ export function moveJob(state: GameState, newJob: string | null) {
  state.employment = { sinceAge: state.age, reviews: 0, rate: 1, closedMonths: employment.closedMonths, earned: employment.earned };
  state.jobId = newJob;
  state.jobRank = 0;
- state.flags = state.flags.filter(flag => flag !== NIGHT_WORK);
+ state.flags = state.flags.filter(flag => flag !== NIGHT_WORK && flag !== LONG_COMMUTE);
 }
 
 export function nextReview(state: GameState) {

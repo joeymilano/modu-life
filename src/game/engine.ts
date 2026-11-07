@@ -3,7 +3,7 @@ import { FIRST_NIGHT_FLAG, firstNightYear } from './firstNight';
 import { lastDayEvent } from './lastDay';
 import { workYearEvent } from './workScenes';
 import { longTableBudget, longTableYear } from './longTable';
-import { employmentOf, MAX_PAY_RATE, monthlySalary, moveJob, NIGHT_WORK, registerReview } from './employment';
+import { employmentOf, LONG_COMMUTE, MAX_PAY_RATE, monthlySalary, moveJob, NIGHT_WORK, registerReview } from './employment';
 import { EVENTS } from './events';
 import { LOAN_DUE, LOAN_INSTALLMENT } from './originStories';
 import type { ActivityKind, ChoiceResult, Effect, EventChoice, GameState, GoalId, LifeEvent, LooksLevel, OriginCard, OriginSlot, PlayerAppearance, StatKey } from './types';
@@ -200,14 +200,16 @@ export function nextYear(state:GameState) {
   const income=workIncome+table.income,rentExpense=budget.rent*12,expense=rentExpense+budget.living*12;
   const payroll=employment.closedMonths>0?{previous:employment.earned,current:currentPay,months:activeMonths}:undefined;
   const pressure:Record<string,[number,number]>={tech:[5,5],finance:[3,8],creative:[3,4],service:[6,3],public:[2,2],freelance:[2,3],business:[4,4],trade:[4,5]};
+  const commute=s.flags.includes(LONG_COMMUTE);
   if(s.jobId){const [body,mind]=pressure[s.jobId]||[2,2];const late=s.flags.includes(NIGHT_WORK);
-    s.stats.health=clamp(s.stats.health-Math.round((body+(late?4:0))*activeMonths/12));
-    s.stats.spirit=clamp(s.stats.spirit-Math.round((mind+(late?3:0))*activeMonths/12));}
+    s.stats.health=clamp(s.stats.health-Math.round((body+(late?4:0)+(commute?5:0))*activeMonths/12));
+    s.stats.spirit=clamp(s.stats.spirit-Math.round((mind+(late?3:0)+(commute?3:0))*activeMonths/12));}
   if(s.partnerId){const rel=s.relationships[s.partnerId];const keptInTouch=rel.memories.some(m=>m.startsWith(s.age+'岁 · '));if(!keptInTouch){rel.trust=clamp(rel.trust-4);rel.commitment=clamp(rel.commitment-2);}}
   const repayment=s.flags.includes(LOAN_DUE)?LOAN_INSTALLMENT:0;
   s.cash+=income-expense-repayment;s.totalEarned+=income;if(workIncome>0)s.yearsEmployed++;
   const notices:string[]=[];
   let note=workIncome?`工资到账 ¥${workIncome.toLocaleString()}，固定开支 ¥${expense.toLocaleString()}。`:`这一年没有固定工资，生活开支 ¥${expense.toLocaleString()}。`;
+  if(commute&&activeMonths)notices.push('过江那趟赶了一年。你现在站着也能眯一会儿。');
   if(table.income)note+=` 长桌修补台入账 ¥${table.income.toLocaleString()}。`;
   if(state.leaseRent!==undefined)note+=` 这份租约全年房租 ¥${rentExpense.toLocaleString()}。`;
   if(repayment){

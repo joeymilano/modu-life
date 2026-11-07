@@ -1,12 +1,6 @@
 import { openingPhoto } from './art';
-import type { GameState, LifeEvent } from './types';
-
-type OpeningStory = {
- cards: readonly [string, string];
- message: string;
- teaser: string;
- event: LifeEvent;
-};
+import { ARRIVAL_STORIES, type OpeningStory } from './arrivalStories';
+import type { GameState } from './types';
 
 export const LOAN_INSTALLMENT = 4800;
 export const LOAN_DUE = 'opening-loan-due';
@@ -117,7 +111,9 @@ const stories: OpeningStory[] = [
 ];
 
 export function openingStory(cardIds: readonly string[], seen: readonly string[] = []): OpeningStory | undefined {
- return stories.find(story => !seen.includes(story.event.id) && story.cards.every(id => cardIds.includes(id)));
+ const combinations = stories.filter(story => story.cards.every(id => cardIds.includes(id)));
+ const available = combinations.length ? combinations : ARRIVAL_STORIES;
+ return available.find(story => !seen.includes(story.event.id) && story.cards.every(id => cardIds.includes(id)));
 }
 
 export function openingLead(state: GameState) {

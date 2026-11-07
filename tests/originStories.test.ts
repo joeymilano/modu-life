@@ -5,6 +5,7 @@ import { LOAN_DUE, openingLead, openingStory } from '../src/game/originStories';
 import { challengeUrl, readChallenge } from '../src/game/share';
 import { streetLead } from '../src/game/streetLeads';
 import { draftFromEvent } from '../src/game/timelines';
+import { LONG_COMMUTE, monthlySalary, moveJob } from '../src/game/employment';
 
 const lookup = (id: string) => allOrigins().find(card => card.id === id)!;
 
@@ -28,7 +29,7 @@ describe('opening combinations', () => {
   const before = start([a,b]);
   const expected = openingStory([a,b])!.event;
   expect(expected.illustration).toBe('/art/opening/' + photo + '.webp');
-  expect(openingStory([a])).toBeUndefined();
+  expect(openingStory([a])?.event.id).not.toBe(expected.id);
   expect(openingLead(before)?.event).toEqual(expected);
   expect(openingLead({ ...before, age: 19 })).toBeUndefined();
   expect(streetLead(before)?.event.id).toBe('first-night-box');
@@ -81,5 +82,55 @@ describe('opening combinations', () => {
   const shared = readChallenge(new URL(challengeUrl(hand)).searchParams);
   expect(shared?.cards.map(card => card.id)).toEqual(hand.origins);
   expect(openingStory(hand.origins)?.event.id).not.toBe('origin-garage');
+ });
+
+ it.each([
+  ['rich', 'badge', 'trade'],
+  ['local', 'knock', null],
+  ['migrant', 'shift', 'service'],
+  ['scholar', 'staff', 'public'],
+  ['suburb', 'near', 'service'],
+  ['return', 'trade', 'trade'],
+  ['trade', 'open', 'business'],
+  ['artist', 'fix', null],
+ ])('gives %s a playable scene when no combination matches', (origin, pick, job) => {
+  const selected = ['born-' + origin, 'fund-savings', 'talent-fit', 'tie-free', 'secret-kind'];
+  const state = start(selected);
+  const event = openingLead(state)!.event;
+  expect(event.id).toBe('origin-arrival-' + origin);
+  expect(event.illustration).toBe('/art/opening/arrival-' + origin + '.webp');
+  expect(event.choices).toHaveLength(3);
+  const result = resolveChoice(state, event, pick, event.speakerId);
+  expect(result.state.jobId).toBe(job);
+  expect(result.state.actions).toBe(state.actions - 1);
+  expect(openingLead(result.state)).toBeUndefined();
+  expect(draftFromEvent(event, pick, result.text, 18, '上海').turns[0].shot).toBe(event.illustration);
+  const original = recordDecision(startBook(state), result.state, event, pick, event.speakerId);
+  const line = activeLine(decodeLife(encodeLife(forkLife(original, 0))));
+  expect(replayScene(line.state, line.replay!)).toEqual(event);
+ });
+
+ it('keeps a combination in place of the ordinary birth story', () => {
+  const state = start(['born-rich', 'fund-frozen', 'tie-free', 'secret-kind']);
+  const first = openingLead(state)!.event;
+  expect(first.id).toBe('origin-garage');
+  expect(openingLead(resolveChoice(state, first, 'leave', first.speakerId).state)).toBeUndefined();
+ });
+
+ it('pays more across the river and applies the commute each year on that job', () => {
+  const state = start(['born-suburb', 'fund-savings', 'talent-fit', 'tie-free', 'secret-kind']);
+  const event = openingLead(state)!.event;
+  const near = resolveChoice(state, event, 'near', event.speakerId).state;
+  const far = resolveChoice(state, event, 'far', event.speakerId).state;
+  expect(monthlySalary(far) - monthlySalary(near)).toBe(1500);
+  expect(far.flags).toContain(LONG_COMMUTE);
+  const annual = nextYear(far);
+  const localComparison = nextYear({ ...far, flags: far.flags.filter(flag => flag !== LONG_COMMUTE) });
+  expect(annual.income - nextYear(near).income).toBe(18000);
+  expect(localComparison.state.stats.health - annual.state.stats.health).toBe(5);
+  expect(localComparison.state.stats.spirit - annual.state.stats.spirit).toBe(3);
+  expect(annual.notice).toContain('过江那趟');
+  moveJob(far, 'creative');
+  expect(far.flags).not.toContain(LONG_COMMUTE);
  });
 });

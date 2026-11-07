@@ -1,0 +1,55 @@
+{
+  "generator": "Built-in ImageGen",
+  "referenceCommit": "cf03e3b",
+  "artDirection": "Use two stills per birth. The dealt card shows a readable detail and the playable encounter shows the fictional actor in the same situation.",
+  "scenes": {
+    "common": "One original wide 3:2 live-action still for a realistic Shanghai life simulation. The supplied image is the fictional adult actor: keep same face, age, hairstyle and familiar clothing palette. The player is an unseen person just beside the camera, with the actor reacting to them naturally. An actual-feeling contemporary Shanghai location, real tactile ordinary details, available location light and neutral skin tones, eye-level medium shot with 40mm optics. Keep face, hands and significant prop within central 68% width, preserve the top of the hair, clear even in a horizontal phone crop. Small candid gestures and believable human proportions. No glamour makeup, advertising poses, illustration, CGI, film LUT, fake neon, floating labels, logos, readable letters or extra hands. Photograph one distinct moment. ",
+    "items": {
+      "rich": {
+        "ref": "father",
+        "scene": "In an ordinary Lujiazui office building underground garage, this middle-aged father with grey work shirt leans on the open trunk of a black sedan, taps a small plain lanyard on top of real sealed cardboard sample boxes, looks expectantly at his adult child. A bit of fluorescent light and car reflections, unposed and quietly funny. No luxury advertisement."
+      },
+      "local": {
+        "ref": "uncle",
+        "scene": "This familiar older man with blue work jacket crouches beside a cardboard parcel and a blue plastic delivery crate in the narrow terrazzo entrance of an actual old Shanghai shikumen row house. He is folding one flap of the carton down and glances toward his young neighbor, as if trying to remember who it belongs to. Lane daylight, worn green tile, long narrow stairs just behind, no readable labels."
+      },
+      "migrant": {
+        "ref": "tang",
+        "scene": "At a very ordinary job fair in the hall by People's Square, this young adult woman with her bob, dark jacket and thin glasses stands at the end of a row of folding tables. She holds one printed sheet with blank-looking boxes and points with a subtle finger near its top, questioning whether it is a fee. A small queue and everyday partitions in medium distance, pale ceiling light and soft gray natural daylight. She looks at the applicant, slightly skeptical."
+      },
+      "scholar": {
+        "ref": "yu",
+        "scene": "This adult night-school teacher in indigo sweater in a modest Shanghai community classroom with old desks. She has picked up a real short HDMI cable, raises it a little as she asks the off-camera adult student a favor. Dusk still visible through side window, worn whiteboard and projector far behind. Casual warmth and a slightly raised eyebrow, ordinary classroom light."
+      },
+      "suburb": {
+        "ref": "mother",
+        "scene": "At a covered Xinzhuang transit entrance before the morning rush, this recognizable Shanghai mother in brown coat and light scarf offers an ordinary knotted small paper bag of breakfast just above an old waist-high rail. She has one hand on a commuter card and half turned toward the stair, surprised to see the player already here. Cold morning light plus one ordinary warm shop bulb, actual public transport textures."
+      },
+      "return": {
+        "ref": "gao",
+        "scene": "This familiar adult man in a dark olive jacket, Shanghai Lujiazui office break room with plain glass and distant architecture. He slides a two-page CV with illegible marks and a paper coffee cup across a narrow table. Half smile of someone who has just asked for help with a peculiar translation, seated like a colleague, actual daylight."
+      },
+      "trade": {
+        "ref": "wu",
+        "scene": "This familiar male Shanghai breakfast shop owner in black apron inside his small shop in Xinzhuang before opening, with a partly lifted roller shutter, metal trays and a plain order notebook with one stub pencil. He holds out the notebook and looks up while he gently props the half-open shutter with one palm. Honest warm morning light with shop texture, natural musculature."
+      },
+      "artist": {
+        "ref": "qi",
+        "scene": "The familiar Chinese woman with asymmetrical short black bob, tiny hoop earrings and a beige work shirt, at a Zhangjiang design studio by a big side window. She lays a small rectangle of price-list print proofs with faint abstract blocks and zero legible text against a plain window ledge, taps the misaligned edge with a wooden ruler and looks over to the adult player. Daylight and work materials, not a gallery or stock art."
+      }
+    }
+  },
+  "cards": {
+    "common": "One original horizontal 4:3 live-action close detail for the birth card in a cinematic realistic Shanghai simulation. Real natural available light, ordinary surfaces and modest colors, clean central silhouette so it reads at 170 pixels across, keep key prop inside central 65% width and height. Shot with 50mm lens and believable shallow-but-readable depth. No stylized renders, illustrations, polished ads, strange fingers, type, labels, extra graphics, artificial glow or logos. Single real-feeling Shanghai detail photographed by a quiet observer. Use previous image only for general motif. ",
+    "items": {
+      "rich": "A plain black key fob beside a scuffed badge on the edge of an open black sedan trunk, with simple cardboard boxes just behind, in an everyday Shanghai basement garage. Soft grey light; nobody posing. A visible bright card strap gives a precise small accent. Two motifs, no more.",
+      "local": "A scuffed Shanghai shikumen entrance detail, the little red stool, worn grey-and-green terrazzo step, and one plainly taped cardboard parcel next to the old door. Clear window daylight. A dry leaf on the step. Frame the doorstep at knee height, parcel dead simple and recognizable.",
+      "migrant": "Side angle at actual-feeling modern Shanghai South Railway Station after rain, scratched navy rolling case with folded blank CV in canvas tote clipped to handle, steel columns and the curved terminal roof beyond, commuters softly receding. Daylight and asphalt reflections. One immediately readable worn suitcase in the center.",
+      "scholar": "A slightly frayed blue paper folder holding a single warm white certificate paper with a thin printed outline and no type. Beside it a short video adaptor cable in loose loop on a genuine dark scratched classroom desk. Daylight from a side window. No fantasy trophy or academic badge.",
+      "suburb": "At a real Shanghai metro door near dawn, a tightly tied brown paper breakfast bag resting on the dark-grey knees of a seated adult passenger, a white transit card beside it. A row of silver grab rails and the soft shape of another commuter in distance. No faces in foreground, normal daylight in an elevated section.",
+      "return": "A small graphite luggage case and closed black passport beside a fresh two-page CV with indistinct printing on a practical laminate desk near Lujiazui office glass. Air of both jet lag and an office Monday. Neutral daylight, luggage visibly used, no familiar brand or flag.",
+      "trade": "Counter of a lived-in Shanghai breakfast shop, a closed green paper order book, stub pencil and one metal tray of uncooked dough behind it. The half-up steel shutter picks up dawn light. A few flour specks, countertop scratches, shop is about to open.",
+      "artist": "Very close side view of an adult's plain dark portfolio folder holding a color sample and two print proofs with only abstract color blocks, on an everyday designer's workbench. A single ordinary wooden ruler along a paper edge, window light with real grain and dust, no paintings or gallery setting."
+    }
+  }
+}

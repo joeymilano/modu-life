@@ -12,7 +12,7 @@ import {
 } from './game/lifeLines';
 import { nightOwlLetter } from './game/encounters';
 import { dateAnswer, firstDateParting, hasDated } from './game/dates';
-import { employmentOf, nextReview, NIGHT_WORK } from './game/employment';
+import { employmentOf, LONG_COMMUTE, nextReview, NIGHT_WORK } from './game/employment';
 import { isJobOffer, isSelfEmployed, jobOffer, type InterviewOffer } from './game/jobOffers';
 import { returnDate } from './game/dateReturns';
 import { CAREERS, CAST, castTitle, DISTRICTS, GOALS, HOUSING_NAMES } from './game/content';
@@ -280,8 +280,9 @@ export default function App(){
  const rentalEvidence=activeEvent?.rentalEvidence;
  const tableScene=scenePhoto?.startsWith('/art/long-table/')??false;
  const offerScene=!!activeEvent&&isJobOffer(activeEvent.id);
+ const birthScene=activeEvent?.id.startsWith('origin-arrival-')??false;
  const signedOffer=!!outcome?.source&&isJobOffer(outcome.source.event.id)&&outcome.effect.payRate!==undefined;
- const focusScene=Boolean(activeEvent?.firstDate)||rentalEvidence!==undefined||tableScene||offerScene;
+ const focusScene=Boolean(activeEvent?.firstDate)||rentalEvidence!==undefined||tableScene||offerScene||birthScene;
  const partingBill=activeEvent?.firstDate ? -(activeEvent.choices[0].effect.cash??0) : 0;
  const wideShot=scenePhoto?.startsWith('/art/shanghai-streets/first-night-')||scenePhoto?.startsWith('/art/dates/')||scenePhoto?.startsWith('/art/endings/farewell-')||scenePhoto?.startsWith('/art/work/')||scenePhoto?.startsWith('/art/pearl/')||scenePhoto?.startsWith('/art/matchmaking/')||scenePhoto?.startsWith('/art/opening/')||scenePhoto?.startsWith('/art/rental/')||scenePhoto?.startsWith('/art/night-ferry/')||tableScene||offerScene;
  const leadButtons=game&&(lead||cardLead)?<div className="story-leads">{[lead,cardLead].map(item=>item&&<button
@@ -366,7 +367,7 @@ export default function App(){
  </main>}
  {screen==='end'&&game&&<EndingScreen game={game} sharing={sharing} onShare={share}
   onChallenge={copyChallenge} onDraw={beginDraw} onJournal={()=>setModal('journal')} onLines={()=>setModal('lines')}/>}
- {dialogOpen&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget&&!activeEvent&&!mini&&!outcome)setModal(null);}}><section className={'modal '+(activeEvent?'event-modal':'')+(wideShot?' wide-shot-modal':'')+(openingMessages?' arrival-modal':'')+(activeEvent?.firstDate?' date-parting-modal':'')+(rentalEvidence!==undefined?' rental-negotiation':'')+(tableScene?' long-table-modal':'')+(offerScene?' job-offer-modal':'')+(mini?' minigame-modal':'')+(mini?.type==='rental'?' rental-modal':'')+(mini?.type==='dialogue'?(mini.person?' date-modal':' date-modal work-interview-modal'):'')+(modal==='romance'?' romance-modal':'')+(modal==='journal'?' journal-modal':'')+(modal==='lines'?' lines-modal':'')} role="dialog" aria-modal="true" aria-label={activeEvent?.title||outcome?.title||(mini?'人生现场':modal==='saves'?'存档':modal==='journal'?'人生记事':modal==='lines'?'时间线':modal==='contacts'?(profile?.name??'认识的人'):'魔都人生')}>
+ {dialogOpen&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget&&!activeEvent&&!mini&&!outcome)setModal(null);}}><section className={'modal '+(activeEvent?'event-modal':'')+(wideShot?' wide-shot-modal':'')+(openingMessages?' arrival-modal':'')+(activeEvent?.firstDate?' date-parting-modal':'')+(rentalEvidence!==undefined?' rental-negotiation':'')+(tableScene?' long-table-modal':'')+(offerScene?' job-offer-modal':'')+(birthScene?' birth-scene-modal':'')+(mini?' minigame-modal':'')+(mini?.type==='rental'?' rental-modal':'')+(mini?.type==='dialogue'?(mini.person?' date-modal':' date-modal work-interview-modal'):'')+(modal==='romance'?' romance-modal':'')+(modal==='journal'?' journal-modal':'')+(modal==='lines'?' lines-modal':'')} role="dialog" aria-modal="true" aria-label={activeEvent?.title||outcome?.title||(mini?'人生现场':modal==='saves'?'存档':modal==='journal'?'人生记事':modal==='lines'?'时间线':modal==='contacts'?(profile?.name??'认识的人'):'魔都人生')}>
  {!(activeEvent&&game?.pendingYearEvent)&&<button className="modal-close icon-button" aria-label="关闭" onClick={()=>{if(outcome)closeOutcome();else{setModal(null);setMini(null);dismissEvent();}}}><Icon name="close"/></button>}
  {modal==='help'&&<div className="help-content"><h2>怎么玩</h2><div className="help-step"><b>01</b><div><h3>先抽五张人生牌</h3><p>每类一张，有两次重抽机会。</p></div></div><div className="help-step"><b>02</b><div><h3>每年三次行动</h3><p>点地点办事，每次扣一格。走路、换城区不扣行动。</p></div></div><div className="help-step"><b>03</b><div><h3>年底结账</h3><p>点年度结算，工资到账，房租和生活费一起扣。六十岁结局。</p></div></div><button className="primary" onClick={()=>setModal(null)}>晓得了 <Icon name="check" size={18}/></button><small className="fiction-note">人物与怪谈均为虚构</small></div>}
  {modal==='lines'&&book&&<LifeLines book={book} onFork={branchFrom} onSwitch={returnToLine} onDrop={id=>setBook(current=>current?dropLine(current,id):current)}/>}
@@ -386,6 +387,7 @@ export default function App(){
    <h2>{game.jobId?'换份工作':'找工作'}</h2>
    <p>{workTrack.closedMonths?`本年还剩 ${12-workTrack.closedMonths} 个月可结算，旧岗位工资年底一起发。`:'答完三轮，再看对方开的条件。'}</p>
    {game.flags.includes(NIGHT_WORK)&&<p className="active-work-terms">当前接轮值 · {money(budget!.salary)}/月</p>}
+   {game.flags.includes(LONG_COMMUTE)&&<p className="active-work-terms">当前跨江通勤 · {money(budget!.salary)}/月</p>}
    {promotion&&<div className="career-review">
     <b>下一档 · {promotion.title}</b>
     <span>在岗 {game.age-workTrack.sinceAge}/{promotion.years} 年</span>
@@ -407,7 +409,7 @@ export default function App(){
  {activeEvent&&game&&<><div className={'event-visual'+(scenePhoto?' event-photo':'')}>
   {scenePhoto?<img src={scenePhoto} alt=""/>:isOwl?<Suspense fallback={<LoadCity/>}><OwlPreview/></Suspense>:speaker&&<Portrait person={speaker} full/>}
  </div><div className="event-content"><div className="event-meta"><span>{activeEvent.tag||ACTIVITY_NAMES[activeEvent.category as ActivityKind]||'这一年'}</span><small>{game.age}岁 · {activeEvent.category==='year'?'不扣行动':'1 格行动'}</small></div>
- {speaker&&!activeEvent.firstDate&&<div className="event-speaker"><Portrait person={speaker} size={54} age={game.age}/><div><b>{speaker.name}</b><small>{castTitle(speaker,game.age)}</small></div></div>}<h2 ref={focusScene?sceneHeading:undefined} tabIndex={focusScene?-1:undefined}>{activeEvent.title}</h2><p className="event-body">{activeEvent.text}</p>{partingBill>0&&<p className="date-bill">这顿你付 {money(partingBill)}</p>}<div className="event-choices">{activeEvent.choices.map((c,i)=>{
+ {speaker&&!activeEvent.firstDate&&!birthScene&&<div className="event-speaker"><Portrait person={speaker} size={54} age={game.age}/><div><b>{speaker.name}</b><small>{castTitle(speaker,game.age)}</small></div></div>}<h2 ref={focusScene?sceneHeading:undefined} tabIndex={focusScene?-1:undefined}>{activeEvent.title}</h2><p className="event-body">{activeEvent.text}</p>{partingBill>0&&<p className="date-bill">这顿你付 {money(partingBill)}</p>}<div className="event-choices">{activeEvent.choices.map((c,i)=>{
   const sender=c.senderId?CAST.find(person=>person.id===c.senderId):undefined;
   return <button key={c.id} className={sender?'message-choice':undefined} disabled={!canAfford(game,c.effect)} onClick={()=>choose(c.id)}>
    {sender?<Portrait person={sender} size={41} decorative/>:<span className="choice-letter">{String.fromCharCode(65+i)}</span>}<div><b>{c.label}</b>{c.hint&&<p>{c.hint}</p>}<small>{!focusScene&&effectsText(c.effect).slice(0,4).map(([label,n])=>label==='积蓄'?(n>0?'+':'−')+money(Math.abs(n)):label+(n>0?' +':' ')+n).join(' · ')}{c.check?' · '+STAT_NAMES[c.check.stat]+'检定 '+checkChance(game,c)+'%':''}{!canAfford(game,c.effect)?' · 钱暂时不够':''}</small></div><Icon name="chevron" size={17}/></button>;})}</div>{rentalEvidence!==undefined&&!line?.replay&&<button className="text-button rental-back" onClick={()=>{

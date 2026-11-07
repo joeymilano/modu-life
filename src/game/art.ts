@@ -62,7 +62,11 @@ export function pearlRunner(appearance: PlayerAppearance): string {
 
 export const TIMELINE_COVER = '/art/timelines/ferry.webp';
 
-export const OPENING_STILLS = ['garage', 'dialect', 'portfolio', 'bank', 'cat'] as const;
+export const OPENING_STILLS = [
+ 'garage', 'dialect', 'portfolio', 'bank', 'cat',
+ 'arrival-rich', 'arrival-local', 'arrival-migrant', 'arrival-scholar',
+ 'arrival-suburb', 'arrival-return', 'arrival-trade', 'arrival-artist',
+] as const;
 
 export function openingPhoto(shot: (typeof OPENING_STILLS)[number]): string {
  return '/art/opening/' + shot + '.webp';
