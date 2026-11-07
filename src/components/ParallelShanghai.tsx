@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { downloadBlob, makeStoryPhoto } from '../game/share';
 import { playSound } from '../game/audio';
 import {
@@ -138,25 +138,34 @@ export default function ParallelShanghai({ onClose, hash, preset }: {
   const screen = ticket ? 'ticket' : editing ? 'edit' : 'hub';
   const titleKey = ticket ? ticket.timeline.id + JSON.stringify(ticket.route ?? []) : screen;
 
-  function open(next: Ticket | null) {
+  const open = useCallback((next: Ticket | null, audible = true) => {
     setTicket(next ? validateTicket(next) : null);
     setStatus('');
     setShareValue('');
     setAnswering(false);
     setAnswer('');
-    playSound('tap');
-  }
+    if (audible) playSound('tap');
+  }, []);
+
+  const showHub = useCallback(() => {
+    open(null, false);
+    setEditing(null);
+    setUsePreset(false);
+  }, [open]);
 
   useEffect(() => {
+    if (hash === '#parallel') {
+      showHub();
+      return;
+    }
     if (!isTicketHash(hash)) return;
     try {
-      setTicket(validateTicket(ticketFromHash(hash)));
-      setStatus('');
+      open(ticketFromHash(hash), false);
     } catch {
-      setTicket(null);
+      showHub();
       setStatus('这张票打不开，请让对方重新发一张');
     }
-  }, [hash]);
+  }, [hash, open, showHub]);
   useEffect(() => {
     window.scrollTo({ top: 0 });
     titleRef.current?.focus({ preventScroll: true });
@@ -349,7 +358,11 @@ export default function ParallelShanghai({ onClose, hash, preset }: {
   return <main className="parallel">
     <div className="parallel-bar">
       <button className="parallel-quiet" onClick={onClose}>← 回魔都</button>
-      {screen !== 'hub' && <button className="parallel-quiet" onClick={() => { open(null); setEditing(null); setUsePreset(false); }}>回故事列表</button>}
+      {screen !== 'hub' && <button className="parallel-quiet" onClick={() => {
+        showHub();
+        playSound('tap');
+        if (isTicketHash(window.location.hash)) window.location.hash = 'parallel';
+      }}>回故事列表</button>}
     </div>
     <input ref={fileRef} type="file" accept=".json,application/json" hidden onChange={event => importTicket(event.target.files?.[0])} />
     {content}
