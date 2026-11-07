@@ -24,7 +24,7 @@ import Icon, { type IconName } from './components/Icon';
 import { CardArt, Portrait, PlayerPortrait } from './components/Portrait';
 import AppearancePicker from './components/AppearancePicker';
 import ContactProfile from './components/ContactProfile';
-import { eventPhoto, LOOKS, streetPhoto } from './game/art';
+import { eventPhoto, interviewPhoto, LOOKS, streetPhoto } from './game/art';
 import { DialogueGame } from './components/MiniGames';
 import RentalGame from './components/RentalGame';
 import { rentalNegotiation } from './game/rental';
@@ -271,7 +271,7 @@ export default function App(){
  <button className="mode-entry guest-mode" onClick={()=>setParallel(true)}><b>重走别人的人生</b><span>去平行上海 <Icon name="arrow" size={17}/></span></button>
  </div><button className="pearl-entry" onClick={()=>{window.location.hash=pearlHash(newSeed(),undefined,CURRENT_PEARL_RULES);}}><Icon name="bolt" size={17}/>先躲一轮激光</button>{game&&<button className="continue-button" onClick={()=>{setScreen(game.ended?'end':'play');setModal(null);}}>继续上回 · {game.name}的{game.age}岁 <Icon name="chevron" size={16}/></button>}</div></div><div className="hero-city"><picture>
   <source media="(max-width: 600px)" srcSet={streetPhoto('cover-south-station-mobile')}/>
-  <img className="home-key-art" src={streetPhoto('cover-south-station')} alt="雨中的上海南站，一位旅客拉着行李箱，在站外低头看手机" fetchPriority="high"/>
+  <img className="home-key-art" src={streetPhoto('cover-south-station')} alt="上海南站的雨棚下，一位旅客扶着行李箱望向公交站" fetchPriority="high"/>
  </picture><div className="hero-shade"/></div><div className="home-bottom"><span className="ticker-label">申城小报</span><div className="ticker"><span>外滩发布柠檬水预警</span><span>公园相亲角下雨，摊主撑伞继续</span><span>安福路面馆招一晚帮工，管饭</span></div></div></main>}
  {screen==='draw'&&<main className="draw-screen">
   <div className="draw-heading">
@@ -365,7 +365,7 @@ export default function App(){
    </div>}
    <div className="career-grid">{CAREERS.map(c=><button key={c.id} disabled={game.actions<=0} className={'career-option '+(game.jobId===c.id?'current':'')}
     onClick={()=>{setModal(null);setMini({type:'dialogue',career:c});}}>
-    <span style={{background:c.color+'20',color:c.color}}><Icon name="case" size={20}/></span><h3>{c.name}</h3>
+    <img className="career-preview" src={interviewPhoto(c.id)} alt="" loading="lazy"/><h3>{c.name}</h3>
     <b>{money(c.salary)}<small>/月起</small></b><p>{c.description}</p>
     <div>{game.jobId===c.id?'当前职业 · 再谈一次':'面试看看'}<Icon name="arrow" size={15}/></div>
    </button>)}</div>

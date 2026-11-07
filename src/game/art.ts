@@ -44,6 +44,10 @@ export function workPhoto(shot: WorkPhoto): string {
  return `/art/work/${shot}.webp`;
 }
 
+export function interviewPhoto(careerId: string): string {
+ return `/art/interviews/${careerId}.webp`;
+}
+
 export function pearlPhoto(shot: 'arena' | 'hero' | 'receipt' | 'booth' | 'night-office' | 'clean' | 'spill'): string {
  return `/art/pearl/${shot}.webp`;
 }

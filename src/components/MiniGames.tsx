@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { Career, CastMember, Effect, FirstDatePicks } from '../game/types';
 import { romanceQuestions, type Question } from '../game/dates';
-import { datePhoto, workPhoto } from '../game/art';
+import { datePhoto, interviewPhoto } from '../game/art';
 import Icon from './Icon';
 import { Portrait } from './Portrait';
 
@@ -13,15 +13,15 @@ const interviewStarts:Record<string,Question>={
  tech:interviewOpening('负责人把简历放下。「上回上线出问题，你先干了什么？」',
   ['说清怎么复现、怎么把影响停住','对方把电脑转过来，让你指一个会先看的地方。'],
   ['讲团队熬了多久，先别提哪段是我写的','「你负责哪段？」对方问第二遍的时候已经放下了笔。'],
-  ['拿一个小项目讲我犯过的错','项目很小。他听到你怎么发现错误时，把笔又拿起来了。']),
+  ['拿一个小项目讲我犯过的错','项目很小。听到你怎么发现错误，对方又拿起了笔。']),
  creative:interviewOpening('桌上摆着三张海报。她点第一张，说客户改了七次之后又想用它。',
   ['问第一张为什么被改，拿出两版对着讲','她把最后一版抽回来，发现活动时间早就改了。'],
   ['说客户爱哪张就交哪张','她问那谁负责把三张的日期查一遍。'],
   ['先问客户最想保住哪个地方','她指了指主图，说终于有人问这句了。']),
- finance:interviewOpening('他把两张表叠在一起推过来。「总额一样。可我觉得这两张都错了。」',
-  ['顺着其中一笔查回原始记录','你找到了一笔被抄了两遍的款。他把另外一张也摊开了。'],
-  ['总额一样，先把表发出去','他把光标移到收件人栏，问你敢不敢用自己的名字发。'],
-  ['先找口径不同的列','你圈出了一个含税数。他问这列是谁给你的。']),
+ finance:interviewOpening('她把两张表叠在一起推过来。「总额一样。可我觉得这两张都错了。」',
+  ['顺着其中一笔查回原始记录','你找到了一笔被抄了两遍的款。她把另外一张也摊开了。'],
+  ['总额一样，先把表发出去','她把光标移到收件人栏，问你敢不敢用自己的名字发。'],
+  ['先找口径不同的列','你圈出了一个含税数。她问这列是谁给你的。']),
  service:interviewOpening('吴师傅把两张面单放在柜台上。「一桌等了二十分钟，另一桌先端到了。你先找谁？」',
   ['先跟在等的人讲清楚，再去后厨确认','他把后厨那张翻过来，背面还有一行不放葱。'],
   ['先把现成的端给等得久的那桌','「那人家不吃葱，你这一碗怎么交？」'],
@@ -65,7 +65,7 @@ export function DialogueGame({person,career,skill,cash,flags,onFinish,onParting}
  const [selected,setSelected]=useState<number|null>(null);
  const [shotReady,setShotReady]=useState(false);
  const round=picks.length;
- const shot=person?datePhoto(person.id,'meeting'):workPhoto(['service','business'].includes(career.id)?'interview-shop':'interview-office');
+ const shot=person?datePhoto(person.id,'meeting'):interviewPhoto(career.id);
  const showShot=!person||round>0;
  const questions=person?romanceQuestions(person,flags):interviewQuestions(career);
  const question=questions[round];

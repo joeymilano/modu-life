@@ -51,6 +51,13 @@
 .street-place small { color: #ccc0aa; font-size: 10px; letter-spacing: .08em; }
 .street-place b { color: inherit; font: 700 clamp(15px,1.35vw,20px)/1.15 var(--serif); }
 .street-place span span { color: #e1dbcf; font-size: 11px; line-height: 1.3; }
+.career-grid .career-option { padding-top: 0; overflow: hidden; }
+.career-preview {
+  display: block; width: calc(100% + 28px); max-width: none; margin: 0 -14px 12px;
+  aspect-ratio: 3/2; object-fit: cover; background: #29343a;
+}
+.career-grid .career-option > p { color: #596659; line-height: 1.65; }
+.career-grid .career-option > div { color: #46564b; }
 .street-index { padding: 3px 5px; color: #e4ccb0; font: 12px/1.2 ui-monospace,monospace; border: 1px solid #8d877e; }
 .story-lead {
   display: flex; align-items: center; gap: 10px; width: 100%;
@@ -89,6 +96,7 @@
   .street-places .street-place { min-height: 62px; padding: 7px; gap: 5px; }
   .street-place span span { display: none; }
   .street-index { font-size: 10px; }
+  .career-preview { width: calc(100% + 24px); margin-inline: -12px; }
   .city-street-mode > .story-leads { order: -1; margin: 0 0 8px; }
   .screen-play .scene-switch { min-width: 38px; padding: 0 5px; }
   .screen-play .scene-switch span { display: inline; font-size: 10px; }
