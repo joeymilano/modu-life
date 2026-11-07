@@ -301,19 +301,9 @@ export default function ParallelShanghai({ onClose, hash, preset }: {
     content = <>
       <div className="parallel-hero">
         <div className="parallel-hero-copy">
-          <span className="parallel-kicker">上海 · 平行站</span>
           <h1 ref={titleRef} tabIndex={-1}>重走别人的人生</h1>
-          <p>那天要是没赶上末班车呢</p>
+          <p>要是那晚没赶上末班车？</p>
           <button className="parallel-primary" onClick={() => document.getElementById('guest-stories')?.focus()}>挑一段来走 <Icon name="arrow" size={18} /></button>
-        </div>
-        <div className="parallel-hero-track" aria-hidden="true">
-          <svg viewBox="0 0 400 170" fill="none">
-            <path d="M10 85H125Q160 85 182 62L208 36Q229 14 266 14H389" />
-            <path d="M10 85H389" />
-            <path d="M10 85H125Q160 85 182 108L208 134Q229 156 266 156H389" />
-            <circle cx="122" cy="85" r="10" /><circle cx="330" cy="14" r="7" />
-            <circle cx="330" cy="85" r="7" /><circle cx="330" cy="156" r="7" />
-          </svg>
         </div>
       </div>
       <section className="parallel-shelf">
