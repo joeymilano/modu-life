@@ -625,7 +625,7 @@ export default function App(){
  }}>去平行上海重走这张纸 <Icon name="map" size={16}/></button>}
  {!relocationResult&&!forwardResult&&outcome.source&&outcome.source.event.choices.length>=3&&<button className="text-button parallel-outcome" onClick={()=>{
  const {event,choiceId}=outcome.source!;
- const sceneDistrict=DISTRICTS.find(item=>item.id===event.district)?.name??district.name;
+ const sceneDistrict=arrivalSource?'上海南站':DISTRICTS.find(item=>item.id===event.district)?.name??district.name;
  setTimelineDraft(draftFromEvent(event,choiceId,outcome.text,game.age,sceneDistrict));
  closeOutcome();setParallel(true);
  }}>把这一幕发给朋友 <Icon name="map" size={17}/></button>}</div></div>)}
