@@ -79,6 +79,13 @@
 .event-modal:has(.event-photo) .event-body { font-size: clamp(14px,1.18vw,17px); line-height: 1.8; }
 .city-street-mode > .story-leads { margin: 0; }
 
+@media (min-width: 851px) {
+  .screen-home .home-screen {
+    height: auto;
+    min-height: clamp(680px,calc(100svh - 92px),1100px);
+    max-height: none;
+  }
+}
 @media (max-width: 850px) {
   .screen-home .hero-city { height: clamp(256px,46svh,465px); }
   .screen-home .home-key-art { object-position: 88% 30%; }
