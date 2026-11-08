@@ -11,6 +11,7 @@ import { isStallSettlement, replayStall } from './stall';
 import { isJobOffer, replayJobOffer } from './jobOffers';
 import { openingLead } from './originStories';
 import { ALL_RENTAL_CLUES, isRentalRenewal, rentalNegotiation, rentalRenewal } from './rental';
+import { isWorkHandover, workHandover } from './workHandover';
 import type { ActivityKind, FirstDatePicks, GameState, LifeEvent } from './types';
 
 export const MAX_LINES = 8;
@@ -78,6 +79,10 @@ export function replayScene(state: GameState, scene: SceneRef): LifeEvent | null
   }
   if (isRentalRenewal(scene.eventId)) {
     const event = rentalRenewal(state);
+    return event?.id === scene.eventId ? event : null;
+  }
+  if (isWorkHandover(scene.eventId)) {
+    const event = workHandover(state);
     return event?.id === scene.eventId ? event : null;
   }
   if (scene.kind === 'rental') {

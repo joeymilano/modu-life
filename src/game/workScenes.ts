@@ -1,5 +1,5 @@
 import { workPhoto } from './art';
-import { monthlySalary, NIGHT_WORK } from './employment';
+import { employmentOf, monthlySalary, NIGHT_WORK, WORK_HANDOVER_PROOF } from './employment';
 import type { GameState, LifeEvent } from './types';
 
 const officeJobs = new Set(['tech', 'finance', 'creative', 'trade']);
@@ -9,14 +9,20 @@ const lostJob = { job: 'unemployed', setFlags: ['work-break'] };
 
 function reorganization(state: GameState): LifeEvent {
  const severance = monthlySalary(state) * 2;
+ const transferred = monthlySalary({ ...state, employment: { ...employmentOf(state), rate: .88 } });
+ const hasRecord = state.flags.includes(WORK_HANDOVER_PROOF);
  return {
   id: 'work-year-reorg', category: 'year', title: '四个人，三把椅子', tag: '工作变动',
-  text: '会议室门关上了。沈经理把一张新组织图推到你手边。原来四个人的组，图上只有三个框。她指了指隔壁组的空位，又从文件下面抽出一份离岗单。',
+  text: '会议室门关上了。沈经理把一张新组织图推到你手边。原来四个人的组，图上只有三个框。她指了指隔壁组的空位，又从文件下面抽出一份离岗单。' +
+   (hasRecord ? ' 你翻出第一回交接留下的那页纸，她问上面签字的是不是你。' : ''),
   speakerId: 'boss', district: 'lujiazui', illustration: workPhoto('reorg'),
   choices: [
-   { id: 'transfer', label: '去隔壁组，先保住这份工作', hint: '继续在岗，月薪减 12%',
+   { id: 'transfer', label: '去隔壁组，先保住这份工作', hint: '继续在岗 · 新月薪 ' + money(transferred),
     reply: '沈经理替你把第一场会约在下午。隔壁组的人指了张空桌，问你有没有多的显示器。', effect: { payRate: .88, network: 5, spirit: -2 } },
-   { id: 'argue', label: '拿出项目记录，争取留在原组', hint: '谈成保原薪，谈不成调岗降薪 25%',
+   hasRecord ? { id: 'argue', label: '拿签过的交接单，逐项对工作', hint: '留在原组 · 月薪保持 ' + money(monthlySalary(state)),
+    reply: '沈经理顺着日期往下翻。看到交接单最后那行，她把原组的第三张椅子拉出来，说你再教一个人，哪天休假也有人接得住。',
+    effect: { face: 7, trust: 5, skill: 3 } }
+   : { id: 'argue', label: '拿出项目记录，争取留在原组', hint: '谈成保原薪，谈不成按基础标准七五折调岗',
     reply: '你把只有你接过的三件事列了出来。沈经理看完，去隔壁打了个电话。', effect: { spirit: -3 },
     check: { stat: 'skill', threshold: 58, success: { face: 7 }, failure: { payRate: .75, spirit: -4 },
      successText: '她回来问你能不能把第三件也教给别人。工资单照旧。', failureText: '她把隔壁的空位留给你了。工资那一栏少了四分之一。' } },

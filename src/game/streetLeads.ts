@@ -3,6 +3,7 @@ import { firstNightLead } from './firstNight';
 import { pearlReceipt } from './pearl';
 import { parkVisit } from './matchmaking';
 import { rentalRenewal } from './rental';
+import { workHandover } from './workHandover';
 import type { GameState, LifeEvent } from './types';
 
 interface StreetLead {
@@ -84,5 +85,7 @@ export function streetLead(state: GameState) {
   if (match?.message) return { message: match.message, event: match.event };
   const renewal = rentalRenewal(state);
   if (renewal) return { message: '方姐把续约单送来了', event: renewal };
+  const work = workHandover(state);
+  if (work) return { message: work.tag === '对账' ? '有一笔钱要跟你对一下' : '新单位把交接时间发来了', event: work };
   return leads.find(lead => !state.seenEvents.includes(lead.event.id) && lead.available(state)) ?? null;
 }

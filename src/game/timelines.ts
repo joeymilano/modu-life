@@ -1,7 +1,8 @@
 import type { EventChoice, LifeEvent } from './types';
 import { PARK_RETURN_TICKET_SCENES, PARK_TICKET_SCENES } from './matchmaking';
 import { RENEWAL_TICKET_SCENES } from './rental';
-import { FERRY_STILLS, FIRST_NIGHT_STILLS, MATCH_STILLS, OPENING_STILLS, RENTAL_STILLS, TABLE_STILLS, datePhoto, farewellPhoto, ferryPhoto, matchPhoto, offerPhoto, openingPhoto, pearlPhoto, rentalPhoto, stallPhoto, streetPhoto, tablePhoto, workPhoto } from './art';
+import { HANDOVER_TICKET } from './workHandover';
+import { FERRY_STILLS, FIRST_NIGHT_STILLS, MATCH_STILLS, OPENING_STILLS, RENTAL_STILLS, TABLE_STILLS, datePhoto, farewellPhoto, ferryPhoto, handoverPhoto, matchPhoto, offerPhoto, openingPhoto, pearlPhoto, rentalPhoto, stallPhoto, streetPhoto, tablePhoto, workPhoto } from './art';
 import { CAREERS, CAST } from './content';
 import { PHOTO_SHOP_STILLS, PHOTO_SHOP_STORY, photoShopStill } from './photoShop';
 
@@ -54,9 +55,10 @@ const ticketShots = new Set([
   ...FERRY_STILLS.map(ferryPhoto),
   stallPhoto('close'), stallPhoto('burnt'),
   ...CAREERS.map(career => offerPhoto(career.id)),
+  ...CAREERS.map(career => handoverPhoto(career.id)),
   ...(['receipt', 'booth', 'night-office'] as const).map(pearlPhoto),
   ...(['mao', 'he', 'lu'] as const).map(farewellPhoto),
-  ...(['reorg', 'overtime', 'shift', 'invoice', 'return'] as const).map(workPhoto),
+  ...(['reorg', 'overtime', 'shift', 'invoice', 'return', 'payroll', 'settlement'] as const).map(workPhoto),
   ...CAST.filter(person => person.role === 'romance').flatMap(person => [datePhoto(person.id, 'parting'), datePhoto(person.id, 'return'), datePhoto(person.id, 'home')]),
   datePhoto('lin', 'meeting'),
   ...RENTAL_STILLS.map(rentalPhoto),
@@ -150,6 +152,38 @@ const rentalReturn: Timeline = {
       scene: event.text, shot: event.illustration,
       options: event.choices.slice(0, 2).map(choice => ticketOption(choice, null)),
     })),
+  ],
+};
+
+const [handoverStart, handoverPay] = HANDOVER_TICKET;
+const handoverStory: Timeline = {
+  id: 'handover-sheet', kind: 'life', title: '交接单上空着一行', author: '魔都人生',
+  original: '我当时先把队列修了，没等周宁签。几年后沈经理问谁接过那摊活。我翻到群里一条「收到」，再往上已经搜不到了。',
+  turns: [
+    {
+      date: '刚入职', place: '张江 · 值班桌', scene: handoverStart.text, shot: handoverStart.illustration,
+      options: [ticketOption(handoverStart.choices[0], 1), ticketOption(handoverStart.choices[1], 3)],
+    },
+    {
+      date: '隔年 · 发工资那天', place: '张江 · 工位', scene: handoverPay.text, shot: handoverPay.illustration,
+      options: handoverPay.choices.slice(0, 2).map(choice => ticketOption(choice, 2)),
+    },
+    {
+      date: '几年后', place: '陆家嘴 · 会议室', shot: workPhoto('reorg'),
+      scene: '沈经理把新组织图摊在桌上，四个人只留三个。你把旧交接单放过去。她看见接班人的签名，问你愿不愿意把这个活教给另一个人。',
+      options: [
+        { move: '原组照做，留一张给接班的人', after: '她把第三张椅子拉回桌边。下午你教新同事接班，写到末尾特地给他留了一行。', next: null },
+        { move: '把交接讲完，带离岗单下楼', after: '你把原件叠好。下楼时保安认得你，问明天还来不来，你想了想，说来拿杯子。', next: null },
+      ],
+    },
+    {
+      date: '几年后', place: '陆家嘴 · 会议室', shot: workPhoto('reorg'),
+      scene: '沈经理把新组织图摊在桌上，四个人只留三个。你打开手机找当时的记录。群里只留下一句「收到」，没写收到的是哪一班。',
+      options: [
+        { move: '接隔壁组，先问工资怎么算', after: '她把新数字转过来。隔壁组的人来领你，问你有没有多的显示器。', next: null },
+        { move: '签离岗单，先把工资算清', after: '你这回把每个数字都抄了一遍。上车时手机响了一下，原组把你移出了值班群。', next: null },
+      ],
+    },
   ],
 };
 
@@ -291,6 +325,7 @@ export const CITY_TIMELINES: Timeline[] = [
     ],
   },
   rentalReturn,
+  handoverStory,
   {
     id: 'scallion-bill', kind: 'life', title: '隔壁桌的葱油饼', author: '魔都人生',
     original: '我说了句「放回去」，林佳没理我，自己跟隔壁道了歉。散的时候她把餐巾留在账单底下。我过了两天再去找，老板说早擦桌子了。',

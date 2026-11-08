@@ -2,6 +2,7 @@ import { eventPhoto, portraitArt } from './art';
 import { CAREERS, CAST, DISTRICTS, HOUSING_NAMES } from './content';
 import { dateAnswer } from './dates';
 import { monthlyBudget } from './engine';
+import { WORK_HANDOVER_PROOF } from './employment';
 import { householdPlan } from './household';
 import { replayScene, type LifeLine } from './lifeLines';
 import type { GameState } from './types';
@@ -57,7 +58,7 @@ function relationship(state: GameState, speaker?: string) {
 
 const money = (value: number) => '¥' + value.toLocaleString('zh-CN');
 
-export function lineFacts(line: LifeLine, speaker?: string) {
+export function lineFacts(line: LifeLine, speaker?: string, showWorkRecord = false) {
  const { state } = line;
  const career = CAREERS.find(job => job.id === state.jobId);
  return [
@@ -65,6 +66,12 @@ export function lineFacts(line: LifeLine, speaker?: string) {
   { label: '工作', value: career?.ranks[state.jobRank] ?? career?.name ?? '待业' },
   { label: '住处', value: HOUSING_NAMES[state.housing] },
   { label: '月租', value: money(monthlyBudget(state).rent) },
+  ...(showWorkRecord ? [{ label: '交接记录', value: state.flags.includes(WORK_HANDOVER_PROOF) ? '留了签字单' : '手上没有' }] : []),
   { label: '关系', value: relationship(state, speaker) },
  ];
+}
+
+export function comparedFacts(lines: readonly LifeLine[], speaker?: string) {
+ const showWorkRecord = lines.some(line => line.state.flags.includes(WORK_HANDOVER_PROOF));
+ return lines.map(line => lineFacts(line, speaker, showWorkRecord));
 }

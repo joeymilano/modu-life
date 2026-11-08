@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { DISTRICTS } from '../game/content';
 import { streetPhoto, TIMELINE_COVER } from '../game/art';
 import { activeLine, lineName, MAX_LINES, type LifeBook } from '../game/lifeLines';
-import { describeDecision, lineDivergence, lineFacts } from '../game/lineComparison';
+import { comparedFacts, describeDecision, lineDivergence } from '../game/lineComparison';
 import { downloadBlob, makeLineCard } from '../game/share';
 import { PlayerPortrait } from './Portrait';
 import Icon from './Icon';
@@ -28,7 +28,7 @@ export default function LifeLines({ book, onFork, onSwitch, onDrop }: {
  const lanes = other ? [line, other] : [line];
  const split = other && lineDivergence(line, other);
  const scene = split && describeDecision(line, split.left);
- const facts = lanes.map(item => lineFacts(item, scene?.speaker));
+ const facts = comparedFacts(lanes, scene?.speaker);
  const full = book.lines.length >= MAX_LINES;
 
  async function print() {

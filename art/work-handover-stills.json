@@ -1,0 +1,68 @@
+{
+  "generator": "Built-in ImageGen",
+  "referenceCommit": "b0f113b",
+  "direction": "Natural workplace light, actual handoff gestures and used materials. Keep cast identities and clothing recognizable across their environmental portraits and story frames.",
+  "delivery": "Eleven landscape stills for handover, payroll and reorganization. Four vertical portraits and matching head crops.",
+  "assets": {
+    "public/art/work/start-creative.webp": {
+      "reference": "public/art/portraits/qi.webp",
+      "prompt": "Landscape 3:2 story frame. Same adult Chinese designer Qi Qing, bob and tan shirt, at a small Zhangjiang design office worktable. She rolls a long paper proof partway back and compares it with a second narrower print, looking at the new hire just out of frame as they realize the sent file was the old version. A metal ruler and plain cups, no legible text or screens, practical afternoon side light, used walls and floor, hands and face within central sixty percent."
+    },
+    "public/art/work/start-tech.webp": {
+      "reference": "public/art/portraits/ning.webp",
+      "prompt": "Landscape 3:2 Shanghai work story frame. Zhou Ning, same young adult male Chinese engineer with thin glasses, black side part and navy work fleece. After dusk in a realistic Zhangjiang office, a small phone vibrates face-up near his elbow, abstract screen with no text. He glances between an open unbranded laptop and a printed list held loosely in his hand, reacting with one eyebrow raised to a colleague just outside frame. Overhead task lighting, softly blue daylight out of distant windows, grounded natural colors, keep real device proportions. Face and phone in middle sixty percent."
+    },
+    "public/art/work/start-finance.webp": {
+      "reference": "public/art/portraits/boss.webp",
+      "prompt": "Landscape 3:2 Shanghai office story frame. Preserve the fictional adult finance manager Shen, familiar short side-parted black hair, charcoal navy blazer and simple warm-gray shirt. At a used table in Lujiazui office daylight, she peels apart two nearly identical taxi receipts, checking the back for a timestamp, looks aside to the new hire as she realizes both are for the same trip. A calculator and one closed dark laptop. Quiet midday sidelight from glass, no glamorous framing, no signage or legible receipt text. Real face and hands in center."
+    },
+    "public/art/work/start-service.webp": {
+      "reference": "public/art/portraits/wu.webp",
+      "prompt": "Landscape 3:2 story frame. Same middle-aged Chinese cook Wu with receding dark hair, black cotton tee and worn charcoal apron. In a modest Shanghai Minhang noodle shop after the dinner rush, he leans over the scratched stainless counter to match two small receipt strips beside an open till, eyes on the paper as he talks to the unseen new worker. Steam only a faint hint at rear, one stack of cleaned bowls, neutral practical lighting, believable used tools and shadows, no readable print or brands. Face, receipts and hands safely central."
+    },
+    "public/art/work/start-public.webp": {
+      "reference": "public/art/portraits/yang.webp",
+      "prompt": "Landscape 3:2. Same adult Chinese community worker Yang Fan, warm khaki cotton jacket over gray tee, tidy short dark hair. In a small neighborhood stairwell office near People's Park, he has just pulled a handwritten damage report toward himself and indicates a damp stain over a side wall with an unposed tilt of his head. An older resident with a canvas tote stands halfway out of frame, reporting the leak. One raincoat on a door hook. Gentle actual window daylight after rain. Photographic, face and forms central, no legible text."
+    },
+    "public/art/work/start-freelance.webp": {
+      "reference": "public/art/portraits/sun.webp",
+      "prompt": "Landscape 3:2. Same adult Chinese photographer Sun Abao with short dark hair, muted plum overshirt and familiar worn camera strap. In a cramped Shanghai photo studio facing away from the open doorway, he lifts one photographic print by its corner and slides a second crop underneath to compare. A camera and cheap light box sit unused nearby. He glances at the new freelancer mid-question, tired and curious. Practical diffuse daylight, genuine paper, no glossy styling, readable text or watermarks, central framing."
+    },
+    "public/art/work/start-business.webp": {
+      "reference": "public/art/portraits/he.webp",
+      "prompt": "Landscape 3:2. Same fictional adult Chinese food-stall cook He Liang, familiar black tee and faded indigo apron, in a small breakfast stall in Minhang before morning rush. He holds one order pad against the edge of the steamer and moves one empty paper takeaway box from the finished stack, looking at a second adult off frame as someone has just changed the order. A few correctly sized buns, subtle daylight through the half-open roller door, real stainless surfaces and worn apron, no restaurant advertisement, no readable print, face and working hands in central 65 percent."
+    },
+    "public/art/work/start-trade.webp": {
+      "reference": "public/art/portraits/gao.webp",
+      "prompt": "Landscape 3:2. Same fictional adult Chinese colleague Gao Yuan, short neat hair and olive work jacket, at a practical suburban Shanghai warehouse loading bay, kneeling beside two partially open sample boxes and counting packs with one hand while holding a short unbranded delivery list in the other. He calls a question over his shoulder to a new employee at the edge of frame. Neutral diffuse daylight from open loading door, plausible cardboard folds, pallet in the back, no fake logistics branding or text, face, gesture, and carton central."
+    },
+    "public/art/work/payroll.webp": {
+      "reference": "public/art/work/invoice.webp",
+      "prompt": "Landscape 3:2 quiet live-action insert at a worn work desk near a Shanghai window. Only the adult worker's believable hands and part of a gray cotton sleeve. One hand fans a plain white folded payroll slip against a half-size paper handover record and the other has set down a pencil beside a metal paper clip. A face-down plain smartphone near edge, fresh soft daylight, honest used tabletop, grounded photographic depth. All print naturally indistinct. Keep the papers centered and larger than half the image. No actors' faces, no readable text or logos."
+    },
+    "public/art/work/settlement.webp": {
+      "reference": "public/art/work/invoice.webp",
+      "prompt": "Landscape 3:2 quiet insert at the edge of a Shanghai shop counter. A fictional adult freelancer's hands lay a worn kraft envelope with attached small order stub beside a simple bound ledger and an ordinary calculator. Paper has visible fold marks, faint grid without readable words, morning light and a faded cotton towel at the edge. Different warm plywood counter from salaried desk, naturally photographic everyday scale. Central framing, no screens or branding."
+    },
+    "public/art/work/reorg.webp": {
+      "reference": "public/art/work/reorg.webp",
+      "prompt": "Landscape 3:2. Same adult middle-aged Chinese manager Shen from reference, black side-part bob and plain navy blazer over gray top. Re-stage in modest Lujiazui conference room at the end of the workday, viewpoint from short end of the table, she has stood up and is sliding one paper between the three empty chairs on the far side and the employee in foreground edge. Three real rolling chairs, third one pulled away from table, exactly one short office cabinet against wall. She turns to address the employee, a weary concentrated face in natural last daylight, use a 40 mm camera, no actor looking at lens, no readable layout or illegible pseudo-text, plausible skyline glimpsed in plain unwashed side window. Keep face and document crop-safe."
+    },
+    "public/art/portraits/qi.webp": {
+      "reference": "public/art/portraits/qi.webp",
+      "prompt": "Vertical 2:3 environmental portrait of the same fictional adult Shanghai designer Qi Qing, preserve face, short swept dark hair and familiar stone-tan linen overshirt. In a Zhangjiang studio near an open door, she has just caught two prints slipping out of a folded portfolio, looks at the colleague beside camera with an amused pursed smile. Real working clothes, soft indirect daylight, visible real skin texture. Frame above hair to upper thighs, face x=50% and eyes about y=30%, no head clipping."
+    },
+    "public/art/portraits/ning.webp": {
+      "reference": "public/art/portraits/ning.webp",
+      "prompt": "Vertical 2:3 environmental portrait, same fictional adult Chinese engineer Zhou Ning with thin glasses, short black side-part, navy fleece. At the end of a Zhangjiang afternoon, he pauses beside a low window and takes his access card out of the pocket to hold the door for an off-camera teammate. He looks sideways and smiles a bit late, natural creases and honest daylight. Small office exit details, no readable signage. Head to upper thigh, face central and eyes around y=30%."
+    },
+    "public/art/portraits/gao.webp": {
+      "reference": "public/art/portraits/gao.webp",
+      "prompt": "Vertical 2:3 environmental portrait, retain adult Shanghai colleague Gao Yuan's face, compact hair and familiar olive cotton work jacket. Just outside a Shanghai warehouse office door, balanced against the jamb with one paper takeaway cup at waist height, he has turned to talk to a coworker carrying the keys. Dry little smile, normal clothes, soft cloudy daylight and old neutral building trim. Face central and eyes about y=30%, frame above hair to upper thigh."
+    },
+    "public/art/portraits/boss.webp": {
+      "reference": "public/art/portraits/boss.webp",
+      "prompt": "Vertical 2:3 environmental portrait. Same recognizable fictional middle-aged Chinese manager Shen, black side-swept bob, understated navy blazer and warm-gray top, natural skin with small fine lines. She stands beside an unused conference room in a real Lujiazui workplace, half-turned to her colleague just out of frame, momentarily lifts a document to let them take it. A slight dry smile, unposed. Window bounce, modest glass partition and an ordinary stack of cups, no readable signage. Head to upper thigh, face central and eyes y=30%."
+    }
+  }
+}

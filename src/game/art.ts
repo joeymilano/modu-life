@@ -38,10 +38,14 @@ export function datePhoto(personId: string, scene: 'meeting' | 'parting' | 'retu
  return `/art/dates/${personId}-${scene}.webp`;
 }
 
-export type WorkPhoto = 'reorg' | 'overtime' | 'shift' | 'invoice' | 'return' | 'interview-office' | 'interview-shop';
+export type WorkPhoto = 'reorg' | 'overtime' | 'shift' | 'invoice' | 'return' | 'interview-office' | 'interview-shop' | 'payroll' | 'settlement';
 
 export function workPhoto(shot: WorkPhoto): string {
  return `/art/work/${shot}.webp`;
+}
+
+export function handoverPhoto(careerId: string): string {
+ return `/art/work/start-${careerId}.webp`;
 }
 
 export function interviewPhoto(careerId: string): string {

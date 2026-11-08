@@ -2,7 +2,7 @@ import { allOrigins, ending } from './engine';
 import { endingPhoto, LIFE_ALBUM_AGES, pearlPhoto, playerArt, stallPhoto, streetPhoto, TIMELINE_COVER } from './art';
 import { CAREERS, DISTRICTS } from './content';
 import { PEARL_PATH, pearlHash, pearlRank, pearlRoundCount, type PearlRules, type PearlScore } from './pearl';
-import { describeDecision, lineDivergence, lineFacts } from './lineComparison';
+import { comparedFacts, describeDecision, lineDivergence } from './lineComparison';
 import { lineName, type LifeLine } from './lifeLines';
 import type { GameState } from './types';
 import { SITE_URL } from './site';
@@ -231,7 +231,7 @@ export async function makeLineCard(first: LifeLine, second: LifeLine): Promise<B
  if (!ctx) throw new Error('对照图没存下来');
  const split = lineDivergence(first, second);
  const scene = split && describeDecision(first, split.left);
- const facts = [lineFacts(first, scene?.speaker), lineFacts(second, scene?.speaker)];
+ const facts = comparedFacts([first, second], scene?.speaker);
  const sameHand = challengeUrl(first.state) === challengeUrl(second.state);
  const ink = '#253d32', brick = '#903d2c';
  ctx.fillStyle = '#f5eedf';
@@ -279,7 +279,7 @@ export async function makeLineCard(first: LifeLine, second: LifeLine): Promise<B
   ctx.font = 'bold 31px sans-serif';
   for (const [column, x] of starts.entries()) ctx.fillText(facts[column][i].value, x, y + 44, 360);
  }
- const hasCode = sameHand && await paintChallengeCode(ctx, challengeUrl(first.state), 1020, 1212, 184);
+ const hasCode = sameHand && await paintChallengeCode(ctx, challengeUrl(first.state), 1020, facts[0].length > 5 ? 1234 : 1212, 184);
  ctx.fillStyle = ink;
  ctx.fillRect(60, 1231, hasCode ? 746 : 960, 2);
  ctx.font = 'bold 29px sans-serif';

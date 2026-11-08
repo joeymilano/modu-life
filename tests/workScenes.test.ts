@@ -2,7 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { createGame, drawOrigins, monthlyBudget, nextYear, resolveChoice, selectEvent, validateSave } from '../src/game/engine';
 import { activeLine, decodeLife, encodeLife, forkLife, recordDecision, replayScene, startBook } from '../src/game/lifeLines';
 import type { GameState, LifeEvent } from '../src/game/types';
-import { NIGHT_WORK } from '../src/game/employment';
+import { NIGHT_WORK, WORK_HANDOVER_PENDING, WORK_HANDOVER_PROOF } from '../src/game/employment';
+import { CAREERS } from '../src/game/content';
+import { jobOffer } from '../src/game/jobOffers';
+import { workHandover } from '../src/game/workHandover';
+import { draftFromEvent, ticketFromHash, validateTicket, walk } from '../src/game/timelines';
 
 const employed = (jobId: string, age = 33): GameState =>
  ({ ...createGame('CHANGE','小申','free',drawOrigins('CHANGE')), age, jobId, cash: 70000, jobRank: 1 });
@@ -64,5 +68,65 @@ describe('工作变动和账本',()=>{
   expect(nextYear(quieter).state.stats.health - nextYear(late).state.stats.health).toBe(4);
   expect(resolveChoice(late,offer('tech'),'take').state.flags).not.toContain(NIGHT_WORK);
   expect(selectEvent(freelance,'year').id).toBe('work-year-invoice');
+ });
+
+ it('opens a unique handover after signing in each of the eight careers', () => {
+  const before = { ...employed('tech', 18), pendingYearEvent: false, jobId: null, jobRank: 0 };
+  const images = new Set<string>();
+  for (const career of CAREERS) {
+   const event = jobOffer(before, career, { topic: 'hours', proof: true });
+   const declined = resolveChoice(before, event, 'leave').state;
+   expect(workHandover(declined)).toBeUndefined();
+   const signed = resolveChoice(before, event, event.choices[0].id).state;
+   expect(signed.flags).toContain(WORK_HANDOVER_PENDING);
+   const handover = workHandover(signed)!;
+   expect(handover.illustration).toBe('/art/work/start-' + career.id + '.webp');
+   images.add(handover.illustration!);
+   const written = resolveChoice(signed, handover, 'record');
+   expect(written.state.flags).toContain(WORK_HANDOVER_PROOF);
+   expect(written.state.flags).not.toContain(WORK_HANDOVER_PENDING);
+   expect(workHandover(written.state)).toBeUndefined();
+   expect(draftFromEvent(handover, 'record', written.text, signed.age, '上海').turns[0].shot).toBe(handover.illustration);
+   const later = { ...nextYear(written.state).state, pendingYearEvent: false };
+   const check = workHandover(later)!;
+   const payoff = resolveChoice(later, check, 'claim').state;
+   expect(payoff.cash - later.cash).toBe(career.id === 'freelance' || career.id === 'business' ? 600 : 380);
+   expect(workHandover(payoff)).toBeUndefined();
+   expect(payoff.flags).toContain(WORK_HANDOVER_PROOF);
+  }
+  expect(images.size).toBe(8);
+ });
+
+ it('keeps written evidence on a timeline and loses it only when leaving that job', () => {
+  const before = { ...employed('tech', 30), pendingYearEvent: false, jobId: null, jobRank: 0 };
+  const signed = resolveChoice(before, offer('tech'), 'take').state;
+  const first = workHandover(signed)!;
+  const kept = resolveChoice(signed, first, 'record').state;
+  const original = recordDecision(startBook(signed), kept, first, 'record');
+  const branch = activeLine(decodeLife(encodeLife(forkLife(original, 0))));
+  expect(replayScene(branch.state, branch.replay!)).toEqual(first);
+  const noProof = resolveChoice(branch.state, first, 'finish').state;
+  expect(workHandover({ ...noProof, age: 31 })).toBeUndefined();
+  const sameJob = resolveChoice(kept, offer('tech'), 'take').state;
+  expect(sameJob.flags).toContain(WORK_HANDOVER_PROOF);
+  const later = { ...kept, age: 33, pendingYearEvent: true };
+  const reorg = selectEvent(later, 'year');
+  expect(reorg.choices.find(choice => choice.id === 'argue')?.check).toBeUndefined();
+  const protectedSalary = resolveChoice(later, reorg, 'argue').state;
+  expect(monthlyBudget(protectedSalary).salary).toBe(monthlyBudget(later).salary);
+  expect(selectEvent({ ...noProof, age: 33, pendingYearEvent: true }, 'year').choices[1].check).toBeDefined();
+  const nextJob = resolveChoice(kept, offer('trade'), 'take').state;
+  expect(nextJob.flags).not.toContain(WORK_HANDOVER_PROOF);
+  expect(workHandover(nextJob)).toBeUndefined();
+  expect(workHandover({ ...nextYear(nextJob).state, pendingYearEvent: false })?.illustration).toBe('/art/work/start-trade.webp');
+ });
+
+ it('plays the handover and its distinct later scenes in the independent guest mode', () => {
+  const { timeline } = validateTicket(ticketFromHash('#story=handover-sheet'));
+  expect(walk(timeline, [{ pick: 0 }]).next).toBe(1);
+  expect(timeline.turns[1].shot).toBe('/art/work/payroll.webp');
+  expect(walk(timeline, [{ pick: 0 }, { pick: 0 }]).next).toBe(2);
+  expect(walk(timeline, [{ pick: 1 }]).next).toBe(3);
+  expect(walk(timeline, [{ pick: 1 }, { pick: 1 }]).next).toBeNull();
  });
 });
