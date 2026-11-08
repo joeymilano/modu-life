@@ -1,9 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
 import { pearlPhoto } from '../game/art';
-import { pearlRank, pearlRoundCount, type PearlChallenge, type PearlScore } from '../game/pearl';
+import { comparePearlScore, CURRENT_PEARL_RULES, pearlHash, pearlRank, pearlRoundCount, type PearlChallenge, type PearlScore } from '../game/pearl';
 import { downloadBlob, makePearlTicket, pearlChallengeUrl } from '../game/share';
+import { newSeed } from '../game/seed';
 import Icon from './Icon';
 import LaserGame from './LaserGame';
+
+function resultMessage(score: PearlScore, target?: number, targetBlocks?: number) {
+ if (target === undefined) return '把小票发过去，朋友会碰到同样的红光。';
+ if (score.hits < target) return `你比朋友少洒 ${target - score.hits} 回。`;
+ if (score.hits > target) return `朋友只洒了 ${target} 回。杯子还在，再来？`;
+ if (targetBlocks === undefined) return '你们洒得一样多。';
+ const order = comparePearlScore(score, target, targetBlocks);
+ if (order === 0) return '杯子打平，伞也打平。';
+ return order < 0 ? '洒得一样多，你少用伞挡了一回。' : '洒得一样多，朋友少用伞挡了一回。';
+}
 
 export default function PearlArcade({challenge, onClose, audio, onAudio}: {
  challenge: PearlChallenge; onClose: () => void; audio: boolean; onAudio: () => void;
@@ -16,7 +27,7 @@ export default function PearlArcade({challenge, onClose, audio, onAudio}: {
  const resultHeading = useRef<HTMLHeadingElement>(null);
  const board = useRef<HTMLElement>(null);
  const title = useRef<HTMLHeadingElement>(null);
- const {seed, target, rules = 1} = challenge;
+ const {seed, target, targetBlocks, rules = 1} = challenge;
 
  useEffect(() => {
   window.scrollTo(0, 0);
@@ -26,12 +37,7 @@ export default function PearlArcade({challenge, onClose, audio, onAudio}: {
   if (score) resultHeading.current?.focus();
  }, [score]);
 
- const link = score ? pearlChallengeUrl(seed, score.hits, rules) : '';
- const comparison = score && target !== undefined
-  ? score.hits === target ? '你们洒得一样多。'
-   : score.hits < target ? `你比朋友少洒 ${target - score.hits} 回。`
-   : `朋友只洒了 ${target} 回。杯子还在，再来？`
-  : '把小票发过去，朋友会碰到同样的红光。';
+ const link = score ? pearlChallengeUrl(seed, score.hits, rules, score.blocks) : '';
 
  async function copyLink() {
   try {
@@ -76,7 +82,9 @@ export default function PearlArcade({challenge, onClose, audio, onAudio}: {
     <img src={pearlPhoto('hero')} alt="雨后的外滩，拿柠檬水的旅客听见动静回头" width={850} height={1275}/>
     <div>
      <h1 ref={title} tabIndex={-1} aria-label="四元柠檬水保卫战"><span>四元柠檬水</span><span>保卫战</span></h1>
-     <p>{target === undefined ? '吸管刚插下去，对岸的灯就红了。' : target === 0 ? '朋友刚才一滴没洒。换你拿杯子。' : `朋友刚在这儿洒了 ${target} 回。换你拿杯子。`}</p>
+     <p>{target === undefined ? '吸管刚插下去，对岸的灯就红了。'
+      : targetBlocks !== undefined ? `朋友洒了 ${target} 回，挡了 ${targetBlocks} 回。换你拿杯子。`
+      : target === 0 ? '朋友刚才一滴没洒。换你拿杯子。' : `朋友刚在这儿洒了 ${target} 回。换你拿杯子。`}</p>
     </div>
    </section>
    <section className="pearl-board" ref={board} tabIndex={-1} aria-label="外滩走位">
@@ -84,14 +92,18 @@ export default function PearlArcade({challenge, onClose, audio, onAudio}: {
      <p className="eyebrow">外滩小票 · #{seed}</p>
      <h2 ref={resultHeading} tabIndex={-1}>{pearlRank(score)}</h2>
      <div className="pearl-score"><span>洒了 <b>{score.hits}</b> 回</span><span>挡住 <b>{score.blocks}</b> 回</span></div>
-     <p>{comparison}</p>
+     <p>{resultMessage(score, target, targetBlocks)}</p>
      <img src={pearlPhoto(score.hits ? 'spill' : 'clean')}
       alt={score.hits ? '洒在石板上的冰块和递过来的纸巾' : '江边的柠檬水还满着'} width={1320} height={880}/>
      <div className="pearl-result-actions">
       <button type="button" className="primary" onClick={copyLink}><Icon name="share" size={17}/>复制挑战链接</button>
       <button type="button" className="secondary" disabled={printing} onClick={printTicket}><Icon name="download" size={17}/>{printing?'打印中':'下载小票'}</button>
       <button type="button" className="text-button" onClick={replay}>原路再来一次</button>
+      <button type="button" className="text-button" onClick={() => { window.location.hash = pearlHash(newSeed(), undefined, CURRENT_PEARL_RULES); }}>换条路线</button>
      </div>
+     <a className="text-button pearl-story-link" href="/#story=pearl-signal">
+      <Icon name="book" size={16}/> 上船，看看五年后的外滩 <Icon name="chevron" size={15}/>
+     </a>
      {linkField && <label className="pearl-link-field">挑战链接
       <input value={link} readOnly autoFocus onFocus={event => event.target.select()}/>
      </label>}

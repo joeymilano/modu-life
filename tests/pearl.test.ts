@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { createGame, drawOrigins, resolveChoice, selectEvent } from '../src/game/engine';
 import { activeLine, forkLife, recordDecision, replayScene, startBook, switchLine } from '../src/game/lifeLines';
-import { PEARL_DELAYS, pearlHash, pearlLanes, pearlRank, pearlReward, pearlRoundCount, pearlRounds, readPearlChallenge } from '../src/game/pearl';
+import { comparePearlScore, CURRENT_PEARL_RULES, PEARL_DELAYS, pearlHash, pearlLanes, pearlRank, pearlReward, pearlRoundCount, pearlRounds, readPearlChallenge } from '../src/game/pearl';
+import { pearlChallengeUrl } from '../src/game/share';
 import { streetLead } from '../src/game/streetLeads';
 import { draftFromEvent } from '../src/game/timelines';
 import type { LifeEvent } from '../src/game/types';
@@ -45,6 +46,35 @@ describe('Bund lemonade challenge', () => {
   expect(pearlReward({ method: 'run', score: clean }).effect.setFlags).toContain('laser_master');
   expect(pearlReward({ method: 'run', score: saved }).effect.setFlags).not.toContain('laser_master');
   expect(pearlReward({ method: 'run', score: { hits: 3, blocks: 0 } }).effect.health).toBe(-9);
+ });
+
+ it('adds two opposite sweeps with a readable first lane and deterministic beats', () => {
+  const seed = 'AFTER-RAIN';
+  const version = CURRENT_PEARL_RULES;
+  expect(pearlRoundCount(version)).toBe(7);
+  const waves = pearlRounds(seed, version);
+  expect(waves.map(wave => wave.kind)).toEqual(['single', 'single', 'double', 'sweep', 'lock', 'double', 'sweep']);
+  const sweeps = waves.filter(wave => wave.kind === 'sweep');
+  expect(sweeps[1].order).toEqual([...sweeps[0].order].reverse());
+  for (const sweep of sweeps) {
+   expect([...sweep.order].sort()).toEqual([0, 1, 2]);
+   expect(sweep.mask).toBe(1 << sweep.order[0]);
+   expect(sweep.stepMs).toBeGreaterThan(400);
+  }
+  const link = new URL(pearlChallengeUrl(seed, 7, version, 1));
+  expect(link.pathname).toBe('/pearl/');
+  expect(readPearlChallenge(link.hash)).toEqual({ seed, target: 7, targetBlocks: 1, rules: 3 });
+  expect(readPearlChallenge(pearlHash(seed, 0, version, 0))?.targetBlocks).toBe(0);
+  expect(readPearlChallenge('#pearl=AA&v=3&hits=8&blocks=1')?.targetBlocks).toBeUndefined();
+  expect(readPearlChallenge('#pearl=AA&v=3&hits=0&blocks=2')?.targetBlocks).toBeUndefined();
+  expect(readPearlChallenge('#pearl=AA&v=2&hits=0&blocks=1')?.targetBlocks).toBeUndefined();
+ });
+
+ it('compares spills first and only breaks ties by blocks on new receipts', () => {
+  expect(comparePearlScore({ hits: 1, blocks: 0 }, 0, 1)).toBeGreaterThan(0);
+  expect(comparePearlScore({ hits: 0, blocks: 1 }, 1, 0)).toBeLessThan(0);
+  expect(comparePearlScore({ hits: 0, blocks: 1 }, 0)).toBe(0);
+  expect(comparePearlScore({ hits: 0, blocks: 0 }, 0, 1)).toBeLessThan(0);
  });
 
  it('branches from the receipt and carries the choice into the later business', () => {

@@ -60,7 +60,7 @@ export function stallPhoto(shot: 'counter' | 'sheng' | 'guo' | 'rush' | 'close' 
  return `/art/stall/${shot}.webp`;
 }
 
-export function pearlPhoto(shot: 'arena' | 'hero' | 'receipt' | 'booth' | 'night-office' | 'clean' | 'spill'): string {
+export function pearlPhoto(shot: 'arena' | 'hero' | 'receipt' | 'booth' | 'night-office' | 'clean' | 'spill' | 'umbrella'): string {
  return `/art/pearl/${shot}.webp`;
 }
 

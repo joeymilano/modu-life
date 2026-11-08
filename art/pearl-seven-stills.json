@@ -1,0 +1,74 @@
+{
+  "generator": "Built-in ImageGen",
+  "referenceCommit": "5e6fc35",
+  "direction": "Actual-feeling late-day Shanghai photography and translucent real fabric and drinks. The Oriental Pearl upper sphere and promenade meet the game's existing SVG coordinates at [300,98] and y=298 on a 600 by 400 arena.",
+  "delivery": "Seven arena, cover and story stills; six full-body alpha runner sprites, one alpha umbrella, and two guest timeline stills.",
+  "assets": {
+    "public/art/pearl/arena.webp": {
+      "reference": "public/art/pearl/arena.webp",
+      "prompt": "New wide 3:2 actual-feeling live-action still for an arcade arena. Keep the same west bank Bund granite promenade in Shanghai facing across the Huangpu, the Oriental Pearl slightly left of other Pudong towers but at x=50 percent of the picture, with the smaller upper red sphere specifically near y=24.5 percent. Center the tower vertically straight and recognizable. True architectural scale. From a believable standing height, wide 32 mm lens, long empty wet granite foreground across entire lower 36 percent, a row of simple black metal railing at middle depth, river behind, dusk sky with a little daylight, subtle gold windows, broken reflections on granite. The lower quarter must have clear depth, authentic textures and no people or obstructions across all lanes. Put only a few distant adults at very far sides if any. The tower is intact and ordinary. Do not paint any laser, glow, beam or interface. The engine adds lasers. Natural quiet urban movie color, no big moon, no purple fog, no readable text or title."
+    },
+    "public/art/pearl/hero.webp": {
+      "reference": "public/art/pearl/hero.webp",
+      "prompt": "Vertical 2:3 game key art, candid still from a live action Shanghai comedy. Keep the same fictional young adult woman with short loose tied black hair, navy work jacket and warm gray cotton T-shirt. She has just poked a straw into a modest clear plastic lemonade cup and glances sharply back over her shoulder, surprised but suppressing a laugh, the cup tilts only a tiny bit. Actual Bund stone rail and Oriental Pearl across the Huangpu behind her, after a brief rain at blue hour, ordinary warm window light bouncing, luminous but believable wet granite, no smear, natural detailed skin. Place face x=47 percent y=25 percent, cup around y=49 percent, the lower third is calm dark navy jacket and pavement for separately overlaid logo. Plausible real city scale, no visual beams in the photo, no graphics, text or branding."
+    },
+    "public/art/pearl/clean.webp": {
+      "reference": "public/art/pearl/clean.webp",
+      "prompt": "Wide 3:2 realistic editorial film still, at a granite railing on Shanghai's Bund at dusk. A relaxed adult hand with sleeve cuff raises a clear unlabeled cheap lemonade cup with lid and straw, two thin lemon slices and clear pale drink still up to its original fill line. At edge of frame, somebody else lifts one index finger to check the fill, playful informal celebratory atmosphere. Real Pudong skyline, recognizable Pearl tower distant across the river with correct separation, authentic photographic light, keep cup centered within crop and geometry correct, no texts or logos."
+    },
+    "public/art/pearl/spill.webp": {
+      "reference": "public/art/pearl/spill.webp",
+      "prompt": "Wide 3:2 realistic candid Shanghai scene from waist height. At the wet stone wall on the Bund shortly after a shower, a familiar plain clear lemonade cup is almost empty, partly tipped on the near stone surface beside three little melting ice cubes. One person reaches in with a crumpled white paper napkin while someone else's denim sleeve and hand are just coming into frame to steady the cup. Believable hand positions, real texture, soft natural river dusk and warm lamp reflection, Pearl tower and lamps vague in background. Main interaction within central sixty percent, no logos, text, laser or debris."
+    },
+    "public/art/pearl/receipt.webp": {
+      "reference": "public/art/pearl/receipt.webp",
+      "prompt": "Wide 3:2 true live-action Shanghai comedic scene. Preserve the same fictional Chinese adult male clerk from reference, dark cotton jacket and compact black hair. At a temporary folding table beside the Bund railing after dusk, he pulls an absurdly long piece of blank-looking thermal printer paper as an older neighbor in an ordinary gray shirt steadies the printer with one hand. They exchange a tired, almost amused glance. One red stamp, translucent lemonade cup, old lamp and empty cardboard mug sleeve. Real nearby Huangpu and the recognizable small Oriental Pearl across it. Central face and strip, no readable print, clean normal white balance."
+    },
+    "public/art/pearl/booth.webp": {
+      "reference": "public/art/pearl/booth.webp",
+      "prompt": "Wide 3:2 natural film still. Small local Shanghai kiosk after a rain near the river, old timber and metal frame with one ordinary yellow task lamp. In the foreground a hand lifts a plain clear four-yuan-looking lemon drink with two small yellow slices from a worn red-brown counter. A folded brown cup sleeve sits beside a tiny old steel tray and a navy umbrella hangs at the open window. Tired worker at far side glances over, leafy damp pavement and distant traffic outside. Lived-in scale and atmosphere, accurate texture and tone, keep cup central, no lettering, logo or graphic effects."
+    },
+    "public/art/pearl/night-office.webp": {
+      "reference": "public/art/pearl/night-office.webp",
+      "prompt": "Wide 3:2 story insert shot in a small utilitarian Bund night guard booth in Shanghai. Ordinary dust and off-white tiles, old small monitor shows an uncaptioned CCTV-style view of the recognizable Shanghai Oriental Pearl across the river. Foreground a single right hand in dark work sleeve reaches for a cheap metal toggle next to one little red indicator. Plain lemonade cup already open, office key ring and folded thermal receipt nearby. A funny matter-of-fact view, no sci-fi interface, no text, realistic old plastic and soft evening fluorescent light. Main button and hand within middle half, monitor makes spatial sense."
+    },
+    "public/art/pearl/runners/female-everyday.webp": {
+      "reference": "public/art/pearl/runners/female-everyday.webp",
+      "prompt": "Same adult woman in the supplied identity portrait, dark navy windbreaker, ordinary gray tee, charcoal straight trousers, worn white sneakers, ivory canvas tote tucked behind shoulder."
+    },
+    "public/art/pearl/runners/female-charming.webp": {
+      "reference": "public/art/pearl/runners/female-charming.webp",
+      "prompt": "Same adult woman in the supplied identity portrait, short black bob, faded brick red overshirt over pale tee, loose gray trousers, beige canvas shoulder bag and everyday sneakers."
+    },
+    "public/art/pearl/runners/female-stunning.webp": {
+      "reference": "public/art/pearl/runners/female-stunning.webp",
+      "prompt": "Same adult woman in supplied identity portrait, same deep jade green knee-length qipao-inspired fitted dress, dark hair tied up, natural posture and low black shoes."
+    },
+    "public/art/pearl/runners/male-everyday.webp": {
+      "reference": "public/art/pearl/runners/male-everyday.webp",
+      "prompt": "Same adult man in supplied identity portrait, short black hair, washed charcoal canvas jacket, black tee, ordinary jeans, messenger strap, and worn neutral sneakers."
+    },
+    "public/art/pearl/runners/male-charming.webp": {
+      "reference": "public/art/pearl/runners/male-charming.webp",
+      "prompt": "Same adult man in supplied identity portrait, dark slightly wavy hair, warm oat cardigan visible underneath a navy blue overshirt, dark straight trousers and casual tan sneakers."
+    },
+    "public/art/pearl/runners/male-stunning.webp": {
+      "reference": "public/art/pearl/runners/male-stunning.webp",
+      "prompt": "Same adult man in supplied identity portrait, plum Harrington-style jacket over ordinary white tee, dark gray trousers and plain white trainers."
+    },
+    "public/art/timelines/pearl-quay.webp": {
+      "reference": "public/art/timelines/pearl-quay.webp",
+      "transparent": false,
+      "prompt": "New 3:2 horizontal live-action story still from the Shanghai Bund ferry queue at 8:50 on a spring morning. Preserve the reference fictional young adult man's dark messy hair and navy cotton jacket, see him from behind three-quarter. In one hand he has a half-filled lemon drink with ordinary clear lid; he tilts his phone closer as if listening to an unexpected voice message, glancing toward the floating gate. Behind him credible, small queue of adult commuters seen side-on with one rolling case and one canvas shoulder bag, a real ferry in the middle distance, the Oriental Pearl across Huangpu at believable scale and pale soft daylight. Camera is level with people, candid moment, fingers and hands realistic, no digital glow, readable phone text, branding, title, or lighting effect. The same city on a normal Monday."
+    },
+    "public/art/timelines/pearl-kiosk.webp": {
+      "reference": "public/art/timelines/pearl-kiosk.webp",
+      "transparent": false,
+      "prompt": "New horizontal 3:2 candid live-action narrative still of the same fictional man several years later, slightly more tired eyes, same old navy jacket rolled at one cuff and familiar black wavy hair. At a small working Shanghai riverside kiosk on the opposite bank, he pushes the final plain lemonade cup toward his unseen visitor, with one blank sticky note on the counter next to it and a roll of real small change behind. He is looking just beside camera at the other person with a dry smile, no direct viewer pose. Scuffed brushed metal sill, simple thermos, real low afternoon daylight and a glimpse of river railing in the distance. Adult appearance, natural hair and pores, neutral color. No legible text, logo or watermark."
+    },
+    "public/art/pearl/umbrella.webp": {
+      "transparent": true,
+      "prompt": "Single cutout photographed opened dark oxblood-red fabric umbrella canopy for a real-life 2D game avatar on the Shanghai Bund at dusk, transparent background. View from behind the adult who would hold it, eye-level and slightly below the fabric. Natural matte burgundy fabric with slightly wet edges and visible true spokes at underside, a small amount of brass-gray central shaft beneath the canopy. The canopy shape occupies most of wide 3:2 frame, keep all corners and little rim tips inside frame with clear padding. Soft neutral city dusk light, ordinary consumer umbrella without logo, realistic geometry, no additional objects or person. The new asset is composited over a full-body runner. Do not generate a ground, background, black rectangle, painted shadow, border, or title. Genuine alpha transparency."
+    }
+  }
+}

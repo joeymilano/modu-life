@@ -302,9 +302,9 @@ export function readChallenge(params: URLSearchParams) {
 }
 
 
-export function pearlChallengeUrl(seed: string, target: number, rules: PearlRules = 1) {
+export function pearlChallengeUrl(seed: string, target: number, rules: PearlRules = 1, blocks?: number) {
  const url = new URL(rules === 1 ? '/' : PEARL_PATH, SITE_URL);
- url.hash = pearlHash(seed, target, rules);
+ url.hash = pearlHash(seed, target, rules, blocks);
  return url.toString();
 }
 
@@ -385,7 +385,7 @@ export async function makePearlTicket(seed: string, score: PearlScore, rules: Pe
  ctx.moveTo(64, 916);
  ctx.lineTo(896, 916);
  ctx.stroke();
- if (!await paintChallengeCode(ctx, pearlChallengeUrl(seed, score.hits, rules), 896, 945, 184)) {
+ if (!await paintChallengeCode(ctx, pearlChallengeUrl(seed, score.hits, rules, score.blocks), 896, 945, 184)) {
   throw new Error('小票的码还没印出来');
  }
  ctx.font = 'bold 29px sans-serif';
