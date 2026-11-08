@@ -149,6 +149,9 @@ describe('parallel timelines', () => {
     const banquet=dinner.turns[walk(dinner,[{pick:1}]).next!];
     expect(small.scene).toContain('碰杯的水印');
     expect(banquet.scene).toContain('庆功宴已经吃了');
+    expect(small.shot).toBe('/art/blossoms/huanghe-small-ledger.webp');
+    expect(banquet.shot).toBe('/art/blossoms/huanghe-banquet-bill.webp');
+    expect(walk(dinner,[{pick:1},{pick:1}]).steps.at(-1)?.option.shot).toBe('/art/blossoms/huanghe-soda-end.webp');
     const cameos=validateTicket(ticketFromHash('#story=shanghai-cameos')).timeline;
     expect(cameos.turns[walk(cameos,[{pick:0}]).next!].scene).toContain('胡歌');
     expect(cameos.turns[walk(cameos,[{pick:1}]).next!].scene).toContain('唐嫣');

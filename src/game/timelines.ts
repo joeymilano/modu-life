@@ -1,6 +1,6 @@
 import { forwardClue, PARK_FORWARD_TICKET } from './matchForward';
 import { STAFF_BED_TICKET } from './classLives';
-import { BLOSSOMS_STILLS, BLOSSOMS_TICKET, blossomsPhoto } from './blossoms';
+import { BLOSSOMS_STILLS, BLOSSOMS_TICKET, blossomsEndingPhoto, blossomsPhoto } from './blossoms';
 import { RELOCATION_PLANS, RELOCATION_SHOTS, RELOCATION_TICKET, relocationPhoto } from './relocation';
 import { ANFU_CORNER_TICKET, CORNER_STILLS, cornerPhoto } from './streetCorners';
 import { laterDaywork, laterHeir } from './lifeYears';
@@ -363,13 +363,18 @@ const staffBedStory: Timeline = {
 };
 
 const [huangheDinner,smallToast,bigToast,meetHu,meetTang]=BLOSSOMS_TICKET;
+function huangheFriday(event: LifeEvent, place: string): Turn {
+ const choices = ['settle','toast'] as const;
+ const turn = lateTurn(event, '周五 · 尾款到账', place, choices.map(id => [id,end]));
+ return {...turn, options:turn.options.map((option,index)=>({...option,shot:blossomsEndingPhoto(event,choices[index])}))};
+}
 const huangheToast: Timeline = {
  id:'huanghe-toast',kind:'life',title:'黄河路先庆哪一桩',author:'魔都人生',
  original:'我俩拿汽水碰了下杯。后来尾款到账，司机也来了。给他留的那瓶，何亮开早了，白冒一桌子汽。',
  turns:[
   lateTurn(huangheDinner,'第一单送到','黄河路 · 临窗小桌',[['small',1],['banquet',2]]),
-  receiptEnding(lateTurn(smallToast,'周五 · 尾款到账','黄河路 · 临窗小桌',[['settle',end],['toast',end]])),
-  receiptEnding(lateTurn(bigToast,'周五 · 尾款到账','黄河路 · 包厢门外',[['settle',end],['toast',end]])),
+  huangheFriday(smallToast,'黄河路 · 临窗小桌'),
+  huangheFriday(bigToast,'黄河路 · 包厢门外'),
  ],
 };
 const streetCameos: Timeline = {

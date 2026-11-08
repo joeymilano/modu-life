@@ -28,7 +28,7 @@ npm run dev
 - 24名人物，八名成年恋爱候选。对话按人物偏好结算吸引、信任与承诺；疏于维护关系会流失信任。
 - 中年后可以从街区消息或通讯录再见吴师傅、方姐和沈经理。三个人都会记得上次怎么收场，通讯录会留下当时的决定。方姐的押金故事也可以[直接试玩](https://modulife.pages.dev/#story=fang-deposit)。
 - [四元柠檬水保卫战](https://modulife.pages.dev/pearl/)在蜜雪冰城的小摊旁开打，雪王站在步道边。八轮，一把伞，虚线是倒影，脚下有斜纹就得换道。外滩试玩能选严可或孙阿宝，结算小票记下每一轮。旧挑战链接保留原来的五、六或七轮。人生模式里，过关后可以去江边对账，从小票上的决定另开时间线。
-- [黄河路先庆哪一桩](https://modulife.pages.dev/#story=huanghe-toast)写的是两种庆功和同一笔尾款。[在上海碰到谁](https://modulife.pages.dev/#story=shanghai-cameos)有外白渡桥与安福路的两场虚构街头偶遇。
+- [黄河路先庆哪一桩](https://modulife.pages.dev/#story=huanghe-toast)可以走汽水和包厢两条路，周五各有一张结账剧照。在「我的人生」21 岁以后去人民广场，可以翻菜单夹，找到 ¥48 拼桌的第三种庆功。[在上海碰到谁](https://modulife.pages.dev/#story=shanghai-cameos)有外白渡桥与安福路的两场虚构街头偶遇。
 - 约人界面可按当前城区筛选。八位约会角色在通讯录、约人和见面时使用对应年龄的照片，32 岁和 53 岁换到下一阶段。年轻时初次见面仍有不同的街景和饭桌镜头。
 - 通讯录可以切换全部、见过和有消息。吴师傅、方姐、沈经理等人的来信会排在前面，从照片点进去可以赴约。24 位联系人都有三个年龄段的头像和立绘，毛小毛、老妈等八位熟人的重拍提示词见 `art/support-casting.json`。
 - 点右上角扬声器可以开关游戏声音。配乐《Apero Hour》由 [Kevin MacLeod](https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1700070) 提供，采用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)，游戏中降低了音量并转码。

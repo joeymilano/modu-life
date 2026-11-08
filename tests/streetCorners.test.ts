@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { blossomsLead } from '../src/game/blossoms';
+import { blossomsClue, blossomsEndingPhoto, blossomsLead } from '../src/game/blossoms';
 import { createGame, drawOrigins, resolveChoice } from '../src/game/engine';
 import { activeLine, decodeLife, encodeLife, forkLife, recordDecision, replayScene, startBook } from '../src/game/lifeLines';
 import { CORNER_DISTRICTS, cornerCashDue, cornerCount, cornerEvidence, streetCorner } from '../src/game/streetCorners';
@@ -71,6 +71,16 @@ describe('walk-up stories', () => {
   const before=life('people');
   const dinner=streetLead(before)!.event;
   expect(dinner.id).toBe('blossoms-dinner');
+  expect(dinner.illustration).toBe('/art/blossoms/huanghe-table-young.webp');
+  expect(blossomsLead({...before,age:40})?.event.illustration).toBe('/art/blossoms/huanghe-table-midlife.webp');
+  expect(blossomsLead({...before,age:55})?.event.illustration).toBe('/art/blossoms/huanghe-table-senior.webp');
+  expect(blossomsClue(dinner.id)?.choiceId).toBe('hall');
+  const shared = resolveChoice(before,dinner,'hall').state;
+  expect(shared.cash).toBe(before.cash-48);
+  const sharedFriday=streetLead(shared)!.event;
+  expect(sharedFriday.text).toContain('等货费');
+  expect(resolveChoice(shared,sharedFriday,'settle').state.cash).toBe(before.cash+552);
+  expect(blossomsEndingPhoto(sharedFriday,'toast')).toBe('/art/blossoms/huanghe-soda-end.webp');
   const reserved=resolveChoice(before,dinner,'banquet').state;
   expect(reserved.cash).toBe(before.cash-680);
   const followup=streetLead(reserved)!.event;

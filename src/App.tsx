@@ -8,6 +8,7 @@ import { streetLead } from './game/streetLeads';
 import { CORNER_OBJECTS, cornerCashDue, cornerCount, cornerEvidence, streetCorner } from './game/streetCorners';
 import { openingLead } from './game/originStories';
 import { openingForecast } from './game/openingForecast';
+import { blossomsClue, blossomsEndingPhoto } from './game/blossoms';
 import { parkPaperClue, parkVisit } from './game/matchmaking';
 import { forwardClue } from './game/matchForward';
 import { ferryVisit } from './game/ferryVisit';
@@ -407,9 +408,11 @@ export default function App(){
  const scenePhoto=activeEvent&&!isOwl&&(activeEvent.illustration||!speaker)?eventPhoto(activeEvent,district.id):null;
  const openingMessages=activeEvent?.id==='first-night-arrival';
  const nightClue=activeEvent&&firstNightClue(activeEvent.id);
- const clue=nightClue?{...nightClue,choiceId:'3'}:activeEvent&&game
+ const dinnerClue=activeEvent&&blossomsClue(activeEvent.id);
+ const dinnerResultPhoto=outcome?.source&&blossomsEndingPhoto(outcome.source.event,outcome.source.choiceId);
+ const clue=dinnerClue??(nightClue?{...nightClue,choiceId:'3'}:activeEvent&&game
   ?contactEvidence(activeEvent.id)??cornerEvidence(activeEvent.id)??parkPaperClue(activeEvent.id)??forwardClue(activeEvent.id,game)
-  :undefined;
+  :undefined);
  const arrivalSource=outcome?.source?.event.id==='first-night-arrival'?outcome.source:undefined;
  const arrivalSender=arrivalSource?.event.choices.find(choice=>choice.id===arrivalSource.choiceId)?.senderId;
  const arrivalContact=arrivalSender&&CAST.find(person=>person.id===arrivalSender);
@@ -541,7 +544,7 @@ export default function App(){
  </main>}
  {screen==='end'&&game&&<EndingScreen game={game} sharing={sharing} onShare={share}
   onChallenge={copyChallenge} onDraw={()=>beginDraw()} onJournal={()=>setModal('journal')} onLines={()=>setModal('lines')}/>}
- {dialogOpen&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget&&!activeEvent&&!mini&&!outcome)setModal(null);}}><section className={'modal '+(activeEvent?'event-modal':'')+(wideShot?' wide-shot-modal':'')+(openingMessages?' arrival-modal':'')+(arrivalReply?' arrival-reply-modal':'')+(nightClue?' first-night-meeting':'')+(lifeStartScene?' life-start-scene':'')+(classDocument?' class-lives-scene':'')+(relocationScene?' relocation-scene':'')+(activeEvent?.firstDate?' date-parting-modal':'')+(dateReturnScene?' date-return-modal':'')+(rentalScene?' rental-negotiation':'')+(tableScene?' long-table-modal':'')+(parkScene?' match-scene':'')+(forwardScene?' forward-scene':'')+(workScene?' handover-scene':'')+(offerScene?' job-offer-modal':'')+(birthScene||stallScene||householdScene?' birth-scene-modal':'')+(mini?' minigame-modal':'')+(mini?.type==='rental'?' rental-modal':'')+(mini?.type==='stall'?' stall-modal':'')+(mini?.type==='dialogue'?(mini.person?' date-modal first-date-modal':' date-modal work-interview-modal'):'')+(modal==='romance'?' romance-modal':'')+(modal==='journal'?' journal-modal':'')+(modal==='swap'?' swap-modal':'')+(modal==='starts'?' life-start-modal':'')+(modal==='lines'?' lines-modal':'')} role="dialog" aria-modal="true" aria-label={activeEvent?.title||(arrivalContact?arrivalContact.name+'回你了':outcome?.title)||(mini?.type==='stall'?'晚风小吃街':mini?'人生现场':modal==='saves'?'存档':modal==='swap'?'换牌':modal==='starts'?'选一种开局':modal==='romance'?'约谁出来':modal==='journal'?'人生记事':modal==='lines'?'时间线':modal==='contacts'?(profile?.name??'认识的人'):'魔都人生')}>
+ {dialogOpen&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget&&!activeEvent&&!mini&&!outcome)setModal(null);}}><section className={'modal '+(activeEvent?'event-modal':'')+(wideShot?' wide-shot-modal':'')+(openingMessages?' arrival-modal':'')+(arrivalReply||dinnerResultPhoto?' arrival-reply-modal':'')+(dinnerClue?' blossoms-menu':'')+(nightClue?' first-night-meeting':'')+(lifeStartScene?' life-start-scene':'')+(classDocument?' class-lives-scene':'')+(relocationScene?' relocation-scene':'')+(activeEvent?.firstDate?' date-parting-modal':'')+(dateReturnScene?' date-return-modal':'')+(rentalScene?' rental-negotiation':'')+(tableScene?' long-table-modal':'')+(parkScene?' match-scene':'')+(forwardScene?' forward-scene':'')+(workScene?' handover-scene':'')+(offerScene?' job-offer-modal':'')+(birthScene||stallScene||householdScene?' birth-scene-modal':'')+(mini?' minigame-modal':'')+(mini?.type==='rental'?' rental-modal':'')+(mini?.type==='stall'?' stall-modal':'')+(mini?.type==='dialogue'?(mini.person?' date-modal first-date-modal':' date-modal work-interview-modal'):'')+(modal==='romance'?' romance-modal':'')+(modal==='journal'?' journal-modal':'')+(modal==='swap'?' swap-modal':'')+(modal==='starts'?' life-start-modal':'')+(modal==='lines'?' lines-modal':'')} role="dialog" aria-modal="true" aria-label={activeEvent?.title||(arrivalContact?arrivalContact.name+'回你了':outcome?.title)||(mini?.type==='stall'?'晚风小吃街':mini?'人生现场':modal==='saves'?'存档':modal==='swap'?'换牌':modal==='starts'?'选一种开局':modal==='romance'?'约谁出来':modal==='journal'?'人生记事':modal==='lines'?'时间线':modal==='contacts'?(profile?.name??'认识的人'):'魔都人生')}>
  {!(activeEvent&&game?.pendingYearEvent)&&<button className="modal-close icon-button" aria-label="关闭" onClick={()=>{if(outcome)closeOutcome();else{setModal(null);setMini(null);dismissEvent();}}}><Icon name="close"/></button>}
  {modal==='help'&&<div className="help-content"><h2>怎么玩</h2><div className="help-step"><b>01</b><div><h3>先抽五张人生牌</h3><p>每类一张。重抽时看两张备选，换上才用一次机会。</p></div></div><div className="help-step"><b>02</b><div><h3>每年三次行动</h3><p>点地点办事，每次扣一格。走路、换城区不扣行动。</p></div></div><div className="help-step"><b>03</b><div><h3>年底结账</h3><p>点年度结算，工资到账，房租和生活费一起扣。六十岁结局。</p></div></div><button className="primary" onClick={()=>setModal(null)}>晓得了 <Icon name="check" size={18}/></button><small className="fiction-note">人生故事与街头偶遇均为虚构</small><MusicCredit/></div>}
  {modal==='lines'&&book&&<LifeLines book={book} onFork={branchFrom} onSwitch={returnToLine} onDrop={id=>setBook(current=>current?dropLine(current,id):current)}/>}
@@ -602,6 +605,9 @@ export default function App(){
  </div>:<div className="outcome-content">{arrivalReply&&arrivalContact?<div className="arrival-reply-banner">
   <img src={arrivalReply.photo} alt={arrivalReply.alt}/>
   <div><Portrait person={arrivalContact} size={52} decorative/><h2 ref={sceneHeading} tabIndex={-1}>{arrivalContact.name}回你了</h2></div>
+ </div>:dinnerResultPhoto?<div className="arrival-reply-banner">
+  <img src={dinnerResultPhoto} alt=""/>
+  <div><h2>{outcome.title}</h2></div>
  </div>:<><p className="eyebrow">结果</p><div className={'outcome-symbol '+(outcome.success===false?'muted':'')}><Icon name={outcome.success===false?'leaf':'check'} size={33}/></div><h2>{outcome.title}</h2></>}{outcome.text&&<p className="outcome-text">{outcome.text}</p>}{relocationResult&&moveBudget&&<p className="relocation-balance">公司搬仓余款 <b>{money(moveBudget.remaining)}</b></p>}<div className="effect-badges">{effectsText(outcome.effect).map(([label,n])=><span key={label} className={n>0?'gain':'loss'}>{label} <b>{label==='积蓄'?(n>0?'+':'−')+money(Math.abs(n)):(n>0?'+':'')+n}</b></span>)}{outcome.effect.job&&<span className={outcome.effect.job==='unemployed'?'loss':'gain'}>{outcome.effect.job==='unemployed'?'开始待业':'新的职业机会'}</span>}{signedOffer?<span className="gain">{isSelfEmployed(game.jobId??'')?'月收入估算':'约定月薪'} <b>{money(budget!.salary)}</b></span>:outcome.effect.payRate!==undefined&&<span className={outcome.effect.payRate<1?'loss':'gain'}>薪资按原价 <b>{Math.round(outcome.effect.payRate*100)}%</b> 发</span>}</div>{arrivalLead&&arrivalReply&&<button className="arrival-go" onClick={()=>openLead(arrivalLead.event)}>
   {arrivalReply.go} <Icon name="arrow" size={19}/>
  </button>}<button className={'primary'+(arrivalReply?' arrival-later':'')} onClick={closeOutcome}>{arrivalReply?'先逛逛':game.ended?'回头看看这一生':'继续'} <Icon name="arrow" size={19}/></button><div className="outcome-links">

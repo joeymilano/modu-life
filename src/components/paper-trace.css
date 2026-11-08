@@ -29,3 +29,18 @@
  .forward-scene .event-choices { gap: 6px; }
  .forward-scene .event-choices > button { min-height: 52px; padding-block: 8px; }
 }
+
+.scene-clue-photo:not([hidden]) {
+ display: grid; grid-template-columns: minmax(95px, 34%) minmax(0, 1fr);
+ align-items: center; gap: 10px; margin-top: 6px;
+ padding: 7px; background: #eee4d5; border-inline-start: 2px solid #9f6841;
+}
+.scene-clue-photo img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
+.scene-clue-photo p { margin: 0; color: #344b3e; font-size: 13px; line-height: 1.55; }
+.blossoms-menu .event-choices small:empty { display: none; }
+@media (max-width: 480px) {
+ .event-modal.blossoms-menu .event-photo { aspect-ratio: 2.04; margin-bottom: 8px; }
+ .event-modal.blossoms-menu .event-photo img { object-position: 50% 38%; }
+ .event-modal.blossoms-menu .event-content .event-body { line-height: 1.55; }
+ .blossoms-menu .event-choices > button { min-height: 48px; padding-block: 6px; }
+}

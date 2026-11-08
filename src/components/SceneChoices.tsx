@@ -4,7 +4,7 @@ import Icon from './Icon';
 import './paper-trace.css';
 
 export default function SceneChoices({clue, choices, render}: {
- clue?: {label: string; text: string; choiceId: string; papers?: readonly {label:string; value:string}[]}; choices: EventChoice[];
+ clue?: {label: string; text: string; choiceId: string; photo?: {src: string; alt: string}; papers?: readonly {label:string; value:string}[]}; choices: EventChoice[];
  render: (choice: EventChoice, index: number) => ReactNode;
 }) {
  const [inspected, setInspected] = useState(false);
@@ -24,7 +24,10 @@ export default function SceneChoices({clue, choices, render}: {
     onClick={() => setInspected(open => !open)}>
     <Icon name="eye" size={17}/>{clue.label}<Icon name="chevron" size={14}/>
    </button>
-   <p id="night-clue-text" hidden={!inspected}>{clue.text}</p>
+   {clue.photo ? <div id="night-clue-text" className="scene-clue-photo" hidden={!inspected}>
+    {inspected && <img src={clue.photo.src} alt={clue.photo.alt} decoding="async"/>}
+    <p>{clue.text}</p>
+   </div> : <p id="night-clue-text" hidden={!inspected}>{clue.text}</p>}
   </div>}
   <div className="event-choices">
    {inspected && discovery && render(discovery, choices.indexOf(discovery))}
