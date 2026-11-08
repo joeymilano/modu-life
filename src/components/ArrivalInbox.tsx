@@ -1,28 +1,43 @@
 import { useState, type Ref } from 'react';
 import { CAST, DISTRICTS } from '../game/content';
 import { firstNightThread } from '../game/firstNight';
-import { streetPhoto } from '../game/art';
-import type { LifeEvent } from '../game/types';
+import { arrivalPhoto, streetPhoto } from '../game/art';
+import type { LifeEvent, PlayerAppearance } from '../game/types';
 import Icon from './Icon';
 import { Portrait } from './Portrait';
 import './first-night.css';
 
-export default function ArrivalInbox({event, heading, onReply}: {
- event: LifeEvent; heading: Ref<HTMLHeadingElement>; onReply: (id: string) => void;
+export default function ArrivalInbox({event, appearance, heading, onReply}: {
+ event: LifeEvent; appearance: PlayerAppearance; heading: Ref<HTMLHeadingElement>; onReply: (id: string) => void;
 }) {
  const [current, setCurrent] = useState<string>();
  const [read, setRead] = useState<string[]>([]);
+ const [stationView, setStationView] = useState(true);
  const messages = event.choices.flatMap(choice => {
   const sender = CAST.find(person => person.id === choice.senderId);
   const thread = sender && firstNightThread(sender.id);
   return sender && thread ? [{ choice, sender, thread }] : [];
  });
  const active = messages.find(item => item.choice.id === current);
+ const attachment = stationView ? undefined : active;
+ const photo = attachment?.thread.photo ?? arrivalPhoto(appearance);
  return <>
-  <div className="event-visual event-photo arrival-snapshot">
-   <img key={current ?? 'station'} src={active?.thread.photo ?? event.illustration ?? streetPhoto('first-night-arrival')}
-    alt={active?.thread.alt ?? '上海南站出口，一位旅客正抬脚拨动行李箱的轮子'}/>
-   <span className="snapshot-credit">{active ? active.sender.name + '发来的照片' : '上海南站'}</span>
+  <div className="event-visual event-photo arrival-snapshot" data-station={!attachment}>
+   <img key={photo} src={photo} alt={attachment?.thread.alt ?? '你拖着箱子站在上海南站出口，看手机里的消息'}
+    onError={attachment ? undefined : event => {
+     const image = event.currentTarget;
+     const fallback = streetPhoto('first-night-arrival');
+     if (image.getAttribute('src') !== fallback) {
+      image.src = fallback;
+      image.alt = '上海南站出口，行李箱的轮子卡住了';
+     }
+    }}/>
+   <div className="arrival-photo-footer">
+    <span className="snapshot-credit">{attachment ? attachment.sender.name + '发来的照片' : '上海南站 · 出站口'}</span>
+    {active && <button type="button" onClick={() => setStationView(value => !value)}>
+     <Icon name="eye" size={14}/>{attachment ? '回看南站' : '看消息照片'}
+    </button>}
+   </div>
   </div>
   <div className="event-content arrival-desk">
    <header>
@@ -38,6 +53,7 @@ export default function ArrivalInbox({event, heading, onReply}: {
      return <button type="button" key={choice.id} className="arrival-contact" aria-pressed={open}
       aria-label={'看' + sender.name + '的消息'} onClick={() => {
        setCurrent(choice.id);
+       setStationView(false);
        setRead(items => items.includes(choice.id) ? items : [...items, choice.id]);
       }}>
       <Portrait person={sender} size={40} decorative/>
@@ -53,9 +69,7 @@ export default function ArrivalInbox({event, heading, onReply}: {
       {active.choice.label} <Icon name="arrow" size={17}/>
      </button>
     </div>
-   </div> : <div className="arrival-unopened">
-    {messages.map(({sender, choice}) => <p key={choice.id}><b>{sender.name}</b><span>{choice.hint}</span></p>)}
-   </div>}
+   </div> : null}
   </div>
  </>;
 }

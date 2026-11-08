@@ -9,7 +9,7 @@ import type { EventChoice, LifeEvent } from './types';
 import { PARK_RETURN_TICKET_SCENES, PARK_TICKET_SCENES } from './matchmaking';
 import { RENEWAL_TICKET_SCENES } from './rental';
 import { HANDOVER_TICKET } from './workHandover';
-import { CONTACT_STILLS, FERRY_STILLS, FIRST_NIGHT_STILLS, LIFE_YEARS_STILLS, MATCH_STILLS, OPENING_STILLS, RENTAL_STILLS, TABLE_STILLS, contactPhoto, datePhoto, dateScenePhoto, farewellPhoto, ferryPhoto, handoverPhoto, lifeYearsPhoto, matchPhoto, offerPhoto, openingPhoto, pearlPhoto, rentalPhoto, stallPhoto, streetPhoto, tablePhoto, workPhoto } from './art';
+import { CONTACT_STILLS, FERRY_STILLS, FIRST_NIGHT_STILLS, LIFE_YEARS_STILLS, LOOKS, MATCH_STILLS, OPENING_STILLS, RENTAL_STILLS, TABLE_STILLS, arrivalPhoto, contactPhoto, datePhoto, dateScenePhoto, farewellPhoto, ferryPhoto, handoverPhoto, lifeYearsPhoto, matchPhoto, offerPhoto, openingPhoto, pearlPhoto, rentalPhoto, stallPhoto, streetPhoto, tablePhoto, workPhoto } from './art';
 import { CAREERS, CAST } from './content';
 import { PHOTO_SHOP_STILLS, PHOTO_SHOP_STORY, photoShopStill } from './photoShop';
 
@@ -63,6 +63,7 @@ const ticketShots = new Set([
   ...Object.values(archiveShots),
   ...PHOTO_SHOP_STILLS.map(photoShopStill),
   ...FIRST_NIGHT_STILLS.map(streetPhoto),
+  ...LOOKS.flatMap(({id: looks}) => (['female','male'] as const).map(gender => arrivalPhoto({gender, looks}))),
   ...MATCH_STILLS.map(matchPhoto),
   ...OPENING_STILLS.map(openingPhoto),
   ...LIFE_YEARS_STILLS.map(lifeYearsPhoto),

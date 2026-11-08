@@ -1,18 +1,36 @@
 import { describe, expect, it } from 'vitest';
-import { portraitArt } from '../src/game/art';
+import { LOOKS, portraitArt } from '../src/game/art';
 import { CAST } from '../src/game/content';
 import { romanceQuestions } from '../src/game/dates';
 import { createGame, drawOrigins, nextYear, resolveChoice, selectEvent } from '../src/game/engine';
 import { activeLine, forkLife, recordDecision, replayScene, startBook } from '../src/game/lifeLines';
 import { firstNightClue, firstNightThread } from '../src/game/firstNight';
 import { streetLead } from '../src/game/streetLeads';
-import { draftFromEvent } from '../src/game/timelines';
+import { draftFromEvent, validateTicket } from '../src/game/timelines';
 
 const routes = [
  { sender: 'mao', primary: 'room-bill', alternate: 'room-viewing', alternateChange: { cash: -1200, housing: 1 }, echo: '这回还是你先挑' },
  { sender: 'he', primary: 'shift-rota', alternate: 'shift-handover', alternateChange: { job: 'service' }, echo: '你签过的班表' },
  { sender: 'lu', primary: 'ferry-oranges', alternate: 'ferry-gig', alternateChange: { trust: 12, attraction: 5 }, echo: '剥橘子皮的声音' },
 ];
+
+describe('arriving at Shanghai South Station', () => {
+ const appearances = (['female', 'male'] as const).flatMap(gender =>
+  LOOKS.map(({id: looks}) => ({gender, looks})));
+ it.each(appearances)('preserves the $gender $looks photo in tickets and timeline branches', appearance => {
+  const start = createGame('INBOX', '阿申', 'free', drawOrigins('INBOX'), appearance);
+  const event = selectEvent(start, 'year');
+  const photo = `/art/arrival/${appearance.gender}-${appearance.looks}.webp`;
+  expect(event.illustration).toBe(photo);
+
+  const reply = resolveChoice(start, event, '1');
+  const branch = activeLine(forkLife(recordDecision(startBook(start), reply.state, event, '1'), 0));
+  expect(replayScene(branch.state, branch.replay!)?.illustration).toBe(photo);
+
+  const timeline = draftFromEvent(event, '1', reply.text, 18, '上海南站');
+  expect(validateTicket({version: 1, timeline: {...timeline, author: start.name}}).timeline.turns[0].shot).toBe(photo);
+ });
+});
 
 describe('revisiting first-night contacts', () => {
  it.each(routes)('carries $sender through the next year and into the farewell', ({sender,primary,alternate,alternateChange,echo}) => {

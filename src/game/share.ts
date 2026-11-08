@@ -2,7 +2,7 @@ import { lifeStartProfile, validLifeStartHand } from './lifeStarts';
 import { lifeYearsAlbumPhoto } from './lifeYears';
 import { lastDayMemory } from './lastDay';
 import { allOrigins, ending } from './engine';
-import { endingPhoto, LIFE_ALBUM_AGES, originPhoto, playerArt, stallPhoto, streetPhoto, TIMELINE_COVER } from './art';
+import { arrivalPhoto, endingPhoto, LIFE_ALBUM_AGES, originPhoto, playerArt, stallPhoto, streetPhoto, TIMELINE_COVER } from './art';
 import { openingForecast } from './openingForecast';
 import { CAREERS, DISTRICTS } from './content';
 import { PEARL_PATH, pearlHash, pearlMarkStamp, pearlRank, pearlResultPhoto, pearlRoundCount, type PearlRules, type PearlScore } from './pearl';
@@ -234,15 +234,16 @@ export async function makeOpeningCard(hand: SharedHand): Promise<Blob> {
  ctx.fillStyle = cardInk;
  ctx.font = 'bold 62px ' + cardSerif;
  ctx.fillText('同一手牌，你怎么过', 64, 191, 952);
+ const openingArt = lifeStartProfile(hand.origins) ? opening.story?.event.illustration : undefined;
  const column = (i: number) => 64 + i * 192;
  await Promise.all([
   paintPhoto(ctx, playerArt(hand.appearance, true), [64, 224, 292, 438], .22),
-  paintPhoto(ctx, opening.story?.event.illustration ?? streetPhoto('first-night-arrival'), [378, 224, 638, 296], .35),
+  paintPhoto(ctx, openingArt ?? arrivalPhoto(hand.appearance), [378, 224, 638, 296], openingArt ? .35 : .12),
   ...cards.map((card, i) => paintPhoto(ctx, originPhoto(card.id), [column(i), 763, 184, 124])),
  ]);
  ctx.fillStyle = cardRust;
  ctx.font = 'bold 22px sans-serif';
- ctx.fillText('开局先碰到', 378, 552);
+ ctx.fillText(openingArt || !opening.story ? '开局先碰到' : '这手牌的插曲', 378, 552);
  ctx.fillStyle = cardInk;
  ctx.font = 'bold 38px ' + cardSerif;
  ctx.fillText(opening.story?.event.title ?? '出站前的三条消息', 378, 600, 638);

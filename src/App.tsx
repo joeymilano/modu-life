@@ -437,7 +437,7 @@ export default function App(){
  const cornerScene=scenePhoto?.startsWith('/art/corners/');
  const focusScene=blossomsScene||forwardScene||cornerScene||contactScene||dateReturnScene||lifeStartScene||openingMessages||Boolean(activeEvent?.firstDate)||rentalScene||workScene||tableScene||offerScene||birthScene||stallScene||householdScene;
  const partingBill=activeEvent?.firstDate ? -(activeEvent.choices[0].effect.cash??0) : 0;
- const wideShot=datePortraitScene||blossomsScene||relocationScene||cornerScene||contactScene||scenePhoto?.startsWith('/art/shanghai-streets/first-night-')||scenePhoto?.startsWith('/art/dates/')||scenePhoto?.startsWith('/art/endings/farewell-')||scenePhoto?.startsWith('/art/endings/life-')||scenePhoto?.startsWith('/art/work/')||scenePhoto?.startsWith('/art/pearl/')||parkScene||scenePhoto?.startsWith('/art/opening/')||scenePhoto?.startsWith('/art/rental/')||scenePhoto?.startsWith('/art/night-ferry/')||tableScene||offerScene||stallScene;
+ const wideShot=openingMessages||datePortraitScene||blossomsScene||relocationScene||cornerScene||contactScene||scenePhoto?.startsWith('/art/shanghai-streets/first-night-')||scenePhoto?.startsWith('/art/dates/')||scenePhoto?.startsWith('/art/endings/farewell-')||scenePhoto?.startsWith('/art/endings/life-')||scenePhoto?.startsWith('/art/work/')||scenePhoto?.startsWith('/art/pearl/')||parkScene||scenePhoto?.startsWith('/art/opening/')||scenePhoto?.startsWith('/art/rental/')||scenePhoto?.startsWith('/art/night-ferry/')||tableScene||offerScene||stallScene;
  const leadButtons=game&&(lead||cardLead)?<div className="story-leads">{[lead,cardLead].map(item=>item&&<button
   key={item.event.id} className={'story-lead'+(item===cardLead?' opening-lead':'')}
   disabled={blocked||game.actions<=0} onClick={()=>openLead(item.event)}>
@@ -582,7 +582,7 @@ export default function App(){
  </div>}
  {modal==='romance'&&game&&<DateRoster game={game} onPick={startRomance}
   onOther={()=>{setModal(null);openEvent('romance',game.partnerId||undefined);}}/>}
- {activeEvent&&game&&(openingMessages?<ArrivalInbox event={activeEvent} heading={sceneHeading} onReply={choose}/>:<><div className={'event-visual'+(scenePhoto?' event-photo':'')+(datePortraitScene?' date-portrait-photo':'')}>
+ {activeEvent&&game&&(openingMessages?<ArrivalInbox event={activeEvent} appearance={game.appearance} heading={sceneHeading} onReply={choose}/>:<><div className={'event-visual'+(scenePhoto?' event-photo':'')+(datePortraitScene?' date-portrait-photo':'')}>
   {scenePhoto?<img src={scenePhoto} alt=""/>:isOwl?<Suspense fallback={<LoadCity/>}><OwlPreview/></Suspense>:speaker&&<Portrait person={speaker} full age={game.age}/>}
  </div><div className="event-content"><div className="event-meta"><span>{activeEvent.tag||ACTIVITY_NAMES[activeEvent.category as ActivityKind]||'这一年'}</span><small>{game.age}岁 · {activeEvent.category==='year'?'不扣行动':'1 格行动'}</small></div>
  {speaker&&!activeEvent.firstDate&&!birthScene&&!stallScene&&!householdScene&&<div className="event-speaker"><Portrait person={speaker} size={54} age={game.age}/><div><b>{speaker.name}</b><small>{relocationScene?(speaker.id==='father'?'公司负责人':'仓库调度'):classDocument?(speaker.id==='father'?'公司负责人':'仓库老工友'):castTitle(speaker,game.age)}</small></div></div>}<h2 ref={focusScene?sceneHeading:undefined} tabIndex={focusScene?-1:undefined}>{activeEvent.title}</h2><p className="event-body">{activeEvent.text}</p>{relocationScene&&<RelocationPapers game={game} event={activeEvent}/>}

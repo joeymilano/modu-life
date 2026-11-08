@@ -18,6 +18,10 @@ export function playerArt(appearance: PlayerAppearance, full = true, age = 18): 
  return portraitArt('player-' + appearance.gender + '-' + appearance.looks + stage, full);
 }
 
+export function arrivalPhoto(appearance: PlayerAppearance): string {
+ return `/art/arrival/${appearance.gender}-${appearance.looks}.webp`;
+}
+
 export const LIFE_ALBUM_AGES = [18, 46, 60] as const;
 
 export const CONTACT_STILLS = ['wu-regulars', 'wu-corner', 'fang-deposit', 'fang-handover', 'boss-reference', 'boss-night-class'] as const;

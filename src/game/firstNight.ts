@@ -1,6 +1,6 @@
 import type { DistrictId, EventChoice, GameState, LifeEvent } from './types';
 
-import { streetPhoto, type StreetPhoto } from './art';
+import { arrivalPhoto, streetPhoto, type StreetPhoto } from './art';
 
 function scene(id: string, art: StreetPhoto, title: string, text: string, choices: Omit<EventChoice, 'id'>[], district?: DistrictId, speakerId?: string): LifeEvent {
   return {
@@ -11,7 +11,7 @@ function scene(id: string, art: StreetPhoto, title: string, text: string, choice
 }
 
 const arrival = scene('arrival', 'first-night-arrival', '出站前的三条消息',
-  '箱子有个轮子不转了。你在上海南站出口踢了两脚，兜里的手机倒先震了三下。', [
+  '箱子有个轮子不转。你在南站出口踢了两脚，手机先震了三下。', [
     { label: '回毛小毛 · 房间先帮我留着', hint: '莘庄那间九点前能看。侬出站了伐？', senderId: 'mao',
       reply: '先别转钱。我在三号楼。房东说两千，刚又说阳台算半间，侬上来自己听。', effect: { setFlags: ['night-room'] } },
     { label: '回何亮 · 今晚我来顶班', hint: '今晚缺个人。来就给你留一碗，工钱今天结。', senderId: 'he',
@@ -166,7 +166,7 @@ export function firstNightLead(state: GameState) {
 
 export function firstNightYear(state: GameState): LifeEvent | undefined {
   if (!state.flags.includes(FIRST_NIGHT_FLAG)) return undefined;
-  if (state.age === 18) return arrival;
+  if (state.age === 18) return { ...arrival, illustration: arrivalPhoto(state.appearance) };
   if (state.age !== 19) return undefined;
   const route = routes.find(route => state.flags.includes(route.flag));
   if (!route) return undefined;
