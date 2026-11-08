@@ -1,4 +1,4 @@
-import { DAYWORK, DAYWORK_TEMP, FAMILY_CAP, FAMILY_HOME, FAMILY_PAY, HEIR, HEIR_PAY_RATE, lifeStartRent, lifeStartYear, validLifeStartHand } from './lifeStarts';
+import { DAYWORK, DAYWORK_TEMP, FAMILY_HOME, FAMILY_PAY, HEIR, HEIR_PAY_RATE, lifeStartRent, lifeStartYear, validLifeStartHand } from './lifeStarts';
 import { CAREERS, CAST, GOALS, LIFE_START_CARDS, ORIGIN_POOLS } from './content';
 import { FIRST_NIGHT_FLAG, firstNightYear } from './firstNight';
 import { lastDayEvent } from './lastDay';
@@ -12,6 +12,7 @@ import { clearHousehold, householdFlag, householdPlan, housingPayment, STANDING_
 import { closeRentalLease } from './rental';
 import { receiptMoment, validYearReceipt, type YearReceipt } from './yearReceipt';
 import { STAFF_BED } from './classLives';
+import { HEIR_PERSONAL_CASH, heirTerms } from './heirCapital';
 import type { ActivityKind, ChoiceResult, Effect, EventChoice, GameState, GoalId, LifeEvent, LooksLevel, OriginCard, OriginSlot, PlayerAppearance, StatKey } from './types';
 
 export const STAT_NAMES: Record<StatKey,string> = { health:'身体', spirit:'心气', skill:'本事', face:'腔势', network:'人脉' };
@@ -96,6 +97,7 @@ export function createGame(seed:string,name:string,goal:GoalId,cards:OriginCard[
   if(state.flags.some(f=>/own.?home|有房|home_owner/i.test(f)))state.housing=3;
   const daywork=state.flags.includes(DAYWORK), heir=state.flags.includes(HEIR);
   state.cash=Math.max(daywork?0:3000,state.cash);
+  if(heir)state.cash=HEIR_PERSONAL_CASH;
   if(daywork||heir)state.district=daywork?'xinzhuang':'lujiazui';
   if(state.flags.includes('family_rich')&&state.flags.includes('card_frozen')){
     state.cash=Math.min(state.cash,24000);
@@ -109,8 +111,11 @@ export function monthlyBudget(s:GameState){
   const plan=householdPlan(s);
   const shared=plan==='shared';
   const rent=lifeStartRent(s,housingPayment(s.housing,s.leaseRent,shared),shared);
-  const living=1800+(s.partnerId?600:0)+(s.age>=40?500:0)+(plan==='standing'?STANDING_DATE_MONTHLY_COST:0);
-  const familyPaid=s.housing===2&&s.flags.includes(FAMILY_HOME)&&s.flags.includes(FAMILY_PAY)?Math.min(FAMILY_CAP,rent+Math.min(living,1800)):0;
+  const familyHome=s.housing===2&&s.flags.includes(FAMILY_HOME);
+  const terms=heirTerms(s);
+  const fixedLiving=familyHome?terms.living:1800;
+  const living=fixedLiving+(s.partnerId?600:0)+(s.age>=40?500:0)+(plan==='standing'?STANDING_DATE_MONTHLY_COST:0);
+  const familyPaid=familyHome&&s.flags.includes(FAMILY_PAY)?Math.min(terms.familyCap,rent+fixedLiving):0;
   return {salary,rent,living,familyPaid,net:salary-rent-living+familyPaid};
 }
 export function eligibleEvent(e:LifeEvent,s:GameState,kind:ActivityKind|'year'):boolean {

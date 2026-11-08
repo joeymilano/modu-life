@@ -1,5 +1,6 @@
 import { openingPhoto } from './art';
 import { heirClassYear, staffBedRent, workerClassYear } from './classLives';
+import { HEIR_CAPITAL_TIER, HEIR_PERSONAL_CASH, heirTerms } from './heirCapital';
 import { laterDaywork, laterHeir } from './lifeYears';
 import { warehouseHeirYear, warehouseWorkerYear } from './relocation';
 import type { Effect, EventChoice, GameState, LifeEvent } from './types';
@@ -15,8 +16,6 @@ const HEIR_TRIAL = 'heir-pilot';
 const HEIR_ORDER = 'heir-order';
 const HEIR_HANDOVER = 'heir-handover';
 export const DAYWORK_PAY = 780;
-export const FAMILY_CAP = 18000;
-export const FAMILY_RENT = 12000;
 export const HEIR_PAY_RATE = 1.25;
 export const PROJECT_BUDGET = 800000;
 
@@ -28,8 +27,8 @@ export const LIFE_STARTS = [
   photo: openingPhoto('daywork-gate'),
  },
  {
-  id: 'heir', seed: 'SH-HEIR', cash: 600000, title: '顶级富二代', line: '个人存款 ¥600,000，房租由家里付',
-  text: '江景房的租金家里付。司机在楼下等，财务问你上不上去看采购单。',
+  id: 'heir', seed: 'SH-HEIR', cash: HEIR_PERSONAL_CASH, title: '顶级富二代', line: '个人可动用 ¥6,000 万，家里的账另算',
+  text: '陆家嘴江景房月租五万五，账单送到家里。司机在楼下等，财务问你上不上去看采购单。',
   cards: ['born-heir', 'fund-family', 'talent-count', 'tie-demand', 'secret-kind'],
   photo: openingPhoto('heir-keys'),
  },
@@ -164,7 +163,10 @@ export function lifeStartYear(state: GameState) {
   return workerClassYear(state) ?? warehouseWorkerYear(state) ?? laterDaywork(state);
  }
  if (state.flags.includes(HEIR)) {
-  if (state.age === 18) return firstKeys;
+  if (state.age === 18) return state.flags.includes(HEIR_CAPITAL_TIER) ? {
+   ...firstKeys,
+   text:'老爸把房卡推过来。陆家嘴那套江景服务公寓月租五万五，房租、物业和约定的账单每月最多代付八万。你查了眼自己的账户，六千万还在。桌上另一叠是公司采购单，老爸问你想不想跟着做。',
+  } : firstKeys;
   if (state.age === 19) return board;
   if (state.age === 20) return boardThird(state);
   if (state.age === 25 && state.flags.includes(HEIR_HANDOVER)) return heirReview;
@@ -178,7 +180,10 @@ export function outstandingShiftPay(state: GameState) {
 }
 
 export function lifeStartRent(state: GameState, ordinaryRent: number, shared: boolean) {
- if (state.flags.includes(FAMILY_HOME) && state.housing === 2) return shared ? Math.round(FAMILY_RENT * .6) : FAMILY_RENT;
+ if (state.flags.includes(FAMILY_HOME) && state.housing === 2) {
+  const rent=heirTerms(state).rent;
+  return shared ? Math.round(rent * .6) : rent;
+ }
  if (state.flags.includes(DAYWORK) && state.housing === 0) return state.flags.includes(DAYWORK_TEMP) ? 900 : staffBedRent(state) ?? 1050;
  return ordinaryRent;
 }

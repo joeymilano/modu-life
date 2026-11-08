@@ -29,7 +29,7 @@ describe('year-end ledger', () => {
  it('splits paid family bills from cash receipts and captures health costs exactly', () => {
   const start = opening(1);
   const family = nextYear(resolveChoice(start,selectEvent(start,'year'),'keys').state);
-  expect(family.receipt).toMatchObject({before:600000,after:600000,familyPaid:165600,moment:'family'});
+  expect(family.receipt).toMatchObject({before:60_000_000,after:60_000_000,familyPaid:804_000,moment:'family'});
   expect(yearTotals(family.receipt)).toEqual({income:0,paid:0,delta:0});
   const older = regular({age:46});
   older.stats.health=14;

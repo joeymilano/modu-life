@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createGame, drawOrigins, resolveChoice, selectEvent } from '../src/game/engine';
 import { activeLine, forkLife, recordDecision, replayScene, startBook, switchLine } from '../src/game/lifeLines';
-import { comparePearlScore, CURRENT_PEARL_RULES, PEARL_DELAYS, pearlHash, pearlLanes, pearlRank, pearlReward, pearlRoundCount, pearlRounds, readPearlChallenge } from '../src/game/pearl';
+import { comparePearlScore, CURRENT_PEARL_RULES, PEARL_DELAYS, pearlHash, pearlLanes, pearlRank, pearlResultPhoto, pearlReward, pearlRoundCount, pearlRounds, readPearlChallenge } from '../src/game/pearl';
 import { pearlChallengeUrl } from '../src/game/share';
 import { streetLead } from '../src/game/streetLeads';
 import { draftFromEvent } from '../src/game/timelines';
@@ -50,7 +50,7 @@ describe('Bund lemonade challenge', () => {
 
  it('adds two opposite sweeps with a readable first lane and deterministic beats', () => {
   const seed = 'AFTER-RAIN';
-  const version = CURRENT_PEARL_RULES;
+  const version = 3;
   expect(pearlRoundCount(version)).toBe(7);
   const waves = pearlRounds(seed, version);
   expect(waves.map(wave => wave.kind)).toEqual(['single', 'single', 'double', 'sweep', 'lock', 'double', 'sweep']);
@@ -68,6 +68,38 @@ describe('Bund lemonade challenge', () => {
   expect(readPearlChallenge('#pearl=AA&v=3&hits=8&blocks=1')?.targetBlocks).toBeUndefined();
   expect(readPearlChallenge('#pearl=AA&v=3&hits=0&blocks=2')?.targetBlocks).toBeUndefined();
   expect(readPearlChallenge('#pearl=AA&v=2&hits=0&blocks=1')?.targetBlocks).toBeUndefined();
+ });
+
+ it('keeps reflections harmless and repeats the edge lane on a five-beat return', () => {
+  const version = CURRENT_PEARL_RULES;
+  const kinds = ['single','reflection','double','sweep','lock','reflection','return','lock'];
+  for (const seed of ['TOWER','PASS','RAIN','BUND']) {
+   const waves = pearlRounds(seed,version);
+   expect(pearlRoundCount(version)).toBe(kinds.length);
+   expect(waves.map(wave=>wave.kind)).toEqual(kinds);
+   for (const wave of waves.filter(wave=>wave.kind==='reflection')) {
+    expect(wave.mask & wave.echoMask).toBe(0);
+    expect([1,2,4]).toContain(wave.echoMask);
+   }
+   const outbound = waves.find(wave=>wave.kind==='sweep')!;
+   const returning = waves.find(wave=>wave.kind==='return')!;
+   const [near,middle,far] = [...outbound.order].reverse();
+   expect(returning.order).toEqual([near,middle,far,middle,near]);
+   expect(returning.mask).toBe(1<<near);
+  }
+ });
+
+ it('shares each recorded wave and refuses trails that disagree with the score', () => {
+  const trail = ['clear','hit','clear','clear','clear','clear','both','clear'] as const;
+  const seed = 'AFTER-RAIN', rules = CURRENT_PEARL_RULES;
+  const url = new URL(pearlChallengeUrl(seed,2,rules,1,trail));
+  expect(readPearlChallenge(url.hash)).toEqual({seed,target:2,targetBlocks:1,targetTrail:trail,rules});
+  for (const invalid of ['01000000','01000013','01000033','01000030X','00000']) {
+   expect(readPearlChallenge(`#pearl=${seed}&v=4&hits=2&blocks=1&trail=${invalid}`)?.targetTrail).toBeUndefined();
+  }
+  expect(pearlHash(seed,1,rules,1,trail)).not.toContain('trail=');
+  expect(pearlHash(seed,2,3,1,trail)).not.toContain('trail=');
+  expect(pearlResultPhoto({hits:0,blocks:1},rules)).toContain('after-rain-blocked');
  });
 
  it('compares spills first and only breaks ties by blocks on new receipts', () => {

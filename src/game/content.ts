@@ -1,4 +1,5 @@
 import { DAYWORK, FAMILY_HOME, FAMILY_PAY, HEIR } from './lifeStarts';
+import { HEIR_CAPITAL_TIER, HEIR_TERMS } from './heirCapital';
 import type { Career, CastMember, District, Goal, OriginCard, OriginSlot } from './types';
 
 export const HOUSING_NAMES = ['合租 / 亲友房', '普通租房', '改善租房', '自有住房'] as const;
@@ -6,7 +7,7 @@ export const HOUSING_NAMES = ['合租 / 亲友房', '普通租房', '改善租�
 export const DISTRICTS: District[] = [
   { id:'bund', name:'外滩', en:'THE BUND', subtitle:'有船就能过江', color:'#3b7475', hotspots:[
     {id:'bund-river',name:'江边长椅',kind:'rest',position:[-7,2],caption:'背后有人在练萨克斯'},
-    {id:'bund-photo',name:'四元观景位',kind:'explore',position:[-3,-2],caption:'四块钱一杯，对面塔顶亮了'},
+    {id:'bund-photo',name:'四元观景位',kind:'explore',position:[-3,-2],caption:'蜜雪冰城四块钱一杯，对面塔顶亮了'},
     {id:'bund-ferry',name:'摆渡口',kind:'social',position:[8.75,1.9],caption:'严可下夜班，从这里过江'},
     {id:'bund-date',name:'江风约会',kind:'romance',position:[7,-2],caption:'说好了带件挡风的衣服'},
   ]},
@@ -77,8 +78,8 @@ const card = (slot:OriginSlot,id:string,name:string,rarity:OriginCard['rarity'],
 export const LIFE_START_CARDS = [
  card('出身','born-daywork','日结工','N','箱子先放门房','工钱是按班结的。过了点，床位也得再续。','做一班算一班','#726c54',{cash:-35220,setFlags:[DAYWORK]}),
  card('家底','fund-thin','零钱和床位','N','床位先交了一晚','要留出明天的车钱。零钱都在夹层。','手上 ¥780','#77786a',{}),
- card('出身','born-heir','顶级富二代','SSR','卡在自己手里','家里叫你去看一张采购单。这回问的是意见。','公司有门可进','#9f8152',{cash:538000,setFlags:[HEIR]}),
- card('家底','fund-family','房租家里付','SSR','房卡跟银行卡分开放','家里只付指定账单。想拿现金，要从自己的卡里取。','每月代付上限 ¥18,000','#8a7a6d',{housing:2,setFlags:[FAMILY_HOME,FAMILY_PAY]}),
+ card('出身','born-heir','顶级富二代','SSR','卡在自己手里','六千万在你个人账户。家里的房产和公司股权另有账本。','个人资金 ¥6,000 万','#9f8152',{setFlags:[HEIR,HEIR_CAPITAL_TIER]}),
+ card('家底','fund-family','房租家里付','SSR','房卡跟银行卡分开放','陆家嘴那套江景服务公寓月租五万五，房租和指定账单由家里付。','每月代付上限 ¥'+HEIR_TERMS.familyCap.toLocaleString('zh-CN'),'#8a7a6d',{housing:2,setFlags:[FAMILY_HOME,FAMILY_PAY]}),
 ];
 
 export const ORIGIN_POOLS: Record<OriginSlot,OriginCard[]> = {

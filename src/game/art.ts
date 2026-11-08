@@ -78,7 +78,9 @@ export function stallPhoto(shot: 'counter' | 'sheng' | 'guo' | 'rush' | 'close' 
  return `/art/stall/${shot}.webp`;
 }
 
-export function pearlPhoto(shot: 'arena' | 'hero' | 'receipt' | 'booth' | 'night-office' | 'clean' | 'spill' | 'umbrella'): string {
+export function pearlPhoto(shot: 'arena' | 'hero' | 'receipt' | 'booth' | 'night-office' | 'clean' | 'spill' | 'umbrella'
+ | 'arena-snow-king' | 'snow-king-poster' | 'after-rain-clean' | 'after-rain-blocked' | 'after-rain-spill'
+ | 'yan-run' | 'sun-run' | 'yan-select' | 'sun-select'): string {
  return `/art/pearl/${shot}.webp`;
 }
 

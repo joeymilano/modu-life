@@ -8,11 +8,13 @@
 .laser-zone { fill: #101b281f; stroke: #f2d8a044; stroke-width: 1; transition: fill .12s; }
 .laser-zone.zone-aiming { fill: #e3aa433d; stroke: #ffc76d; stroke-dasharray: 5 4; stroke-width: 2; }
 .laser-zone.zone-danger { fill: #f2383e55; stroke: #ff8b78; stroke-width: 2; }
+.laser-zone.zone-echo { fill: #dfbe8228; stroke: #ffe1a2; stroke-width: 3; stroke-dasharray: 9 6; }
 .laser-zone.zone-passed { fill: #6bbaa838; stroke: #b4e4d4a8; }
+.laser-zone[data-next] { fill: #f5c98a3c; stroke: #ffe2af; stroke-width: 3; }
 .phase-fire .laser-zone.zone-danger { fill: #e1283c76; stroke: #ffb3a3; }
-.phase-fire[data-cue="sweep"] .laser-zone.zone-danger { fill: #e1283c45; stroke: #ff9d8d; }
+.phase-fire:is([data-cue="sweep"],[data-cue="return"]) .laser-zone.zone-danger { fill: #e1283c45; stroke: #ff9d8d; }
 .laser-beam { z-index: 4; }
-.phase-fire[data-cue="sweep"] .laser-beam { animation: pearl-sweep-flash .29s ease-out both; }
+.phase-fire:is([data-cue="sweep"],[data-cue="return"]) .laser-beam { animation: pearl-sweep-flash .29s ease-out both; }
 @keyframes pearl-sweep-flash { from { opacity: 1; } to { opacity: .24; } }
 .beam-glow { fill: none; stroke: #ff473c; stroke-width: 14; opacity: .9; filter: blur(5px); }
 .beam-core { fill: none; stroke: #fff2d0; stroke-width: 2.7; }
@@ -61,6 +63,7 @@
 .laser-rounds li[data-impact="clear"] { background: #95b7a6; border-color: #95b7a6; }
 .laser-rounds li[data-impact="hit"] { background: #e17567; border-color: #e17567; }
 .laser-rounds li[data-impact="blocked"] { background: #f6c873; border-color: #f6c873; }
+.laser-rounds li[data-impact="both"] { background: linear-gradient(135deg,#f6c873 50%,#e17567 50%); border-color: #f6c873; }
 .laser-umbrella {
   min-height: 36px; min-width: 69px; padding: 5px 8px; border-radius: 3px;
   color: #392918; background: #f4ce86; font-size: 12px; font-weight: 700;
@@ -69,7 +72,7 @@
 .laser-game .mini-options small { color: #4d655b; font-size: 12px; }
 @media (prefers-reduced-motion: reduce) {
   .laser-runner, .laser-zone { transition: none; }
-  .phase-fire[data-cue="sweep"] .laser-beam { animation: none; }
+  .phase-fire:is([data-cue="sweep"],[data-cue="return"]) .laser-beam { animation: none; }
 }
 .pearl-page { min-height: 100svh; background: #142128; color: #f6eddc; }
 .pearl-top {
@@ -82,6 +85,7 @@
 }
 .pearl-top > div { display: flex; align-items: center; gap: 12px; }
 .pearl-top small { font-size: 12px; color: #e1c58c; }
+.pearl-music { max-width: 1380px; margin: 0 auto; padding: 0 clamp(15px,4vw,48px) 17px; text-align: right; color: #bec9c4; }
 .pearl-layout {
   display: grid; grid-template-columns: minmax(0,.77fr) minmax(0,1.23fr); align-items: start;
   gap: clamp(16px,3vw,40px); max-width: 1380px; margin: auto; padding: clamp(15px,4vw,48px);
@@ -104,6 +108,18 @@
 .pearl-board .mini-options .primary { background: #eac68f; color: #252d31; }
 .pearl-board .mini-options .primary:hover { background: #f7d9aa; }
 .pearl-board .laser-game .mini-options small { color: #c9d4d0; }
+.pearl-runners { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); width: 100%; gap: 8px; }
+.pearl-runners button {
+  display: grid; grid-template-columns: minmax(38px,29%) minmax(0,1fr); align-items: center; gap: 9px;
+  min-width: 0; min-height: 60px; padding: 0; overflow: hidden; text-align: left;
+  border: 1px solid #aabdb361; border-radius: 3px; background: #20313a; color: #f1e8d4;
+}
+.pearl-runners button[aria-pressed="true"] { border-color: #e6ba7a; background: #483a2b; }
+.pearl-runners button:hover { border-color: #ffe5b3; }
+.pearl-runners img { width: 100%; height: clamp(58px,7vw,78px); object-fit: cover; object-position: 50% 29%; }
+.pearl-runners b, .pearl-runners small { display: block; }
+.pearl-runners b { font: 700 clamp(14px,2vw,21px)/1.2 var(--serif); }
+.pearl-runners small { margin-top: 3px; padding-right: 3px; text-align: left; }
 .pearl-result { background: #f5efe0; color: #283b35; }
 .pearl-board .laser-game { padding: clamp(12px,2vw,26px); }
 .pearl-result { padding: clamp(17px,3vw,36px); }
@@ -115,6 +131,14 @@
 .pearl-score { display: flex; flex-wrap: wrap; gap: 9px; margin: 16px 0; padding: 12px 0; border-block: 1px dashed #a9a38c; }
 .pearl-score span { font-size: 13px; color: #3c5549; }
 .pearl-score b { font-size: 22px; margin-right: 3px; }
+.pearl-trace { margin-top: 13px; }
+.pearl-trace b { font-size: 12px; }
+.pearl-trace ol { display: grid; grid-template-columns: repeat(8,minmax(0,1fr)); padding: 0; margin: 4px 0 0; gap: 4px; list-style: none; }
+.pearl-trace li { display: grid; justify-items: center; gap: 2px; padding: 4px 1px; background: #d7e3d6; border-radius: 2px; }
+.pearl-trace li[data-mark="blocked"] { background: #f4dda6; }
+.pearl-trace li:is([data-mark="hit"],[data-mark="both"]) { background: #edc1b4; }
+.pearl-trace li small { font-size: clamp(10px,1.3vw,12px); }
+.pearl-trace li span { font-size: 13px; font-weight: 700; }
 .pearl-result-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
 .pearl-result-actions .primary { background: #8f342a; }
 .pearl-story-link {
@@ -144,4 +168,9 @@
   .laser-hud { font-size: 11px; gap: 6px; padding-inline: 7px; }
   .laser-umbrella { min-width: 62px; font-size: 11px; }
   .laser-rounds li { width: 7px; }
+}
+@media (max-width: 420px) and (max-height: 700px) {
+  .pearl-layout { padding-top: 10px; }
+  .pearl-hero { min-height: 124px; }
+  .pearl-board .laser-game .mini-options { margin-top: 12px; }
 }

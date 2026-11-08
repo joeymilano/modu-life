@@ -1,4 +1,5 @@
 import { dayworkLead } from './lifeStarts';
+import { blossomsLead } from './blossoms';
 import { contactStory } from './contactStories';
 import { streetPhoto } from './art';
 import { firstNightLead } from './firstNight';
@@ -101,5 +102,5 @@ export function streetLead(state: GameState) {
   if (work) return { message: work.tag === '对账' ? '有一笔钱要跟你对一下' : '新单位把交接时间发来了', event: work };
   const contact = contactStory(state);
   if (contact) return contact;
-  return localLead(state) ?? null;
+  return blossomsLead(state) ?? localLead(state) ?? null;
 }

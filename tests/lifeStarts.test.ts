@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { allOrigins, canAfford, createGame, monthlyBudget, nextYear, resolveChoice, selectEvent, validateSave } from '../src/game/engine';
 import { DAYWORK_TEMP, FAMILY_PAY, LIFE_STARTS, outstandingShiftPay } from '../src/game/lifeStarts';
 import { holdsLogisticsShares, STAFF_BED } from '../src/game/classLives';
+import { HEIR_CAPITAL_TIER } from '../src/game/heirCapital';
 import { activeLine, decodeLife, encodeLife, forkLife, recordDecision, replayScene, startBook } from '../src/game/lifeLines';
 import { openingForecast } from '../src/game/openingForecast';
 import { challengeUrl, readChallenge } from '../src/game/share';
@@ -68,23 +69,23 @@ describe('two Shanghai starting lives', () => {
 
  it('covers eligible bills, keeps purchase money off the player balance and retains the rent on self-payment', () => {
   const start = create(LIFE_STARTS[1]);
-  expect(start.cash).toBe(600000);
-  expect(monthlyBudget(start)).toMatchObject({rent:12000,familyPaid:13800,net:0});
+  expect(start.cash).toBe(60_000_000);
+  expect(monthlyBudget(start)).toMatchObject({rent:55_000,familyPaid:67_000,net:0});
   const first = nextYear(annual(start,'keys'));
   expect(first.income).toBe(0);
-  expect(first.familyPaid).toBe(165600);
-  expect(first.expense).toBe(165600);
-  expect(first.state.cash).toBe(600000);
+  expect(first.familyPaid).toBe(804_000);
+  expect(first.expense).toBe(804_000);
+  expect(first.state.cash).toBe(60_000_000);
   const approval = annual(first.state,'pilot');
-  expect(approval.cash).toBe(600000);
+  expect(approval.cash).toBe(60_000_000);
   const reviewed = nextYear(approval).state;
   expect(selectEvent(reviewed,'year').text).toContain('留下两台');
   const own = annual(reviewed,'own');
   expect(own.flags).not.toContain(FAMILY_PAY);
-  expect(monthlyBudget(own)).toMatchObject({rent:12000,familyPaid:0,net:-13800});
-  expect(nextYear(own).state.cash).toBe(434400);
+  expect(monthlyBudget(own)).toMatchObject({rent:55_000,familyPaid:0,net:-67_000});
+  expect(nextYear(own).state.cash).toBe(59_196_000);
   const moved = annual(start,'leave');
-  expect(moved.cash).toBe(593400);
+  expect(moved.cash).toBe(59_993_400);
   expect(monthlyBudget(moved)).toMatchObject({rent:3300,familyPaid:0,net:-5100});
  });
 
@@ -131,27 +132,41 @@ describe('two Shanghai starting lives', () => {
  it('pays personal dividends only on the branch that buys shares and approves them', () => {
   const before = {...create(LIFE_STARTS[1]),age:21};
   const equity = selectEvent(before,'year');
-  expect(canAfford({...before,cash:239999},equity.choices[0].effect)).toBe(false);
+  expect(canAfford({...before,cash:23_999_999},equity.choices[0].effect)).toBe(false);
   const bought = annual(before,'buy');
-  expect(bought.cash).toBe(before.cash-240000);
+  expect(bought.cash).toBe(before.cash-24_000_000);
   expect(holdsLogisticsShares(bought)).toBe(true);
-  expect(monthlyBudget(bought).familyPaid).toBe(13800);
+  expect(monthlyBudget(bought).familyPaid).toBe(67_000);
   const ballot = nextYear(bought).state;
   const vote = selectEvent(ballot,'year');
   const paid = annual(ballot,'pay');
-  expect(paid.cash).toBe(ballot.cash+57600);
+  expect(paid.cash).toBe(ballot.cash+576_000);
   const book = recordDecision(startBook(ballot),paid,vote,'pay');
   const other = activeLine(forkLife(decodeLife(encodeLife(book)),0));
   expect(replayScene(other.state,other.replay!)).toEqual(vote);
   expect(annual(other.state,'keep').cash).toBe(ballot.cash);
   const sold = annual(other.state,'sell');
-  expect(sold.cash).toBe(ballot.cash+210000);
+  expect(sold.cash).toBe(ballot.cash+21_000_000);
   expect(holdsLogisticsShares(sold)).toBe(false);
   expect(holdsLogisticsShares(paid)).toBe(true);
   expect(nextYear(paid).receipt.workIncome).toBe(0);
   const visitor = nextYear(annual(before,'observe')).state;
   expect(selectEvent(visitor,'year').id).toBe('life-start-class-heir-observer');
   expect(annual(visitor,'ask').cash).toBe(visitor.cash);
+ });
+
+ it('keeps the original balance and signed prices on a saved legacy timeline', () => {
+  const prior = create(LIFE_STARTS[1]);
+  const before = validateSave({...prior,age:21,cash:600_000,flags:prior.flags.filter(flag=>flag!==HEIR_CAPITAL_TIER)});
+  expect(monthlyBudget(before)).toMatchObject({rent:12_000,familyPaid:13_800});
+  const scene = selectEvent(before,'year');
+  const bought = annual(before,'buy');
+  expect(bought.cash).toBe(360_000);
+  const book = recordDecision(startBook(before),bought,scene,'buy');
+  const alternate = activeLine(forkLife(decodeLife(encodeLife(book)),0));
+  expect(replayScene(alternate.state,alternate.replay!)?.choices[0].effect.cash).toBe(-240_000);
+  const vote = nextYear(bought).state;
+  expect(annual(vote,'pay').cash).toBe(vote.cash+57_600);
  });
 
  it('lets guests see the same vote through both possible dorm notices', () => {

@@ -1,0 +1,41 @@
+{
+  "generator": "Built-in ImageGen",
+  "referenceCommit": "a65c306",
+  "assets": {
+    "public/art/pearl/after-rain-clean.webp": [
+      "pearl/clean",
+      false,
+      "New original production photograph for a realistic Shanghai narrative arcade game, contemporary Shanghai independent-film look, practical street-lighting, wet stone and mist after light rain, rich petrol-blue shadows with gentle sodium-amber practical lights, believable human gesture, real skin and fabric. No fantasy render, no readable writing, no UI or overlays. Landscape 3:2 intimate Bund street photograph. One untouched clear small lemon drink at a wet granite ledge with its cup lid still on, hand holding it steady, ice and lemon visible. A reflection of a red warning light has just died out in a near puddle, amber crossing light and far river edge out of focus, quiet sense of having dodged something. Hero object in center safe for a wide crop."
+    ],
+    "public/art/pearl/after-rain-blocked.webp": [
+      "pearl/umbrella",
+      false,
+      "New original production photograph for a realistic Shanghai narrative arcade game, contemporary Shanghai independent-film look, practical street-lighting, wet stone and mist after light rain, rich petrol-blue shadows with gentle sodium-amber practical lights, believable human gesture, real skin and fabric. No fantasy render, no readable writing, no UI or overlays. Landscape 3:2 story photograph, real wide dull mustard umbrella, still open and dripping into the foreground, its bearer hands it back over the Bund rail-side pavement while holding a full clear cup of lemon drink safely with the other hand. Face only partial, no posed hero. Reflected red from far away around a rim, wet fabric detail. Central objects grouped for a wide crop."
+    ],
+    "public/art/pearl/after-rain-spill.webp": [
+      "pearl/spill",
+      false,
+      "New original production photograph for a realistic Shanghai narrative arcade game, contemporary Shanghai independent-film look, practical street-lighting, wet stone and mist after light rain, rich petrol-blue shadows with gentle sodium-amber practical lights, believable human gesture, real skin and fabric. No fantasy render, no readable writing, no UI or overlays. Landscape 3:2 playful grounded closeup. A little puddle of spilled lemonade and loose ice cubes on rain-dark Bund granite, an adult hand with a white paper napkin reaches in. A tipped small clear unbranded cup, distant umbrella shoes out of focus. Eye-level as crouched near ground, reflection of dim red signal and honey street lamps across wet tiles, absurd and ordinary."
+    ],
+    "public/art/pearl/yan-run.webp": [
+      "portraits/yan",
+      true,
+      "A single fully isolated realistic adult actor, entire head, hands and both shoes visible with clear silhouette, transparent background, photographed as an action cutout for a high-end realistic Shanghai narrative arcade game. Match the face of the supplied fictional person. In an athletic side-step to the viewer's right, one knee bent and the other foot planted farther right, torso angled but visible, keeping an unbranded pale transparent takeaway lemonade cup upright at chest height. Candid amused concentration, practical wet-weather urban wardrobe, crisp leg edges, photographic 35mm color, no other subjects, scenery, shadows on ground or text. Adult Shanghai woman with dark tied-back hair, cream light rain parka, dark navy trousers and pale sneakers, left hand out to balance. Show about 3/4 body in side-stepping action, head turned toward the right."
+    ],
+    "public/art/pearl/sun-run.webp": [
+      "portraits/sun",
+      true,
+      "A single fully isolated realistic adult actor, entire head, hands and both shoes visible with clear silhouette, transparent background, photographed as an action cutout for a high-end realistic Shanghai narrative arcade game. Match the face of the supplied fictional person. In an athletic side-step to the viewer's right, one knee bent and the other foot planted farther right, torso angled but visible, keeping an unbranded pale transparent takeaway lemonade cup upright at chest height. Candid amused concentration, practical wet-weather urban wardrobe, crisp leg edges, photographic 35mm color, no other subjects, scenery, shadows on ground or text. Adult Shanghai man, short dark hair, weathered warm orange-brown street photography jacket, charcoal jeans, sneakers and small dark camera pouch close to body, elbow out slightly as he sidesteps. Show face and full legs."
+    ],
+    "public/art/pearl/yan-select.webp": [
+      "portraits/yan",
+      false,
+      "New original production photograph for a realistic Shanghai narrative arcade game, contemporary Shanghai independent-film look, practical street-lighting, wet stone and mist after light rain, rich petrol-blue shadows with gentle sodium-amber practical lights, believable human gesture, real skin and fabric. No fantasy render, no readable writing, no UI or overlays. New vertical 2:3 candid waist-up portrait, match the fictional woman identity reference, dark tied-back hair, cream light rain jacket, navy inner layer. At the Bund ferry landing, she zips her sleeve pocket while holding a clear lemonade with her other hand, half amused glance toward a friend. Clear face at upper third for a small profile crop, subtle practical lights."
+    ],
+    "public/art/pearl/sun-select.webp": [
+      "portraits/sun",
+      false,
+      "New original production photograph for a realistic Shanghai narrative arcade game, contemporary Shanghai independent-film look, practical street-lighting, wet stone and mist after light rain, rich petrol-blue shadows with gentle sodium-amber practical lights, believable human gesture, real skin and fabric. No fantasy render, no readable writing, no UI or overlays. New vertical 2:3 candid waist-up portrait, match the fictional man identity reference and distinct eyes, rust-brown camera jacket and dark crossbody pouch. At the Bund in blue hour he pushes his pocket camera strap back out of the way before steadying a small clear lemonade. Clear expressive face at upper third for small profile crop, quiet amber light."
+    ]
+  }
+}

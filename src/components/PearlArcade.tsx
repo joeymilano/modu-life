@@ -1,25 +1,44 @@
 import { useEffect, useRef, useState } from 'react';
 import { pearlPhoto } from '../game/art';
-import { comparePearlScore, CURRENT_PEARL_RULES, pearlHash, pearlRank, pearlRoundCount, type PearlChallenge, type PearlScore } from '../game/pearl';
+import {
+ comparePearlScore, CURRENT_PEARL_RULES, pearlCueNames, pearlHash, pearlMarkStamp, pearlMarkText, pearlRank, pearlResultPhoto,
+ pearlRoundCount, pearlRounds, type PearlChallenge, type PearlMark, type PearlRunnerId, type PearlScore, type PearlWave,
+} from '../game/pearl';
 import { downloadBlob, makePearlTicket, pearlChallengeUrl } from '../game/share';
 import { newSeed } from '../game/seed';
 import Icon from './Icon';
 import LaserGame from './LaserGame';
+import MusicCredit from './MusicCredit';
 
 function resultMessage(score: PearlScore, target?: number, targetBlocks?: number) {
  if (target === undefined) return '把小票发过去，朋友会碰到同样的红光。';
  if (score.hits < target) return `你比朋友少洒 ${target - score.hits} 回。`;
- if (score.hits > target) return `朋友只洒了 ${target} 回。杯子还在，再来？`;
+ if (score.hits > target) return target === 0 ? '朋友那杯一滴没洒。原路再试？' : `朋友只洒了 ${target} 回。杯子还在，再来？`;
  if (targetBlocks === undefined) return '你们洒得一样多。';
  const order = comparePearlScore(score, target, targetBlocks);
  if (order === 0) return '杯子打平，伞也打平。';
  return order < 0 ? '洒得一样多，你少用伞挡了一回。' : '洒得一样多，朋友少用伞挡了一回。';
 }
 
+function RoundTrace({label, trail, waves}: {label: string; trail: readonly PearlMark[]; waves: readonly PearlWave[]}) {
+ return <div className="pearl-trace">
+  <b>{label}</b>
+  <ol aria-label={label}>
+   {trail.map((mark,index) => {
+    const cue = pearlCueNames[waves[index].kind];
+    return <li key={index} data-mark={mark} aria-label={`第 ${index+1} 轮，${cue}，${pearlMarkText[mark]}`}>
+     <small aria-hidden="true">{cue}</small><span aria-hidden="true">{pearlMarkStamp[mark]}</span>
+    </li>;
+   })}
+  </ol>
+ </div>;
+}
+
 export default function PearlArcade({challenge, onClose, audio, onAudio}: {
  challenge: PearlChallenge; onClose: () => void; audio: boolean; onAudio: () => void;
 }) {
  const [round, setRound] = useState(0);
+ const [runner, setRunner] = useState<PearlRunnerId>('yan');
  const [score, setScore] = useState<PearlScore>();
  const [status, setStatus] = useState('');
  const [linkField, setLinkField] = useState(false);
@@ -27,7 +46,7 @@ export default function PearlArcade({challenge, onClose, audio, onAudio}: {
  const resultHeading = useRef<HTMLHeadingElement>(null);
  const board = useRef<HTMLElement>(null);
  const title = useRef<HTMLHeadingElement>(null);
- const {seed, target, targetBlocks, rules = 1} = challenge;
+ const {seed, target, targetBlocks, targetTrail, rules = 1} = challenge;
 
  useEffect(() => {
   window.scrollTo(0, 0);
@@ -37,7 +56,8 @@ export default function PearlArcade({challenge, onClose, audio, onAudio}: {
   if (score) resultHeading.current?.focus();
  }, [score]);
 
- const link = score ? pearlChallengeUrl(seed, score.hits, rules, score.blocks) : '';
+ const link = score ? pearlChallengeUrl(seed, score.hits, rules, score.blocks, score.trail) : '';
+ const waves = score?.trail ? pearlRounds(seed, rules) : [];
 
  async function copyLink() {
   try {
@@ -79,10 +99,11 @@ export default function PearlArcade({challenge, onClose, audio, onAudio}: {
   </header>
   <div className="pearl-layout">
    <section className="pearl-hero">
-    <img src={pearlPhoto('hero')} alt="雨后的外滩，拿柠檬水的旅客听见动静回头" width={850} height={1275}/>
+    <img src={pearlPhoto(rules === 4 ? 'snow-king-poster' : 'hero')}
+     alt={rules === 4 ? '雨后的外滩，雪王站在蜜雪冰城摊位旁，拿着柠檬水的旅客回头' : '雨后的外滩，拿柠檬水的旅客听见动静回头'} width={850} height={1275}/>
     <div>
      <h1 ref={title} tabIndex={-1} aria-label="四元柠檬水保卫战"><span>四元柠檬水</span><span>保卫战</span></h1>
-     <p>{target === undefined ? '吸管刚插下去，对岸的灯就红了。'
+     <p>{target === undefined ? rules === 4 ? '雪王刚递来四块钱那杯，对岸的灯就红了。' : '吸管刚插下去，对岸的灯就红了。'
       : targetBlocks !== undefined ? `朋友洒了 ${target} 回，挡了 ${targetBlocks} 回。换你拿杯子。`
       : target === 0 ? '朋友刚才一滴没洒。换你拿杯子。' : `朋友刚在这儿洒了 ${target} 回。换你拿杯子。`}</p>
     </div>
@@ -93,8 +114,10 @@ export default function PearlArcade({challenge, onClose, audio, onAudio}: {
      <h2 ref={resultHeading} tabIndex={-1}>{pearlRank(score)}</h2>
      <div className="pearl-score"><span>洒了 <b>{score.hits}</b> 回</span><span>挡住 <b>{score.blocks}</b> 回</span></div>
      <p>{resultMessage(score, target, targetBlocks)}</p>
-     <img src={pearlPhoto(score.hits ? 'spill' : 'clean')}
-      alt={score.hits ? '洒在石板上的冰块和递过来的纸巾' : '江边的柠檬水还满着'} width={1320} height={880}/>
+     {score.trail && <RoundTrace label="你的八轮" trail={score.trail} waves={waves}/>}
+     {targetTrail && <RoundTrace label="朋友的八轮" trail={targetTrail} waves={waves}/>}
+     <img src={pearlResultPhoto(score,rules)}
+      alt={score.hits ? '洒在石板上的冰块和递过来的纸巾' : score.blocks && rules === 4 ? '有人把伞递过来，柠檬水还拿在手里' : '江边的柠檬水还满着'} width={1320} height={880}/>
      <div className="pearl-result-actions">
       <button type="button" className="primary" onClick={copyLink}><Icon name="share" size={17}/>复制挑战链接</button>
       <button type="button" className="secondary" disabled={printing} onClick={printTicket}><Icon name="download" size={17}/>{printing?'打印中':'下载小票'}</button>
@@ -108,8 +131,11 @@ export default function PearlArcade({challenge, onClose, audio, onAudio}: {
       <input value={link} readOnly autoFocus onFocus={event => event.target.select()}/>
      </label>}
      <p className="pearl-status" role="status">{status}</p>
-    </div> : <LaserGame key={round} seed={seed} rules={rules} standalone onFinish={result=>{if(result.method==='run')setScore(result.score);}}/>}
+    </div> : <LaserGame key={round} seed={seed} rules={rules} standalone
+     runner={rules === 4 ? runner : undefined} onRunnerChange={rules === 4 ? setRunner : undefined}
+     onFinish={result=>{if(result.method==='run')setScore(result.score);}}/>}
    </section>
   </div>
+  <footer className="pearl-music"><MusicCredit/></footer>
  </main>;
 }

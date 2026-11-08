@@ -1,4 +1,5 @@
 import { openingPhoto } from './art';
+import { HEIR_TERMS, heirTerms } from './heirCapital';
 import type { EventChoice, GameState, LifeEvent } from './types';
 import { LONG_COMMUTE, NIGHT_WORK } from './workFlags';
 
@@ -7,13 +8,11 @@ const STOCK = 'logistics-shares-held';
 const SHADOW = 'logistics-shareholder-observer';
 const roomRate = 800;
 const privateRate = 1050;
-const sharePrice = 240000;
-const saleProceeds = 210000;
 export const LOGISTICS_SHARE_PERCENT = 6;
-const distribution = 1200000;
-const dividend = 57600;
 const movingGrant = 750;
 const yuan = (amount: number) => '¥'+amount.toLocaleString('zh-CN');
+const wan = (amount: number) => (amount / 10_000).toLocaleString('zh-CN') + ' 万';
+type Terms = ReturnType<typeof heirTerms>;
 
 export const holdsLogisticsShares = (state: Pick<GameState, 'flags'>) => state.flags.includes(STOCK);
 export function staffBedRent(state: Pick<GameState, 'age' | 'housing' | 'flags'>) {
@@ -61,10 +60,10 @@ function workerNotice(renewed = false) {
   ]);
 }
 
-const equityOffer = event('heir-equity',false,'这回要用你自己的卡',
- '晚饭订在江边，司机已经到了。财务说还要占你十分钟。家里一位股东想退出仓配子公司，六个点，二十四万。爸说可以让你旁听股东会，买不买都行。财务把那位股东的转让协议递给你，这几年他也只找到这一个买家。',
+const equityOffer = ({sharePrice}: Terms) => event('heir-equity',false,'这回要用你自己的卡',
+ '晚饭订在江边，司机已经到了。财务说还要占你十分钟。有位老股东要卖仓配子公司的六个点，开价 '+wan(sharePrice)+'。爸说你也可以先旁听股东会。财务把转让协议递给你，顺手把去年那份撤回的报价也翻了出来。',
  [
-  {id:'buy',label:'拿自己的二十四万接下股权',hint:'个人支出 '+yuan(sharePrice)+' · 持有 '+LOGISTICS_SHARE_PERCENT+'% 股权',
+  {id:'buy',label:'用自己的钱接下股权',hint:'个人支出 '+yuan(sharePrice)+' · 持有 '+LOGISTICS_SHARE_PERCENT+'% 股权',
    effect:{cash:-sharePrice,skill:6,setFlags:[STOCK]},
    reply:'财务让你在付款人一栏签全名。爸问楼下还等不等，你说等一会儿，你要自己把汇款回单存好。'},
   {id:'observe',label:'先去听会，自己的钱先留着',hint:'受邀旁听 · 没有表决权和分红',
@@ -75,8 +74,8 @@ const equityOffer = event('heir-equity',false,'这回要用你自己的卡',
    reply:'你把两页纸叠好推回去。爸到楼下才问晚饭还去不去，订位用的是他的名字。'},
  ]);
 
-const shareholderVote = event('heir-vote',false,'差你手里这六票',
- '财务算出这次能分一百二十万。两套方案，一套现在分，仓库宿舍的补贴到期就停。一套把钱留在公司，续宿舍补贴，也留一点周转。赞成续租的股东有四十八票，要分的有四十六票。爸让你看自己面前那张。',
+const shareholderVote = ({sharePrice,saleProceeds,distribution,dividend}: Terms) => event('heir-vote',false,'差你手里这六票',
+ '财务算出这次能分 '+wan(distribution)+'。两套年度方案，一套现在分，宿舍补贴到期就停。一套把钱留在公司，修库区、续宿舍。赞成留钱的股东有四十八票，要分的有四十六票。爸让你看自己面前那张。',
  [
   {id:'pay',label:'投给分红，宿舍补贴到期就停',hint:'个人分红实际到账 '+yuan(dividend)+' · 股权保留',
    effect:{cash:dividend,face:3},
@@ -86,11 +85,11 @@ const shareholderVote = event('heir-vote',false,'差你手里这六票',
    reply:'续租过了。仓库的人问门卡用不用换，财务把负责续卡的号码发过去。爸把杯里的茶喝完，没再提晚饭。'},
   {id:'sell',label:'接受老股东的报价，卖掉这六个点',hint:'股权转让实际到账 '+yuan(saleProceeds)+' · 此后没有表决权',
    effect:{cash:saleProceeds,spirit:7,removeFlags:[STOCK]},
-   reply:'你提前办完了转让。二十一万到账，比买的时候少了三万。会后纪要转来时，表决栏里已经没有你的名字。'},
+   reply:'你提前办完了转让。'+wan(saleProceeds)+'到账，比买的时候少了 '+wan(sharePrice-saleProceeds)+'。会后纪要转来时，表决栏里已经没有你的名字。'},
  ]);
 
-const observerVote = {...event('heir-vote',false,'椅子给你留了',
- '财务发的是旁听邀请。桌上两套方案，要么现在分一百二十万，要么留钱续宿舍补贴。爸把茶杯往旁边移了移，给你腾出放笔记本的位置。他那张表决单仍压在杯子底下。',
+const observerVote = ({distribution}: Terms) => ({...event('heir-vote',false,'椅子给你留了',
+ '财务发的是旁听邀请。桌上两套方案，要么现在分 '+wan(distribution)+'，要么留钱修库区和续宿舍。爸把茶杯往旁边移了移，给你腾出放笔记本的位置。他那张表决单仍压在杯子底下。',
  [
   {id:'ask',label:'请财务把调价后每张床的账摆出来',hint:'可以提问 · 个人到账 ¥0',
    effect:{skill:8,trust:4},
@@ -101,7 +100,7 @@ const observerVote = {...event('heir-vote',false,'椅子给你留了',
   {id:'leave',label:'听完就走，让签字的人作决定',hint:'个人到账 ¥0',
    effect:{spirit:6},
    reply:'你下楼时司机问还是不是去江边。你说等等，有条语音还没听完。是财务在讲这张表抄送给谁。'},
- ]),id:'life-start-class-heir-observer'};
+ ]),id:'life-start-class-heir-observer'});
 
 export function workerClassYear(state: GameState) {
  if (state.age === 21) return workerBed;
@@ -109,21 +108,22 @@ export function workerClassYear(state: GameState) {
 }
 
 export function heirClassYear(state: GameState) {
- if (state.age === 21) return equityOffer;
+ if (state.age === 21) return equityOffer(heirTerms(state));
  if (state.age === 22) {
-  if (holdsLogisticsShares(state)) return shareholderVote;
-  if (state.flags.includes(SHADOW)) return observerVote;
+  if (holdsLogisticsShares(state)) return shareholderVote(heirTerms(state));
+  if (state.flags.includes(SHADOW)) return observerVote(heirTerms(state));
  }
 }
 
-export function classPaper(eventId: string) {
+export function classPaper(eventId: string, state: Pick<GameState,'flags'>) {
+ const {sharePrice,distribution,dividend}=heirTerms(state);
  switch(eventId) {
   case workerBed.id: return {title:'住宿登记', rows:[['公司床位',yuan(roomRate)+'/月'],['短租床位',yuan(privateRate)+'/月']]};
   case 'life-start-class-worker-notice': return {title:'住户通知', rows:[['现有床位',yuan(roomRate)+'/月'],['短租床位',yuan(privateRate)+'/月'],['一次性搬家补助',yuan(movingGrant)]]};
-  case equityOffer.id: return {title:'股权转让单', rows:[['个人出资',yuan(sharePrice)],['仓配公司股权',LOGISTICS_SHARE_PERCENT+'%']]};
-  case shareholderVote.id: return {title:'股东会资料', rows:[['公司拟分配',yuan(distribution)],['你持有的股权',LOGISTICS_SHARE_PERCENT+'%'],['通过分红方案后，你实收',yuan(dividend)]]};
-  case observerVote.id: return {title:'旁听席', rows:[['公司拟分配',yuan(distribution)],['表决与分红','由现有股东行使']]};
+  case 'life-start-class-heir-equity': return {title:'股权转让单', rows:[['个人出资',yuan(sharePrice)],['仓配公司股权',LOGISTICS_SHARE_PERCENT+'%']]};
+  case 'life-start-class-heir-vote': return {title:'股东会资料', rows:[['公司拟分配',yuan(distribution)],['你持有的股权',LOGISTICS_SHARE_PERCENT+'%'],['通过分红方案后，你实收',yuan(dividend)]]};
+  case 'life-start-class-heir-observer': return {title:'旁听席', rows:[['公司拟分配',yuan(distribution)],['表决与分红','由现有股东行使']]};
  }
 }
 
-export const STAFF_BED_TICKET = {workerBed, workerNotice:workerNotice(), workerRenewal:workerNotice(true), shareholderVote};
+export const STAFF_BED_TICKET = {workerBed, workerNotice:workerNotice(), workerRenewal:workerNotice(true), shareholderVote:shareholderVote(HEIR_TERMS)};

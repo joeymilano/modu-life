@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import { blossomsLead } from '../src/game/blossoms';
 import { createGame, drawOrigins, resolveChoice } from '../src/game/engine';
 import { activeLine, decodeLife, encodeLife, forkLife, recordDecision, replayScene, startBook } from '../src/game/lifeLines';
 import { CORNER_DISTRICTS, cornerCashDue, cornerCount, cornerEvidence, streetCorner } from '../src/game/streetCorners';
+import { streetLead } from '../src/game/streetLeads';
 import { ticketFromHash, validateTicket, walk } from '../src/game/timelines';
 import type { DistrictId, GameState } from '../src/game/types';
 
@@ -64,5 +66,22 @@ describe('walk-up stories', () => {
   const done=walk(timeline,[{pick:1},{pick:0}]);
   expect(done.next).toBeNull();
   expect(done.steps.at(-1)?.option.shot).toBe('/art/corners/anfu-return.webp');
+ });
+ it('records the Huanghe Road tab without crediting payment before the next visit',()=>{
+  const before=life('people');
+  const dinner=streetLead(before)!.event;
+  expect(dinner.id).toBe('blossoms-dinner');
+  const reserved=resolveChoice(before,dinner,'banquet').state;
+  expect(reserved.cash).toBe(before.cash-680);
+  const followup=streetLead(reserved)!.event;
+  expect(followup.text).toContain('庆功宴已经吃了');
+  expect(resolveChoice(reserved,followup,'settle').state.cash).toBe(before.cash-80);
+  const book=recordDecision(startBook(before),reserved,dinner,'banquet');
+  const branch=activeLine(forkLife(decodeLife(encodeLife(book)),0));
+  expect(replayScene(branch.state,branch.replay!)).toEqual(dinner);
+  const small=resolveChoice(branch.state,dinner,'small').state;
+  expect(streetLead(small)?.event.text).toContain('碰杯的水印');
+  expect(blossomsLead({...before,district:'bund'})?.event.title).toContain('胡歌');
+  expect(blossomsLead({...before,district:'anfu'})?.event.title).toContain('唐嫣');
  });
 });

@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
 import { stallPhoto } from '../game/art';
+import { setAudioEnabled } from '../game/audio';
 import { newSeed } from '../game/seed';
 import { STALL_ORDER_COUNT, STALL_STEPS, stallSchedule } from '../game/stall';
 import { readStallChallenge, stallChallengeHash, type StallChallenge } from '../game/stallChallenge';
 import StallGame from './StallGame';
+import Icon from './Icon';
+import MusicCredit from './MusicCredit';
 
 function firstChallenge(): StallChallenge {
  const saved = readStallChallenge(window.location.hash);
@@ -16,6 +19,7 @@ export default function StallArcade() {
  const [challenge, setChallenge] = useState(firstChallenge);
  const [round, setRound] = useState(0);
  const [started, setStarted] = useState(false);
+ const [audio,setAudio] = useState(false);
 
  useEffect(() => {
   const sync = () => {
@@ -25,7 +29,10 @@ export default function StallArcade() {
    window.scrollTo(0, 0);
   };
   window.addEventListener('hashchange', sync);
-  return () => window.removeEventListener('hashchange', sync);
+  return () => {
+   window.removeEventListener('hashchange', sync);
+   setAudioEnabled(false);
+  };
  }, []);
 
  function replay(changeOrders: boolean) {
@@ -41,7 +48,12 @@ export default function StallArcade() {
  return <main className="stall-page" data-started={started}>
   <header className="stall-page-top">
    <a href="/">← 回魔都人生</a>
-   <span>莘庄晚市 · #{challenge.seed}</span>
+   <div className="stall-page-sound"><span>莘庄晚市 · #{challenge.seed}</span>
+    <button className="icon-button" aria-label={audio?'关闭声音':'打开声音'} onClick={()=>{
+     setAudioEnabled(!audio);
+     setAudio(!audio);
+    }}><Icon name={audio?'sound':'mute'} size={17}/></button>
+   </div>
   </header>
   <div className="stall-arcade-layout">
    <section className="stall-hero">
@@ -62,5 +74,6 @@ export default function StallArcade() {
      autoStart={round > 0} onStart={() => {setStarted(true);window.scrollTo(0, 0);}} onReplay={replay}/>
    </section>
   </div>
+  <footer className="stall-music"><MusicCredit/></footer>
  </main>;
 }

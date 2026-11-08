@@ -16,6 +16,27 @@ self.addEventListener('fetch', event => {
   const url = new URL(request.url);
   if (request.method !== 'GET' || url.origin !== self.location.origin) return;
 
+  const range = url.pathname.startsWith('/audio/') && /^bytes=(\d*)-(\d*)$/.exec(request.headers.get('range') || '');
+  if (range && (range[1] || range[2])) {
+    event.respondWith(caches.match(url.pathname, { cacheName: CACHE }).then(async cached => {
+      if (!cached) return fetch(request);
+      const track = await cached.blob();
+      const start = range[1] ? Number(range[1]) : Math.max(0, track.size - Number(range[2]));
+      const end = range[1] && range[2] ? Math.min(track.size - 1, Number(range[2])) : track.size - 1;
+      if (start > end) return new Response(null, { status: 416, headers: { 'Content-Range': `bytes */${track.size}` } });
+      return new Response(track.slice(start, end + 1), {
+        status: 206,
+        headers: {
+          'Content-Type': track.type,
+          'Content-Range': `bytes ${start}-${end}/${track.size}`,
+          'Content-Length': String(end - start + 1),
+          'Accept-Ranges': 'bytes',
+        },
+      });
+    }));
+    return;
+  }
+
   function cacheResponse(key, response) {
     const copy = response.clone();
     event.waitUntil(caches.open(CACHE).then(cache => cache.put(key, copy)));

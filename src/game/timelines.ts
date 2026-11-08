@@ -1,5 +1,6 @@
 import { forwardClue, PARK_FORWARD_TICKET } from './matchForward';
 import { STAFF_BED_TICKET } from './classLives';
+import { BLOSSOMS_STILLS, BLOSSOMS_TICKET, blossomsPhoto } from './blossoms';
 import { RELOCATION_PLANS, RELOCATION_SHOTS, RELOCATION_TICKET, relocationPhoto } from './relocation';
 import { ANFU_CORNER_TICKET, CORNER_STILLS, cornerPhoto } from './streetCorners';
 import { laterDaywork, laterHeir } from './lifeYears';
@@ -61,6 +62,7 @@ const ticketShots = new Set([
   ...CONTACT_STILLS.map(contactPhoto),
   ...CORNER_STILLS.map(cornerPhoto),
   ...RELOCATION_SHOTS.map(relocationPhoto),
+  ...BLOSSOMS_STILLS.map(blossomsPhoto),
   ...TABLE_STILLS.map(tablePhoto),
   ...FERRY_STILLS.map(ferryPhoto),
   stallPhoto('close'), stallPhoto('burnt'),
@@ -339,13 +341,37 @@ const staffBedStory: Timeline = {
    scene:'吴师傅拿到一张空床位的门卡。仓库的账送去外滩办公室时，里面夹着今年公司给宿舍出的补贴。你想从哪头看？',
    options:[
     {move:'去莘庄，跟吴师傅看床位',after:'吴师傅没先开门，敲了两下，等里面的人应声。',next:1},
-    {move:'去外滩，参加仓配公司的股东会',after:'去年你花了二十四万买下六个点。今天财务把表决单放在你面前。',next:2},
+    {move:'去外滩，参加仓配公司的股东会',after:'去年你用自己的钱买了六个点，出了两千四百万。今天财务把表决单放在你面前。',next:2},
    ],
   },
   receiptEnding(lateTurn(workerBed,'21 岁 · 看床位','莘庄 · 员工宿舍',[['staff',3],['private',end]])),
   receiptEnding(lateTurn(shareholderVote,'22 岁 · 表决','外滩 · 股东会',[['pay',3],['keep',4]])),
   receiptEnding(lateTurn(workerNotice,'22 岁 · 停补贴','莘庄 · 员工宿舍',[['night',end],['grant',end]])),
   receiptEnding(lateTurn(workerRenewal,'22 岁 · 续租','莘庄 · 员工宿舍',[['renew',end],['move',end]])),
+ ],
+};
+
+const [huangheDinner,smallToast,bigToast,meetHu,meetTang]=BLOSSOMS_TICKET;
+const huangheToast: Timeline = {
+ id:'huanghe-toast',kind:'life',title:'黄河路先庆哪一桩',author:'魔都人生',
+ original:'我俩拿汽水碰了下杯。后来尾款到账，司机也来了。给他留的那瓶，何亮开早了，白冒一桌子汽。',
+ turns:[
+  lateTurn(huangheDinner,'第一单送到','黄河路 · 临窗小桌',[['small',1],['banquet',2]]),
+  receiptEnding(lateTurn(smallToast,'周五 · 尾款到账','黄河路 · 临窗小桌',[['settle',end],['toast',end]])),
+  receiptEnding(lateTurn(bigToast,'周五 · 尾款到账','黄河路 · 包厢门外',[['settle',end],['toast',end]])),
+ ],
+};
+const streetCameos: Timeline = {
+ id:'shanghai-cameos',kind:'life',title:'在上海碰到谁',author:'魔都人生',
+ original:'那次我扶了下门，后来手机里只留了一张江上的船。街头相遇均为游戏虚构。',
+ turns:[
+  {date:'下工以后',place:'上海 · 两条路',scene:'江边风有点大。有人说外白渡桥那头刚亮灯，你也惦记安福路弄堂口的排骨年糕。今天先去哪边？',shot:meetHu.illustration,
+   options:[
+    {move:'走外白渡桥',after:'桥头的路忽然窄了一点，有一家人正往门里让。',next:1},
+    {move:'去安福路买排骨年糕',after:'窗口已经在叫号。排在你前面的人正从兜里摸票。',next:2},
+   ]},
+  receiptEnding(lateTurn(meetHu,'虚构偶遇','外白渡桥 · 石门洞',[['hello',end],['space',end]])),
+  receiptEnding(lateTurn(meetTang,'虚构偶遇','安福路 · 弄堂口',[['hello',end],['own',end]])),
  ],
 };
 
@@ -494,6 +520,8 @@ export const CITY_TIMELINES: Timeline[] = [
   coffeeQueue,
   warehouseMove,
   staffBedStory,
+  huangheToast,
+  streetCameos,
   forwardedPaperStory,
   {
     id: 'scallion-bill', kind: 'life', title: '隔壁桌的葱油饼', author: '魔都人生',

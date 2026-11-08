@@ -100,4 +100,16 @@ describe('parallel timelines', () => {
     expect(company.turns[3].shot).toBe('/art/endings/life-heir-final.webp');
   });
 
+  it('keeps the celebration bill and the two street cameos on separate guest routes', () => {
+    const dinner=validateTicket(ticketFromHash('#story=huanghe-toast')).timeline;
+    expect(dinner.turns[0].scene).toContain('经常庆功，就能成功');
+    const small=dinner.turns[walk(dinner,[{pick:0}]).next!];
+    const banquet=dinner.turns[walk(dinner,[{pick:1}]).next!];
+    expect(small.scene).toContain('碰杯的水印');
+    expect(banquet.scene).toContain('庆功宴已经吃了');
+    const cameos=validateTicket(ticketFromHash('#story=shanghai-cameos')).timeline;
+    expect(cameos.turns[walk(cameos,[{pick:0}]).next!].scene).toContain('胡歌');
+    expect(cameos.turns[walk(cameos,[{pick:1}]).next!].scene).toContain('唐嫣');
+  });
+
 });

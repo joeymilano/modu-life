@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import {
- CURRENT_PEARL_RULES, PEARL_LANES, pearlRank, pearlRounds, type PearlResult, type PearlRules,
+ CURRENT_PEARL_RULES, PEARL_LANES, PEARL_RUNNERS, pearlMarkText, pearlRank, pearlRounds,
+ type PearlMark, type PearlResult, type PearlRules, type PearlRunnerId, type PearlScore,
 } from '../game/pearl';
 import { playSound } from '../game/audio';
 import { pearlPhoto, pearlRunner } from '../game/art';
@@ -10,44 +11,46 @@ import './pearl.css';
 
 type Phase = 'intro' | 'warn' | 'fire' | 'done';
 type Umbrella = 'ready' | 'open' | 'spent';
-type Impact = 'hit' | 'blocked' | 'clear';
+type Impact = Exclude<PearlMark,'both'>;
 
 const FLOOR_ZONES = ['68,298 227,298 197,390 0,390', '227,298 373,298 403,390 197,390', '373,298 532,298 600,390 403,390'];
 const LANE_X = [100, 300, 500];
-const TOWER_POINT = [300, 98];
-const IMPACT_TEXT = { hit: '洒出来了！', blocked: '这下伞替你挨了', clear: '杯子还稳着' };
+const IMPACT_TEXT = { ...pearlMarkText, hit: '洒出来了！', blocked: '这下伞替你挨了' };
 const FLASH_MS = 355;
-const strongerImpact = (a: Impact, b: Impact): Impact =>
- a === 'hit' || b === 'hit' ? 'hit' : a === 'blocked' || b === 'blocked' ? 'blocked' : 'clear';
+const combineImpact = (a: PearlMark, b: Impact): PearlMark =>
+ a === 'clear' ? b : b === 'clear' || a === b ? a : 'both';
 
-export default function LaserGame({ seed, cash = 0, appearance = { gender: 'female', looks: 'everyday' }, rules = CURRENT_PEARL_RULES, standalone = false, onFinish }: {
+export default function LaserGame({ seed, cash = 0, appearance = { gender: 'female', looks: 'everyday' }, rules = CURRENT_PEARL_RULES, standalone = false, runner, onRunnerChange, onFinish }: {
  seed: string; cash?: number; appearance?: PlayerAppearance; rules?: PearlRules;
- standalone?: boolean; onFinish: (result: PearlResult) => void;
+ standalone?: boolean; runner?: PearlRunnerId; onRunnerChange?: (id: PearlRunnerId) => void; onFinish: (result: PearlResult) => void;
 }) {
  const waves = useMemo(() => pearlRounds(seed, rules), [seed, rules]);
+ const hatch = useId();
  const [phase, setPhase] = useState<Phase>('intro');
  const [wave, setWave] = useState(0);
  const [lane, setLane] = useState(1);
  const [facing, setFacing] = useState<'left' | 'right'>('right');
  const [mask, setMask] = useState(0);
  const [locked, setLocked] = useState(false);
- const [history, setHistory] = useState<Impact[]>([]);
+ const [history, setHistory] = useState<PearlMark[]>([]);
  const [blocks, setBlocks] = useState(0);
  const [impact, setImpact] = useState<Impact>();
  const [sweepStep, setSweepStep] = useState(0);
  const [umbrella, setUmbrella] = useState<Umbrella>('ready');
  const [hidden, setHidden] = useState(document.hidden);
  const player = useRef({ lane: 1, umbrella: 'ready' as Umbrella });
- const timing = useRef({ elapsed: 0, mask: 0, locked: false, step: 0, sweepImpact: 'clear' as Impact });
+ const timing = useRef({ elapsed: 0, mask: 0, locked: false, step: 0, sweepImpact: 'clear' as PearlMark });
  const fuse = useRef<HTMLSpanElement>(null);
  const finished = useRef(false);
  const cue = waves[wave];
  const active = phase === 'warn' || phase === 'fire';
  const aiming = phase === 'warn' && cue.kind === 'lock' && !locked;
- const sweeping = phase === 'fire' && cue.kind === 'sweep';
+ const travelling = cue.kind === 'sweep' || cue.kind === 'return';
+ const sweeping = phase === 'fire' && travelling;
  const canMove = phase === 'warn' || phase === 'intro' || sweeping;
  const canOpen = phase === 'warn' || (sweeping && sweepStep < cue.order.length - 1);
- const score = { hits: history.filter(item => item === 'hit').length, blocks };
+ const echoMask = phase === 'warn' && cue.kind === 'reflection' ? cue.echoMask : 0;
+ const score: PearlScore = { hits: history.filter(item => item === 'hit' || item === 'both').length, blocks, ...(rules === 4 && {trail:history}) };
 
  useEffect(() => {
   const change = () => setHidden(document.hidden);
@@ -100,20 +103,20 @@ export default function LaserGame({ seed, cash = 0, appearance = { gender: 'fema
     }
     if (clock.elapsed >= cue.warn) {
      const result = strike(clock.mask);
-     if (cue.kind === 'sweep') clock.sweepImpact = result;
+     if (travelling) clock.sweepImpact = result;
      else setHistory(items => [...items, result]);
      clock.elapsed = 0;
      setPhase('fire');
      return;
     }
-   } else if (clock.elapsed >= (cue.kind === 'sweep' ? cue.stepMs : FLASH_MS)) {
-    if (cue.kind === 'sweep') {
+   } else if (clock.elapsed >= (travelling ? cue.stepMs : FLASH_MS)) {
+    if (travelling) {
      const nextLane = cue.order[clock.step + 1];
      if (nextLane !== undefined) {
       clock.step++;
       clock.elapsed -= cue.stepMs;
       clock.mask = 1 << nextLane;
-      clock.sweepImpact = strongerImpact(clock.sweepImpact, strike(clock.mask));
+      clock.sweepImpact = combineImpact(clock.sweepImpact, strike(clock.mask));
       setSweepStep(clock.step);
       setMask(clock.mask);
       frame = requestAnimationFrame(tick);
@@ -130,7 +133,7 @@ export default function LaserGame({ seed, cash = 0, appearance = { gender: 'fema
   };
   frame = requestAnimationFrame(tick);
   return () => cancelAnimationFrame(frame);
- }, [phase, wave, cue, hidden, waves.length, beginWave, strike]);
+ }, [phase, wave, cue, travelling, hidden, waves.length, beginWave, strike]);
 
  const move = useCallback((next: number) => {
   if (hidden || !canMove) return;
@@ -167,11 +170,14 @@ export default function LaserGame({ seed, cash = 0, appearance = { gender: 'fema
  }
 
  const laneNames = PEARL_LANES.filter((_, index) => Boolean(mask & (1 << index)));
+ const nextSweepLane = sweeping ? cue.order[sweepStep + 1] : undefined;
  const status = hidden && active ? '切回这页再继续' : phase === 'intro' ? '对岸的塔亮了'
   : phase === 'done' ? pearlRank(score)
-  : sweeping && impact === 'clear' ? `${laneNames[0]}扫过了，往它身后走`
+  : sweeping && impact === 'clear' ? cue.kind === 'return' ? nextSweepLane === undefined ? '折返扫完了' : `折返 ${sweepStep+1}/5 · 下一道扫${PEARL_LANES[nextSweepLane]}` : `${laneNames[0]}扫过了，往它身后走`
   : phase === 'fire' ? IMPACT_TEXT[impact ?? 'clear']
   : aiming ? '它在瞄你，等红框锁住'
+  : cue.kind === 'reflection' ? '地上有倒影 · 躲开斜纹'
+  : cue.kind === 'return' ? `从${PEARL_LANES[cue.order[0]]}开始 · 扫到头还会回来`
   : cue.kind === 'sweep' ? `${PEARL_LANES[cue.order[0]]}开始扫 · 红光过了就能跨回去`
   : cue.kind === 'double' ? `两道红光 · 去${PEARL_LANES.find((_, index) => !(mask & (1 << index)))}`
   : cue.kind === 'lock' ? `锁在${laneNames[0]}，快闪`
@@ -181,17 +187,24 @@ export default function LaserGame({ seed, cash = 0, appearance = { gender: 'fema
   {!standalone && <>
    <div className="mini-eyebrow">魔都怪谈 · 外滩</div>
    <h2>四元柠檬水保卫战</h2>
-   <p className="mini-lead">吸管刚插下去，对岸的灯就红了。</p>
+   <p className="mini-lead">雪王刚递来四块钱那杯，对岸的灯就红了。</p>
   </>}
-  <div className={'laser-arena phase-' + phase} data-cue={cue.kind}
-   data-wave={wave + 1} data-mask={active && !aiming ? mask : 0}
+  <div className={'laser-arena phase-' + phase} data-cue={cue.kind} data-rules={rules}
+   data-wave={wave + 1} data-mask={active && !aiming ? mask : 0} data-echo-mask={echoMask}
    data-sweep-step={sweeping ? sweepStep + 1 : undefined} data-lock={aiming ? 'aiming' : locked ? 'locked' : undefined}>
-   <img className="laser-backdrop" src={pearlPhoto('arena')} alt="" width={1536} height={1024} />
+   <img className="laser-backdrop" src={pearlPhoto(rules === 4 ? 'arena-snow-king' : 'arena')}
+    alt={rules === 4 ? '左侧是蜜雪冰城的红招牌和雪王，东方明珠在对岸' : ''} width={1536} height={1024} />
    <svg className="laser-floor" viewBox="0 0 600 400" preserveAspectRatio="none" aria-hidden="true">
+    {rules === 4 && <defs><pattern id={hatch} width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(34)">
+     <rect width="8" height="8" fill="#ed4a495a"/><path d="M 0 0 V 8" stroke="#ffe0bc" strokeWidth="2" opacity=".6"/>
+    </pattern></defs>}
     {FLOOR_ZONES.map((points, index) => {
      const passed = sweeping && cue.order.slice(0, sweepStep).includes(index);
-     const zone = active && (mask & (1 << index)) ? ' zone-danger' : aiming && lane === index ? ' zone-aiming' : passed ? ' zone-passed' : '';
-     return <polygon key={index} points={points} className={'laser-zone' + zone} />;
+     const danger = active && Boolean(mask & (1 << index));
+     const zone = danger ? ' zone-danger' : echoMask & (1 << index) ? ' zone-echo' : aiming && lane === index ? ' zone-aiming' : passed ? ' zone-passed' : '';
+     return <polygon key={index} points={points} className={'laser-zone' + zone}
+      data-next={cue.kind === 'return' && index === nextSweepLane || undefined}
+      style={phase === 'warn' && danger && rules === 4 ? {fill:`url(#${hatch})`} : undefined} />;
     })}
    </svg>
    <div className="laser-status" data-impact={phase === 'fire' ? impact : undefined} data-aiming={aiming || undefined} aria-live="polite">
@@ -202,7 +215,7 @@ export default function LaserGame({ seed, cash = 0, appearance = { gender: 'fema
     {LANE_X.filter((_, index) => Boolean(mask & (1 << index))).map(x => {
      const blocked = impact === 'blocked' && (sweeping || x === LANE_X[lane]);
      const targetY = blocked ? 220 : 355;
-     const line = `M ${TOWER_POINT.join(' ')} L ${x} ${targetY}`;
+     const line = `M 300 98 L ${x} ${targetY}`;
      return <g key={x}>
       <path className="beam-glow" d={line} />
       <path className="beam-core" d={line} />
@@ -212,7 +225,7 @@ export default function LaserGame({ seed, cash = 0, appearance = { gender: 'fema
    </svg>}
    <div className={'laser-runner' + (phase === 'fire' && impact === 'hit' ? ' runner-hit' : '')}
     style={{ left: LANE_X[lane] / 6 + '%' }} data-facing={facing} aria-hidden="true">
-    <img className="runner-image" src={pearlRunner(appearance)} alt="" />
+    <img className="runner-image" src={runner ? pearlPhoto(`${runner}-run`) : pearlRunner(appearance)} alt="" />
     <img className="umbrella-canopy" src={pearlPhoto('umbrella')} alt=""
      hidden={umbrella !== 'open' && !(phase === 'fire' && impact === 'blocked')} />
    </div>
@@ -235,12 +248,19 @@ export default function LaserGame({ seed, cash = 0, appearance = { gender: 'fema
     onClick={openUmbrella} aria-label="撑一次伞">{umbrella === 'ready' ? '撑一次伞' : umbrella === 'open' ? '伞已撑开' : '伞用过了'}</button>}
   </div>
   {phase === 'intro' && <div className="mini-options">
+   {onRunnerChange && <div className="pearl-runners" role="group" aria-label="选谁拿杯">
+    {PEARL_RUNNERS.map(person => <button type="button" key={person.id} aria-pressed={person.id === runner}
+     onClick={() => onRunnerChange(person.id)}>
+     <img src={pearlPhoto(`${person.id}-select`)} alt="" width={640} height={960}/>
+     <span><b>{person.name}</b><small>{person.caption}</small></span>
+    </button>)}
+   </div>}
    <button className="primary" onClick={() => beginWave(0)}><Icon name="bolt" />拿稳柠檬水，开始躲</button>
    {!standalone && <>
     <button className="secondary" disabled={cash < 80} onClick={() => finish({ method: 'sleeve' })}>借个咖啡杯套伪装 · ¥80</button>
     <button className="text-button" onClick={() => finish({ method: 'neighbor' })}>喊路人搭把手</button>
    </>}
-   <small>点步道或按 1 2 3 换位，按 U 撑伞。{rules === 3 && ' 等红光扫过，再跨回去。'}</small>
+   <small>点步道或按 1 2 3 换位，按 U 撑伞。{rules === 4 ? ' 躲斜纹，虚线是倒影。' : rules === 3 && ' 等红光扫过，再跨回去。'}</small>
   </div>}
   {phase === 'done' && <div className="mini-options">
    <button className="primary" onClick={() => finish({ method: 'run', score })}>{standalone ? '拿走这张小票' : '喝完再走'} <Icon name="arrow" /></button>

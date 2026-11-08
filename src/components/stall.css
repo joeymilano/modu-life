@@ -141,3 +141,7 @@
 .screen-home .home-quick-games { display: flex; flex-wrap: wrap; align-items: center; gap: 0 19px; }
 .screen-home .home-quick-games a { pointer-events: auto; text-decoration: none; }
 .screen-home .home-quick-games a:hover { text-decoration: underline; }
+
+.stall-page-sound { display: flex; align-items: center; gap: 8px; }
+.stall-page-sound .icon-button { width: 34px; height: 34px; background: transparent; color: inherit; }
+.stall-music { max-width: 1340px; margin-inline: auto; padding: 0 16px 18px; text-align: right; }

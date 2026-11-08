@@ -2,10 +2,10 @@ import { lifeStartProfile, validLifeStartHand } from './lifeStarts';
 import { lifeYearsAlbumPhoto } from './lifeYears';
 import { lastDayMemory } from './lastDay';
 import { allOrigins, ending } from './engine';
-import { endingPhoto, LIFE_ALBUM_AGES, originPhoto, pearlPhoto, playerArt, stallPhoto, streetPhoto, TIMELINE_COVER } from './art';
+import { endingPhoto, LIFE_ALBUM_AGES, originPhoto, playerArt, stallPhoto, streetPhoto, TIMELINE_COVER } from './art';
 import { openingForecast } from './openingForecast';
 import { CAREERS, DISTRICTS } from './content';
-import { PEARL_PATH, pearlHash, pearlRank, pearlRoundCount, type PearlRules, type PearlScore } from './pearl';
+import { PEARL_PATH, pearlHash, pearlMarkStamp, pearlRank, pearlResultPhoto, pearlRoundCount, type PearlRules, type PearlScore } from './pearl';
 import { comparedFacts, describeDecision, lineDivergence } from './lineComparison';
 import { lineName, type LifeLine } from './lifeLines';
 import type { GameState } from './types';
@@ -421,9 +421,9 @@ function challengeCards(ids: string[]) {
 }
 
 
-export function pearlChallengeUrl(seed: string, target: number, rules: PearlRules = 1, blocks?: number) {
+export function pearlChallengeUrl(seed: string, target: number, rules: PearlRules = 1, blocks?: number, trail?: PearlScore['trail']) {
  const url = new URL(rules === 1 ? '/' : PEARL_PATH, SITE_URL);
- url.hash = pearlHash(seed, target, rules, blocks);
+ url.hash = pearlHash(seed, target, rules, blocks, trail);
  return url.toString();
 }
 
@@ -493,18 +493,30 @@ export async function makePearlTicket(seed: string, score: PearlScore, rules: Pe
  ctx.fillStyle = '#263839';
  ctx.font = 'bold 59px "Songti SC", serif';
  ctx.fillText('四元柠檬水保卫战', 63, 206);
- await paintPhoto(ctx, pearlPhoto(score.hits ? 'spill' : 'clean'), [64, 243, 832, 447], .55);
+ await paintPhoto(ctx, pearlResultPhoto(score,rules), [64, 243, 832, 447], .55);
  ctx.font = 'bold 77px "Songti SC", serif';
  ctx.fillText(pearlRank(score), 64, 804);
  ctx.font = '28px sans-serif';
  ctx.fillText(pearlRoundCount(rules) + ' 轮 · 洒 ' + score.hits + ' 回 · 挡 ' + score.blocks + ' 回', 64, 867);
+ if (rules === 4 && score.trail) {
+  ctx.font = 'bold 21px sans-serif';
+  score.trail.forEach((mark,index) => {
+   const x = 64+index*66;
+   ctx.fillStyle = mark === 'clear' ? '#d7e3d6' : mark === 'blocked' ? '#f4dda6' : '#edc1b4';
+   ctx.fillRect(x,878,60,28);
+   ctx.fillStyle = '#263839';
+   ctx.textAlign = 'center';
+   ctx.fillText(pearlMarkStamp[mark],x+30,900);
+  });
+  ctx.textAlign = 'left';
+ }
  ctx.strokeStyle = '#a29a85';
  ctx.setLineDash([8, 6]);
  ctx.beginPath();
  ctx.moveTo(64, 916);
  ctx.lineTo(896, 916);
  ctx.stroke();
- if (!await paintChallengeCode(ctx, pearlChallengeUrl(seed, score.hits, rules, score.blocks), 896, 945, 184)) {
+ if (!await paintChallengeCode(ctx, pearlChallengeUrl(seed, score.hits, rules, score.blocks, score.trail), 896, 945, 184)) {
   throw new Error('小票的码还没印出来');
  }
  ctx.font = 'bold 29px sans-serif';

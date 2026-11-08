@@ -21,6 +21,7 @@
 }
 .parallel h1:focus { outline: 0; }
 .parallel-bar, .parallel-shelf-head, .parallel-actions, .parallel-tools { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.parallel-bar > .parallel-actions { margin-left: auto; }
 .parallel-bar { justify-content: space-between; min-height: 62px; border-bottom: 1px solid var(--rule); }
 .parallel-quiet { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 6px 0; color: inherit; background: transparent; }
 .parallel-quiet:hover { text-decoration: underline; text-underline-offset: 5px; }
@@ -136,3 +137,5 @@
   .parallel-hero .parallel-primary, .parallel-hero .parallel-outline { padding-inline: 10px; font-size: 13px; }
 }
 .parallel-map .parallel-fork-link{display:block;color:var(--red);font-size:12px;}
+
+.parallel-music { margin-top: 18px; text-align: right; }

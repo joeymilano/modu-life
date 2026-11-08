@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { downloadBlob, makeStoryPhoto } from '../game/share';
 import { playSound } from '../game/audio';
+import MusicCredit from './MusicCredit';
 import {
   CITY_TIMELINES, isTicketHash, readTickets, removeTicket, saveTicket, ticketFromHash, ticketLink, timelineShot, validateTicket, walk,
   type Move, type Ticket, type Timeline, type Turn,
@@ -121,8 +122,8 @@ function TicketCard({ ticket, index, onClick, illustrated = false }: { ticket: T
   </button>;
 }
 
-export default function ParallelShanghai({ onClose, hash, preset }: {
-  onClose: () => void; hash: string; preset?: Timeline;
+export default function ParallelShanghai({ onClose, hash, preset, audio, onAudio }: {
+  onClose: () => void; hash: string; preset?: Timeline; audio: boolean; onAudio: () => void;
 }) {
   const [ticket, setTicket] = useState<Ticket | null>(null);
   const [entries, setEntries] = useState(readTickets);
@@ -358,15 +359,17 @@ export default function ParallelShanghai({ onClose, hash, preset }: {
   return <main className="parallel">
     <div className="parallel-bar">
       <button className="parallel-quiet" onClick={onClose}>← 回魔都</button>
-      {screen !== 'hub' && <button className="parallel-quiet" onClick={() => {
+      <div className="parallel-actions">{screen !== 'hub' && <button className="parallel-quiet" onClick={() => {
         showHub();
         playSound('tap');
         if (isTicketHash(window.location.hash)) window.location.hash = 'parallel';
       }}>回故事列表</button>}
+      <button className="parallel-quiet" onClick={onAudio} aria-label={audio?'关闭声音':'打开声音'}><Icon name={audio?'sound':'mute'} size={17}/></button></div>
     </div>
     <input ref={fileRef} type="file" accept=".json,application/json" hidden onChange={event => importTicket(event.target.files?.[0])} />
     {content}
     {status && <div className="parallel-status" role="status">{status}</div>}
     {shareValue && <input className="parallel-link" aria-label="分享链接" value={shareValue} readOnly onFocus={event => event.target.select()} />}
+    <footer className="parallel-music"><MusicCredit/></footer>
   </main>;
 }

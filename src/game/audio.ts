@@ -11,6 +11,20 @@ const notes: Record<Sound, number[]> = {
 
 let context: AudioContext | null = null;
 let enabled = false;
+let music: HTMLAudioElement | null = null;
+
+function syncMusic() {
+ if (!enabled || document.hidden) {
+  music?.pause();
+  return;
+ }
+ if (!music) {
+  music = new Audio('/audio/apero-hour.mp3');
+  music.loop = true;
+  music.volume = .65;
+ }
+ void music.play().catch(() => {});
+}
 
 function playbackContext() {
  if (typeof AudioContext === 'undefined') return null;
@@ -21,7 +35,11 @@ function playbackContext() {
 
 export function setAudioEnabled(value: boolean) {
  enabled = value;
- if (value) playbackContext();
+ if (value) {
+  playbackContext();
+  document.addEventListener('visibilitychange',syncMusic);
+ } else document.removeEventListener('visibilitychange',syncMusic);
+ syncMusic();
 }
 
 export function playSound(type: Sound = 'tap') {
