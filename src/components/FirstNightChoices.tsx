@@ -7,6 +7,7 @@ export default function FirstNightChoices({clue, choices, render}: {
  render: (choice: EventChoice, index: number) => ReactNode;
 }) {
  const [inspected, setInspected] = useState(false);
+ const discovery = clue ? choices.find(choice => choice.id === '3') : undefined;
  return <>
   {clue && <div className="night-clue">
    <button className="text-button" aria-expanded={inspected} aria-controls="night-clue-text"
@@ -15,8 +16,9 @@ export default function FirstNightChoices({clue, choices, render}: {
    </button>
    <p id="night-clue-text" hidden={!inspected}>{clue.text}</p>
   </div>}
-  <div className="event-choices">{choices.map((choice, index) =>
-   clue && choice.id === '3' && !inspected ? null : render(choice, index)
-  )}</div>
+  <div className="event-choices">
+   {inspected && discovery && render(discovery, choices.indexOf(discovery))}
+   {choices.map((choice, index) => choice === discovery ? null : render(choice, index))}
+  </div>
  </>;
 }
