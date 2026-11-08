@@ -30,6 +30,7 @@ npm run dev
 - [四元柠檬水保卫战](https://modulife.pages.dev/pearl/)在蜜雪冰城的小摊旁开打，雪王站在步道边。八轮，一把伞，虚线是倒影，脚下有斜纹就得换道。外滩试玩能选严可或孙阿宝，结算小票记下每一轮。旧挑战链接保留原来的五、六或七轮。人生模式里，过关后可以去江边对账，从小票上的决定另开时间线。
 - [黄河路先庆哪一桩](https://modulife.pages.dev/#story=huanghe-toast)写的是两种庆功和同一笔尾款。[在上海碰到谁](https://modulife.pages.dev/#story=shanghai-cameos)有外白渡桥与安福路的两场虚构街头偶遇。
 - 约人界面可按当前城区筛选。八位约会角色在通讯录、约人和见面时使用对应年龄的照片，32 岁和 53 岁换到下一阶段。年轻时初次见面仍有不同的街景和饭桌镜头。
+- 通讯录可以切换全部、见过和有消息。吴师傅、方姐、沈经理等人的来信会排在前面，从照片点进去可以赴约。24 位联系人都有三个年龄段的头像和立绘，毛小毛、老妈等八位熟人的重拍提示词见 `art/support-casting.json`。
 - 点右上角扬声器可以开关游戏声音。配乐《Apero Hour》由 [Kevin MacLeod](https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1700070) 提供，采用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)，游戏中降低了音量并转码。
 - 人民公园相亲角可以挂牌、把资料改成真话，或替汪阿姨收伞。可以把号码留给汪阿姨代转。挂牌或改简历的路线后来会遇到群截图，对照两版能找出最早转图的人。[直接试玩转发事件](https://modulife.pages.dev/#story=paper-forward)。[直接试玩相亲角](https://modulife.pages.dev/#story=park-umbrella)。
 - 租房三处查坑和约会对话都有替代办法与资源代价。

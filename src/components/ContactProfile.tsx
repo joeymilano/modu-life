@@ -24,6 +24,9 @@ export default function ContactProfile({person, game, onBack, onTalk, onVisit}: 
    <button type="button" className="text-button" autoFocus onClick={onBack}>← 通讯录</button>
    <h2>{person.name}</h2>
    <p className="contact-profile-place">{castTitle(person,game.age)}</p>
+   {visit&&<button className="contact-thread" onClick={()=>onVisit(visit.event)}>
+    <span><small>有消息</small><b>{visit.message}</b></span><Icon name="arrow" size={19}/>
+   </button>}
    <p>{person.description}</p>
    <div className="contact-profile-status">
     <b>{relationshipLabel(game,person.id)}</b>
@@ -33,9 +36,6 @@ export default function ContactProfile({person, game, onBack, onTalk, onVisit}: 
    {plan==='shared'&&<p className="contact-profile-plan">一起住 · 你每月出 ¥{monthlyBudget(game).rent.toLocaleString('zh-CN')} 住房费</p>}
    {plan==='standing'&&<p className="contact-profile-plan">每周留一顿饭 · 每月多花 ¥{STANDING_DATE_MONTHLY_COST}</p>}
    {onTalk&&<button className="secondary" onClick={onTalk}>聊聊以后怎么住</button>}
-   {visit&&<button className="contact-thread" onClick={()=>onVisit(visit.event)}>
-    <span><small>有消息</small><b>{visit.message}</b></span><Icon name="arrow" size={19}/>
-   </button>}
    {memory&&<article className="contact-last-meeting">
     <small>{memory.age} 岁那年</small>
     <h3>{memory.title}</h3>

@@ -5,12 +5,11 @@ export const LOOKS:{id:LooksLevel;name:string;line:string;flavor:string;face:num
  {id:'stunning',name:'惊艳全场',line:'路过咖啡店，主理人亲自开门',flavor:'回头率超标',face:16,attraction:6},
 ];
 const contactPortraits = new Set(['tang', 'wu', 'fang', 'boss', 'gao', 'father', 'aunt', 'uncle',
+ 'mao', 'mother', 'song', 'yu', 'fei', 'yan', 'sun', 'qi',
  'xia', 'ning', 'lin', 'chen', 'qiao', 'yang', 'lu', 'he']);
 
 export function portraitArt(id: string, full: boolean, age = 18): string {
- const aged = age >= 53 && id === 'mao';
- if (full && aged) return '/art/endings/farewell-' + id + '.webp';
- const stage = aged || (contactPortraits.has(id) && age >= 53) ? '-senior' : contactPortraits.has(id) && age >= 32 ? '-midlife' : '';
+ const stage = !contactPortraits.has(id) || age < 32 ? '' : age < 53 ? '-midlife' : '-senior';
  return '/art/portraits/' + (full ? '' : 'head/') + id + stage + '.webp';
 }
 

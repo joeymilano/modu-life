@@ -85,8 +85,6 @@
 .romance-grid>button>span{font-size:9px;}
 .romance-grid p{font-size:10px;color:#717a65;min-height:48px;line-height:1.7;}
 .romance-grid>button>b{margin-top:10px;color:#916a3e;font-size:10px;}
-.contact-card{border-color:#d6cdb7;}
-.contact-card .portrait{margin-top:2px;}
 .event-modal{max-width:940px;min-height:570px;padding-left:360px;overflow:hidden;}
 .event-visual{position:absolute;top:0;left:0;bottom:0;width:320px;background:#16382e;overflow:hidden;}
 .event-visual .portrait-full{height:100%;width:100%;}
@@ -161,6 +159,7 @@
  .romance-grid>button>b{font-size:9px;}
  .event-modal{padding:0 22px 25px;min-height:0;overflow-y:auto;}
  .event-visual{position:relative;height:170px;width:calc(100% + 44px);margin:0 -22px 22px;}
+ .event-visual .portrait-full img{object-position:center 19%;}
  .event-visual>span{bottom:17px;left:20px;font-size:8px;line-height:1.6;}
  .event-visual:after{inset:30% 0 0;}
  .event-content h2{font-size:25px;}

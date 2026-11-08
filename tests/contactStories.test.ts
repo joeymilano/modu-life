@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { existsSync } from 'node:fs';
 import { portraitArt } from '../src/game/art';
+import { CAST } from '../src/game/content';
 import { contactEvidence, contactStory, contactStoryMemory } from '../src/game/contactStories';
 import { createGame, drawOrigins, relationshipLabel, resolveChoice } from '../src/game/engine';
 import { activeLine, decodeLife, encodeLife, forkLife, recordDecision, replayScene, startBook } from '../src/game/lifeLines';
@@ -83,11 +85,17 @@ describe('running into old acquaintances', () => {
   expect(contactStory(result,'boss')).toBeUndefined();
  });
 
- it('changes both profile portraits and small heads at the age thresholds', () => {
-  for (const id of ['wu','fang','boss']) {
-   expect(portraitArt(id,true,31)).toBe('/art/portraits/'+id+'.webp');
-   expect(portraitArt(id,true,32)).toBe('/art/portraits/'+id+'-midlife.webp');
-   expect(portraitArt(id,false,53)).toBe('/art/portraits/head/'+id+'-senior.webp');
+ it('ships every contact portrait and avatar at all three life stages', () => {
+  const stages = [[18,''], [31,''], [32,'-midlife'], [52,'-midlife'], [53,'-senior'], [60,'-senior']] as const;
+  for (const {id} of CAST) {
+   for (const [age, suffix] of stages) {
+    const full = portraitArt(id, true, age);
+    const head = portraitArt(id, false, age);
+    expect(full).toBe(`/art/portraits/${id}${suffix}.webp`);
+    expect(head).toBe(`/art/portraits/head/${id}${suffix}.webp`);
+    expect(existsSync(new URL('../public' + full, import.meta.url)), full).toBe(true);
+    expect(existsSync(new URL('../public' + head, import.meta.url)), head).toBe(true);
+   }
   }
  });
 });

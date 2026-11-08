@@ -1,13 +1,54 @@
-.contact-avatar {
-  position: relative; flex: 0 0 auto; background: none; border-radius: 50%; padding: 0;
+.relationship-summary .contact-access { display: grid; gap: 3px; min-width: 0; color: #405349; }
+.contact-access b { font: 700 15px/1.15 var(--serif); }
+.contact-access small { font-size: 11px; line-height: 1.4; }
+.relationship-summary .contact-access-unread { flex: none; color: #8d3b27; font-size: 11px; font-weight: 700; }
+.contacts-content .contact-filters {
+  display: flex; flex-wrap: wrap; gap: 6px; margin: 15px 0 16px;
 }
-.contact-avatar .portrait { margin: 0; }
-.contact-avatar > svg {
-  position: absolute; right: -3px; bottom: -1px; box-sizing: content-box; padding: 3px;
-  border: 1px solid #f3ebdb; border-radius: 50%; color: #fff8ed; background: #284840;
+.contact-filters button {
+  min-height: 44px; padding: 6px 12px; border: 1px solid #b5ad97; border-radius: 2px;
+  color: #3e5347; background: #eee7d8; white-space: nowrap; font-size: 13px;
 }
-.contact-avatar:hover > svg { background: #963f32; }
-.contact-card.not-met:has(.contact-avatar) { opacity: 1; }
+.contact-filters button:hover { background: #e6dcc6; }
+.contact-filters button[aria-pressed="true"] { background: #30493c; border-color: #30493c; color: #fbf0d8; }
+.contact-filters button span { margin-left: 3px; font-variant-numeric: tabular-nums; opacity: .85; }
+.contact-roster-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; }
+.contact-roster-card { min-width: 0; background: #fff9eb; border: 1px solid #c9bfa9; border-radius: 3px; }
+.contact-roster-open { display: block; width: 100%; padding: 0; background: none; text-align: left; border-radius: 2px; }
+.contact-roster-photo {
+  position: relative; aspect-ratio: 1 / 1.04; background: #34453a; color: #fff4db;
+  overflow: hidden; border-radius: 2px 2px 0 0;
+}
+.contact-roster-photo .portrait { position: absolute; inset: 0; height: 100%; overflow: hidden; }
+.contact-roster-photo .portrait > img { object-position: center 15%; transition: transform .2s ease-out; }
+.contact-roster-open:hover img { transform: scale(1.035); }
+.contact-message-marker {
+  position: absolute; top: 7px; left: 7px; padding: 4px 7px; border-radius: 2px;
+  color: #fff6dd; background: #8d3b27; font-size: 11px;
+}
+.contact-roster-caption {
+  position: absolute; inset: auto 0 0; display: flex; align-items: center; justify-content: space-between;
+  gap: 4px; padding: 24px 9px 9px; background: linear-gradient(transparent,#162019eb 76%);
+}
+.contact-roster-caption strong { font: 700 clamp(17px,2.15vw,25px)/1.12 var(--serif); }
+.contact-roster-caption svg { flex: none; }
+.contact-roster-label { display: grid; gap: 4px; padding: 7px 9px 9px; color: #2c4036; }
+.contact-roster-label span { font-size: 12px; line-height: 1.5; }
+.contact-roster-label small { color: #566557; font-size: 11px; line-height: 1.45; }
+.contact-roster-card:has(.contact-message-marker) .contact-roster-label span { color: #8d3b27; font-weight: 700; }
+.contact-roster-commit { min-height: 44px; margin-inline: 7px; color: #8d3b27; }
+.contact-roster-empty { border-block: 1px solid #cdc1a8; padding: 20px 0; color: #566557; }
+.contact-roster-empty .text-button { min-height: 44px; color: #8d3b27; }
+@media (max-width: 740px) {
+  .contact-roster-grid { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 9px; }
+}
+@media (max-width: 540px) {
+  .contact-roster-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .contacts-content .contact-filters { margin: 10px 0 13px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .contact-roster-photo img { transition: none; }
+}
 
 .modal:has(.contact-profile) { max-width: 830px; }
 .contact-profile {
@@ -16,7 +57,7 @@
 }
 .contact-profile-photo { min-height: 470px; margin: 0; position: relative; background: #212b2a; }
 .contact-profile-photo .portrait { position: absolute; inset: 0; height: 100%; }
-.contact-profile-photo img { object-position: center 25%; }
+.contact-profile-photo .portrait > img { object-position: center 25%; }
 .contact-profile-photo figcaption {
   position: absolute; inset: auto 0 0; display: flex; justify-content: space-between;
   padding: 28px 17px 13px; background: linear-gradient(transparent,#131e1bea);
@@ -40,7 +81,7 @@
 .contact-profile-info li { padding-block: 8px; border-top: 1px solid #d9d1c0; font-size: 13px; line-height: 1.6; }
 .contact-thread {
   width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  margin: 0 0 14px; padding: 12px 15px; text-align: left; border-left: 3px solid #963f32;
+  margin: 14px 0 0; padding: 12px 15px; text-align: left; border-left: 3px solid #963f32;
   background: #e5dec9; color: #263f35;
 }
 .contact-thread:hover { background: #ded4b8; }
@@ -53,7 +94,7 @@
 @media (max-width: 650px) {
   .contact-profile { grid-template-columns: minmax(0,1fr); }
   .contact-profile-photo { min-height: 0; height: min(45svh,390px); }
-  .contact-profile-photo img { object-position: center 19%; }
+  .contact-profile-photo .portrait > img { object-position: center 19%; }
   .contact-profile-info { padding: 12px 20px 22px; }
   .contact-profile-info .text-button { margin-bottom: 6px; }
 }
