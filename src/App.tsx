@@ -8,6 +8,9 @@ import { parkVisit } from './game/matchmaking';
 import { ferryVisit } from './game/ferryVisit';
 import LifeLines from './components/LifeLines';
 import EndingScreen from './components/EndingScreen';
+import JournalBook from './components/JournalBook';
+import YearReceiptCard from './components/YearReceiptCard';
+import { yearMoment, type YearReceipt } from './game/yearReceipt';
 import {
  activeLine, clearReplay, decodeLife, dropLine, encodeLife, forkLife, lineName, MAX_LINES, readLife, recordDecision,
  replayScene, saveLife, SAVE_SIZE_LIMIT, startBook, switchLine, updateLife, type LifeBook,
@@ -91,7 +94,7 @@ export default function App(){
  const [activeCard,setActiveCard]=useState(0);
  const setupHeading=useRef<HTMLHeadingElement>(null);
  const [appearance,setAppearance]=useState<PlayerAppearance>({gender:'female',looks:'stunning'});
- const [modal,setModal]=useState<Modal>(null),[activeEvent,setActiveEvent]=useState<LifeEvent|null>(null),[eventNpc,setEventNpc]=useState<string|undefined>(),[outcome,setOutcome]=useState<(ChoiceResult&{annual?:boolean;income?:number;tableIncome?:number;stallIncome?:number;expense?:number;rentExpense?:number;sharedHousing?:boolean;repayment?:number;familyPaid?:number;uncovered?:number;payroll?:ReturnType<typeof nextYear>['payroll'];source?:{event:LifeEvent;choiceId:string}})|null>(null),[mini,setMini]=useState<Mini|null>(null);
+ const [modal,setModal]=useState<Modal>(null),[activeEvent,setActiveEvent]=useState<LifeEvent|null>(null),[eventNpc,setEventNpc]=useState<string|undefined>(),[outcome,setOutcome]=useState<(ChoiceResult&{annual?:YearReceipt;source?:{event:LifeEvent;choiceId:string}})|null>(null),[mini,setMini]=useState<Mini|null>(null);
  const [selected,setSelected]=useState<Hotspot|null>(null),[destination,setDestination]=useState<[number,number]|null>(null),[walking,setWalking]=useState(false);
  const [profile,setProfile]=useState<CastMember>();
  const [swapIndex,setSwapIndex]=useState<number>();
@@ -262,7 +265,17 @@ export default function App(){
   if(!event){notify('这次约会接不上了');return;}
   setMini(null);setActiveEvent(event);setEventNpc(person.id);
  }
- function advance(){if(!game||blocked)return;try{const r=nextYear(game);setGame(r.state);setOutcome({state:r.state,title:game.age+'岁，收个尾',text:r.notice,effect:{cash:r.income+r.familyPaid-r.expense-r.repayment+r.uncovered},annual:true,income:r.income,familyPaid:r.familyPaid,uncovered:r.uncovered,tableIncome:r.tableIncome,stallIncome:r.stallIncome,expense:r.expense,rentExpense:r.rentExpense,sharedHousing:r.sharedHousing,repayment:r.repayment,payroll:r.payroll});setMobilePanel(null);playSound('year');}catch(e){notify((e as Error).message);}}
+ function advance(){
+  if(!game||blocked)return;
+  try {
+   const result=nextYear(game);
+   setGame(result.state);
+   setOutcome({state:result.state,title:yearMoment(result.receipt.moment).title,text:result.notice,
+    effect:{},annual:result.receipt});
+   setMobilePanel(null);
+   playSound('year');
+  } catch(error) {notify((error as Error).message);}
+ }
  function closeOutcome(){setOutcome(null);if(game?.ended)setScreen('end');}
  function startRomance(person:CastMember){
   if(!game||game.actions<=0||game.pendingYearEvent||game.ended)return;
@@ -490,7 +503,7 @@ export default function App(){
  {modal==='starts'&&<LifeStartPicker onPick={beginDraw}/>}
  {modal==='swap'&&swapIndex!==undefined&&<OpeningSwap cards={cards} index={swapIndex} seed={seed} round={rerolls+1}
   goal={goal} appearance={appearance} complete={allRevealed} onChoose={chooseSwap} onKeep={()=>setModal(null)}/>}
- {modal==='journal'&&game&&<div className="journal-content"><h2>记事本</h2><div className="journal-list">{game.journal.slice().reverse().map((j,i)=><article key={i}><div><b>{j.age}</b><span>岁</span></div><section><span className="journal-tag">{j.tag}</span><h3>{j.title}</h3><p>{j.text}</p></section></article>)}</div><button className="secondary" onClick={exportSave}><Icon name="download" size={17}/>导出完整人生档案</button></div>}
+ {modal==='journal'&&book&&<JournalBook book={book} onExport={exportSave}/>}
  {modal==='contacts'&&game&&(profile
   ? <ContactProfile person={profile} game={game} onVisit={openLead} onTalk={householdVisit(game,profile.id)?()=>talkHousehold(profile):undefined} onBack={()=>{
    const id=profile.id;setProfile(undefined);
@@ -532,20 +545,18 @@ export default function App(){
    <span className="choice-letter">{discovered?<Icon name="spark" size={13}/>:String.fromCharCode(65+i)}</span><div><b>{c.label}</b>{c.hint&&<p>{c.hint}</p>}<small>{!focusScene&&effectsText(c.effect).slice(0,4).map(([label,n])=>label==='积蓄'?(n>0?'+':'−')+money(Math.abs(n)):label+(n>0?' +':' ')+n).join(' · ')}{c.check?' · '+STAT_NAMES[c.check.stat]+'检定 '+checkChance(game,c)+'%':''}{!canAfford(game,c.effect)?' · 钱暂时不够':''}</small></div><Icon name="chevron" size={17}/></button>;}}/>{rentalEvidence!==undefined&&!line?.replay&&<button className="text-button rental-back" onClick={()=>{
   setActiveEvent(null);setEventNpc(undefined);setMini({type:'rental',evidence:rentalEvidence});
  }}>← 回房间看看</button>}</div></>)}
- {outcome&&game&&<div className="outcome-content">{arrivalReply&&arrivalContact?<div className="arrival-reply-banner">
+ {outcome&&game&&(outcome.annual&&book?<div className="outcome-content year-outcome">
+  <YearReceiptCard book={book} age={game.age-1} receipt={outcome.annual}>
+   <button className="primary" onClick={closeOutcome}>{game.ended?'回头看看这一生':game.age+'岁，接着过'} <Icon name="arrow" size={19}/></button>
+   {book.lines.length>1&&<button className="text-button" onClick={()=>{closeOutcome();setModal('lines');}}>对照另一条线 <Icon name="map" size={16}/></button>}
+  </YearReceiptCard>
+ </div>:<div className="outcome-content">{arrivalReply&&arrivalContact?<div className="arrival-reply-banner">
   <img src={arrivalReply.photo} alt={arrivalReply.alt}/>
   <div><Portrait person={arrivalContact} size={52} decorative/><h2 ref={sceneHeading} tabIndex={-1}>{arrivalContact.name}回你了</h2></div>
- </div>:<><p className="eyebrow">{outcome.annual?'年度账本 / '+(game.age-1)+'岁':'结果'}</p><div className={'outcome-symbol '+(outcome.success===false?'muted':'')}><Icon name={outcome.annual?'book':outcome.success===false?'leaf':'check'} size={33}/></div><h2>{outcome.title}</h2></>}{outcome.text&&<p className="outcome-text">{outcome.text}</p>}{outcome.annual?<div className="annual-ledger">{outcome.payroll&&<>
-  <div><span>旧岗位收入</span><b>{money(outcome.payroll.previous)}</b></div>
-  <div><span>当前岗位 · {outcome.payroll.months} 个月</span><b>{money(outcome.payroll.current)}</b></div>
- </>}<div><span>全年工作收入</span><b>{money((outcome.income||0)-(outcome.tableIncome||0)-(outcome.stallIncome||0))}</b></div>
- {!!outcome.tableIncome&&<div><span>长桌修补台</span><b>+{money(outcome.tableIncome)}</b></div>}{!!outcome.stallIncome&&<div><span>小吃街晚班</span><b>+{money(outcome.stallIncome)}</b></div>}{outcome.rentExpense!==undefined?<>
-  <div><span>{outcome.sharedHousing?'你承担的全年住房费':'这份租约的全年房租'}</span><b>−{money(outcome.rentExpense)}</b></div>
-  <div><span>全年生活开支</span><b>−{money((outcome.expense||0)-outcome.rentExpense)}</b></div>
- </>:<div><span>全年住房与生活</span><b>−{money(outcome.expense||0)}</b></div>}{!!outcome.familyPaid&&<div><span>家里代付指定账单</span><b>+{money(outcome.familyPaid)}</b></div>}{!!outcome.uncovered&&<div className="year-shortfall"><span>基本开销缺口</span><b>{money(outcome.uncovered)}</b></div>}{!!outcome.repayment&&<div><span>这期助学贷款</span><b>−{money(outcome.repayment)}</b></div>}<div><span>现在手上</span><strong>{money(game.cash)}</strong></div></div>:<div className="effect-badges">{effectsText(outcome.effect).map(([label,n])=><span key={label} className={n>0?'gain':'loss'}>{label} <b>{label==='积蓄'?(n>0?'+':'−')+money(Math.abs(n)):(n>0?'+':'')+n}</b></span>)}{outcome.effect.job&&<span className={outcome.effect.job==='unemployed'?'loss':'gain'}>{outcome.effect.job==='unemployed'?'开始待业':'新的职业机会'}</span>}{signedOffer?<span className="gain">{isSelfEmployed(game.jobId??'')?'月收入估算':'约定月薪'} <b>{money(budget!.salary)}</b></span>:outcome.effect.payRate!==undefined&&<span className={outcome.effect.payRate<1?'loss':'gain'}>薪资按原价 <b>{Math.round(outcome.effect.payRate*100)}%</b> 发</span>}</div>}{arrivalLead&&arrivalReply&&<button className="arrival-go" onClick={()=>openLead(arrivalLead.event)}>
+ </div>:<><p className="eyebrow">结果</p><div className={'outcome-symbol '+(outcome.success===false?'muted':'')}><Icon name={outcome.success===false?'leaf':'check'} size={33}/></div><h2>{outcome.title}</h2></>}{outcome.text&&<p className="outcome-text">{outcome.text}</p>}<div className="effect-badges">{effectsText(outcome.effect).map(([label,n])=><span key={label} className={n>0?'gain':'loss'}>{label} <b>{label==='积蓄'?(n>0?'+':'−')+money(Math.abs(n)):(n>0?'+':'')+n}</b></span>)}{outcome.effect.job&&<span className={outcome.effect.job==='unemployed'?'loss':'gain'}>{outcome.effect.job==='unemployed'?'开始待业':'新的职业机会'}</span>}{signedOffer?<span className="gain">{isSelfEmployed(game.jobId??'')?'月收入估算':'约定月薪'} <b>{money(budget!.salary)}</b></span>:outcome.effect.payRate!==undefined&&<span className={outcome.effect.payRate<1?'loss':'gain'}>薪资按原价 <b>{Math.round(outcome.effect.payRate*100)}%</b> 发</span>}</div>{arrivalLead&&arrivalReply&&<button className="arrival-go" onClick={()=>openLead(arrivalLead.event)}>
   {arrivalReply.go} <Icon name="arrow" size={19}/>
- </button>}<button className={'primary'+(arrivalReply?' arrival-later':'')} onClick={closeOutcome}>{arrivalReply?'先逛逛':game.ended?'回头看看这一生':outcome.annual?game.age+'岁，接着过':'继续'} <Icon name="arrow" size={19}/></button><div className="outcome-links">
- {outcome.annual&&book&&book.lines.length>1&&<button className="text-button" onClick={()=>{closeOutcome();setModal('lines');}}>对照另一条线 <Icon name="map" size={16}/></button>}
+ </button>}<button className={'primary'+(arrivalReply?' arrival-later':'')} onClick={closeOutcome}>{arrivalReply?'先逛逛':game.ended?'回头看看这一生':'继续'} <Icon name="arrow" size={19}/></button><div className="outcome-links">
+
  {signedOffer&&workVisit?.tag==='第一次交接'&&<button className="text-button" onClick={()=>openLead(workVisit)}>去第一次交接 <Icon name="arrow" size={16}/></button>}
  {outcome.source&&outcome.source.event.choices.length>1&&line?.points.at(-1)?.scene.eventId===outcome.source.event.id&&
   <button className="text-button" onClick={()=>{
@@ -557,7 +568,7 @@ export default function App(){
  const sceneDistrict=DISTRICTS.find(item=>item.id===event.district)?.name??district.name;
  setTimelineDraft(draftFromEvent(event,choiceId,outcome.text,game.age,sceneDistrict));
  closeOutcome();setParallel(true);
- }}>把这一幕发给朋友 <Icon name="map" size={17}/></button>}</div></div>}
+ }}>把这一幕发给朋友 <Icon name="map" size={17}/></button>}</div></div>)}
  {mini?.type==='laser'&&game&&<LaserGame seed={game.seed} cash={game.cash} appearance={game.appearance} onFinish={result=>{const reward=pearlReward(result);miniFinish(reward.effect,reward.text);}}/>}
  {mini?.type==='rental'&&game&&<RentalGame initialEvidence={mini.evidence} age={game.age} onTalk={openRental}/>}
  {mini?.type==='stall'&&game&&<StallGame seed={game.seed} age={game.age} schedule={stallSchedule(game.seed,game.age,game.actions)} onCloseBooks={closeStallBooks}/>}

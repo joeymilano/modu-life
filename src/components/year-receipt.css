@@ -1,0 +1,85 @@
+.modal:has(.year-receipt) {
+  max-width: 1030px; padding: 0; color: #263c33; background: #f4efe3;
+  overscroll-behavior: contain;
+}
+.modal:has(.year-receipt) > .modal-close { background: #f4efe3ef; z-index: 3; }
+.year-receipt {
+  display: grid; grid-template-columns: minmax(0,1fr) minmax(0,.97fr);
+  text-align: left; background: #f4efe3; min-height: 560px;
+}
+.year-photo {
+  margin: 0; position: relative; overflow: hidden; background: #20352e;
+  border-right: 1px solid #c7c0ad;
+}
+.year-photo > img { position: absolute; width: 100%; height: 100%; object-fit: cover; inset: 0; }
+.year-photo figcaption {
+  position: absolute; bottom: 0; inset-inline: 0; padding: 45px 20px 18px;
+  display: flex; gap: 10px; align-items: end; justify-content: space-between;
+  color: #fbf4e3; background: linear-gradient(transparent,#142820ed);
+  font-size: 12px; letter-spacing: .06em;
+}
+.year-photo figcaption > span b { font: 700 26px/1 var(--serif); margin-left: 5px; }
+.year-photo-id { display: flex; align-items: center; gap: 9px; font-size: 15px; font-weight: 700; }
+.year-photo-id .player-portrait { border: 1px solid #dfd1b0; }
+.year-photo-id small { display: block; margin-top: 3px; font-size: 11px; font-weight: 400; }
+.year-sheet { padding: 25px clamp(23px,3.4vw,42px) 25px; min-width: 0; align-self: center; }
+.year-sheet-head {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  padding: 0 36px 8px 0; border-bottom: 1px solid #b9b09b;
+  font-size: 12px; letter-spacing: .06em; color: #605947;
+}
+.year-sheet-head b { font: 700 32px/1 var(--serif); color: #8e4332; }
+.modal .year-sheet h2 { margin: 15px 0 5px; font: 700 clamp(27px,3.1vw,42px)/1.15 var(--serif); outline: none; }
+.year-lede { color: #4b6054; font-size: 14px; line-height: 1.55; margin: 0; }
+.year-balance {
+  display: flex; flex-wrap: wrap; gap: 9px 20px; justify-content: space-between; align-items: end;
+  margin-top: 17px; padding: 12px 0; border-block: 1px dashed #ada187;
+  font-variant-numeric: tabular-nums;
+}
+.year-balance small { display: block; color: #625b49; font-size: 12px; margin-bottom: 3px; }
+.year-balance strong { font: 700 clamp(28px,3.6vw,45px)/1.13 var(--serif); }
+.year-balance b { font-size: 17px; }
+.year-balance .year-up { color: #2d5c42; }
+.year-balance .year-down { color: #914a36; }
+.year-totals { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 7px 16px; padding: 9px 0; font-size: 13px; }
+.year-totals > div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 8px; }
+.year-totals span { color: #525d50; }
+.year-receipt .year-notice { text-align: left; margin: 5px 0 8px; padding-left: 9px; border-left: 2px solid #a7654d; color: #664a39; font-size: 13px; line-height: 1.55; }
+.year-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 3px 14px; margin: 11px 0 8px; }
+.year-actions .primary, .year-actions .secondary, .year-actions button { min-height: 44px; }
+.year-actions .year-print { padding: 4px 0; color: #87503d; }
+.year-details { border-top: 1px solid #c8bea9; color: #3e5044; }
+.year-details > summary {
+  cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; min-height: 43px; font-weight: 700; font-size: 13px; list-style: none;
+}
+.year-details > summary::-webkit-details-marker { display: none; }
+.year-details[open] > summary svg { transform: rotate(90deg); }
+.year-details .annual-ledger { margin: 0; padding: 7px 10px; background: #ede6d5; }
+.year-details .annual-ledger > div, .year-payroll > div {
+  display: flex; gap: 8px; align-items: baseline; justify-content: space-between; padding: 4px 1px;
+  font-size: 13px; border-bottom: 1px solid #d7cdb7;
+}
+.year-details .annual-ledger > div:last-child { border-bottom: 0; color: #2c4a3a; }
+.year-details .annual-ledger > .year-shortfall { color: #914a36; }
+.year-payroll { margin-left: 8px; color: #66634f; }
+.year-wellbeing { display: flex; gap: 13px; padding: 8px 0; font-size: 12px; }
+.year-compare ul { margin: 0; padding: 0 0 8px; list-style: none; }
+.year-compare li { display: flex; gap: 8px; justify-content: space-between; padding: 8px 10px; background: #e6dfcc; border-bottom: 1px solid #f4efe3; font-size: 13px; }
+.year-compare li div + div { text-align: right; }
+.year-compare li span, .year-compare li small { display: block; color: #4e5c4d; }
+.journal-year { width: 100%; text-align: left; display: flex; align-items: center; justify-content: space-between; gap: 10px; background: transparent; padding: 6px 0 4px; }
+.journal-year b { display: block; font: 700 19px/1.2 var(--serif); }
+.journal-year small { color: #5a6557; }
+.journal-year:hover b { color: #8e4332; }
+@media(max-width:720px) {
+ .year-receipt { grid-template-columns: minmax(0,1fr); min-height: 0; }
+ .year-photo { aspect-ratio: 16 / 9; border-right: 0; }
+ .year-photo figcaption { padding: 30px 13px 10px; }
+ .year-photo-id .player-portrait { max-width: 36px; max-height: 36px; }
+ .year-sheet { padding: 14px 18px 19px; }
+ .year-sheet-head { padding: 0 0 6px; }
+ .year-sheet-head b { font-size: 26px; }
+ .year-balance { margin-top: 11px; padding: 8px 0; }
+}
+.outcome-content.year-outcome { padding: 0; }

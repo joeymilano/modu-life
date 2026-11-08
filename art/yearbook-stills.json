@@ -1,0 +1,35 @@
+{
+  "generator": "Built-in ImageGen",
+  "referenceCommit": "9bdcdc2",
+  "direction": "Year-end stills from a contemporary Shanghai life. Anonymous scene figures, real domestic and working textures, centered editorial crop.",
+  "assets": {
+    "public/art/yearbook/bed.webp": {
+      "reference": "public/art/opening/daywork-gate.webp",
+      "prompt": "A working-age adult in a dark canvas jacket quietly counts coins into an open cloth pouch on the lowest bunk in a small temporary Shanghai dormitory room, shared with other shift workers. One zipped canvas bag, neatly folded blanket, green-painted metal bed frames, cloudy dawn through privacy glass, one pair of work boots drying underneath. Honest dignity, never staged destitution. Camera at door of room, main figure centered and facing away in profile."
+    },
+    "public/art/yearbook/move.webp": {
+      "reference": "public/art/shanghai-streets/first-night-room-viewing.webp",
+      "prompt": "A person in a simple dark coat and a friend hand an ordinary taped moving box to each other halfway up a narrow Shanghai walk-up staircase. Old green terrazzo, a stainless-steel handrail, a striped fabric duffel at the landing, a milk delivery crate behind, late sun drifting across the step. People faces out of frame, human effort captured through their posture. Warm gray and persimmon red, documentary still."
+    },
+    "public/art/yearbook/care.webp": {
+      "reference": "public/art/contacts/boss-night-class.webp",
+      "prompt": "Quiet Shanghai residential clinic reception seen from inside. An adult patient with a charcoal wool coat over their lap sits by a high milky glass window, one hand holding a clear bag of small medicine cartons, a paper receipt and blank printed numbers face down on a chair beside them. Midwinter afternoon slanting sunlight, cool blue-green interior and pale timber. No distress, faces out of frame or quiet profile. Depict one mundane moment after receiving care."
+    },
+    "public/art/yearbook/family.webp": {
+      "reference": "public/art/opening/heir-keys.webp",
+      "prompt": "Sunset at a large Shanghai riverside apartment, 2020s, viewed from the end of a narrow oak kitchen table. A person in a white shirt sleeves rolled, face out of frame, splits a small stack of apartment bills from a closed personal passbook. A matte black apartment keycard with no print. Amber window reflection, distant softly blurred Huangpu towers across the window, understated expensive finishes, spare not opulent. Show the gesture of separating two stacks without any readable text."
+    },
+    "public/art/yearbook/late.webp": {
+      "reference": "public/art/work/overtime.webp",
+      "prompt": "An adult in a faded dark jacket sits on the last Huangpu crossing bus after their shift, elbows on knees, reflection in the green-toned window. Wet Shanghai lights outside, striped vinyl seat, folded reflective work vest nearby, navy shadows, soft amber glow, moving city at night. Profile anonymous, sparse number of other passengers. Camera from center aisle. Low light but readable person and seat, no legible signage."
+    },
+    "public/art/yearbook/saved.webp": {
+      "reference": "public/art/shanghai-streets/xinzhuang.webp",
+      "prompt": "Sunday late morning from inside a modest Shanghai walk-up apartment. A person back to camera pins an ordinary rent receipt under a fridge magnet, sets a neat bamboo grocery basket with seasonal vegetables down on the table, kettle steams. Luminous limewash and jade window frame, neighbors' balcony blurred outside. An unshowy sense that this month is sorted. Quiet natural photographic tone, objects near center."
+    },
+    "public/art/yearbook/ordinary.webp": {
+      "reference": "public/art/shanghai-streets/bund.webp",
+      "prompt": "Looking across a Shanghai old neighborhood late evening from the corner grocery shop. A local adult with a plain cloth bag walks slowly home under plane trees, seen from behind near center, cash register and glass of tea reflected on edge, apartments lit two at a time. Blue hour mixed with amber warm lamplight, rain almost stopped, pockets of reflected light on pavement. Human scale, ordinary, no invented landmarks or readable signage."
+    }
+  }
+}

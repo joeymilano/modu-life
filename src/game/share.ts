@@ -12,6 +12,7 @@ import type { GameState } from './types';
 import { SITE_URL } from './site';
 import { STALL_ORDER_COUNT, stallRank } from './stall';
 import { stallChallengeUrl, type StallChallenge } from './stallChallenge';
+import { signedYearMoney, yearMoment, yearMoney, type YearReceipt } from './yearReceipt';
 function lines(ctx:CanvasRenderingContext2D,text:string,x:number,y:number,max:number,lineHeight:number){let line='';for(const c of text){if(ctx.measureText(line+c).width>max){ctx.fillText(line,x,y);y+=lineHeight;line=c;}else line+=c;}ctx.fillText(line,x,y);return y;}
 type PhotoFrame = [x: number, y: number, width: number, height: number];
 
@@ -274,6 +275,40 @@ export async function makeOpeningCard(hand: SharedHand): Promise<Blob> {
   blob ? resolve(blob) : reject(new Error('开局照没洗出来')), 'image/png'));
 }
 export function downloadBlob(blob:Blob,name:string){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);}
+
+export async function makeYearCard(state: GameState, age: number, receipt: YearReceipt): Promise<Blob> {
+ const canvas = document.createElement('canvas');
+ canvas.width = 1080;
+ canvas.height = 1440;
+ const ctx = canvas.getContext('2d');
+ if (!ctx) throw new Error('照片没洗出来');
+ const moment = yearMoment(receipt.moment);
+ await paintCardHeader(ctx, '年末留影  /  '+age+' 岁');
+ await Promise.all([
+  paintPhoto(ctx,moment.photo,[64,142,952,602]),
+  paintPhoto(ctx,playerArt(state.appearance,true,age),[64,775,196,294],.19),
+ ]);
+ ctx.fillStyle = cardRust;
+ ctx.font = 'bold 25px sans-serif';
+ ctx.fillText(state.name+' · '+age+' 岁',288,820,720);
+ ctx.fillStyle = cardInk;
+ ctx.font = 'bold 54px '+cardSerif;
+ ctx.fillText(moment.title,288,892,728);
+ ctx.font = '28px sans-serif';
+ lines(ctx,moment.line,290,943,710,37);
+ ctx.fillStyle = '#71614c';
+ ctx.font = '25px sans-serif';
+ ctx.fillText('结完账还剩 '+yearMoney(receipt.after)+'  ·  本次结算 '+signedYearMoney(receipt.after-receipt.before),290,1036,716);
+ ctx.fillStyle = '#a99e88';
+ ctx.fillRect(64,1114,952,1);
+ const ready = await paintChallengeCode(ctx,challengeUrl(state,true),1016,1155,250);
+ ctx.fillStyle = cardInk;
+ ctx.font = 'bold 40px '+cardSerif;
+ ctx.fillText('拿同一手牌来上海',64,1246,668);
+ ctx.font = '25px sans-serif';
+ ctx.fillText(ready?'扫码，从 18 岁开局':'modulife.pages.dev',66,1303,650);
+ return new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('照片没洗出来')),'image/png'));
+}
 
 export async function makeStoryPhoto(shot: string, title: string, choice: string, invite: string): Promise<Blob> {
  const canvas = document.createElement('canvas');

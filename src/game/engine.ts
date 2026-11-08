@@ -10,6 +10,7 @@ import { LOAN_DUE, LOAN_INSTALLMENT } from './originStories';
 import { STALL_YEARLY_PAY, stallCommitment } from './stall';
 import { clearHousehold, householdFlag, householdPlan, housingPayment, STANDING_DATE_MONTHLY_COST } from './household';
 import { closeRentalLease } from './rental';
+import { receiptMoment, validYearReceipt, type YearReceipt } from './yearReceipt';
 import type { ActivityKind, ChoiceResult, Effect, EventChoice, GameState, GoalId, LifeEvent, LooksLevel, OriginCard, OriginSlot, PlayerAppearance, StatKey } from './types';
 
 export const STAT_NAMES: Record<StatKey,string> = { health:'身体', spirit:'心气', skill:'本事', face:'腔势', network:'人脉' };
@@ -232,7 +233,8 @@ export function nextYear(state:GameState) {
   const repayment=s.flags.includes(LOAN_DUE)?LOAN_INSTALLMENT:0;
   const familyPaid=budget.familyPaid*12;
   s.cash+=income+familyPaid-expense-repayment;s.totalEarned+=income;
-  let uncovered=0;if(workIncome>0)s.yearsEmployed++;
+  let uncovered=0,friendAdvance=0,care=0;
+  if(workIncome>0)s.yearsEmployed++;
   const notices:string[]=[];
   let note=workIncome?`工资到账 ¥${workIncome.toLocaleString()}，固定开支 ¥${expense.toLocaleString()}。`:`这一年没有固定工资，生活开支 ¥${expense.toLocaleString()}。`;
   if(commute&&activeMonths)notices.push('过江那趟赶了一年。你现在站着也能眯一会儿。');
@@ -255,23 +257,32 @@ export function nextYear(state:GameState) {
     s.stats.spirit=clamp(s.stats.spirit-8);
     s.stats.health=clamp(s.stats.health-5);
     notices.push(`基本开销按年算还差 ¥${uncovered.toLocaleString()}。原来的住处没续上，换成临时落脚，手上剩 ¥0。`);
-  }else if(s.cash<0){const shortage=-s.cash;s.cash=6000;s.rescues++;s.stats.spirit=clamp(s.stats.spirit-8);s.housing=0;
+  }else if(s.cash<0){const shortage=-s.cash;s.cash=6000;friendAdvance=shortage+s.cash;s.rescues++;s.stats.spirit=clamp(s.stats.spirit-8);s.housing=0;
     if(s.leaseRent!==undefined)s.flags=closeRentalLease(s.flags);
     delete s.leaseRent;
     if(s.partnerId)s.flags=s.flags.filter(flag=>flag!==householdFlag(s.partnerId!,'shared'));
     s.flags=[...new Set([...s.flags.filter(flag=>flag!==FAMILY_HOME&&flag!==FAMILY_PAY),'needed_help'])];notices.push(`周转差了 ¥${shortage.toLocaleString()}。朋友帮你垫了一笔，你搬回合租房，手上留下 ¥6,000。`);s.journal.push({age:s.age,title:'先把这关过了',text:'朋友帮忙垫了周转钱，你搬回合租房。收好行李，先把明天的面试地址存下来。',tag:'重整'});}
   s.stats.health=clamp(s.stats.health-(s.age>40?3:1)-(table.income?2:0)-(stallIncome?2:0));s.stats.spirit=clamp(s.stats.spirit-2+table.spirit);
-  if(s.stats.health<15){
-    const care=Math.min(s.cash,3000);
+  const recovered=s.stats.health<15;
+  if(recovered){
+    care=Math.min(s.cash,3000);
     s.stats.health=35;s.stats.spirit=clamp(s.stats.spirit+5);s.cash-=care;
     notices.push(care?`这年身体撑不住，花了 ¥${care.toLocaleString()} 调养。`:'这年身体撑不住，先歇了一阵。');
   }
   const notice=notices.join(' ');
   if(notice)note+=' '+notice;
-  s.journal.push({age:s.age,title:`${s.age}岁年度账本`,text:note,tag:'账本'});
+  const receipt: YearReceipt = {
+    before:state.cash, after:s.cash, workIncome, tableIncome:table.income, stallIncome,
+    rent:rentExpense, living:expense-rentExpense, familyPaid, repayment, uncovered, friendAdvance, care,
+    body:s.stats.health-state.stats.health, spirit:s.stats.spirit-state.stats.spirit,
+    payroll, rentKind:plan==='shared'?'shared':state.leaseRent!==undefined?'lease':'plain', notice,
+    moment:receiptMoment({uncovered,friendAdvance,familyPaid,after:s.cash,before:state.cash},recovered,
+      activeMonths>0&&(commute||state.flags.includes(NIGHT_WORK))),
+  };
+  s.journal.push({age:s.age,title:`${s.age}岁年度账本`,text:note,tag:'账本',receipt});
   if(s.employment)s.employment={...employment,closedMonths:0,earned:0};
   s.age++;s.actions=3;s.ended=s.age>=60;s.pendingYearEvent=!s.ended;
-  return {state:s,income,familyPaid,uncovered,tableIncome:table.income,stallIncome,expense,rentExpense:state.leaseRent!==undefined||plan==='shared'?rentExpense:undefined,sharedHousing:plan==='shared',note,notice,payroll,repayment};
+  return {state:s,income,familyPaid,uncovered,tableIncome:table.income,stallIncome,expense,rentExpense:state.leaseRent!==undefined||plan==='shared'?rentExpense:undefined,sharedHousing:plan==='shared',note,notice,payroll,repayment,receipt};
 }
 export function relationshipLabel(s:GameState,id:string){
   const relation=s.relationships[id];
@@ -315,7 +326,7 @@ export function validateSave(value:unknown):GameState {
   if(work!==undefined&&(!work||!Number.isInteger(work.sinceAge)||!finite(work.sinceAge,18,s.age)||!Number.isInteger(work.reviews)||!finite(work.reviews,0,42)||(work.reviewedAt!==undefined&&(!Number.isInteger(work.reviewedAt)||!finite(work.reviewedAt,work.sinceAge,s.age)))||!finite(work.rate,.5,Math.max(MAX_PAY_RATE,HEIR_PAY_RATE))||!Number.isInteger(work.closedMonths)||!finite(work.closedMonths,0,12)||!Number.isInteger(work.earned)||!finite(work.earned,0,1e7)))throw new Error('工作记录不完整。');
   for(const k of ['origins','flags','seenEvents'] as const)if(!Array.isArray(s[k])||s[k].length>1500||s[k].some(x=>typeof x!=='string'||x.length>120))throw new Error('档案记录无效。');
   if(s.origins.length!==5||!validLifeStartHand(s.origins)||s.origins.some(id=>!allOrigins().some(c=>c.id===id)))throw new Error('开局卡片不存在。');
-  if(!Array.isArray(s.journal)||s.journal.length>1000||s.journal.some(j=>!j||!finite(j.age,18,60)||typeof j.title!=='string'||j.title.length>200||typeof j.text!=='string'||j.text.length>5000||typeof j.tag!=='string'||j.tag.length>80))throw new Error('人生记录损坏。');
+  if(!Array.isArray(s.journal)||s.journal.length>1000||s.journal.some(j=>!j||!finite(j.age,18,60)||typeof j.title!=='string'||j.title.length>200||typeof j.text!=='string'||j.text.length>5000||typeof j.tag!=='string'||j.tag.length>80||(j.receipt!==undefined&&(j.tag!=='账本'||!validYearReceipt(j.receipt)))))throw new Error('人生记录损坏。');
   if(!s.relationships||typeof s.relationships!=='object')throw new Error('关系记录不完整。');
   for(const npc of CAST){const r=s.relationships[npc.id];if(!r||!finite(r.attraction,0,100)||!finite(r.trust,0,100)||!finite(r.commitment,0,100)||typeof r.met!=='boolean'||!Array.isArray(r.memories)||r.memories.length>20||r.memories.some(x=>typeof x!=='string'||x.length>300))throw new Error('关系记录损坏。');}
   if(s.partnerId!==null&&!CAST.some(c=>c.id===s.partnerId&&c.role==='romance'))throw new Error('关系对象不存在。');

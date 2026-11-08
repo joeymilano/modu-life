@@ -1,3 +1,5 @@
+import type { YearReceipt } from './yearReceipt';
+
 export type DistrictId = 'bund' | 'anfu' | 'people' | 'lujiazui' | 'zhangjiang' | 'xinzhuang';
 export type ActivityKind = 'career' | 'romance' | 'rest' | 'learn' | 'housing' | 'social' | 'business' | 'explore';
 export type StatKey = 'health' | 'spirit' | 'skill' | 'face' | 'network';
@@ -30,7 +32,7 @@ export interface District { id: DistrictId; name: string; en: string; subtitle: 
 export interface Career { id: string; name: string; entry: string; salary: number; ranks: string[]; thresholds: number[]; color: string; description: string; }
 export interface Goal { id: GoalId; name: string; subtitle: string; description: string; }
 export interface Relationship { attraction: number; trust: number; commitment: number; met: boolean; memories: string[]; }
-export interface JournalEntry { age: number; title: string; text: string; tag: string; }
+export interface JournalEntry { age: number; title: string; text: string; tag: string; receipt?: YearReceipt; }
 export interface Employment { sinceAge: number; reviews: number; reviewedAt?: number; rate: number; closedMonths: number; earned: number; }
 export interface GameState {
  version: 1; seed: string; rng: number; name: string; age: number; actions: number; goal: GoalId;
