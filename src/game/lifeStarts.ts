@@ -1,4 +1,5 @@
 import { openingPhoto } from './art';
+import { heirClassYear, staffBedRent, workerClassYear } from './classLives';
 import { laterDaywork, laterHeir } from './lifeYears';
 import { warehouseHeirYear, warehouseWorkerYear } from './relocation';
 import type { Effect, EventChoice, GameState, LifeEvent } from './types';
@@ -22,13 +23,13 @@ export const PROJECT_BUDGET = 800000;
 export const LIFE_STARTS = [
  {
   id: 'daywork', seed: 'SH-SHIFT', cash: 780, title: '日结工', line: '手上 ¥780，床位只续到明天',
-  text: '莘庄 · 仓库招早班。今天能拿钱的，和三天后才结的，是两张单。',
+  text: '床位只付了一晚。仓库两张招工单，一张当天结，一张要做满三天。',
   cards: ['born-daywork', 'fund-thin', 'talent-code', 'tie-free', 'secret-kind'],
   photo: openingPhoto('daywork-gate'),
  },
  {
   id: 'heir', seed: 'SH-HEIR', cash: 600000, title: '顶级富二代', line: '个人存款 ¥600,000，房租由家里付',
-  text: '陆家嘴 · 江景房的钥匙已经拿来了。家里想听你对公司那张采购单的意见。',
+  text: '江景房的租金家里付。司机在楼下等，财务问你上不上去看采购单。',
   cards: ['born-heir', 'fund-family', 'talent-count', 'tie-demand', 'secret-kind'],
   photo: openingPhoto('heir-keys'),
  },
@@ -160,14 +161,14 @@ export function lifeStartYear(state: GameState) {
   if (state.age === 19) return state.flags.includes(DAYWORK_DUE) ? shiftPay : state.flags.includes(DAYWORK_REMAINDER) ? remainingPay :
    state.flags.includes(DAYWORK_TEMP) ? {...shiftBed,text:'去年的床位没能续上。吴师傅把你的行李先寄在门房，问你今天想先见收货岗的人，还是先接一班日结。'} : shiftBed;
   if (state.age === 20) return state.flags.includes(DAYWORK_REMAINDER) ? remainingPay : workerThird;
-  return warehouseWorkerYear(state) ?? laterDaywork(state);
+  return workerClassYear(state) ?? warehouseWorkerYear(state) ?? laterDaywork(state);
  }
  if (state.flags.includes(HEIR)) {
   if (state.age === 18) return firstKeys;
   if (state.age === 19) return board;
   if (state.age === 20) return boardThird(state);
   if (state.age === 25 && state.flags.includes(HEIR_HANDOVER)) return heirReview;
-  return warehouseHeirYear(state) ?? laterHeir(state);
+  return heirClassYear(state) ?? warehouseHeirYear(state) ?? laterHeir(state);
  }
 }
 
@@ -178,11 +179,11 @@ export function outstandingShiftPay(state: GameState) {
 
 export function lifeStartRent(state: GameState, ordinaryRent: number, shared: boolean) {
  if (state.flags.includes(FAMILY_HOME) && state.housing === 2) return shared ? Math.round(FAMILY_RENT * .6) : FAMILY_RENT;
- if (state.flags.includes(DAYWORK) && state.housing === 0) return state.flags.includes(DAYWORK_TEMP) ? 900 : 1050;
+ if (state.flags.includes(DAYWORK) && state.housing === 0) return state.flags.includes(DAYWORK_TEMP) ? 900 : staffBedRent(state) ?? 1050;
  return ordinaryRent;
 }
 
 export function lifeStartHousing(state: GameState): string | undefined {
  if (state.flags.includes(FAMILY_HOME) && state.housing === 2) return state.flags.includes(FAMILY_PAY) ? '家里租的江景房' : '江景房 · 自付';
- if (state.flags.includes(DAYWORK) && state.housing === 0) return state.flags.includes(DAYWORK_TEMP) ? '临时落脚' : '短租床位';
+ if (state.flags.includes(DAYWORK) && state.housing === 0) return state.flags.includes(DAYWORK_TEMP) ? '临时落脚' : staffBedRent(state) !== undefined ? '仓配宿舍' : '短租床位';
 }

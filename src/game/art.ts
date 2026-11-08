@@ -91,6 +91,7 @@ export const TIMELINE_COVER = '/art/timelines/ferry.webp';
 export const OPENING_STILLS = [
  'garage', 'dialect', 'portfolio', 'bank', 'cat',
  'daywork-gate', 'daywork-pay', 'heir-keys', 'heir-board',
+ 'worker-bed', 'worker-notice', 'heir-equity', 'heir-vote',
  'arrival-rich', 'arrival-local', 'arrival-migrant', 'arrival-scholar',
  'arrival-suburb', 'arrival-return', 'arrival-trade', 'arrival-artist',
 ] as const;

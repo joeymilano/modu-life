@@ -11,6 +11,7 @@ import { STALL_YEARLY_PAY, stallCommitment } from './stall';
 import { clearHousehold, householdFlag, householdPlan, housingPayment, STANDING_DATE_MONTHLY_COST } from './household';
 import { closeRentalLease } from './rental';
 import { receiptMoment, validYearReceipt, type YearReceipt } from './yearReceipt';
+import { STAFF_BED } from './classLives';
 import type { ActivityKind, ChoiceResult, Effect, EventChoice, GameState, GoalId, LifeEvent, LooksLevel, OriginCard, OriginSlot, PlayerAppearance, StatKey } from './types';
 
 export const STAT_NAMES: Record<StatKey,string> = { health:'身体', spirit:'心气', skill:'本事', face:'腔势', network:'人脉' };
@@ -62,7 +63,7 @@ function applyEffect(state:GameState,effect:Effect,npcId?:string):GameState {
   if(effect.payRate!==undefined&&s.jobId)s.employment={...employmentOf(s),rate:effect.payRate};
   if(effect.housing!==undefined){
     s.housing=clamp(effect.housing,0,3);
-    s.flags=s.flags.filter(flag=>flag!==FAMILY_HOME&&flag!==FAMILY_PAY&&flag!==DAYWORK_TEMP);
+    s.flags=s.flags.filter(flag=>flag!==FAMILY_HOME&&flag!==FAMILY_PAY&&flag!==DAYWORK_TEMP&&flag!==STAFF_BED);
     if(s.leaseRent!==undefined)s.flags=closeRentalLease(s.flags);
     delete s.leaseRent;
   }
@@ -253,7 +254,7 @@ export function nextYear(state:GameState) {
     if(s.leaseRent!==undefined)s.flags=closeRentalLease(s.flags);
     delete s.leaseRent;
     if(s.partnerId)s.flags=s.flags.filter(flag=>flag!==householdFlag(s.partnerId!,'shared'));
-    s.flags=[...new Set([...s.flags,DAYWORK_TEMP,'needed_help'])];
+    s.flags=[...new Set([...s.flags.filter(flag=>flag!==STAFF_BED),DAYWORK_TEMP,'needed_help'])];
     s.stats.spirit=clamp(s.stats.spirit-8);
     s.stats.health=clamp(s.stats.health-5);
     notices.push(`基本开销按年算还差 ¥${uncovered.toLocaleString()}。原来的住处没续上，换成临时落脚，手上剩 ¥0。`);

@@ -1,4 +1,5 @@
 import { forwardClue, PARK_FORWARD_TICKET } from './matchForward';
+import { STAFF_BED_TICKET } from './classLives';
 import { RELOCATION_PLANS, RELOCATION_SHOTS, RELOCATION_TICKET, relocationPhoto } from './relocation';
 import { ANFU_CORNER_TICKET, CORNER_STILLS, cornerPhoto } from './streetCorners';
 import { laterDaywork, laterHeir } from './lifeYears';
@@ -328,6 +329,26 @@ const forwardedPaperStory: Timeline = {
  ],
 };
 
+const {workerBed,workerNotice,workerRenewal,shareholderVote} = STAFF_BED_TICKET;
+const staffBedStory: Timeline = {
+ id:'staff-bed',kind:'life',title:'宿舍这笔钱',author:'魔都人生',
+ original:'我在莘庄住了那间宿舍。后来吴师傅找我核对补助名单，我才知道门卡为什么续不下去。',
+ turns:[
+  {
+   date:'头一年',place:'莘庄 / 外滩',shot:workerBed.illustration,
+   scene:'吴师傅拿到一张空床位的门卡。仓库的账送去外滩办公室时，里面夹着今年公司给宿舍出的补贴。你想从哪头看？',
+   options:[
+    {move:'去莘庄，跟吴师傅看床位',after:'吴师傅没先开门，敲了两下，等里面的人应声。',next:1},
+    {move:'去外滩，参加仓配公司的股东会',after:'去年你花了二十四万买下六个点。今天财务把表决单放在你面前。',next:2},
+   ],
+  },
+  receiptEnding(lateTurn(workerBed,'21 岁 · 看床位','莘庄 · 员工宿舍',[['staff',3],['private',end]])),
+  receiptEnding(lateTurn(shareholderVote,'22 岁 · 表决','外滩 · 股东会',[['pay',3],['keep',4]])),
+  receiptEnding(lateTurn(workerNotice,'22 岁 · 停补贴','莘庄 · 员工宿舍',[['night',end],['grant',end]])),
+  receiptEnding(lateTurn(workerRenewal,'22 岁 · 续租','莘庄 · 员工宿舍',[['renew',end],['move',end]])),
+ ],
+};
+
 export const CITY_TIMELINES: Timeline[] = [
   {
     id: 'last-train', kind: 'life', title: '末班车开走之前', author: '魔都人生',
@@ -472,6 +493,7 @@ export const CITY_TIMELINES: Timeline[] = [
   depositStory,
   coffeeQueue,
   warehouseMove,
+  staffBedStory,
   forwardedPaperStory,
   {
     id: 'scallion-bill', kind: 'life', title: '隔壁桌的葱油饼', author: '魔都人生',

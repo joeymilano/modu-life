@@ -1,13 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { allOrigins, canAfford, createGame, monthlyBudget, nextYear, resolveChoice, selectEvent, validateSave } from '../src/game/engine';
 import { DAYWORK_TEMP, FAMILY_PAY, LIFE_STARTS, outstandingShiftPay } from '../src/game/lifeStarts';
+import { holdsLogisticsShares, STAFF_BED } from '../src/game/classLives';
 import { activeLine, decodeLife, encodeLife, forkLife, recordDecision, replayScene, startBook } from '../src/game/lifeLines';
 import { openingForecast } from '../src/game/openingForecast';
 import { challengeUrl, readChallenge } from '../src/game/share';
 import { lastDayMemory } from '../src/game/lastDay';
 import { familyLoanOwed, lifeYearsAlbumPhoto } from '../src/game/lifeYears';
 import { NIGHT_WORK } from '../src/game/workFlags';
-import { draftFromEvent, validateTicket } from '../src/game/timelines';
+import { CITY_TIMELINES, draftFromEvent, validateTicket } from '../src/game/timelines';
 import { streetLead } from '../src/game/streetLeads';
 import type { GameState } from '../src/game/types';
 
@@ -99,6 +100,66 @@ describe('two Shanghai starting lives', () => {
   expect(activeLine(decodeLife(encodeLife(startBook(manager)))).state.employment?.rate).toBe(1.25);
   expect(annual(later,'salary').cash).toBe(later.cash + 60000);
   expect(selectEvent({...annual(third,'hand'),age:25,pendingYearEvent:true},'year').id).not.toBe('life-start-heir-role');
+ });
+
+ it('only gets the discounted staff bed on the branch that signs up for it', () => {
+  const before = {...create(LIFE_STARTS[0]),age:21};
+  const scene = selectEvent(before,'year');
+  const staff = annual(before,'staff');
+  expect(staff.cash).toBe(before.cash);
+  expect(monthlyBudget(staff)).toMatchObject({salary:6500,rent:800});
+  expect(nextYear(staff).receipt.rent).toBe(9600);
+  const book = recordDecision(startBook(before),staff,scene,'staff');
+  const other = activeLine(forkLife(decodeLife(encodeLife(book)),0));
+  expect(replayScene(other.state,other.replay!)).toEqual(scene);
+  const independent = annual(other.state,'private');
+  expect(monthlyBudget(independent).rent).toBe(1050);
+  expect(selectEvent(nextYear(independent).state,'year').id).not.toContain('worker-notice');
+
+  const renewal = nextYear(staff).state;
+  expect(selectEvent(renewal,'year').id).toBe('life-start-class-worker-notice');
+  const grant = annual(renewal,'grant');
+  expect(grant.cash).toBe(renewal.cash+750);
+  expect(grant.flags).not.toContain(STAFF_BED);
+  expect(nextYear(grant).receipt.rent).toBe(12600);
+  const night = annual(renewal,'night');
+  expect(monthlyBudget(night)).toMatchObject({salary:7800,rent:1050});
+  expect(night.flags).toContain(NIGHT_WORK);
+  expect(nextYear(night).state.stats.health).toBeLessThan(nextYear(grant).state.stats.health);
+ });
+
+ it('pays personal dividends only on the branch that buys shares and approves them', () => {
+  const before = {...create(LIFE_STARTS[1]),age:21};
+  const equity = selectEvent(before,'year');
+  expect(canAfford({...before,cash:239999},equity.choices[0].effect)).toBe(false);
+  const bought = annual(before,'buy');
+  expect(bought.cash).toBe(before.cash-240000);
+  expect(holdsLogisticsShares(bought)).toBe(true);
+  expect(monthlyBudget(bought).familyPaid).toBe(13800);
+  const ballot = nextYear(bought).state;
+  const vote = selectEvent(ballot,'year');
+  const paid = annual(ballot,'pay');
+  expect(paid.cash).toBe(ballot.cash+57600);
+  const book = recordDecision(startBook(ballot),paid,vote,'pay');
+  const other = activeLine(forkLife(decodeLife(encodeLife(book)),0));
+  expect(replayScene(other.state,other.replay!)).toEqual(vote);
+  expect(annual(other.state,'keep').cash).toBe(ballot.cash);
+  const sold = annual(other.state,'sell');
+  expect(sold.cash).toBe(ballot.cash+210000);
+  expect(holdsLogisticsShares(sold)).toBe(false);
+  expect(holdsLogisticsShares(paid)).toBe(true);
+  expect(nextYear(paid).receipt.workIncome).toBe(0);
+  const visitor = nextYear(annual(before,'observe')).state;
+  expect(selectEvent(visitor,'year').id).toBe('life-start-class-heir-observer');
+  expect(annual(visitor,'ask').cash).toBe(visitor.cash);
+ });
+
+ it('lets guests see the same vote through both possible dorm notices', () => {
+  const story = CITY_TIMELINES.find(timeline=>timeline.id==='staff-bed')!;
+  expect(validateTicket({version:1,timeline:story}).timeline).toEqual(story);
+  const vote = story.turns[2];
+  expect(story.turns[vote.options[0].next!].scene).toContain('不续宿舍补贴');
+  expect(story.turns[vote.options[1].next!].scene).toContain('补贴还在');
  });
 
 
