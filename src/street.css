@@ -270,3 +270,8 @@
 @media(prefers-reduced-motion:reduce) {
  .corner-pin-target { transition: none; }
 }
+
+.screen-home .ticker-story {
+ color: #f0dab0; text-decoration-color: #b79466; text-underline-offset: 4px;
+}
+.screen-home .ticker-story:hover { color: #fff4db; }

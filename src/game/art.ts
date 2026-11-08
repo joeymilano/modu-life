@@ -5,7 +5,7 @@ export const LOOKS:{id:LooksLevel;name:string;line:string;flavor:string;face:num
  {id:'stunning',name:'惊艳全场',line:'路过咖啡店，主理人亲自开门',flavor:'回头率超标',face:16,attraction:6},
 ];
 const agedHeads = new Set(['mao', 'he', 'lu']);
-const contactPortraits = new Set(['tang', 'wu', 'fang', 'boss', 'gao', 'father', 'qiao', 'xia']);
+const contactPortraits = new Set(['tang', 'wu', 'fang', 'boss', 'gao', 'father', 'qiao', 'xia', 'aunt', 'uncle']);
 
 export function portraitArt(id: string, full: boolean, age = 18): string {
  const aged = age >= 53 && agedHeads.has(id);
@@ -117,7 +117,9 @@ export function rentalPhoto(shot: (typeof RENTAL_STILLS)[number]): string {
  return '/art/rental/' + shot + '.webp';
 }
 
-export const MATCH_STILLS = ['paper', 'coffee', 'bench', 'own-umbrella', 'lease', 'work', 'market'] as const;
+export const MATCH_STILLS = ['paper', 'coffee', 'bench', 'own-umbrella', 'lease', 'work', 'market',
+ 'forward-address', 'forward-resume', 'forward-copy', 'forward-wonton', 'forward-stall',
+ 'forward-later', 'forward-wonton-later'] as const;
 
 export function matchPhoto(shot: (typeof MATCH_STILLS)[number]): string {
  return '/art/matchmaking/' + shot + '.webp';

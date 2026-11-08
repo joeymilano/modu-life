@@ -1,4 +1,5 @@
 import { matchPhoto } from './art';
+import { MATCH_RELAY, parkForward } from './matchForward';
 import { householdPlan, housingPayment } from './household';
 import type { GameState, LifeEvent } from './types';
 
@@ -26,14 +27,18 @@ function opening(housing: GameState['housing']): LifeEvent {
    { id: 'fold', label: '把纸折起来 · 陪汪阿姨收伞',
     reply: '她让你把夹子留着，坏了就拿个新的。最后一把伞收好，她没急着走，问你现在的手机能不能把人拍得像本人。',
     effect: { trust: 9, spirit: 4, setFlags: ['match-folded'] } },
+   { id: 'relay', label: '号码留给汪阿姨 · 纸上只写见面的时间地点',
+    hint: '由汪阿姨传话 · 纸上不留号码和门牌',
+    reply: '汪阿姨把号码那条折下来，塞进自己的手机壳。新纸上写礼拜天九点，公园门口。她问要是九点零五才到算不算迟到，你让她顺手改成九点一刻。',
+    effect: { trust: 8, network: 5, setFlags: ['match-listed', MATCH_RELAY] } },
   ],
  };
 }
 
-function listed(overstated: boolean): LifeEvent {
+function listed(overstated: boolean, relay = false): LifeEvent {
  return {
   ...location, id: 'matchmaking-coffee', title: '地址那行，怎么说', speakerId: 'tang', illustration: matchPhoto('coffee'),
-  text: '唐圆拿着两张纸。她说她妈那张把「刚辞职」印成了「职业自由」，问你这张是不是也有人帮你改过。奶茶都喝到一半了，她还把纸压在杯底。',
+  text: (relay ? '汪阿姨只传了见面的时间，唐圆在门口等你。' : '唐圆拿着两张纸。') + '她说她妈那张把「刚辞职」印成了「职业自由」，问你这张是不是也有人帮你改过。奶茶都喝到一半了，她还把纸压在杯底。',
   choices: [
    { id: 'talk', label: overstated ? '先说清 · 房本上没我名字' : '把房子的事说清，再问她近况',
     reply: overstated ? '唐圆先把你那行划掉，再把自己的也划掉。她说都到这儿了，能不能换成聊哪家房东退押金痛快。'
@@ -170,7 +175,7 @@ export function parkVisit(state: GameState): Visit | null {
  if (state.pendingYearEvent || state.ended || state.actions <= 0) return null;
  if (!state.seenEvents.includes(openingId)) return state.partnerId ? null : { event: opening(state.housing) };
  const flags = state.flags;
- const next = flags.includes('match-listed') ? { event: listed(flags.includes('match-address-only')), message: '有人拿着你那张纸来问地址' }
+ const next = flags.includes('match-listed') ? { event: listed(flags.includes('match-address-only'),flags.includes(MATCH_RELAY)), message: '有人拿着你那张纸来问地址' }
   : flags.includes('match-edited') ? { event: edited, message: '唐圆在长椅上给你留了个位' }
   : flags.includes('match-folded') ? { event: folded, message: '汪阿姨问你能不能帮她拍张照' }
   : null;
@@ -182,7 +187,16 @@ export function parkVisit(state: GameState): Visit | null {
  } : flags.includes('match-edited') ? {
   event: workVisit(Boolean(state.jobId), flags.includes('match-edited-resume')), message: '唐圆想请你一起去试班',
  } : { event: marketVisit(flags.includes('match-hung-aunt')), message: '汪阿姨把约会改到鱼摊了' };
- return state.seenEvents.includes(follow.event.id) ? null : follow;
+ if (!state.seenEvents.includes(follow.event.id)) return follow;
+ return seenInPreviousYear(state,follow.event)?parkForward(state):null;
+}
+
+export function parkPaperClue(eventId: string) {
+ if (eventId!==openingId) return;
+ return {
+  choiceId:'relay',label:'翻一下夹在下面的纸角',
+  text:'最底下是一条单独剪过的号码。汪阿姨说，有人找也可以先来问她。你只要在纸上写个能见面的时间。',
+ };
 }
 
 export const PARK_TICKET_SCENES = [opening(1), listed(true), edited, folded] as const;

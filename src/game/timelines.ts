@@ -1,3 +1,4 @@
+import { forwardClue, PARK_FORWARD_TICKET } from './matchForward';
 import { RELOCATION_PLANS, RELOCATION_SHOTS, RELOCATION_TICKET, relocationPhoto } from './relocation';
 import { ANFU_CORNER_TICKET, CORNER_STILLS, cornerPhoto } from './streetCorners';
 import { laterDaywork, laterHeir } from './lifeYears';
@@ -299,6 +300,34 @@ const warehouseMove: Timeline = {
  ],
 };
 
+const [forwardedPaper, replacedPaper, foundPaper, repliedPaper] = PARK_FORWARD_TICKET;
+const comparePaper = forwardClue(forwardedPaper.id,{flags:[]})!;
+const paperClose = (event: LifeEvent, place: string): Turn => ({
+ date:'下回见面',place,scene:event.text,shot:event.illustration,
+ options:event.choices.map(choice=>({...ticketOption(choice,end),shot:event.illustration})),
+});
+const forwardedPaperStory: Timeline = {
+ id:'paper-forward',kind:'life',title:'相亲群里那张图',author:'魔都人生',
+ original:'我先请管理员撤了旧图。下次到公园，汪阿姨把蓝夹子还我，问还要不要让她传话。',
+ turns:[
+  {
+   date:'群里转了几轮',place:'人民公园 · 奶茶店',scene:forwardedPaper.text,shot:forwardedPaper.illustration,
+   options:[
+    {move:'把群截图和原件放一起',after:'唐圆把手机亮度往上拨了两格，你才看清有房前头多了个自字。',next:1},
+    ticketOption(forwardedPaper.choices[0],2),
+   ],
+  },
+  {
+   date:'两张摊开',place:'人民公园 · 奶茶店',
+   scene:'原件写「上海有房」。群截图写「上海自有房，今晚八点可看房」。'+comparePaper.text,
+   shot:forwardedPaper.illustration,options:[ticketOption(forwardedPaper.choices[2],3),ticketOption(forwardedPaper.choices[1],4)],
+  },
+  paperClose(replacedPaper,'人民公园 · 原来的摊位'),
+  paperClose(foundPaper,'公园后街 · 复印店'),
+  paperClose(repliedPaper,'公园后街 · 馄饨摊'),
+ ],
+};
+
 export const CITY_TIMELINES: Timeline[] = [
   {
     id: 'last-train', kind: 'life', title: '末班车开走之前', author: '魔都人生',
@@ -443,6 +472,7 @@ export const CITY_TIMELINES: Timeline[] = [
   depositStory,
   coffeeQueue,
   warehouseMove,
+  forwardedPaperStory,
   {
     id: 'scallion-bill', kind: 'life', title: '隔壁桌的葱油饼', author: '魔都人生',
     original: '我说了句「放回去」，林佳没理我，自己跟隔壁道了歉。散的时候她把餐巾留在账单底下。我过了两天再去找，老板说早擦桌子了。',

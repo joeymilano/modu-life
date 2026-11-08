@@ -7,7 +7,8 @@ import { streetLead } from './game/streetLeads';
 import { CORNER_OBJECTS, cornerCashDue, cornerCount, cornerEvidence, streetCorner } from './game/streetCorners';
 import { openingLead } from './game/originStories';
 import { openingForecast } from './game/openingForecast';
-import { parkVisit } from './game/matchmaking';
+import { parkPaperClue, parkVisit } from './game/matchmaking';
+import { forwardClue } from './game/matchForward';
 import { ferryVisit } from './game/ferryVisit';
 import LifeLines from './components/LifeLines';
 import EndingScreen from './components/EndingScreen';
@@ -391,7 +392,9 @@ export default function App(){
  const scenePhoto=activeEvent&&!isOwl&&(activeEvent.illustration||!speaker)?eventPhoto(activeEvent,district.id):null;
  const openingMessages=activeEvent?.id==='first-night-arrival';
  const nightClue=activeEvent&&firstNightClue(activeEvent.id);
- const clue=nightClue?{...nightClue,choiceId:'3'}:activeEvent?(contactEvidence(activeEvent.id)??cornerEvidence(activeEvent.id)):undefined;
+ const clue=nightClue?{...nightClue,choiceId:'3'}:activeEvent&&game
+  ?contactEvidence(activeEvent.id)??cornerEvidence(activeEvent.id)??parkPaperClue(activeEvent.id)??forwardClue(activeEvent.id,game)
+  :undefined;
  const arrivalSource=outcome?.source?.event.id==='first-night-arrival'?outcome.source:undefined;
  const arrivalSender=arrivalSource?.event.choices.find(choice=>choice.id===arrivalSource.choiceId)?.senderId;
  const arrivalContact=arrivalSender&&CAST.find(person=>person.id===arrivalSender);
@@ -402,6 +405,8 @@ export default function App(){
  const workScene=!!activeEvent&&(isWorkHandover(activeEvent.id)||activeEvent.id==='work-year-reorg');
  const tableScene=scenePhoto?.startsWith('/art/long-table/')??false;
  const parkScene=scenePhoto?.startsWith('/art/matchmaking/')??false;
+ const forwardScene=activeEvent?.id.startsWith('matchmaking-forward');
+ const forwardResult=outcome?.source?.event.id.startsWith('matchmaking-forward');
  const offerScene=!!activeEvent&&isJobOffer(activeEvent.id);
  const stallScene=!!activeEvent&&isStallSettlement(activeEvent.id);
  const birthScene=activeEvent?.id.startsWith('origin-arrival-')??false;
@@ -413,7 +418,7 @@ export default function App(){
  const dateReturnScene=activeEvent?.id.startsWith('date-return-');
  const contactScene=scenePhoto?.startsWith('/art/contacts/');
  const cornerScene=scenePhoto?.startsWith('/art/corners/');
- const focusScene=cornerScene||contactScene||dateReturnScene||lifeStartScene||openingMessages||Boolean(activeEvent?.firstDate)||rentalScene||workScene||tableScene||offerScene||birthScene||stallScene||householdScene;
+ const focusScene=forwardScene||cornerScene||contactScene||dateReturnScene||lifeStartScene||openingMessages||Boolean(activeEvent?.firstDate)||rentalScene||workScene||tableScene||offerScene||birthScene||stallScene||householdScene;
  const partingBill=activeEvent?.firstDate ? -(activeEvent.choices[0].effect.cash??0) : 0;
  const wideShot=relocationScene||cornerScene||contactScene||scenePhoto?.startsWith('/art/shanghai-streets/first-night-')||scenePhoto?.startsWith('/art/dates/')||scenePhoto?.startsWith('/art/endings/farewell-')||scenePhoto?.startsWith('/art/endings/life-')||scenePhoto?.startsWith('/art/work/')||scenePhoto?.startsWith('/art/pearl/')||parkScene||scenePhoto?.startsWith('/art/opening/')||scenePhoto?.startsWith('/art/rental/')||scenePhoto?.startsWith('/art/night-ferry/')||tableScene||offerScene||stallScene;
  const leadButtons=game&&(lead||cardLead)?<div className="story-leads">{[lead,cardLead].map(item=>item&&<button
@@ -432,7 +437,7 @@ export default function App(){
  </div><button className="start-stories-entry" onClick={()=>setModal('starts')}><Icon name="dice" size={17}/><b>选定出身</b><span>日结工 / 顶级富二代</span><Icon name="arrow" size={16}/></button><div className="home-quick-games"><button className="pearl-entry" onClick={()=>{window.location.hash=pearlHash(newSeed(),undefined,CURRENT_PEARL_RULES);}}><Icon name="bolt" size={17}/>先躲一轮激光</button><a className="pearl-entry" href={STALL_PATH}><Icon name="coffee" size={17}/>去小吃街顶班</a></div>{game&&<button className="continue-button" onClick={()=>{setScreen(game.ended?'end':'play');setModal(null);}}>继续上回 · {game.name}的{game.age}岁 <Icon name="chevron" size={16}/></button>}</div></div><div className="hero-city"><picture>
   <source media="(max-width: 600px)" srcSet={streetPhoto('cover-south-station-mobile')}/>
   <img className="home-key-art" src={streetPhoto('cover-south-station')} alt="雨刚停，一位旅客在上海南站出口扶着行李箱回消息" fetchPriority="high"/>
- </picture><div className="hero-shade"/></div><div className="home-bottom"><span className="ticker-label">申城小报</span><div className="ticker"><span>外滩发布柠檬水预警</span><span>公园相亲角下雨，摊主撑伞继续</span><span>安福路面馆招一晚帮工，管饭</span></div></div></main>}
+ </picture><div className="hero-shade"/></div><div className="home-bottom"><span className="ticker-label">申城小报</span><div className="ticker"><span><a className="ticker-story" href="#story=paper-forward" aria-label="试玩相亲群里那张图">相亲群转错了一张纸 ↗</a></span><span>外滩发布柠檬水预警</span><span>安福路面馆招一晚帮工，管饭</span></div></div></main>}
  {screen==='draw'&&<main className="draw-screen setup-screen">
   <nav className="setup-steps" aria-label="开局准备">
    <button onClick={()=>moveSetup('cards')} aria-current={setupStep==='cards'?'step':undefined}><span>01</span> 抽牌</button>
@@ -518,7 +523,7 @@ export default function App(){
  </main>}
  {screen==='end'&&game&&<EndingScreen game={game} sharing={sharing} onShare={share}
   onChallenge={copyChallenge} onDraw={()=>beginDraw()} onJournal={()=>setModal('journal')} onLines={()=>setModal('lines')}/>}
- {dialogOpen&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget&&!activeEvent&&!mini&&!outcome)setModal(null);}}><section className={'modal '+(activeEvent?'event-modal':'')+(wideShot?' wide-shot-modal':'')+(openingMessages?' arrival-modal':'')+(arrivalReply?' arrival-reply-modal':'')+(nightClue?' first-night-meeting':'')+(lifeStartScene?' life-start-scene':'')+(relocationScene?' relocation-scene':'')+(activeEvent?.firstDate?' date-parting-modal':'')+(dateReturnScene?' date-return-modal':'')+(rentalScene?' rental-negotiation':'')+(tableScene?' long-table-modal':'')+(parkScene?' match-scene':'')+(workScene?' handover-scene':'')+(offerScene?' job-offer-modal':'')+(birthScene||stallScene||householdScene?' birth-scene-modal':'')+(mini?' minigame-modal':'')+(mini?.type==='rental'?' rental-modal':'')+(mini?.type==='stall'?' stall-modal':'')+(mini?.type==='dialogue'?(mini.person?' date-modal first-date-modal':' date-modal work-interview-modal'):'')+(modal==='romance'?' romance-modal':'')+(modal==='journal'?' journal-modal':'')+(modal==='swap'?' swap-modal':'')+(modal==='starts'?' life-start-modal':'')+(modal==='lines'?' lines-modal':'')} role="dialog" aria-modal="true" aria-label={activeEvent?.title||(arrivalContact?arrivalContact.name+'回你了':outcome?.title)||(mini?.type==='stall'?'晚风小吃街':mini?'人生现场':modal==='saves'?'存档':modal==='swap'?'换牌':modal==='starts'?'选一种开局':modal==='journal'?'人生记事':modal==='lines'?'时间线':modal==='contacts'?(profile?.name??'认识的人'):'魔都人生')}>
+ {dialogOpen&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget&&!activeEvent&&!mini&&!outcome)setModal(null);}}><section className={'modal '+(activeEvent?'event-modal':'')+(wideShot?' wide-shot-modal':'')+(openingMessages?' arrival-modal':'')+(arrivalReply?' arrival-reply-modal':'')+(nightClue?' first-night-meeting':'')+(lifeStartScene?' life-start-scene':'')+(relocationScene?' relocation-scene':'')+(activeEvent?.firstDate?' date-parting-modal':'')+(dateReturnScene?' date-return-modal':'')+(rentalScene?' rental-negotiation':'')+(tableScene?' long-table-modal':'')+(parkScene?' match-scene':'')+(forwardScene?' forward-scene':'')+(workScene?' handover-scene':'')+(offerScene?' job-offer-modal':'')+(birthScene||stallScene||householdScene?' birth-scene-modal':'')+(mini?' minigame-modal':'')+(mini?.type==='rental'?' rental-modal':'')+(mini?.type==='stall'?' stall-modal':'')+(mini?.type==='dialogue'?(mini.person?' date-modal first-date-modal':' date-modal work-interview-modal'):'')+(modal==='romance'?' romance-modal':'')+(modal==='journal'?' journal-modal':'')+(modal==='swap'?' swap-modal':'')+(modal==='starts'?' life-start-modal':'')+(modal==='lines'?' lines-modal':'')} role="dialog" aria-modal="true" aria-label={activeEvent?.title||(arrivalContact?arrivalContact.name+'回你了':outcome?.title)||(mini?.type==='stall'?'晚风小吃街':mini?'人生现场':modal==='saves'?'存档':modal==='swap'?'换牌':modal==='starts'?'选一种开局':modal==='journal'?'人生记事':modal==='lines'?'时间线':modal==='contacts'?(profile?.name??'认识的人'):'魔都人生')}>
  {!(activeEvent&&game?.pendingYearEvent)&&<button className="modal-close icon-button" aria-label="关闭" onClick={()=>{if(outcome)closeOutcome();else{setModal(null);setMini(null);dismissEvent();}}}><Icon name="close"/></button>}
  {modal==='help'&&<div className="help-content"><h2>怎么玩</h2><div className="help-step"><b>01</b><div><h3>先抽五张人生牌</h3><p>每类一张。重抽时看两张备选，换上才用一次机会。</p></div></div><div className="help-step"><b>02</b><div><h3>每年三次行动</h3><p>点地点办事，每次扣一格。走路、换城区不扣行动。</p></div></div><div className="help-step"><b>03</b><div><h3>年底结账</h3><p>点年度结算，工资到账，房租和生活费一起扣。六十岁结局。</p></div></div><button className="primary" onClick={()=>setModal(null)}>晓得了 <Icon name="check" size={18}/></button><small className="fiction-note">人物与怪谈均为虚构</small></div>}
  {modal==='lines'&&book&&<LifeLines book={book} onFork={branchFrom} onSwitch={returnToLine} onDrop={id=>setBook(current=>current?dropLine(current,id):current)}/>}
@@ -597,7 +602,11 @@ export default function App(){
   closeOutcome();
   window.location.hash='story=move-warehouse';
  }}>去看看另一边怎么选 <Icon name="map" size={16}/></button>}
- {!relocationResult&&outcome.source&&outcome.source.event.choices.length>=3&&<button className="text-button parallel-outcome" onClick={()=>{
+ {forwardResult&&<button className="text-button parallel-outcome" onClick={()=>{
+  closeOutcome();
+  window.location.hash='story=paper-forward';
+ }}>去平行上海重走这张纸 <Icon name="map" size={16}/></button>}
+ {!relocationResult&&!forwardResult&&outcome.source&&outcome.source.event.choices.length>=3&&<button className="text-button parallel-outcome" onClick={()=>{
  const {event,choiceId}=outcome.source!;
  const sceneDistrict=DISTRICTS.find(item=>item.id===event.district)?.name??district.name;
  setTimelineDraft(draftFromEvent(event,choiceId,outcome.text,game.age,sceneDistrict));
