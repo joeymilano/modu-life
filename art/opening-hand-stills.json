@@ -1,0 +1,96 @@
+{
+  "generator": "Built-in ImageGen",
+  "referenceCommit": "0ebf74e",
+  "direction": "Natural contemporary Shanghai photography. Ordinary material details and recognizable gestures with one legible focal point, framed for small card crops. Keep the parents' fictional identities and signature clothes.",
+  "delivery": "Sixteen opening-card photographs. Two portrait and matching avatar pairs.",
+  "assets": {
+    "public/art/origins/fund-home.webp": {
+      "label": "家里有套房",
+      "reference": "public/art/origins/fund-home.webp",
+      "prompt": "A middle-aged Shanghainese mother's hand pulls open a normal wooden drawer and picks up an old brick-red property document booklet, red cover rotated blank side out, two ordinary brass keys from the same drawer caught in her fingers. Worn scratched lacquer and white cotton sleeve. Morning window bounce, tactile, center red booklet and keys, no identifiable document lettering."
+    },
+    "public/art/origins/fund-frozen.webp": {
+      "label": "副卡被冻结",
+      "reference": "public/art/origins/fund-frozen.webp",
+      "prompt": "A small checkout counter in a normal Shanghai neighborhood shop. Seen from the side at the instant a cashier with a navy cotton sleeve turns a plain black terminal back toward the off-camera customer and hands them the same blank light-blue debit card. A cheap paper cup set down nearby. Cashier's small practical gesture, older scratched laminate, real shop daylight. No numbers, readable screens, ads or brand marks."
+    },
+    "public/art/origins/fund-savings.webp": {
+      "label": "三万元存款",
+      "reference": "public/art/origins/fund-savings.webp",
+      "prompt": "At a quiet neighborhood bank near Minhang, an adult tucks one plain brick-red bank savings booklet into a canvas wallet after checking the balance at the counter. A single cheap blue ballpoint and a receipt corner, silver window ledge and mild warm daylight. No piles of cash, no visible numbers or readable financial details."
+    },
+    "public/art/origins/fund-debt.webp": {
+      "label": "背着助学债",
+      "reference": "public/art/origins/fund-debt.webp",
+      "prompt": "Inside a newly graduated person's sparse room in Shanghai, adult hand slips a one-page loan installment notice under a slightly bent dark-blue graduation folder on the table. Simple used earphones and a white unbranded charging brick at the edge, mid-morning window bounce, real textured paper, meaningful folder and sheet clearly at center. No readable paperwork, school logo or pomp."
+    },
+    "public/art/origins/fund-room.webp": {
+      "label": "亲戚空房间",
+      "reference": "public/art/origins/fund-room.webp",
+      "prompt": "A real older Shanghai apartment spare room viewed slightly from doorway, middle-aged resident's sleeve just in frame setting down a folded floral quilt on a narrow modest iron bed. Second set of keys on the door frame hook, ordinary plants and old-fashioned mottled flooring in sunshine. A place freshly made available for someone. No glamour, no text."
+    },
+    "public/art/origins/fund-plain.webp": {
+      "label": "普通家庭托底",
+      "reference": "public/art/origins/fund-plain.webp",
+      "prompt": "Close view of a real kitchen table. A middle-aged woman in oat knit cardigan slips a plain reusable lunch box of leftover home cooking into a young adult's cloth tote. One rice grain on the lid, familiar old thermos and an ordinary apartment door out of focus. Understated observed gesture, soft early light, no visible labels or captions."
+    },
+    "public/art/origins/fund-lucky.webp": {
+      "label": "旧藏意外升值",
+      "reference": "public/art/origins/fund-lucky.webp",
+      "prompt": "A young adult turns an old red diecast model car in a peeled cardboard box on a modest dining table, two other ordinary miniature cars still in old sleeves. On the edge a paper ruler and old shipping receipt with print unreadable. Cool rainy daylight, the actual nick in the car's paint and aged box visible, believable scale. No collector-catalog backdrop, no logo."
+    },
+    "public/art/origins/fund-alone.webp": {
+      "label": "靠自己攒的钱",
+      "reference": "public/art/origins/fund-alone.webp",
+      "prompt": "A young adult after a late shift at a small Shanghai kitchen counts a few small plain off-white payment envelopes into a beat-up tin beside a worn cloth apron; not a pile of money. Old wall switch and notebook have shadows from a single early-day window, quietly proud tactile colors. The open tin and hands centered, no readable currency or text."
+    },
+    "public/art/origins/secret-title.webp": {
+      "label": "履历有一行水分",
+      "reference": "public/art/origins/secret-title.webp",
+      "prompt": "Tight live-action cutaway at a small Shanghai interview table, two hands pin a single paper CV flat while a red pencil stops just above one line. Opposite cuff in dark cotton at edge, ordinary staple and white water cup, believable overhead camera. Neutral light, real paper, print a little out of focus, no readable words or logos."
+    },
+    "public/art/origins/secret-shy.webp": {
+      "label": "面试就紧张",
+      "reference": "public/art/origins/secret-shy.webp",
+      "prompt": "Candid insert at a Shanghai interview waiting bench. An adult in a gray jacket grips a cheap thin paper cup in both hands, the cup has one small natural dent. At the edge a closed paper portfolio rests on one knee and a second candidate's coat hangs over a chair in soft depth. Ordinary office daylight, no readable sign, no legible words, modest restrained color."
+    },
+    "public/art/origins/secret-dream.webp": {
+      "label": "想偷偷转行",
+      "reference": "public/art/origins/secret-dream.webp",
+      "prompt": "A modest apartment desk after work in Shanghai. One hand is closing a boring spreadsheet folder on paper beside an open normal laptop displaying a video editing timeline with colored clips and a soft thumbnail of a Shanghai lane, no readable interface text. A standard desk lamp and reusable mug, naturally warm late-night bounce, no laptop logo. Show the contrast with physical props, not visual effects."
+    },
+    "public/art/origins/secret-poor.webp": {
+      "label": "朋友圈很有钱",
+      "reference": "public/art/origins/secret-poor.webp",
+      "prompt": "Real Shanghai evening street window seat, close-up on the near side of a table. A tall champagne flute with a little pale drink just high enough for a picture on one side, next to a real small transit card and a phone angled toward the glass for the photo. Reflection from an ordinary tram-free street, plausible warm light, no glowing cyberpunk, no readable logos or screen text. Playful accidental off-camera detail."
+    },
+    "public/art/origins/secret-money.webp": {
+      "label": "其实存了不少",
+      "reference": "public/art/origins/secret-money.webp",
+      "prompt": "An ordinary young adult's hand reaches into the inside pocket of a faded green work jacket on an old coat hook, showing the corner of a plain oxblood bank booklet almost hidden inside. Old textured button and a little sunlight through a Shanghai apartment landing window. Story comes from how well worn the jacket is. Center pocket and thumb, no screen, no readable text."
+    },
+    "public/art/origins/secret-talent.webp": {
+      "label": "藏着一个拿手活",
+      "reference": "public/art/origins/secret-talent.webp",
+      "prompt": "Live-action insert behind a small company party curtain in Shanghai, adult hand in an ordinary off-white shirt reaches for an old handheld microphone with a plain metal mesh head, another hand outside frame has just shifted the deep red fabric curtain. A chipped stand collar, familiar light leaking under fabric, calm backstage moment, no readable signage or written text."
+    },
+    "public/art/origins/secret-local.webp": {
+      "label": "上海话讲得磕绊",
+      "reference": "public/art/origins/secret-local.webp",
+      "prompt": "An old lane doorway in Shanghai. At center an adult's phone held at waist-height shows only a soft abstract horizontal voice-message waveform, beside a friendly older neighbor's hand making a gentle 'once more' gesture. Dark wood doorway and worn pale tile, a paper tea cup in the lower edge, natural daylight. No screen text, no sharp lettering, no visible faces."
+    },
+    "public/art/origins/secret-kind.webp": {
+      "label": "悄悄帮过一个人",
+      "reference": "public/art/origins/secret-kind.webp",
+      "prompt": "Side view at a rainy Shanghai shop doorway as one adult quietly passes a plain navy folded umbrella toward another person's hands, their shoes and bags cropped out enough to keep focus on the gesture. Dark sill, damp stone sidewalk, soft morning light and a small reflected patch from the sky. Human scale, fine fabric texture and believable hands. No ads or text."
+    },
+    "public/art/portraits/mother.webp": {
+      "reference": "public/art/portraits/mother.webp",
+      "prompt": "Preserve this fictional middle-aged Shanghainese mother's face, short softly waved black bob, oatmeal brown cardigan and pale printed scarf. At an open apartment doorway in old Shanghai, natural waist-up to upper thigh portrait. She is slipping a wrapped reusable lunch box into the near visitor's bag with an easy half smile, looking just beside camera at them. Gentle window light through the stairwell, real age texture and worn clothes, she has just remembered to hand over the bag before the adult leaves."
+    },
+    "public/art/portraits/father.webp": {
+      "reference": "public/art/portraits/father.webp",
+      "prompt": "Preserve this fictional middle-aged Shanghainese father's face, compact salt-black haircut, slate-gray cotton work jacket and old ordinary trousers. He pauses at the foot of a Shanghai walk-up staircase just after finishing a loose hinge, folding a screwdriver back into his small worn cloth tool roll, looks toward his child off-camera with a dry, quiet smile. Soft reflected daylight across stairs, unretouched working hands and visible face lines, a normal scene, not a photo session."
+    }
+  }
+}

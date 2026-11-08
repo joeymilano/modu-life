@@ -48,6 +48,10 @@ export function handoverPhoto(careerId: string): string {
  return `/art/work/start-${careerId}.webp`;
 }
 
+export function originPhoto(cardId: string): string {
+ return `/art/origins/${cardId}.webp`;
+}
+
 export function interviewPhoto(careerId: string): string {
  return `/art/interviews/${careerId}.webp`;
 }

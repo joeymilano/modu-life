@@ -1,5 +1,6 @@
 import { allOrigins, ending } from './engine';
-import { endingPhoto, LIFE_ALBUM_AGES, pearlPhoto, playerArt, stallPhoto, streetPhoto, TIMELINE_COVER } from './art';
+import { endingPhoto, LIFE_ALBUM_AGES, originPhoto, pearlPhoto, playerArt, stallPhoto, streetPhoto, TIMELINE_COVER } from './art';
+import { openingForecast } from './openingForecast';
 import { CAREERS, DISTRICTS } from './content';
 import { PEARL_PATH, pearlHash, pearlRank, pearlRoundCount, type PearlRules, type PearlScore } from './pearl';
 import { comparedFacts, describeDecision, lineDivergence } from './lineComparison';
@@ -194,7 +195,71 @@ export async function makeShareCard(state: GameState): Promise<Blob> {
 }
 
 export type SharedHand = Pick<GameState, 'seed' | 'origins' | 'goal' | 'appearance'>;
-export function challengeUrl(s:SharedHand){const url=new URL(SITE_URL);url.searchParams.set('seed',s.seed);url.searchParams.set('cards',s.origins.join('.'));url.searchParams.set('goal',s.goal);url.searchParams.set('gender',s.appearance.gender);url.searchParams.set('looks',s.appearance.looks);return url.toString();}
+export function challengeUrl(s:SharedHand, reveal = false){
+ const url=new URL(SITE_URL);
+ url.searchParams.set('seed',s.seed);
+ url.searchParams.set('cards',s.origins.join('.'));
+ url.searchParams.set('goal',s.goal);
+ url.searchParams.set('gender',s.appearance.gender);
+ url.searchParams.set('looks',s.appearance.looks);
+ if(reveal)url.searchParams.set('hand','open');
+ return url.toString();
+}
+
+export async function makeOpeningCard(hand: SharedHand): Promise<Blob> {
+ const cards = challengeCards(hand.origins);
+ if (!cards) throw new Error('这手牌没凑齐');
+ const opening = openingForecast(hand.seed, cards, hand.goal, hand.appearance);
+ const canvas = document.createElement('canvas');
+ canvas.width = 1080;
+ canvas.height = 1440;
+ const ctx = canvas.getContext('2d');
+ if (!ctx) throw new Error('开局照没洗出来');
+ await paintCardHeader(ctx, '开局手牌  /  #' + hand.seed);
+ ctx.fillStyle = cardInk;
+ ctx.font = 'bold 62px ' + cardSerif;
+ ctx.fillText('同一手牌，你怎么过', 64, 191, 952);
+ const column = (i: number) => 64 + i * 192;
+ await Promise.all([
+  paintPhoto(ctx, playerArt(hand.appearance, true), [64, 224, 292, 438], .22),
+  paintPhoto(ctx, opening.story?.event.illustration ?? streetPhoto('first-night-arrival'), [378, 224, 638, 296], .35),
+  ...cards.map((card, i) => paintPhoto(ctx, originPhoto(card.id), [column(i), 763, 184, 124])),
+ ]);
+ ctx.fillStyle = cardRust;
+ ctx.font = 'bold 22px sans-serif';
+ ctx.fillText('开局先碰到', 378, 552);
+ ctx.fillStyle = cardInk;
+ ctx.font = 'bold 38px ' + cardSerif;
+ ctx.fillText(opening.story?.event.title ?? '出站前的三条消息', 378, 600, 638);
+ ctx.font = '24px sans-serif';
+ ctx.fillText('手上 ¥' + opening.cash.toLocaleString('zh-CN') + '  ·  ' + opening.housing, 378, 649, 638);
+ ctx.fillStyle = cardRust;
+ ctx.font = 'bold 29px ' + cardSerif;
+ ctx.fillText('带进上海的五张牌', 64, 735, 952);
+ cards.forEach((card, i) => {
+  const x = column(i);
+  ctx.fillStyle = '#eae2d0';
+  ctx.fillRect(x, 900, 184, 121);
+  ctx.fillStyle = card.accent;
+  ctx.fillRect(x, 900, 184, 4);
+  ctx.fillStyle = cardInk;
+  ctx.font = '21px sans-serif';
+  ctx.fillText(card.slot + ' · ' + card.rarity, x + 10, 937, 164);
+  ctx.font = 'bold 27px ' + cardSerif;
+  lines(ctx, card.name, x + 10, 978, 164, 28);
+ });
+ ctx.fillStyle = '#ac9d83';
+ ctx.fillRect(64, 1087, 952, 1);
+ const invite = challengeUrl(hand, true);
+ if (!await paintChallengeCode(ctx, invite, 1016, 1113, 248)) throw new Error('这张照上的码还没印出来');
+ ctx.fillStyle = cardInk;
+ ctx.font = 'bold 36px ' + cardSerif;
+ ctx.fillText('扫一下，接这手牌', 64, 1195, 680);
+ ctx.font = '24px sans-serif';
+ ctx.fillText('modulife.pages.dev', 64, 1244);
+ return new Promise((resolve, reject) => canvas.toBlob(blob =>
+  blob ? resolve(blob) : reject(new Error('开局照没洗出来')), 'image/png'));
+}
 export function downloadBlob(blob:Blob,name:string){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);}
 
 export async function makeStoryPhoto(shot: string, title: string, choice: string, invite: string): Promise<Blob> {
@@ -294,11 +359,17 @@ export async function makeLineCard(first: LifeLine, second: LifeLine): Promise<B
 export function readChallenge(params: URLSearchParams) {
  const seed = params.get('seed');
  const ids = params.get('cards')?.split('.');
- if (!seed || seed.length > 32 || ids?.length !== 5) return null;
+ if (!seed || seed.length > 32 || !ids) return null;
+ const cards = challengeCards(ids);
+ return cards ? { seed, cards, ...(params.get('hand') === 'open' && { reveal: true }) } : null;
+}
+
+function challengeCards(ids: string[]) {
+ if (ids.length !== 5) return null;
  const all = allOrigins();
  const cards = ids.flatMap(id => all.filter(card => card.id === id));
  if (cards.length !== 5 || new Set(cards.map(card => card.slot)).size !== 5) return null;
- return { seed, cards };
+ return cards;
 }
 
 

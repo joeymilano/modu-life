@@ -27,14 +27,15 @@ with sync_playwright() as pw:
     for gender in ['female','male']:
         for looks,name in [('everyday','普通耐看'),('charming','颇有姿色'),('stunning','惊艳全场')]:
             p.get_by_role('button',name='开局抽卡').click()
+            p.get_by_role('button',name='全部揭晓').click()
+            p.locator('.setup-forward').click()
             p.locator('.gender-picker button').nth(0 if gender=='female' else 1).click()
             p.get_by_role('button',name='颜值 '+name,exact=True).click()
             picked=p.get_by_role('button',name='颜值 '+name,exact=True)
             assert picked.get_attribute('aria-pressed')=='true'
-            image=picked.locator('img')
+            image=p.locator('.casting-photo img')
             assert image.get_attribute('src')==f'/art/portraits/player-{gender}-{looks}.webp'
             assert image.evaluate('async img=>{await img.decode();return img.naturalHeight>700}')
-            p.get_by_role('button',name='全部揭晓').click()
             p.get_by_role('button',name='就这手牌，进上海').click()
             annual(p)
             saved=json.loads(p.evaluate('localStorage.getItem("modu-life-v1")'))

@@ -1,5 +1,5 @@
 import type { CastMember, OriginCard, PlayerAppearance } from '../game/types';
-import { playerArt, portraitArt } from '../game/art';
+import { originPhoto, playerArt, portraitArt } from '../game/art';
 
 export function Portrait({ person, size = 64, full = false, age = 18, decorative = false }: {
  person: CastMember; size?: number; full?: boolean; age?: number; decorative?: boolean;
@@ -16,5 +16,5 @@ export function PlayerPortrait({ appearance, full = false, size = 52, age = 18 }
 }
 
 export function CardArt({ card }: { card: OriginCard }) {
- return <div className="card-art"><img src={'/art/origins/' + card.id + '.webp'} alt="" decoding="async" /></div>;
+ return <div className="card-art"><img src={originPhoto(card.id)} alt="" decoding="async" /></div>;
 }

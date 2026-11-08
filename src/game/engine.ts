@@ -29,10 +29,16 @@ export function drawOrigins(seed:string, reroll=0):OriginCard[] {
   let rng=hashSeed(seed+':'+reroll);
   return (['出身','家底','天赋','牵绊','秘密'] as OriginSlot[]).map(slot=>{const [r,next]=randomStep(rng);rng=next;const pool=ORIGIN_POOLS[slot];return pool[Math.floor(r*pool.length)];});
 }
-export function rerollOrigin(seed: string, round: number, current: OriginCard): OriginCard {
+export function rerollOptions(seed: string, round: number, current: OriginCard): readonly [OriginCard, OriginCard] {
  const candidates = ORIGIN_POOLS[current.slot].filter(card => card.id !== current.id);
- const [roll] = randomStep(hashSeed(seed + ':swap:' + round + ':' + current.slot));
- return candidates[Math.floor(roll * candidates.length)];
+ const [roll, rng] = randomStep(hashSeed(seed + ':swap:' + round + ':' + current.slot));
+ const [next] = randomStep(rng);
+ const first = Math.floor(roll * candidates.length);
+ const second = (first + 1 + Math.floor(next * (candidates.length - 1))) % candidates.length;
+ return [candidates[first], candidates[second]];
+}
+export function rerollOrigin(seed: string, round: number, current: OriginCard): OriginCard {
+ return rerollOptions(seed, round, current)[0];
 }
 export { newSeed } from './seed';
 export function chapterOf(age:number){return Math.min(5,Math.floor((age-18)/7));}

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { allOrigins, createGame, drawOrigins, nextYear, rerollOrigin, resolveChoice, selectEvent } from '../src/game/engine';
+import { allOrigins, createGame, drawOrigins, nextYear, rerollOptions, rerollOrigin, resolveChoice, selectEvent } from '../src/game/engine';
+import { openingForecast } from '../src/game/openingForecast';
 import { activeLine, decodeLife, encodeLife, forkLife, recordDecision, replayScene, startBook, switchLine } from '../src/game/lifeLines';
 import { LOAN_DUE, openingLead, openingStory } from '../src/game/originStories';
 import { challengeUrl, readChallenge } from '../src/game/share';
@@ -82,6 +83,38 @@ describe('opening combinations', () => {
   const shared = readChallenge(new URL(challengeUrl(hand)).searchParams);
   expect(shared?.cards.map(card => card.id)).toEqual(hand.origins);
   expect(openingStory(hand.origins)?.event.id).not.toBe('origin-garage');
+ });
+
+ it('deals two stable alternatives from the same slot while preserving the original first draw', () => {
+  for (const card of allOrigins()) {
+   for (const round of [1, 2]) {
+    const picks = rerollOptions('SWAP-OPTIONS', round, card);
+    expect(picks.map(pick => pick.slot)).toEqual([card.slot, card.slot]);
+    expect(new Set([card.id, ...picks.map(pick => pick.id)]).size).toBe(3);
+    expect(rerollOptions('SWAP-OPTIONS', round, card)).toEqual(picks);
+    expect(picks[0]).toEqual(rerollOrigin('SWAP-OPTIONS', round, card));
+   }
+  }
+ });
+
+ it('forecasts the exact post-combination starting state and shares a ready-to-play hand', () => {
+  const cards = ['born-rich', 'fund-frozen', 'talent-fit', 'tie-free', 'secret-money'].map(lookup);
+  const appearance = { gender: 'female', looks: 'stunning' } as const;
+  const initial = openingForecast('HAND', cards, 'wealth', appearance);
+  expect(initial.cash).toBe(24000);
+  expect(initial.story?.event.id).toBe('origin-garage');
+  const swapped = cards.map(card => card.id === 'fund-frozen' ? lookup('fund-home') : card);
+  const forecast = openingForecast('HAND', swapped, 'wealth', appearance);
+  const game = createGame('HAND', '小申', 'wealth', swapped, appearance);
+  expect(forecast.cash).toBe(game.cash);
+  expect(forecast.housing).toBe('自有住房');
+  expect(forecast.story?.event.id).toBe('origin-arrival-rich');
+  const params = new URL(challengeUrl(game, true)).searchParams;
+  expect(readChallenge(params)).toEqual({ seed: game.seed, cards: swapped, reveal: true });
+  expect(params.get('goal')).toBe('wealth');
+  expect(params.get('gender')).toBe('female');
+  expect(params.get('looks')).toBe('stunning');
+  expect(readChallenge(new URL(challengeUrl(game)).searchParams)?.reveal).toBeUndefined();
  });
 
  it.each([
