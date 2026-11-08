@@ -1,0 +1,61 @@
+import { useState, type Ref } from 'react';
+import { CAST, DISTRICTS } from '../game/content';
+import { firstNightThread } from '../game/firstNight';
+import { streetPhoto } from '../game/art';
+import type { LifeEvent } from '../game/types';
+import Icon from './Icon';
+import { Portrait } from './Portrait';
+import './first-night.css';
+
+export default function ArrivalInbox({event, heading, onReply}: {
+ event: LifeEvent; heading: Ref<HTMLHeadingElement>; onReply: (id: string) => void;
+}) {
+ const [current, setCurrent] = useState<string>();
+ const [read, setRead] = useState<string[]>([]);
+ const messages = event.choices.flatMap(choice => {
+  const sender = CAST.find(person => person.id === choice.senderId);
+  const thread = sender && firstNightThread(sender.id);
+  return sender && thread ? [{ choice, sender, thread }] : [];
+ });
+ const active = messages.find(item => item.choice.id === current);
+ return <>
+  <div className="event-visual event-photo arrival-snapshot">
+   <img key={current ?? 'station'} src={active?.thread.photo ?? event.illustration ?? streetPhoto('first-night-arrival')}
+    alt={active?.thread.alt ?? '上海南站出口，一位旅客正抬脚拨动行李箱的轮子'}/>
+   <span className="snapshot-credit">{active ? active.sender.name + '发来的照片' : '上海南站'}</span>
+  </div>
+  <div className="event-content arrival-desk">
+   <header>
+    <div className="arrival-kicker"><Icon name="clock" size={15}/><span>刚到上海</span><span aria-live="polite">{messages.length - read.length} 条未读</span></div>
+    <h2 ref={heading} tabIndex={-1}>{event.title}</h2>
+    <p>{event.text}</p>
+   </header>
+   <div className="arrival-inbox" role="group" aria-label="收到的消息">
+    {messages.map(({choice, sender, thread}) => {
+     const open = current === choice.id;
+     const unread = !read.includes(choice.id);
+     const district = DISTRICTS.find(place => place.id === thread.district)?.name;
+     return <button type="button" key={choice.id} className="arrival-contact" aria-pressed={open}
+      aria-label={'看' + sender.name + '的消息'} onClick={() => {
+       setCurrent(choice.id);
+       setRead(items => items.includes(choice.id) ? items : [...items, choice.id]);
+      }}>
+      <Portrait person={sender} size={40} decorative/>
+      <span><b>{sender.name}</b><small>{district}</small></span>
+      {unread && <i aria-hidden="true"/>}
+     </button>;
+    })}
+   </div>
+   {active ? <div className="arrival-thread" key={active.choice.id} role="region" aria-label={active.sender.name + '的消息'}>
+    <p>{active.choice.hint}</p><p>{active.thread.note}</p>
+    <div className="event-choices">
+     <button className="primary arrival-send" onClick={() => onReply(active.choice.id)}>
+      {active.choice.label} <Icon name="arrow" size={17}/>
+     </button>
+    </div>
+   </div> : <div className="arrival-unopened">
+    {messages.map(({sender, choice}) => <p key={choice.id}><b>{sender.name}</b><span>{choice.hint}</span></p>)}
+   </div>}
+  </div>
+ </>;
+}

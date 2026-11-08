@@ -109,6 +109,7 @@ export function matchPhoto(shot: (typeof MATCH_STILLS)[number]): string {
 }
 
 export const FIRST_NIGHT_STILLS = [
+ 'inbox-room', 'inbox-shift', 'inbox-ferry',
  'first-night-arrival', 'first-night-room', 'first-night-shift', 'first-night-ferry',
  'first-night-room-bill', 'first-night-room-viewing', 'first-night-shift-rota',
  'first-night-shift-handover', 'first-night-ferry-oranges', 'first-night-ferry-gig',

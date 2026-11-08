@@ -4,6 +4,7 @@ import { CAST } from '../src/game/content';
 import { romanceQuestions } from '../src/game/dates';
 import { createGame, drawOrigins, nextYear, resolveChoice, selectEvent } from '../src/game/engine';
 import { activeLine, forkLife, recordDecision, replayScene, startBook } from '../src/game/lifeLines';
+import { firstNightClue, firstNightThread } from '../src/game/firstNight';
 import { streetLead } from '../src/game/streetLeads';
 import { draftFromEvent } from '../src/game/timelines';
 
@@ -45,5 +46,34 @@ describe('revisiting first-night contacts', () => {
   expect(farewell.text).toContain(echo);
   expect(farewell.speakerId).toBe(sender);
   expect(portraitArt(sender, false, 59)).toBe('/art/portraits/head/' + sender + '-senior.webp');
+ });
+});
+
+describe('first-night discoveries', () => {
+ const discoveries = [
+  { sender: 'mao', photo: 'room', cash: -160, flag: 'night-refused', next: 'room-viewing' },
+  { sender: 'he', photo: 'shift', cash: 260, flag: 'night-offer', next: 'shift-rota' },
+  { sender: 'lu', photo: 'ferry', cash: 60, flag: 'night-saved-box', next: 'ferry-oranges' },
+ ];
+
+ it.each(discoveries)('records and replays the discovery from $sender', ({sender,photo,cash,flag,next}) => {
+  const start = createGame('INBOX', '阿申', 'free', drawOrigins('INBOX'));
+  const arrival = selectEvent(start, 'year');
+  const message = arrival.choices.find(choice => choice.senderId === sender)!;
+  expect(firstNightThread(sender)?.photo).toBe('/art/shanghai-streets/inbox-' + photo + '.webp');
+  const invited = resolveChoice(start, arrival, message.id).state;
+  expect(invited.actions).toBe(start.actions);
+  const meeting = streetLead(invited)!.event;
+  expect(firstNightClue(meeting.id)?.text).toBeTruthy();
+  const visit = resolveChoice(invited, meeting, '3').state;
+  expect(visit.actions).toBe(invited.actions - 1);
+  expect(visit.cash).toBe(invited.cash + cash);
+  expect(visit.flags).toContain(flag);
+  expect(selectEvent(nextYear(visit).state, 'year').illustration)
+   .toBe('/art/shanghai-streets/first-night-' + next + '.webp');
+  const branch = activeLine(forkLife(recordDecision(startBook(invited), visit, meeting, '3'), 0));
+  const replay = replayScene(branch.state, branch.replay!)!;
+  expect(replay.choices.map(choice => choice.id)).toEqual(['1', '2', '3']);
+  expect(branch.state.cash).toBe(invited.cash);
  });
 });

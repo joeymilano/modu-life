@@ -13,7 +13,7 @@ with sync_playwright() as p:
  page.wait_for_function('navigator.serviceWorker.controller!==null')
  page.get_by_role('button',name='开局抽卡').click();page.get_by_role('button',name='全部揭晓').click();page.wait_for_timeout(700)
  page.locator('.setup-forward').click()
- page.get_by_role('button',name='就这手牌，进上海').click();page.locator('.event-choices button').first.click();page.locator('.outcome-content .primary').click();page.wait_for_timeout(600)
+ page.get_by_role('button',name='就这手牌，进上海').click();page.get_by_role('button',name='看毛小毛的消息').click();page.locator('.event-choices button').first.click();page.locator('.outcome-content .primary').click();page.wait_for_timeout(600)
  with page.expect_download(timeout=20000) as download:
   page.get_by_role('button',name='生成人生卡').click()
  download.value.save_as(str(OUT/'人生分享卡.png'))

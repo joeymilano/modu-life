@@ -10,6 +10,8 @@ def choose_year(page):
     if page.evaluate('JSON.parse(localStorage.getItem("modu-life-v1")||"null")?.pendingYearEvent'):
         page.locator('.event-content').wait_for(state='visible')
     if page.locator('.event-content').count():
+        if page.locator('.arrival-inbox').count():
+            page.get_by_role('button',name='看毛小毛的消息').click()
         choices=page.locator('.event-choices button:not([disabled])')
         choices.first.click()
         page.locator('.outcome-content .primary').click()

@@ -7,6 +7,8 @@ OUT=Path('outputs');OUT.mkdir(exist_ok=True)
 errors=[]
 def annual(p):
     p.locator('.event-content').wait_for()
+    if p.locator('.arrival-inbox').count():
+        p.get_by_role('button',name='看毛小毛的消息').click()
     p.locator('.event-choices button:not([disabled])').first.click()
     p.locator('.outcome-content .primary').click()
 def hotspot(p,text):

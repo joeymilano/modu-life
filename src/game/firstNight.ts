@@ -11,13 +11,13 @@ function scene(id: string, art: StreetPhoto, title: string, text: string, choice
 }
 
 const arrival = scene('arrival', 'first-night-arrival', '出站前的三条消息',
-  '上海南站。雨刚停，出站口还在滴水。行李箱有个轮子卡住了。你停下来踢了两下，兜里手机连震三声。', [
+  '箱子有个轮子不转了。你在上海南站出口踢了两脚，兜里的手机倒先震了三下。', [
     { label: '回毛小毛 · 房间先帮我留着', hint: '莘庄那间九点前能看。侬出站了伐？', senderId: 'mao',
-      reply: '毛小毛发来楼栋号，又补一条语音。「先别付钱。他跟我说的是两千，跟你说的是多少？」', effect: { setFlags: ['night-room'] } },
+      reply: '先别转钱。我在三号楼。房东说两千，刚又说阳台算半间，侬上来自己听。', effect: { setFlags: ['night-room'] } },
     { label: '回何亮 · 今晚我来顶班', hint: '今晚缺个人。来就给你留一碗，工钱今天结。', senderId: 'he',
-      reply: '何亮说后厨有件围裙，蓝色的。他停了停，又说别穿白鞋。你低头看了一眼。', effect: { setFlags: ['night-shift'] } },
+      reply: '从前门进，别敲后门。蓝围裙给你留了。还有，别穿白鞋。', effect: { setFlags: ['night-shift'] } },
     { label: '回陆嘉 · 箱子我帮你送', hint: '你晚上去外滩吗？我爸的橘子还在码头。', senderId: 'lu',
-      reply: '陆嘉给你转了二十块地铁钱。她说蓝箱子上有个橘子贴纸，真拿错了也先别打开。', effect: { cash: 20, setFlags: ['night-ferry'] } },
+      reply: '转你二十块坐地铁。蓝胶带，橘子贴纸。拿错了也先别拆，上回我爸那箱是咸肉。', effect: { cash: 20, setFlags: ['night-ferry'] } },
   ]);
 
 const room = scene('keys', 'first-night-room', '两把钥匙',
@@ -26,14 +26,18 @@ const room = scene('keys', 'first-night-room', '两把钥匙',
       reply: '你们一人转了一千八。屋里只有一把椅子，毛小毛把装电饭煲的纸箱翻过来，坐在上面吃面。', effect: { cash: -1800, housing: 1, spirit: 9, trust: 12, setFlags: ['night-shared'] } },
     { label: '请他把合同拍下来 · 今天先别付',
       reply: '毛小毛拍到第三页，房东把合同抽走了。下楼时，毛小毛问你能不能陪他去街口打个电话。', effect: { skill: 5, trust: 6, setFlags: ['night-refused'] } },
+    { label: '先不签 · 出 ¥160 请人来修锁',
+      reply: '锁匠顺手修了大门。毛小毛在楼下等你，说租房没谈成，倒把整层楼的人都认识了。', effect: { cash: -160, trust: 10, network: 6, setFlags: ['night-refused'] } },
   ], 'xinzhuang', 'mao');
 
 const shift = scene('till', 'first-night-shift', '账上少两份面',
   '最后一桌走了。何亮数了两遍钱，少六十八。送餐的小姑娘已经穿上雨衣，说明早有课。何亮把菜单递给你，让你看看哪桌漏了。', [
-    { label: '翻收银小票 · 让她先回去',
-      reply: '两份面挂在六号桌。何亮看了眼时间，把你那份工钱多算了半小时。「周末也来伐？」', effect: { cash: 320, skill: 4, trust: 7, health: -4, setFlags: ['night-offer'] } },
+    { label: '留下来逐桌对 · 让她先走',
+      reply: '账对完，门口只剩你俩。何亮多算了你半小时工钱，说下回把晚饭也一起算上。', effect: { cash: 320, skill: 4, trust: 7, health: -4, setFlags: ['night-offer'] } },
     { label: '先找何亮结工钱 · 明天再对账',
       reply: '何亮从围裙兜里数出二百二。穿雨衣的姑娘拿着两把伞等在门口，问你走哪个方向。', effect: { cash: 220, network: 4, setFlags: ['night-met-courier'] } },
+    { label: '对取餐号 · 把重打的那张划掉',
+      reply: '何亮拿计算器按了三遍。没少钱。他给你二百六，又把计算器推过来，问你周六来不来。', effect: { cash: 260, skill: 7, trust: 8, setFlags: ['night-offer'] } },
   ], 'anfu', 'he');
 
 const ferry = scene('box', 'first-night-ferry', '箱底开了',
@@ -42,6 +46,8 @@ const ferry = scene('box', 'first-night-ferry', '箱底开了',
       reply: '有三个被车压了。陆嘉等到下一班，把剩下的装进鼓包。「这袋给我爸的。你要不要挑个好的？」', effect: { trust: 13, cash: 100, setFlags: ['night-saved-box'] } },
     { label: '先去追船 · 到了再买一袋',
       reply: '你买了同样大小的一袋。陆嘉拿起一个看了看，说她爸挑橘子喜欢挑有疤的。她还是把跑腿钱转给你了。', effect: { cash: 60, skill: 3, setFlags: ['night-replaced-box'] } },
+    { label: '用打包带兜住箱子 · 一起赶船',
+      reply: '你们一人拽一头，刚好上船。陆嘉给你六十块，挑出最丑的一个橘子，说这个归你，甜的。', effect: { cash: 60, trust: 11, spirit: 8, setFlags: ['night-saved-box'] } },
   ], 'bund', 'lu');
 
 const roomEnd = scene('room-end', 'first-night-room-bill', '冰箱上的欠条',
@@ -113,10 +119,43 @@ const missed = scene('missed', 'station', '那条语音过期了',
   ]);
 
 const routes = [
-  { flag: 'night-room', event: room, followup: roomEnd, alternate: { flag: 'night-refused', event: roomViewing }, message: '毛小毛还在楼下等' },
-  { flag: 'night-shift', event: shift, followup: shiftEnd, alternate: { flag: 'night-met-courier', event: shiftHandover }, message: '何亮把围裙找出来了' },
-  { flag: 'night-ferry', event: ferry, followup: ferryEnd, alternate: { flag: 'night-replaced-box', event: ferryGig }, message: '陆嘉把箱子放在轮渡口' },
+  {
+    flag: 'night-room', event: room, followup: roomEnd, alternate: { flag: 'night-refused', event: roomViewing },
+    message: '毛小毛还在楼下等',
+    inbox: {
+      photo: streetPhoto('inbox-room'), alt: '旧门锁上的钥匙，和刚收拾出来的小房间',
+      note: '拍照用了广角。你到门口就晓得了。', go: '去莘庄看房',
+    },
+    clue: { label: '试试门锁', text: '门缝塞了片硬纸。毛小毛一拔，门就锁不上了。他抬着门把手，叫你先别松。' },
+  },
+  {
+    flag: 'night-shift', event: shift, followup: shiftEnd, alternate: { flag: 'night-met-courier', event: shiftHandover },
+    message: '何亮把围裙找出来了',
+    inbox: {
+      photo: streetPhoto('inbox-shift'), alt: '后厨凳子上挂着蓝围裙，台上放着一碗葱油拌面',
+      note: '先吃面。你饿着肚子，等会儿找零容易多给。', go: '去安福路顶班',
+    },
+    clue: { label: '摊开两张小票', text: '两张都打了两碗面，取餐号也一样。第二张底下多印了两个字，补打。' },
+  },
+  {
+    flag: 'night-ferry', event: ferry, followup: ferryEnd, alternate: { flag: 'night-replaced-box', event: ferryGig },
+    message: '陆嘉把箱子放在轮渡口',
+    inbox: {
+      photo: streetPhoto('inbox-ferry'), alt: '轮渡口栏杆边，有只缠蓝胶带的纸箱',
+      note: '蓝胶带那只。阿叔帮我挪到栏杆边了。', go: '去轮渡口拿橘子',
+    },
+    clue: { label: '翻一下箱底', text: '箱子底下压着根旧打包带。你扯了一下，没断。两边各拽一头，能把箱底兜住。' },
+  },
 ];
+
+export function firstNightThread(senderId: string) {
+  const route = routes.find(item => item.event.speakerId === senderId);
+  return route && { ...route.inbox, district: route.event.district };
+}
+
+export function firstNightClue(eventId: string) {
+  return routes.find(route => route.event.id === eventId)?.clue;
+}
 
 export const FIRST_NIGHT_FLAG = 'first_night_v2';
 
