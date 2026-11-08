@@ -273,7 +273,14 @@ export function nextYear(state:GameState) {
   s.age++;s.actions=3;s.ended=s.age>=60;s.pendingYearEvent=!s.ended;
   return {state:s,income,familyPaid,uncovered,tableIncome:table.income,stallIncome,expense,rentExpense:state.leaseRent!==undefined||plan==='shared'?rentExpense:undefined,sharedHousing:plan==='shared',note,notice,payroll,repayment};
 }
-export function relationshipLabel(s:GameState,id:string){const r=s.relationships[id];if(!r?.met)return '未遇见';if(s.partnerId===id)return r.trust>75?'彼此笃定':'正在一起';if(r.trust>=70&&r.attraction>=50)return '心照不宣';if(r.trust>=45)return '熟悉的人';return '刚认识';}
+export function relationshipLabel(s:GameState,id:string){
+  const relation=s.relationships[id];
+  if(!relation?.met)return '未遇见';
+  if(s.partnerId===id)return relation.trust>75?'彼此笃定':'正在一起';
+  if(relation.trust>=70&&relation.attraction>=50)return '心照不宣';
+  if(relation.trust>=45)return '熟悉的人';
+  return relation.memories.some(memory=>Number.parseInt(memory,10)<s.age)?'打过交道':'刚认识';
+}
 export function commitRelationship(s:GameState,id:string):GameState {const rel=s.relationships[id];if(!rel?.met||rel.trust<55||rel.attraction<45)throw new Error('再多了解彼此一点，现在还没到这一步。');let next=structuredClone(s);next.partnerId=id;next.relationships[id].commitment=clamp(rel.commitment+25);next.flags=[...new Set([...(s.partnerId===id?next.flags:clearHousehold(next.flags)),'committed'])];next.journal.push({age:s.age,title:`和${CAST.find(c=>c.id===id)?.name}一起`,text:'你们吃完饭，顺路一起去买了牙刷。回去的路上，谁也没再说客气话。',tag:'关系'});return next;}
 export function ending(s:GameState){
   const rel=s.partnerId?s.relationships[s.partnerId]:null;

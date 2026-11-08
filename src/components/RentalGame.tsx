@@ -10,8 +10,8 @@ const agent = CAST.find(person => person.id === 'fang')!;
 type Clue = (typeof RENTAL_CLUES)[number];
 type Clause = (typeof RENTAL_CONTRACT_LINES)[number];
 
-export default function RentalGame({ initialEvidence, onTalk }: {
- initialEvidence: number; onTalk: (evidence: number) => void;
+export default function RentalGame({ initialEvidence, age, onTalk }: {
+ initialEvidence: number; age: number; onTalk: (evidence: number) => void;
 }) {
  const [found, setFound] = useState(initialEvidence);
  const [active, setActive] = useState<Clue>();
@@ -45,7 +45,7 @@ export default function RentalGame({ initialEvidence, onTalk }: {
   </div>
   <div className="rental-inspect">
    <div className="rental-intro">
-    <Portrait person={agent} size={46} decorative />
+   <Portrait person={agent} size={46} age={age} decorative />
     <div><small>方姐带看 · 报价 ¥3,000／月</small><h2>这房子能住伐</h2></div>
    </div>
    <div className="rental-detail">

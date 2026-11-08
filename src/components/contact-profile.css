@@ -14,9 +14,14 @@
   display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr);
   background: #f2ecdf; min-width: 0;
 }
-.contact-profile-photo { min-height: 470px; position: relative; background: #212b2a; }
+.contact-profile-photo { min-height: 470px; margin: 0; position: relative; background: #212b2a; }
 .contact-profile-photo .portrait { position: absolute; inset: 0; height: 100%; }
 .contact-profile-photo img { object-position: center 25%; }
+.contact-profile-photo figcaption {
+  position: absolute; inset: auto 0 0; display: flex; justify-content: space-between;
+  padding: 28px 17px 13px; background: linear-gradient(transparent,#131e1bea);
+  color: #fff6e3; font-size: 13px; letter-spacing: .08em;
+}
 .contact-profile-info {
   min-width: 0; padding: 30px clamp(23px,4vw,47px);
   align-self: center; color: #293c35;
@@ -33,9 +38,22 @@
 .contact-profile-info .contact-profile-plan { margin: 0 0 10px; padding: 7px 9px; background: #e6decb; color: #4c4c39; font-size: 13px; }
 .contact-profile-info > .secondary { min-height: 44px; margin: 0 0 10px; }
 .contact-profile-info li { padding-block: 8px; border-top: 1px solid #d9d1c0; font-size: 13px; line-height: 1.6; }
+.contact-thread {
+  width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin: 0 0 14px; padding: 12px 15px; text-align: left; border-left: 3px solid #963f32;
+  background: #e5dec9; color: #263f35;
+}
+.contact-thread:hover { background: #ded4b8; }
+.contact-thread small, .contact-last-meeting small { display: block; margin-bottom: 3px; color: #764735; font-size: 12px; }
+.contact-thread b { font: 700 17px/1.45 var(--serif); }
+.contact-thread svg { flex-shrink: 0; }
+.contact-last-meeting { padding: 12px 0 13px; border-top: 1px solid #c2bdac; }
+.contact-last-meeting h3 { margin: 0; font: 700 17px/1.45 var(--serif); }
+.contact-last-meeting p { margin: 6px 0 0; font-size: 13px; line-height: 1.65; }
 @media (max-width: 650px) {
   .contact-profile { grid-template-columns: minmax(0,1fr); }
-  .contact-profile-photo { min-height: 0; height: min(53svh,420px); }
+  .contact-profile-photo { min-height: 0; height: min(45svh,390px); }
+  .contact-profile-photo img { object-position: center 19%; }
   .contact-profile-info { padding: 12px 20px 22px; }
   .contact-profile-info .text-button { margin-bottom: 6px; }
 }

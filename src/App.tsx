@@ -29,7 +29,8 @@ import { CardArt, Portrait, PlayerPortrait } from './components/Portrait';
 import AppearancePicker from './components/AppearancePicker';
 import OpeningSwap from './components/OpeningSwap';
 import ArrivalInbox from './components/ArrivalInbox';
-import FirstNightChoices from './components/FirstNightChoices';
+import SceneChoices from './components/SceneChoices';
+import { contactEvidence } from './game/contactStories';
 import LifeStartPicker from './components/LifeStartPicker';
 import { FAMILY_CAP, lifeStartHousing, outstandingShiftPay, type LifeStart } from './game/lifeStarts';
 import { firstNightClue, firstNightLead, firstNightThread } from './game/firstNight';
@@ -354,6 +355,7 @@ export default function App(){
  const scenePhoto=activeEvent&&!isOwl&&(activeEvent.illustration||!speaker)?eventPhoto(activeEvent,district.id):null;
  const openingMessages=activeEvent?.id==='first-night-arrival';
  const nightClue=activeEvent&&firstNightClue(activeEvent.id);
+ const clue=nightClue?{...nightClue,choiceId:'3'}:activeEvent?contactEvidence(activeEvent.id):undefined;
  const arrivalSource=outcome?.source?.event.id==='first-night-arrival'?outcome.source:undefined;
  const arrivalSender=arrivalSource?.event.choices.find(choice=>choice.id===arrivalSource.choiceId)?.senderId;
  const arrivalContact=arrivalSender&&CAST.find(person=>person.id===arrivalSender);
@@ -371,9 +373,10 @@ export default function App(){
  const signedOffer=!!outcome?.source&&isJobOffer(outcome.source.event.id)&&outcome.effect.payRate!==undefined;
  const lifeStartScene=activeEvent?.id.startsWith('life-start-');
  const dateReturnScene=activeEvent?.id.startsWith('date-return-');
- const focusScene=dateReturnScene||lifeStartScene||openingMessages||Boolean(activeEvent?.firstDate)||rentalScene||workScene||tableScene||offerScene||birthScene||stallScene||householdScene;
+ const contactScene=scenePhoto?.startsWith('/art/contacts/');
+ const focusScene=contactScene||dateReturnScene||lifeStartScene||openingMessages||Boolean(activeEvent?.firstDate)||rentalScene||workScene||tableScene||offerScene||birthScene||stallScene||householdScene;
  const partingBill=activeEvent?.firstDate ? -(activeEvent.choices[0].effect.cash??0) : 0;
- const wideShot=scenePhoto?.startsWith('/art/shanghai-streets/first-night-')||scenePhoto?.startsWith('/art/dates/')||scenePhoto?.startsWith('/art/endings/farewell-')||scenePhoto?.startsWith('/art/endings/life-')||scenePhoto?.startsWith('/art/work/')||scenePhoto?.startsWith('/art/pearl/')||parkScene||scenePhoto?.startsWith('/art/opening/')||scenePhoto?.startsWith('/art/rental/')||scenePhoto?.startsWith('/art/night-ferry/')||tableScene||offerScene||stallScene;
+ const wideShot=contactScene||scenePhoto?.startsWith('/art/shanghai-streets/first-night-')||scenePhoto?.startsWith('/art/dates/')||scenePhoto?.startsWith('/art/endings/farewell-')||scenePhoto?.startsWith('/art/endings/life-')||scenePhoto?.startsWith('/art/work/')||scenePhoto?.startsWith('/art/pearl/')||parkScene||scenePhoto?.startsWith('/art/opening/')||scenePhoto?.startsWith('/art/rental/')||scenePhoto?.startsWith('/art/night-ferry/')||tableScene||offerScene||stallScene;
  const leadButtons=game&&(lead||cardLead)?<div className="story-leads">{[lead,cardLead].map(item=>item&&<button
   key={item.event.id} className={'story-lead'+(item===cardLead?' opening-lead':'')}
   disabled={blocked||game.actions<=0} onClick={()=>openLead(item.event)}>
@@ -489,7 +492,7 @@ export default function App(){
   goal={goal} appearance={appearance} complete={allRevealed} onChoose={chooseSwap} onKeep={()=>setModal(null)}/>}
  {modal==='journal'&&game&&<div className="journal-content"><h2>记事本</h2><div className="journal-list">{game.journal.slice().reverse().map((j,i)=><article key={i}><div><b>{j.age}</b><span>岁</span></div><section><span className="journal-tag">{j.tag}</span><h3>{j.title}</h3><p>{j.text}</p></section></article>)}</div><button className="secondary" onClick={exportSave}><Icon name="download" size={17}/>导出完整人生档案</button></div>}
  {modal==='contacts'&&game&&(profile
-  ? <ContactProfile person={profile} game={game} onTalk={householdVisit(game,profile.id)?()=>talkHousehold(profile):undefined} onBack={()=>{
+  ? <ContactProfile person={profile} game={game} onVisit={openLead} onTalk={householdVisit(game,profile.id)?()=>talkHousehold(profile):undefined} onBack={()=>{
    const id=profile.id;setProfile(undefined);
    requestAnimationFrame(()=>document.querySelector<HTMLButtonElement>('[data-profile="'+id+'"]')?.focus());
   }}/>
@@ -519,12 +522,12 @@ export default function App(){
  {modal==='romance'&&game&&<div className="romance-content"><h2>约谁出来</h2><div className="romance-grid">{CAST.filter(p=>p.role==='romance').map(p=>{
   const answer=dateAnswer(game,p.id);
   const action=answer==='left'?'已经道别':!homePlan&&householdVisit(game,p.id)?'聊聊以后怎么住':answer==='friends'?'以朋友身份碰面':answer==='waiting'?'先见一面':hasDated(game,p.id)?'再约一次':'约见面';
-  return <button key={p.id} disabled={answer==='left'} onClick={()=>startRomance(p)}><Portrait person={p} full/><h3>{p.name}<small>{relationshipLabel(game,p.id)}</small></h3><span>{p.title} · {p.ageOffset+game.age}岁</span><p>{p.description}</p><b>{action} {answer!=='left'&&<Icon name="arrow" size={15}/>}</b></button>;})}</div><button className="text-button" onClick={()=>{setModal(null);openEvent('romance',game.partnerId||undefined);}}>看看最近的感情状况 <Icon name="chevron" size={16}/></button></div>}
+  return <button key={p.id} disabled={answer==='left'} onClick={()=>startRomance(p)}><Portrait person={p} full age={game.age}/><h3>{p.name}<small>{relationshipLabel(game,p.id)}</small></h3><span>{p.title} · {p.ageOffset+game.age}岁</span><p>{p.description}</p><b>{action} {answer!=='left'&&<Icon name="arrow" size={15}/>}</b></button>;})}</div><button className="text-button" onClick={()=>{setModal(null);openEvent('romance',game.partnerId||undefined);}}>看看最近的感情状况 <Icon name="chevron" size={16}/></button></div>}
  {activeEvent&&game&&(openingMessages?<ArrivalInbox event={activeEvent} heading={sceneHeading} onReply={choose}/>:<><div className={'event-visual'+(scenePhoto?' event-photo':'')}>
-  {scenePhoto?<img src={scenePhoto} alt=""/>:isOwl?<Suspense fallback={<LoadCity/>}><OwlPreview/></Suspense>:speaker&&<Portrait person={speaker} full/>}
+  {scenePhoto?<img src={scenePhoto} alt=""/>:isOwl?<Suspense fallback={<LoadCity/>}><OwlPreview/></Suspense>:speaker&&<Portrait person={speaker} full age={game.age}/>}
  </div><div className="event-content"><div className="event-meta"><span>{activeEvent.tag||ACTIVITY_NAMES[activeEvent.category as ActivityKind]||'这一年'}</span><small>{game.age}岁 · {activeEvent.category==='year'?'不扣行动':'1 格行动'}</small></div>
- {speaker&&!activeEvent.firstDate&&!birthScene&&!stallScene&&!householdScene&&<div className="event-speaker"><Portrait person={speaker} size={54} age={game.age}/><div><b>{speaker.name}</b><small>{castTitle(speaker,game.age)}</small></div></div>}<h2 ref={focusScene?sceneHeading:undefined} tabIndex={focusScene?-1:undefined}>{activeEvent.title}</h2><p className="event-body">{activeEvent.text}</p>{partingBill>0&&<p className="date-bill">这顿你付 {money(partingBill)}</p>}<FirstNightChoices key={activeEvent.id} clue={nightClue||undefined} choices={activeEvent.choices} render={(c,i)=>{
-  const discovered=nightClue&&c.id==='3';
+ {speaker&&!activeEvent.firstDate&&!birthScene&&!stallScene&&!householdScene&&<div className="event-speaker"><Portrait person={speaker} size={54} age={game.age}/><div><b>{speaker.name}</b><small>{castTitle(speaker,game.age)}</small></div></div>}<h2 ref={focusScene?sceneHeading:undefined} tabIndex={focusScene?-1:undefined}>{activeEvent.title}</h2><p className="event-body">{activeEvent.text}</p>{partingBill>0&&<p className="date-bill">这顿你付 {money(partingBill)}</p>}<SceneChoices key={activeEvent.id} clue={clue} choices={activeEvent.choices} render={(c,i)=>{
+  const discovered=c.id===clue?.choiceId;
   return <button key={c.id} className={discovered?'night-discovery':undefined} disabled={!canAfford(game,c.effect)} onClick={()=>choose(c.id)}>
    <span className="choice-letter">{discovered?<Icon name="spark" size={13}/>:String.fromCharCode(65+i)}</span><div><b>{c.label}</b>{c.hint&&<p>{c.hint}</p>}<small>{!focusScene&&effectsText(c.effect).slice(0,4).map(([label,n])=>label==='积蓄'?(n>0?'+':'−')+money(Math.abs(n)):label+(n>0?' +':' ')+n).join(' · ')}{c.check?' · '+STAT_NAMES[c.check.stat]+'检定 '+checkChance(game,c)+'%':''}{!canAfford(game,c.effect)?' · 钱暂时不够':''}</small></div><Icon name="chevron" size={17}/></button>;}}/>{rentalEvidence!==undefined&&!line?.replay&&<button className="text-button rental-back" onClick={()=>{
   setActiveEvent(null);setEventNpc(undefined);setMini({type:'rental',evidence:rentalEvidence});
@@ -556,7 +559,7 @@ export default function App(){
  closeOutcome();setParallel(true);
  }}>把这一幕发给朋友 <Icon name="map" size={17}/></button>}</div></div>}
  {mini?.type==='laser'&&game&&<LaserGame seed={game.seed} cash={game.cash} appearance={game.appearance} onFinish={result=>{const reward=pearlReward(result);miniFinish(reward.effect,reward.text);}}/>}
- {mini?.type==='rental'&&game&&<RentalGame initialEvidence={mini.evidence} onTalk={openRental}/>}
+ {mini?.type==='rental'&&game&&<RentalGame initialEvidence={mini.evidence} age={game.age} onTalk={openRental}/>}
  {mini?.type==='stall'&&game&&<StallGame seed={game.seed} age={game.age} schedule={stallSchedule(game.seed,game.age,game.actions)} onCloseBooks={closeStallBooks}/>}
  {mini?.type==='dialogue'&&game&&(mini.person?
   <DialogueGame person={mini.person} skill={game.stats.skill} cash={game.cash} flags={game.flags} onParting={picks=>openParting(mini.person,picks)}/>:

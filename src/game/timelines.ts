@@ -1,9 +1,10 @@
 import { laterDaywork, laterHeir } from './lifeYears';
+import { contactEvidence, FANG_TICKET_SCENES } from './contactStories';
 import type { EventChoice, LifeEvent } from './types';
 import { PARK_RETURN_TICKET_SCENES, PARK_TICKET_SCENES } from './matchmaking';
 import { RENEWAL_TICKET_SCENES } from './rental';
 import { HANDOVER_TICKET } from './workHandover';
-import { FERRY_STILLS, FIRST_NIGHT_STILLS, LIFE_YEARS_STILLS, MATCH_STILLS, OPENING_STILLS, RENTAL_STILLS, TABLE_STILLS, datePhoto, farewellPhoto, ferryPhoto, handoverPhoto, lifeYearsPhoto, matchPhoto, offerPhoto, openingPhoto, pearlPhoto, rentalPhoto, stallPhoto, streetPhoto, tablePhoto, workPhoto } from './art';
+import { CONTACT_STILLS, FERRY_STILLS, FIRST_NIGHT_STILLS, LIFE_YEARS_STILLS, MATCH_STILLS, OPENING_STILLS, RENTAL_STILLS, TABLE_STILLS, contactPhoto, datePhoto, farewellPhoto, ferryPhoto, handoverPhoto, lifeYearsPhoto, matchPhoto, offerPhoto, openingPhoto, pearlPhoto, rentalPhoto, stallPhoto, streetPhoto, tablePhoto, workPhoto } from './art';
 import { CAREERS, CAST } from './content';
 import { PHOTO_SHOP_STILLS, PHOTO_SHOP_STORY, photoShopStill } from './photoShop';
 
@@ -53,6 +54,7 @@ const ticketShots = new Set([
   ...MATCH_STILLS.map(matchPhoto),
   ...OPENING_STILLS.map(openingPhoto),
   ...LIFE_YEARS_STILLS.map(lifeYearsPhoto),
+  ...CONTACT_STILLS.map(contactPhoto),
   ...TABLE_STILLS.map(tablePhoto),
   ...FERRY_STILLS.map(ferryPhoto),
   stallPhoto('close'), stallPhoto('burnt'),
@@ -227,6 +229,31 @@ const factoryHandover: Timeline = {
  ],
 };
 
+const [deposit, checkedDeposit, settledDeposit] = FANG_TICKET_SCENES;
+const fangReturn = (event: LifeEvent): Turn => {
+ const turn = lateTurn(event,'十几年后','莘庄 · 交钥匙',[['list',end],['teach',end]]);
+ return {...turn, options:turn.options.map(option=>({...option,shot:event.illustration}))};
+};
+const depositStory: Timeline = {
+ id:'fang-deposit', kind:'life', title:'房东要扣九百', author:'魔都人生',
+ original:'我们先拿了六百，那天车就开了。后来轮到一个小姑娘交押金，方姐把钥匙摊在桌上，让我看看还少哪一把。',
+ turns:[
+  {
+   date:'搬家当天',place:'莘庄 · 楼梯口',scene:deposit.text,shot:deposit.illustration,
+   options:[
+    {move:'先翻旧招租视频',after:'你拖回门刚打开的那一秒。方姐叫你别动，把声音也开大了一格。',next:1},
+    ticketOption(deposit.choices[1],3),
+   ],
+  },
+  {
+   date:'车还在楼下',place:'莘庄 · 旧招租视频',scene:contactEvidence(deposit.id)!.text,shot:deposit.illustration,
+   options:[ticketOption(deposit.choices[0],2),ticketOption(deposit.choices[1],3)],
+  },
+  fangReturn(checkedDeposit),
+  fangReturn(settledDeposit),
+ ],
+};
+
 export const CITY_TIMELINES: Timeline[] = [
   {
     id: 'last-train', kind: 'life', title: '末班车开走之前', author: '魔都人生',
@@ -368,6 +395,7 @@ export const CITY_TIMELINES: Timeline[] = [
   handoverStory,
   warehouseCard,
   factoryHandover,
+  depositStory,
   {
     id: 'scallion-bill', kind: 'life', title: '隔壁桌的葱油饼', author: '魔都人生',
     original: '我说了句「放回去」，林佳没理我，自己跟隔壁道了歉。散的时候她把餐巾留在账单底下。我过了两天再去找，老板说早擦桌子了。',

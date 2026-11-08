@@ -5,11 +5,12 @@ export const LOOKS:{id:LooksLevel;name:string;line:string;flavor:string;face:num
  {id:'stunning',name:'惊艳全场',line:'路过咖啡店，主理人亲自开门',flavor:'回头率超标',face:16,attraction:6},
 ];
 const agedHeads = new Set(['mao', 'he', 'lu']);
+const contactPortraits = new Set(['tang', 'wu', 'fang', 'boss']);
 
 export function portraitArt(id: string, full: boolean, age = 18): string {
  const aged = age >= 53 && agedHeads.has(id);
  if (full && aged) return '/art/endings/farewell-' + id + '.webp';
- const stage = aged || (id === 'tang' && age >= 53) ? '-senior' : id === 'tang' && age >= 32 ? '-midlife' : '';
+ const stage = aged || (contactPortraits.has(id) && age >= 53) ? '-senior' : contactPortraits.has(id) && age >= 32 ? '-midlife' : '';
  return '/art/portraits/' + (full ? '' : 'head/') + id + stage + '.webp';
 }
 
@@ -19,6 +20,13 @@ export function playerArt(appearance: PlayerAppearance, full = true, age = 18): 
 }
 
 export const LIFE_ALBUM_AGES = [18, 46, 60] as const;
+
+export const CONTACT_STILLS = ['wu-regulars', 'wu-corner', 'fang-deposit', 'fang-handover', 'boss-reference', 'boss-night-class'] as const;
+export type ContactShot = (typeof CONTACT_STILLS)[number];
+
+export function contactPhoto(shot: ContactShot) {
+ return `/art/contacts/${shot}.webp`;
+}
 
 const endingScenes: Record<string, string> = {
  million: 'wealth', comfortable: 'wealth', love: 'love', companions: 'love',

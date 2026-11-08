@@ -1,6 +1,7 @@
 import { CAST } from './content';
+import { replayContactStory } from './contactStories';
 import { ACTIVITY_NAMES, oldYearLetter, SAVE_KEY, selectEvent, validateSave } from './engine';
-import { streetLead } from './streetLeads';
+import { replayLocalLead, streetLead } from './streetLeads';
 import { nightOwlLetter } from './encounters';
 import { returnDate } from './dateReturns';
 import { householdVisit } from './household';
@@ -71,6 +72,8 @@ export function clearReplay(book: LifeBook): LifeBook {
 }
 
 export function replayScene(state: GameState, scene: SceneRef): LifeEvent | null {
+  if (scene.eventId.startsWith('contact-')) return replayContactStory(state,scene.eventId);
+  if (scene.kind === 'lead' && scene.eventId.startsWith('street-')) return replayLocalLead(state,scene.eventId);
   if (scene.kind === 'business' && isStallSettlement(scene.eventId)) return replayStall(state, scene.eventId);
   if (scene.kind === 'career' && isJobOffer(scene.eventId)) return replayJobOffer(state, scene.eventId);
   if (scene.eventId.startsWith('bund-ferry-')) {

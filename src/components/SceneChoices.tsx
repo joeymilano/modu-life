@@ -2,12 +2,12 @@ import { useState, type ReactNode } from 'react';
 import type { EventChoice } from '../game/types';
 import Icon from './Icon';
 
-export default function FirstNightChoices({clue, choices, render}: {
- clue?: {label: string; text: string}; choices: EventChoice[];
+export default function SceneChoices({clue, choices, render}: {
+ clue?: {label: string; text: string; choiceId: string}; choices: EventChoice[];
  render: (choice: EventChoice, index: number) => ReactNode;
 }) {
  const [inspected, setInspected] = useState(false);
- const discovery = clue ? choices.find(choice => choice.id === '3') : undefined;
+ const discovery = clue ? choices.find(choice => choice.id === clue.choiceId) : undefined;
  return <>
   {clue && <div className="night-clue">
    <button className="text-button" aria-expanded={inspected} aria-controls="night-clue-text"

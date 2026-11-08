@@ -1,4 +1,5 @@
 import { dayworkLead } from './lifeStarts';
+import { contactStory } from './contactStories';
 import { streetPhoto } from './art';
 import { firstNightLead } from './firstNight';
 import { pearlReceipt } from './pearl';
@@ -76,6 +77,16 @@ const leads: StreetLead[] = [
   },
 ];
 
+function localLead(state: GameState, eventId?: string) {
+  return leads.find(lead => (!eventId || lead.event.id === eventId)
+    && !state.seenEvents.includes(lead.event.id) && lead.available(state));
+}
+
+export function replayLocalLead(state: GameState, eventId: string) {
+  if (state.pendingYearEvent || state.ended || state.actions <= 0) return null;
+  return localLead(state,eventId)?.event ?? null;
+}
+
 export function streetLead(state: GameState) {
   if (state.pendingYearEvent || state.ended) return null;
   const first = firstNightLead(state) ?? dayworkLead(state);
@@ -88,5 +99,7 @@ export function streetLead(state: GameState) {
   if (renewal) return { message: '方姐把续约单送来了', event: renewal };
   const work = workHandover(state);
   if (work) return { message: work.tag === '对账' ? '有一笔钱要跟你对一下' : '新单位把交接时间发来了', event: work };
-  return leads.find(lead => !state.seenEvents.includes(lead.event.id) && lead.available(state)) ?? null;
+  const contact = contactStory(state);
+  if (contact) return contact;
+  return localLead(state) ?? null;
 }

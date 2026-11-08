@@ -14,6 +14,18 @@ describe('parallel timelines', () => {
     expect(timeline.original).toContain('末班车');
   });
 
+  it('lets a guest inspect the old listing and carry its evidence into the key handover', () => {
+    const { timeline } = validateTicket(ticketFromHash('#story=fang-deposit')!);
+    const inspected = walk(timeline,[{pick:0}]);
+    expect(timeline.turns[inspected.next!].scene).toContain('已经有一道白印');
+    const recovered = walk(timeline,[{pick:0},{pick:0}]);
+    const settled = walk(timeline,[{pick:1}]);
+    expect(timeline.turns[recovered.next!].scene).toContain('租客的女儿');
+    expect(timeline.turns[settled.next!].scene).toContain('剩下三百');
+    const closed = walk(timeline,[{pick:0},{pick:0},{pick:1}]);
+    expect(closed.steps.at(-1)?.option.shot).toBe('/art/contacts/fang-handover.webp');
+  });
+
   it('rejects backward links, unreachable scenes and choices after an ending', () => {
     const looping = ticket();
     looping.timeline.turns[1].options[0].next = 0;
