@@ -82,6 +82,8 @@ with sync_playwright() as pw:
         evidence=p.locator('.rental-detail img')
         assert evidence.get_attribute('src')==f'/art/rental/{key}.webp'
         assert evidence.evaluate('async img=>{await img.decode();return img.naturalWidth>1000}')
+        if key=='contract':
+            p.get_by_role('button',name='设备维护费').click()
     assert p.locator('.rental-note').count()==3
     p.get_by_role('button',name='上楼看一眼').click()
     assert p.locator('.rental-detail img').get_attribute('src')=='/art/rental/upstairs.webp'
