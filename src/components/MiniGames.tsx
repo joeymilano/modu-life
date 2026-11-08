@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Career, CastMember, Effect, FirstDatePicks } from '../game/types';
 import { romanceQuestions, type Question } from '../game/dates';
 import { datePhoto, interviewPhoto, offerPhoto } from '../game/art';
@@ -88,6 +88,15 @@ function interviewQuestions(career:Career):Question[]{const contract=isSelfEmplo
  {label:contract?'问哪天交，临时改怎么算':'问晚上和周末谁接电话',reply:contract?'他把第二页抽了出来。':'对方从抽屉里拿出排班表。',points:2},
  {label:contract?'都好说，什么时候开工':'都可以，我比较能吃苦',reply:'对方拿起了笔。',points:0}]}
 ];}
+function DialogueShot({src, person, previous}: {src: string; person?: CastMember; previous?: string}) {
+ const [ready, setReady] = useState(false);
+ return <>
+  {!ready && (previous ? <img className="date-hold" src={previous} alt=""/> :
+   person && <Portrait person={person} full decorative/>)}
+  <img className={'date-shot' + (ready ? ' visible' : '')} src={src} alt="" onLoad={() => setReady(true)}/>
+ </>;
+}
+
 type DialogueProps = {skill:number;cash:number;flags:string[]} & (
  {person:CastMember;career?:never;onParting:(picks:FirstDatePicks)=>void;onFinish?:never;onOffer?:never} |
  {person?:never;career:Career;onParting?:never;onFinish:(effect:Effect,text:string)=>void;onOffer:(offer:InterviewOffer)=>void}
@@ -96,10 +105,11 @@ type DialogueProps = {skill:number;cash:number;flags:string[]} & (
 export function DialogueGame({person,career,skill,cash,flags,onFinish,onParting,onOffer}:DialogueProps){
  const [picks,setPicks]=useState<number[]>([]);
  const [selected,setSelected]=useState<number|null>(null);
- const [shotReady,setShotReady]=useState(false);
+ const questionRef=useRef<HTMLDivElement>(null);
+ const replyRef=useRef<HTMLDivElement>(null);
  const round=picks.length;
- const shot=person?datePhoto(person.id,'meeting'):interviewPhoto(career.id);
- const showShot=!person||round>0;
+ const shot=person?datePhoto(person.id,round===0?'meeting':'middle'):interviewPhoto(career.id);
+ const nextShot=person?datePhoto(person.id,round===0?'middle':'parting'):offerPhoto(career.id);
  const questions=person?romanceQuestions(person,flags):interviewQuestions(career);
  const question=questions[round];
  const answer=selected===null?null:question.answers[selected];
@@ -107,9 +117,22 @@ export function DialogueGame({person,career,skill,cash,flags,onFinish,onParting,
  const spent=earlier.reduce((total,item)=>total+(item.cost??0),0);
 
  useEffect(()=>{
-  const nextShot=person?datePhoto(person.id,'parting'):offerPhoto(career.id);
-  new Image().src=nextShot;
- },[career,person]);
+  const image=new Image();
+  image.fetchPriority='low';
+  image.src=nextShot;
+ },[nextShot]);
+
+ useEffect(()=>{
+  if(!person||round===0)return;
+  const question=questionRef.current;
+  question?.closest('.modal')?.scrollTo({top:0});
+  question?.focus({preventScroll:true});
+ },[person,round]);
+
+ function selectAnswer(index: number) {
+  setSelected(index);
+  if(person)requestAnimationFrame(()=>replyRef.current?.scrollIntoView({block:'nearest'}));
+ }
 
  function next(){
   if(!answer||selected===null)return;
@@ -132,9 +155,7 @@ export function DialogueGame({person,career,skill,cash,flags,onFinish,onParting,
 
  return <div className="dialogue-game">
   <div className="date-visual">
-   {person&&!shotReady&&<Portrait person={person} full/>}
-   {showShot&&<img className={'date-shot'+(shotReady?' visible':'')} src={shot} alt=""
-    onLoad={()=>setShotReady(true)}/>}
+   <DialogueShot key={shot} src={shot} person={person} previous={person&&round>0?datePhoto(person.id,'meeting'):undefined}/>
    <div className="date-visual-caption"><b>{person?.name??career?.name}</b>{person&&<small>{person.title}</small>}</div>
   </div>
   <div className="dialogue-content">
@@ -145,12 +166,12 @@ export function DialogueGame({person,career,skill,cash,flags,onFinish,onParting,
    <div className="round-dots">{questions.map((_,i)=><span key={i} className={i<=round?'done':''}/>)}
     <small>{person?['碰面','聊到一半','临走前'][round]:'第 '+(round+1)+' / 3 轮'}</small>
    </div>
-   <div className="dialogue-question" aria-live="polite">{question.text}</div>
+   <div className="dialogue-question" ref={questionRef} tabIndex={person?-1:undefined} aria-live="polite">{question.text}</div>
    <div className="dialogue-answers">{question.answers.map((ans,i)=>
     <button key={i} disabled={selected!==null||cash<spent+(ans.cost||0)} className={selected===i?'picked':''}
-     onClick={()=>setSelected(i)}><span>{String.fromCharCode(65+i)}</span>{ans.label}{ans.cost?' · ¥'+ans.cost:''}<Icon name="chevron" size={16}/></button>)}
+     onClick={()=>selectAnswer(i)}><span>{String.fromCharCode(65+i)}</span>{ans.label}{ans.cost?' · ¥'+ans.cost:''}<Icon name="chevron" size={16}/></button>)}
    </div>
-   {answer&&<div className="dialogue-reply"><p>{answer.reply}</p>
+   {answer&&<div className="dialogue-reply" ref={replyRef}><p>{answer.reply}</p>
     <button className="primary" onClick={next}>{person&&round===1?'要走了':round===2?'听听对方怎么说':'接着聊'}<Icon name="arrow" size={17}/></button>
    </div>}
   </div>

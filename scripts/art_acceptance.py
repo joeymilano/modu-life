@@ -103,7 +103,7 @@ with sync_playwright() as pw:
         if turn==0:
             shot=p.locator('.date-visual .date-shot.visible')
             shot.wait_for()
-            assert shot.get_attribute('src')=='/art/dates/qiao-meeting.webp'
+            assert shot.get_attribute('src')=='/art/dates/qiao-middle.webp'
             assert shot.evaluate('async img=>{await img.decode();return img.naturalWidth>1000}')
     parting=p.locator('.date-parting-modal')
     assert parting.locator('.event-photo img').evaluate('async img=>{await img.decode();return img.naturalWidth>1000}')

@@ -164,6 +164,12 @@ export function hasDated(state: GameState, personId: string): boolean {
  return state.seenEvents.some(id => id.startsWith(`mini-${personId}-`));
 }
 
+const middleFlag = (personId: string, index: number) => `date-${personId}-table-${index}`;
+
+export function dateTableChoice(state: GameState, personId: string) {
+ return [0, 1, 2].find(index => state.flags.includes(middleFlag(personId, index)));
+}
+
 export function firstDateParting(state: GameState, person: CastMember, picks: FirstDatePicks): LifeEvent | undefined {
  if (person.role !== 'romance' || state.pendingYearEvent || state.ended || state.actions <= 0) return undefined;
  if (hasDated(state, person.id)) return undefined;
@@ -179,7 +185,10 @@ export function firstDateParting(state: GameState, person: CastMember, picks: Fi
   illustration: datePhoto(person.id, 'parting'), firstDate: picks,
   choices: parting.answers.map(answer => {
    const { effect, text } = finishDate(person, answer, score + answer.points, bill + (answer.cost ?? 0));
-   return { id: answer.intent!, label: answer.label, effect, reply: text };
+   return {
+    id: answer.intent!, label: answer.label, reply: text,
+    effect: { ...effect, setFlags: [...(effect.setFlags ?? []), middleFlag(person.id, picks[1])] },
+   };
   }),
  };
 }

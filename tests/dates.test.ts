@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { CAST } from '../src/game/content';
-import { dateAnswer, finishDate, firstDateParting, romanceQuestions } from '../src/game/dates';
+import { dateAnswer, dateTableChoice, finishDate, firstDateParting, romanceQuestions } from '../src/game/dates';
 import { returnDate } from '../src/game/dateReturns';
 import { createGame, drawOrigins, resolveChoice } from '../src/game/engine';
 import { activeLine, decodeLife, encodeLife, forkLife, recordDecision, replayScene, startBook, switchLine } from '../src/game/lifeLines';
@@ -119,4 +119,41 @@ describe('date scenes', () => {
   expect(resolveChoice(state, event, '1').state.relationships.ning.trust).toBe(60);
   expect(resolveChoice(state, event, '0').state.relationships.ning.trust).toBe(48);
  });
+
+ it.each(cast)('remembers which action $name saw at the first table', person => {
+  const state = newGame();
+  const returns = [0,1,2].map(index => {
+   const event = firstDateParting(state,person,[0,index])!;
+   const after = resolveChoice(state,event,'friend').state;
+   expect(dateTableChoice(after,person.id)).toBe(index);
+   const visit = returnDate(after,person.id)!;
+   expect(visit.tag).toBe('朋友见面');
+   expect(visit.choices.map(choice => choice.id)).toHaveLength(3);
+   expect(visit.choices.some(choice => choice.effect.romanticInvitation || choice.effect.attraction)).toBe(false);
+   return visit;
+  });
+  expect(new Set(returns.map(visit => visit.text)).size).toBe(3);
+  expect(returns.some(visit => visit.choices.some(choice => choice.id==='memory'))).toBe(true);
+ });
+
+ it('keeps a tentative return nonromantic and carries a concrete repair into a new timeline', () => {
+  const lu=cast.find(person=>person.id==='lu')!;
+  const state=newGame();
+  const parting=firstDateParting(state,lu,[2,2])!;
+  const after=resolveChoice(state,parting,'date').state;
+  expect(dateAnswer(after,'lu')).toBe('waiting');
+  const visit=returnDate(after,'lu')!;
+  expect(visit.tag).toBe('还没定下来');
+  expect(visit.text).toContain('上次那半首别往外发');
+  expect(visit.choices.map(choice=>choice.id)).toEqual(['friend','memory','leave']);
+  const repair=resolveChoice(after,visit,'memory');
+  expect(repair.state.relationships.lu.trust).toBe(after.relationships.lu.trust+10);
+  expect(dateAnswer(repair.state,'lu')).toBe('waiting');
+  const book=recordDecision(startBook(after),repair.state,visit,'memory','lu');
+  const branched=activeLine(forkLife(decodeLife(encodeLife(book)),0));
+  const replay=replayScene(branched.state,branched.replay!)!;
+  expect(replay).toEqual(visit);
+  expect(dateAnswer(resolveChoice(branched.state,replay,'friend').state,'lu')).toBe('friends');
+ });
+
 });

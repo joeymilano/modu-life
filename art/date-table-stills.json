@@ -1,0 +1,96 @@
+{
+  "generator": "Built-in ImageGen",
+  "referenceCommit": "b089555",
+  "direction": "Candid photographic coverage of first-date beats in Shanghai. The actor stays recognizable across the portrait, meeting, table and parting.",
+  "assets": {
+    "public/art/dates/xia-middle.webp": {
+      "prompt": "3:2 horizontal still from an independent contemporary Shanghai film. First reference defines exact facial identity of an adult fictional Chinese actor; second reference defines the location and same-day wardrobe. Photograph a completely new candid event, camera position moved; natural color, real skin, sane anatomy and ordinary cloth and surfaces. Frame face and action in central 65% and center-right so a narrow portrait crop keeps them. No legible text, no posing, no overlay, no tinted grading. The same adult Xu Xiaowen in dark denim with round glasses, at a small Anfu Road noodle shop table. A soup bowl has just made a wet patch on the corner of a partially rolled architectural floor plan. She quickly raises the far side with one hand, the other pinning the sheet with a ceramic chopstick rest. Face looking down, concentrated half frown, a little steam, clear and plausible light from storefront. Diagram lines only, no writing.",
+      "reference": [
+        "xia-portrait",
+        "xia-meeting"
+      ]
+    },
+    "public/art/dates/ning-middle.webp": {
+      "prompt": "3:2 horizontal still from an independent contemporary Shanghai film. First reference defines exact facial identity of an adult fictional Chinese actor; second reference defines the location and same-day wardrobe. Photograph a completely new candid event, camera position moved; natural color, real skin, sane anatomy and ordinary cloth and surfaces. Frame face and action in central 65% and center-right so a narrow portrait crop keeps them. No legible text, no posing, no overlay, no tinted grading. Same glasses-wearing adult Zhou Ning at a Zhangjiang noodle place. He freezes with chopsticks halfway up as a black smartphone vibrating face down draws his gaze. The bowl and phone are separate on table, office building lights and other ordinary diners soft in background. Quiet, wry private moment, no screen or second device. A believable pair of chopsticks.",
+      "reference": [
+        "ning-portrait",
+        "ning-meeting"
+      ]
+    },
+    "public/art/dates/lin-middle.webp": {
+      "prompt": "3:2 horizontal still from an independent contemporary Shanghai film. First reference defines exact facial identity of an adult fictional Chinese actor; second reference defines the location and same-day wardrobe. Photograph a completely new candid event, camera position moved; natural color, real skin, sane anatomy and ordinary cloth and surfaces. Frame face and action in central 65% and center-right so a narrow portrait crop keeps them. No legible text, no posing, no overlay, no tinted grading. Same adult Lin Jia, black bob and faded blue overshirt at a small Xinzhuang snack shop. She holds a single torn wedge of scallion flatbread with one clearly bitten corner just below her chin. She has just realized it belongs to someone else, glancing with an apologetic awkward almost-smile toward a neighboring customer just out of frame. On her side a plain plate with the rest, behind practical open storefront daylight. No extra fingers, duplicated food or people looking at camera.",
+      "reference": [
+        "lin-portrait",
+        "lin-meeting"
+      ]
+    },
+    "public/art/dates/chen-middle.webp": {
+      "prompt": "3:2 horizontal still from an independent contemporary Shanghai film. First reference defines exact facial identity of an adult fictional Chinese actor; second reference defines the location and same-day wardrobe. Photograph a completely new candid event, camera position moved; natural color, real skin, sane anatomy and ordinary cloth and surfaces. Frame face and action in central 65% and center-right so a narrow portrait crop keeps them. No legible text, no posing, no overlay, no tinted grading. Same adult Chen Kai, messy hair and dark casual overshirt, at a Shanghai neighborhood noodle shop on a day off. Seen from the other diner at table, he turns sideways and laughs awkwardly as a second adult customer at the aisle asks him a question holding a plain coffee cup. In center his near hand sits beside a porcelain dish of chili oil and actual noodle bowl. Personal space and conversational eye lines, restaurant practical light.",
+      "reference": [
+        "chen-portrait",
+        "chen-meeting"
+      ]
+    },
+    "public/art/dates/qiao-middle.webp": {
+      "prompt": "3:2 horizontal still from an independent contemporary Shanghai film. First reference defines exact facial identity of an adult fictional Chinese actor; second reference defines the location and same-day wardrobe. Photograph a completely new candid event, camera position moved; natural color, real skin, sane anatomy and ordinary cloth and surfaces. Frame face and action in central 65% and center-right so a narrow portrait crop keeps them. No legible text, no posing, no overlay, no tinted grading. Same adult Qiao Min in charcoal jacket at a Shanghai restaurant near a metro exit. She lowers her wrist from looking at the time and slides a paperback on top of the menu with one hand. A simple canvas bag is on her shoulder ready to go, neutral intent expression looking at an unseen dining companion. Ceramic plates and a real smartphone resting untouched on table, candid daylight and background of ordinary other adults, no legible book text or distorted watch.",
+      "reference": [
+        "qiao-portrait",
+        "qiao-meeting"
+      ]
+    },
+    "public/art/dates/yang-middle.webp": {
+      "prompt": "3:2 horizontal still from an independent contemporary Shanghai film. First reference defines exact facial identity of an adult fictional Chinese actor; second reference defines the location and same-day wardrobe. Photograph a completely new candid event, camera position moved; natural color, real skin, sane anatomy and ordinary cloth and surfaces. Frame face and action in central 65% and center-right so a narrow portrait crop keeps them. No legible text, no posing, no overlay, no tinted grading. Same adult Yang Fan in tan zip jacket in modest ground-floor Shanghai residential restaurant. He turns toward a familiar middle-aged neighbor standing on the sidewalk immediately outside the open window, pen poised above a small scrap of paper on the table. Neighbor's hands low and profile unposed, realistic open window geometry. A cheap cup of tea and an ordinary phone lying face down, natural afternoon reflected daylight. Warmth from ordinary action not nostalgic grading.",
+      "reference": [
+        "yang-portrait",
+        "yang-meeting"
+      ]
+    },
+    "public/art/dates/lu-middle.webp": {
+      "prompt": "3:2 horizontal still from an independent contemporary Shanghai film. First reference defines exact facial identity of an adult fictional Chinese actor; second reference defines the location and same-day wardrobe. Photograph a completely new candid event, camera position moved; natural color, real skin, sane anatomy and ordinary cloth and surfaces. Frame face and action in central 65% and center-right so a narrow portrait crop keeps them. No legible text, no posing, no overlay, no tinted grading. Same adult Lu Jia with tousled dark shoulder-length hair and worn burgundy jacket at a small independent Shanghai live music room. She crouches on both feet next to a stage wedge, holding one end of a standard 1/4 inch instrument jack while looking with dry amusement at the dark amplifier. A clear plastic water bottle stays on the floor, far side first adult audience member soft focus. Credible clean cables and plain working light, no purple glow or fake music festival lighting.",
+      "reference": [
+        "lu-portrait",
+        "lu-meeting"
+      ]
+    },
+    "public/art/dates/he-middle.webp": {
+      "prompt": "3:2 horizontal still from an independent contemporary Shanghai film. First reference defines exact facial identity of an adult fictional Chinese actor; second reference defines the location and same-day wardrobe. Photograph a completely new candid event, camera position moved; natural color, real skin, sane anatomy and ordinary cloth and surfaces. Frame face and action in central 65% and center-right so a narrow portrait crop keeps them. No legible text, no posing, no overlay, no tinted grading. Same adult He Liang with short hair, rectangular glasses and dark plain crew-neck at a different modest local noodle restaurant, there as an off-duty customer. He has half stood out of the chair and turned reflexively when the next table called for the owner, catching himself and grinning sideways. His bowl remains on his table, customer's arm loosely raised in distance, afternoon light from the street, actual believable posture, cheerful candid comedy.",
+      "reference": [
+        "he-portrait",
+        "he-meeting"
+      ]
+    },
+    "public/art/portraits/lin.webp": {
+      "prompt": "2:3 vertical half-body portrait of same fictional adult from input. Natural face texture and ordinary proportions, informal eye contact, believable warm bounce from a window, in the middle of an action, preserve face, distinctive haircut, no text or logos or advertising retouch. Adult woman Lin Jia with same short black bob and faded mustard canvas overshirt at a Xinzhuang breakfast counter. She pauses with a pencil held loosely at the corner of a folded napkin, eyes lifting to the person bringing food, a crooked small unguarded smile, coffee-brown window shelf and ordinary white tile. Face upper central third, keep glasses off unless in reference.",
+      "reference": [
+        "lin-portrait"
+      ]
+    },
+    "public/art/portraits/yang.webp": {
+      "prompt": "2:3 vertical half-body portrait of same fictional adult from input. Natural face texture and ordinary proportions, informal eye contact, believable warm bounce from a window, in the middle of an action, preserve face, distinctive haircut, no text or logos or advertising retouch. Adult man Yang Fan in a tan canvas jacket over a gray knit shirt in a modest Shanghai residential community hall, just finished sticking a blank index card under a clip. He leans lightly against the frame and gives a brief gentle grin to a neighbor. Pale green doorframe and real warm sky bounce, a bit of tiredness around the eyes, unguarded documentary feel. Face in upper central third.",
+      "reference": [
+        "yang-portrait"
+      ]
+    },
+    "public/art/dates/xia-meeting.webp": {
+      "prompt": "Landscape 3:2 live-action Shanghai film still with unretouched natural skin, physical texture, and real domestic color. Reference one is face identity. Reference two is wardrobe and venue reference only. Change camera angle and activity completely. Act deliberately before anyone has food. Protagonist and action in central 65 percent so a narrower crop holds them. No overlay, no readable lettering, no glam pose, no watermarks. Exact adult woman Xu Xiaowen with round glasses and dark denim jacket, arriving through a half-open glass door to a small Anfu Road noodle shop, breathless and amused at how late she is. She has a rolled architectural plan under one arm, hair slightly untidy, and holds the worn dark green door handle with her free hand. Camera across an unoccupied table whose bare near edge is at bottom, angled through the entry with real pale afternoon daylight behind. No bowl, no activity at table, modest practical shadow and street trees. Keep face, door hand and roll all visible.",
+      "reference": [
+        "xia-portrait",
+        "xia-meeting"
+      ]
+    },
+    "public/art/dates/lin-meeting.webp": {
+      "prompt": "Landscape 3:2 live-action Shanghai film still with unretouched natural skin, physical texture, and real domestic color. Reference one is face identity. Reference two is wardrobe and venue reference only. Change camera angle and activity completely. Act deliberately before anyone has food. Protagonist and action in central 65 percent so a narrower crop holds them. No overlay, no readable lettering, no glam pose, no watermarks. Exact fictional adult woman Lin Jia with same black bob and faded blue overshirt. Seated at a little Xinzhuang snack shop against the window, slightly turned, holding both sides of a large plain two-fold paper menu upright, eyes peek sideways over it as she asks the person at the far end of the table to let her do the ordering. Side-profile three quarters, crooked unposed small smile, visible hand grip, spare place setting and empty plain plate near edge, no food in frame yet. A shaft of pale sun from side window, ordinary contemporary Shanghai snack shop, no readable type.",
+      "reference": [
+        "lin-portrait",
+        "lin-meeting"
+      ]
+    },
+    "public/art/dates/ning-meeting.webp": {
+      "prompt": "Landscape 3:2 live-action Shanghai film still with unretouched natural skin, physical texture, and real domestic color. Reference one is face identity. Reference two is wardrobe and venue reference only. Change camera angle and activity completely. Act deliberately before anyone has food. Protagonist and action in central 65 percent so a narrower crop holds them. No overlay, no readable lettering, no glam pose, no watermarks. Exact adult Zhou Ning with rectangular glasses in the same taupe-gray zip jacket, in the same small Zhangjiang restaurant in early evening. From a seated person's angle across a bare laminate table, he has just lowered into the booth, putting his black phone face down beside a glass of water and a compact dark work bag. One forearm rests naturally, his head slightly turned upward toward the person he's meeting, a tired sheepish expression. No noodles or chopsticks in this opening frame. Practical fluorescent and subdued window light, plausible quiet restaurant, no illustration.",
+      "reference": [
+        "ning-portrait",
+        "ning-meeting"
+      ]
+    }
+  }
+}

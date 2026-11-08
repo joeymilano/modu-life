@@ -40,7 +40,7 @@ describe('parallel timelines', () => {
   it('opens Lin Jia’s shared story and shows different art on the two routes', () => {
     const { timeline } = validateTicket(ticketFromHash('#story=scallion-bill'));
     expect(timeline.turns.map(turn => turn.shot)).toEqual([
-      '/art/dates/lin-meeting.webp', '/art/dates/lin-parting.webp', '/art/dates/lin-return.webp',
+      '/art/dates/lin-middle.webp', '/art/dates/lin-parting.webp', '/art/dates/lin-return.webp',
     ]);
     expect(walk(timeline, [{ pick: 0 }]).next).toBe(1);
     expect(walk(timeline, [{ pick: 1 }]).next).toBe(2);

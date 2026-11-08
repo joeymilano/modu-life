@@ -60,7 +60,7 @@ const ticketShots = new Set([
   ...(['mao', 'he', 'lu'] as const).map(farewellPhoto),
   ...(['reorg', 'overtime', 'shift', 'invoice', 'return', 'payroll', 'settlement'] as const).map(workPhoto),
   ...CAST.filter(person => person.role === 'romance').flatMap(person => [datePhoto(person.id, 'parting'), datePhoto(person.id, 'return'), datePhoto(person.id, 'home')]),
-  datePhoto('lin', 'meeting'),
+  datePhoto('lin', 'meeting'), datePhoto('lin', 'middle'),
   ...RENTAL_STILLS.map(rentalPhoto),
 ]);
 
@@ -331,7 +331,7 @@ export const CITY_TIMELINES: Timeline[] = [
     original: '我说了句「放回去」，林佳没理我，自己跟隔壁道了歉。散的时候她把餐巾留在账单底下。我过了两天再去找，老板说早擦桌子了。',
     turns: [
       {
-        date: '周五 · 刚上菜', place: '莘庄 · 面馆', shot: datePhoto('lin', 'meeting'),
+        date: '周五 · 刚上菜', place: '莘庄 · 面馆', shot: datePhoto('lin', 'middle'),
         scene: '林佳已经咬了一口。老板端着另一只空盘过来，说这张饼是隔壁桌的。隔壁坐着一大一小。小的踮着脚，正好看见林佳手里的缺口。',
         options: [
           { move: '掏二十八块，请老板给隔壁重做', after: '隔壁收下了新饼，把桌上的辣酱推了过来。林佳问你要了张干餐巾。', next: 1 },
