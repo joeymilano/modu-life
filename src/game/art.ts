@@ -30,6 +30,12 @@ export function endingPhoto(endingId: string): string {
  return `/art/endings/${endingScenes[endingId] ?? 'river'}.webp`;
 }
 
+export const LIFE_YEARS_STILLS = ['daywork-mid','daywork-final','heir-mid','heir-final'] as const;
+
+export function lifeYearsPhoto(shot: (typeof LIFE_YEARS_STILLS)[number]) {
+ return `/art/endings/life-${shot}.webp`;
+}
+
 export function farewellPhoto(person: 'mao' | 'he' | 'lu'): string {
  return `/art/endings/farewell-${person}.webp`;
 }

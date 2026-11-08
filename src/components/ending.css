@@ -15,16 +15,15 @@
 .ending-media { grid-area: photos; display: grid; gap: 8px; min-width: 0; }
 .ending-scene { display: block; width: 100%; aspect-ratio: 2.1 / 1; object-fit: cover; border-radius: 3px; }
 .ending-portraits { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
-.ending-portraits figure { margin: 0; position: relative; min-width: 0; aspect-ratio: 4 / 4.55; background: #293f37; border-radius: 3px; overflow: hidden; }
+.ending-portraits > button { padding: 0; text-align: left; position: relative; min-width: 0; aspect-ratio: 4 / 4.55; background: #293f37; border-radius: 3px; overflow: hidden; }
 .ending-portraits .player-portrait-full { position: absolute; inset: 0; }
 .ending-portraits .player-portrait-full img { object-position: center 25%; }
-.ending-portraits figure:first-child img { object-position: center top; }
-.ending-portraits figcaption {
+.ending-portraits > button:first-child img { object-position: center top; }
+.album-thumbnail-caption {
   display: flex; justify-content: space-between; align-items: baseline; gap: 6px; position: absolute; inset: auto 0 0;
   padding: 20px 13px 10px; color: #fff3dc; background: linear-gradient(transparent,#172825ea);
   font: 700 clamp(17px,2.1vw,29px)/1.2 var(--serif);
 }
-.ending-portraits figcaption span { color: #f4dfbb; font: 400 12px/1.2 system-ui,sans-serif; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ending-details { grid-area: details; min-width: 0; }
 .ending-stats { display: flex; flex-wrap: wrap; gap: 15px clamp(17px,3.4vw,44px); margin: 0; padding: 16px 0; border-block: 1px solid #b8b9a5; }
 .ending-stats dt, .ending-origin p { color: #56695b; font-size: 12px; }
@@ -51,10 +50,33 @@
   .ending-copy h1 { margin: 7px 0 8px; }
   .ending-description { font-size: 14px; }
   .ending-scene { aspect-ratio: 2.5 / 1; }
-  .ending-portraits figure { aspect-ratio: 1 / 1.02; }
-  .ending-portraits figcaption { padding: 16px 7px 7px; flex-direction: column; gap: 2px; }
-  .ending-portraits figcaption span { font-size: 10px; }
+  .ending-portraits > button { aspect-ratio: 1 / 1.02; }
+  .album-thumbnail-caption { padding: 16px 7px 7px; gap: 2px; }
 }
 @media (max-width: 380px) {
   .screen-end .topbar-actions .nav-button:not(.outlined) > span { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; }
 }
+
+.ending-portraits > button:hover .album-thumbnail-caption { color: #ffe1a1; }
+.ending-portraits > button:focus-visible { outline-offset: 3px; }
+.album-dialog {
+  width: min(94vw,520px);
+  max-height: 92svh;
+  margin: auto;
+  padding: 0;
+  overflow: auto;
+  border: 1px solid #7d806e;
+  border-radius: 5px;
+  background: #27352f;
+  color: #f6ecd8;
+}
+.album-dialog::backdrop { background: #0f1b16d9; }
+.album-lightbox { display: grid; gap: 8px; padding: 10px 12px 12px; }
+.album-lightbox header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.album-lightbox header h2 { font: 700 clamp(20px,3.5vw,29px)/1.2 var(--serif); }
+.album-lightbox header button:hover { background: #3e5145; }
+.album-lightbox .player-portrait-full { height: min(67svh,620px); background: #1c2923; }
+.album-lightbox .player-portrait-full img { object-fit: contain; object-position: center; }
+.album-lightbox-tabs { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 6px; }
+.album-lightbox-tabs button { min-height: 44px; border: 1px solid #748273; border-radius: 3px; color: #fff1cf; background: #35483d; }
+.album-lightbox-tabs button[aria-pressed="true"] { border-color: #ead1a3; background: #ead1a3; color: #29392f; font-weight: 700; }

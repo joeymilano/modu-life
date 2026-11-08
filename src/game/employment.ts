@@ -1,11 +1,11 @@
 import { CAREERS } from './content';
+import { LONG_COMMUTE, NIGHT_WORK } from './workFlags';
+export { LONG_COMMUTE, NIGHT_WORK } from './workFlags';
 import type { Employment, GameState } from './types';
 
 const payByRank = [1, 1.22, 1.45, 1.7];
 const yearsByRank = [0, 1, 4, 8];
 const reviewsByRank = [0, 1, 3, 6];
-export const NIGHT_WORK = 'work-night-shift';
-export const LONG_COMMUTE = 'work-cross-river';
 export const WORK_HANDOVER_PENDING = 'work-handover-pending';
 export const WORK_HANDOVER_PROOF = 'work-handover-proof';
 export const MAX_PAY_RATE = 1.2;

@@ -1,4 +1,6 @@
-import { validLifeStartHand } from './lifeStarts';
+import { lifeStartProfile, validLifeStartHand } from './lifeStarts';
+import { lifeYearsAlbumPhoto } from './lifeYears';
+import { lastDayMemory } from './lastDay';
 import { allOrigins, ending } from './engine';
 import { endingPhoto, LIFE_ALBUM_AGES, originPhoto, pearlPhoto, playerArt, stallPhoto, streetPhoto, TIMELINE_COVER } from './art';
 import { openingForecast } from './openingForecast';
@@ -110,19 +112,29 @@ async function paintCurrentCard(ctx: CanvasRenderingContext2D, state: GameState)
 
 async function paintEndingCard(ctx: CanvasRenderingContext2D, state: GameState) {
  const final = ending(state);
- const scene = endingPhoto(final.id);
+ const lastPhoto = lifeYearsAlbumPhoto(state);
+ const scene = lastPhoto ?? endingPhoto(final.id);
+ const start = lifeStartProfile(state.origins);
+ const memory = lastPhoto ? lastDayMemory(state) : undefined;
  await Promise.all([
   paintPhoto(ctx, scene, [64, 144, 952, 292], scene.endsWith('/river.webp') ? .28 : .5),
   ...LIFE_ALBUM_AGES.map((age, index) =>
    paintPhoto(ctx, playerArt(state.appearance, true, age), [64 + 321 * index, 632, 310, 300], .15)),
  ]);
+ if (memory) {
+  ctx.fillStyle = '#243a33ed';
+  ctx.fillRect(64,389,952,47);
+  ctx.fillStyle = '#fff3dc';
+  ctx.font = 'bold 24px ' + cardSerif;
+  ctx.fillText(memory.age+' 岁 · '+memory.title,79,420,909);
+ }
  ctx.fillStyle = cardInk;
  ctx.font = 'bold 65px ' + cardSerif;
  ctx.fillText(final.title, 64, 520, 602);
  ctx.textAlign = 'right';
  ctx.fillStyle = '#4e6356';
  ctx.font = '22px sans-serif';
- ctx.fillText('最后存下', 1016, 478);
+ ctx.fillText(start?'开局 ¥'+start.cash.toLocaleString('zh-CN')+' · 最后存下':'最后存下',1016,478,386);
  ctx.fillStyle = cardInk;
  ctx.font = 'bold 32px sans-serif';
  ctx.fillText('¥' + Math.round(state.cash).toLocaleString('zh-CN'), 1016, 520, 326);
@@ -180,7 +192,7 @@ export async function makeShareCard(state: GameState): Promise<Blob> {
  if (state.ended) await paintEndingCard(ctx, state);
  else await paintCurrentCard(ctx, state);
  paintOpeningHand(ctx, state);
- const hasCode = await paintChallengeCode(ctx, challengeUrl(state), 1016, 1164, 264);
+ const hasCode = await paintChallengeCode(ctx, challengeUrl(state, state.ended), 1016, 1164, 264);
  ctx.fillStyle = '#a99e88';
  ctx.fillRect(64, 1150, 952, 1);
  ctx.fillStyle = cardInk;

@@ -1,4 +1,5 @@
 import { openingPhoto } from './art';
+import { laterDaywork, laterHeir } from './lifeYears';
 import type { Effect, EventChoice, GameState, LifeEvent } from './types';
 
 export const DAYWORK = 'daywork-start';
@@ -14,17 +15,18 @@ const HEIR_HANDOVER = 'heir-handover';
 export const DAYWORK_PAY = 780;
 export const FAMILY_CAP = 18000;
 export const FAMILY_RENT = 12000;
+export const HEIR_PAY_RATE = 1.25;
 export const PROJECT_BUDGET = 800000;
 
 export const LIFE_STARTS = [
  {
-  id: 'daywork', seed: 'SH-SHIFT', title: '日结工', line: '手上 ¥780，床位只续到明天',
+  id: 'daywork', seed: 'SH-SHIFT', cash: 780, title: '日结工', line: '手上 ¥780，床位只续到明天',
   text: '莘庄 · 仓库招早班。今天能拿钱的，和三天后才结的，是两张单。',
   cards: ['born-daywork', 'fund-thin', 'talent-code', 'tie-free', 'secret-kind'],
   photo: openingPhoto('daywork-gate'),
  },
  {
-  id: 'heir', seed: 'SH-HEIR', title: '顶级富二代', line: '个人存款 ¥600,000，房租由家里付',
+  id: 'heir', seed: 'SH-HEIR', cash: 600000, title: '顶级富二代', line: '个人存款 ¥600,000，房租由家里付',
   text: '陆家嘴 · 江景房的钥匙已经拿来了。家里想听你对公司那张采购单的意见。',
   cards: ['born-heir', 'fund-family', 'talent-count', 'tie-demand', 'secret-kind'],
   photo: openingPhoto('heir-keys'),
@@ -32,6 +34,10 @@ export const LIFE_STARTS = [
 ] as const;
 
 export type LifeStart = (typeof LIFE_STARTS)[number];
+
+export function lifeStartProfile(ids: readonly string[]) {
+ return LIFE_STARTS.find(start => ids.includes(start.cards[0]));
+}
 
 export function validLifeStartHand(ids: readonly string[]) {
  const profile = LIFE_STARTS.find(start => start.cards.slice(0,2).some(id => ids.includes(id)));
@@ -119,7 +125,7 @@ function boardThird(state: GameState) {
 
 const heirReview = year('heir-role', '工牌还是公司那张',
  '当年你跟着车间验收。今天公司要找人接交付，老爸没开口，财务先把岗位职责和工资单翻给你。加薪走公司账户，设备怎么花还得按原来的流程。', [
-  option('manager','把职责写进合同，接下交付','你把只写了「协助」的那一条划掉，请财务把要负责的三件事写全。改好的工资单先发给了你，家庭群里没有。',{job:'trade',payRate:1.25,skill:8,health:-4},'岗位收入 ¥10,000/月'),
+  option('manager','把职责写进合同，接下交付','你把只写了「协助」的那一条划掉，请财务把要负责的三件事写全。改好的工资单先发给了你，家庭群里没有。',{job:'trade',payRate:HEIR_PAY_RATE,skill:8,health:-4},'岗位基础工资上浮 25%'),
   option('salary','照旧做，把今年这笔奖金结清','财务说年初谈的是六万，问你分几次领。你说一次，到账后把工资单和家里那本账分开存。',{cash:60000,trust:5,spirit:4},'公司发个人奖金 ¥60,000'),
   option('pass','岗位交给车间的人，我手上的活先做完','主管本来已经把东西收进抽屉，听完又拿出一叠记录。你们坐下来，把他要接的那部分一件一件划出来。',{skill:7,network:9,spirit:7}),
  ], 'heir-board');
@@ -153,12 +159,14 @@ export function lifeStartYear(state: GameState) {
   if (state.age === 19) return state.flags.includes(DAYWORK_DUE) ? shiftPay : state.flags.includes(DAYWORK_REMAINDER) ? remainingPay :
    state.flags.includes(DAYWORK_TEMP) ? {...shiftBed,text:'去年的床位没能续上。吴师傅把你的行李先寄在门房，问你今天想先见收货岗的人，还是先接一班日结。'} : shiftBed;
   if (state.age === 20) return state.flags.includes(DAYWORK_REMAINDER) ? remainingPay : workerThird;
+  return laterDaywork(state);
  }
  if (state.flags.includes(HEIR)) {
   if (state.age === 18) return firstKeys;
   if (state.age === 19) return board;
   if (state.age === 20) return boardThird(state);
   if (state.age === 25 && state.flags.includes(HEIR_HANDOVER)) return heirReview;
+  return laterHeir(state);
  }
 }
 

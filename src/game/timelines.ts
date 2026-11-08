@@ -1,8 +1,9 @@
+import { laterDaywork, laterHeir } from './lifeYears';
 import type { EventChoice, LifeEvent } from './types';
 import { PARK_RETURN_TICKET_SCENES, PARK_TICKET_SCENES } from './matchmaking';
 import { RENEWAL_TICKET_SCENES } from './rental';
 import { HANDOVER_TICKET } from './workHandover';
-import { FERRY_STILLS, FIRST_NIGHT_STILLS, MATCH_STILLS, OPENING_STILLS, RENTAL_STILLS, TABLE_STILLS, datePhoto, farewellPhoto, ferryPhoto, handoverPhoto, matchPhoto, offerPhoto, openingPhoto, pearlPhoto, rentalPhoto, stallPhoto, streetPhoto, tablePhoto, workPhoto } from './art';
+import { FERRY_STILLS, FIRST_NIGHT_STILLS, LIFE_YEARS_STILLS, MATCH_STILLS, OPENING_STILLS, RENTAL_STILLS, TABLE_STILLS, datePhoto, farewellPhoto, ferryPhoto, handoverPhoto, lifeYearsPhoto, matchPhoto, offerPhoto, openingPhoto, pearlPhoto, rentalPhoto, stallPhoto, streetPhoto, tablePhoto, workPhoto } from './art';
 import { CAREERS, CAST } from './content';
 import { PHOTO_SHOP_STILLS, PHOTO_SHOP_STORY, photoShopStill } from './photoShop';
 
@@ -51,6 +52,7 @@ const ticketShots = new Set([
   ...FIRST_NIGHT_STILLS.map(streetPhoto),
   ...MATCH_STILLS.map(matchPhoto),
   ...OPENING_STILLS.map(openingPhoto),
+  ...LIFE_YEARS_STILLS.map(lifeYearsPhoto),
   ...TABLE_STILLS.map(tablePhoto),
   ...FERRY_STILLS.map(ferryPhoto),
   stallPhoto('close'), stallPhoto('burnt'),
@@ -185,6 +187,44 @@ const handoverStory: Timeline = {
       ],
     },
   ],
+};
+
+function lateTurn(event: LifeEvent, date: string, place: string, picks: [string, number | null][]): Turn {
+ return {
+  date, place, scene: event.text, shot: event.illustration,
+  options: picks.map(([id,next]) => ticketOption(event.choices.find(choice => choice.id===id)!,next)),
+ };
+}
+
+const workRota = laterDaywork({age:46,jobId:'service',flags:[]})!;
+const lateWork = (id: string) => laterDaywork({
+ age:59, jobId:'service', flags:workRota.choices.find(choice=>choice.id===id)?.effect.setFlags ?? [],
+})!;
+const warehouseCard: Timeline = {
+ id:'warehouse-card', kind:'life', title:'门卡交给下一个', author:'魔都人生',
+ original:'我后来换了白班，工资少了一截，回家赶得上车。十三年后去还门卡，才发现我那张排班表还留在柜子里。',
+ turns:[
+  lateTurn(workRota,'46 岁 · 换班','莘庄 · 仓库',[['day',1],['night',2]]),
+  lateTurn(lateWork('day'),'59 岁 · 回仓库','莘庄 · 更衣室',[['teach',end],['leave',end]]),
+  lateTurn(lateWork('night'),'59 岁 · 回仓库','莘庄 · 更衣室',[['teach',end],['shift',end]]),
+ ],
+};
+
+const loanOpening = laterHeir({age:46,flags:[]})!;
+const loanDue = laterHeir({age:47,flags:loanOpening.choices[0].effect.setFlags ?? []})!;
+const loanLast = (from: LifeEvent, id: string) => laterHeir({
+ age:59, flags:from.choices.find(choice=>choice.id===id)?.effect.setFlags ?? [],
+})!;
+const factoryHandover: Timeline = {
+ id:'factory-handover', kind:'life', title:'公司还欠我四万', author:'魔都人生',
+ original:'那回我先收了八万，四万留到交接时核。新负责人把付款单和门卡放在一起，我把门卡先递给了她。',
+ turns:[
+  lateTurn(loanOpening,'46 岁 · 定金到期','陆家嘴 · 会议室',[['lend',1],['cut',4]]),
+  lateTurn(loanDue,'47 岁 · 约好的日子','陆家嘴 · 财务桌',[['full',2],['partial',3]]),
+  lateTurn(loanLast(loanDue,'full'),'59 岁 · 交接','车间',[['delegate',end],['leave',end]]),
+  lateTurn(loanLast(loanDue,'partial'),'59 岁 · 交接','车间',[['collect',end],['later',end]]),
+  lateTurn(loanLast(loanOpening,'cut'),'59 岁 · 交接','车间',[['delegate',end],['record',end]]),
+ ],
 };
 
 export const CITY_TIMELINES: Timeline[] = [
@@ -326,6 +366,8 @@ export const CITY_TIMELINES: Timeline[] = [
   },
   rentalReturn,
   handoverStory,
+  warehouseCard,
+  factoryHandover,
   {
     id: 'scallion-bill', kind: 'life', title: '隔壁桌的葱油饼', author: '魔都人生',
     original: '我说了句「放回去」，林佳没理我，自己跟隔壁道了歉。散的时候她把餐巾留在账单底下。我过了两天再去找，老板说早擦桌子了。',

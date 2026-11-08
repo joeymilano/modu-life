@@ -74,4 +74,18 @@ describe('parallel timelines', () => {
       vi.unstubAllGlobals();
     }
   });
+
+  it('uses the warehouse and company decisions to select the correct 59-year-old scene', () => {
+    const warehouse=validateTicket(ticketFromHash('#story=warehouse-card')).timeline;
+    expect(warehouse.turns[0].options.map(choice=>choice.next)).toEqual([1,2]);
+    expect(warehouse.turns[1].scene).toContain('带白班那阵');
+    expect(warehouse.turns[2].scene).toContain('夜班有个人认出你');
+    const company=validateTicket(ticketFromHash('#story=factory-handover')).timeline;
+    expect(company.turns[1].options.map(choice=>choice.next)).toEqual([2,3]);
+    expect(company.turns[2].scene).toContain('已经结清的周转单');
+    expect(company.turns[3].scene).toContain('¥40,000');
+    expect(company.turns[4].scene).toContain('晚一批下单');
+    expect(company.turns[3].shot).toBe('/art/endings/life-heir-final.webp');
+  });
+
 });

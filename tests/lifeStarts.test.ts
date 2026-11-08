@@ -1,9 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { allOrigins, createGame, monthlyBudget, nextYear, resolveChoice, selectEvent, validateSave } from '../src/game/engine';
+import { allOrigins, canAfford, createGame, monthlyBudget, nextYear, resolveChoice, selectEvent, validateSave } from '../src/game/engine';
 import { DAYWORK_TEMP, FAMILY_PAY, LIFE_STARTS, outstandingShiftPay } from '../src/game/lifeStarts';
 import { activeLine, decodeLife, encodeLife, forkLife, recordDecision, replayScene, startBook } from '../src/game/lifeLines';
 import { openingForecast } from '../src/game/openingForecast';
 import { challengeUrl, readChallenge } from '../src/game/share';
+import { lastDayMemory } from '../src/game/lastDay';
+import { familyLoanOwed, lifeYearsAlbumPhoto } from '../src/game/lifeYears';
+import { NIGHT_WORK } from '../src/game/workFlags';
+import { draftFromEvent, validateTicket } from '../src/game/timelines';
 import { streetLead } from '../src/game/streetLeads';
 import type { GameState } from '../src/game/types';
 
@@ -90,9 +94,63 @@ describe('two Shanghai starting lives', () => {
   const tracked = annual(third,'take');
   const later = { ...tracked, age: 25, pendingYearEvent: true };
   expect(selectEvent(later,'year').id).toBe('life-start-heir-role');
-  expect(monthlyBudget(annual(later,'manager')).salary).toBe(10000);
+  const manager = annual(later,'manager');
+  expect(monthlyBudget(manager).salary).toBe(10000);
+  expect(activeLine(decodeLife(encodeLife(startBook(manager)))).state.employment?.rate).toBe(1.25);
   expect(annual(later,'salary').cash).toBe(later.cash + 60000);
   expect(selectEvent({...annual(third,'hand'),age:25,pendingYearEvent:true},'year').id).not.toBe('life-start-heir-role');
+ });
+
+
+ it('remembers the shift taken at 46 in the last warehouse visit', () => {
+  const start=annual(create(LIFE_STARTS[0]),'kitchen');
+  const mid={...start,age:46,pendingYearEvent:true};
+  const white=annual(mid,'day'), night=annual(mid,'night');
+  expect(monthlyBudget(white).salary).toBe(5525);
+  expect(monthlyBudget(night).salary).toBe(7800);
+  expect(night.flags).toContain(NIGHT_WORK);
+  expect(white.flags).not.toContain(NIGHT_WORK);
+  expect(nextYear(night).state.stats.health).toBeLessThan(nextYear(white).state.stats.health);
+  const close={...white,age:59,pendingYearEvent:true};
+  const event=selectEvent(close,'year');
+  expect(event.text).toContain('带白班');
+  expect(selectEvent({...night,age:59,pendingYearEvent:true},'year').text).toContain('夜班有个人认出你');
+  const visit=resolveChoice(close,event,'teach');
+  const ended=nextYear(visit.state).state;
+  expect(ended.ended).toBe(true);
+  expect(lastDayMemory(ended)?.title).toBe('门卡交给下一个');
+  expect(lifeYearsAlbumPhoto(ended)).toBe(event.illustration);
+  const ticket={...draftFromEvent(event,'teach',visit.text,59,'莘庄'),author:'小申'};
+  expect(validateTicket({version:1,timeline:ticket}).timeline.turns[0].shot).toBe(event.illustration);
+ });
+
+ it('tracks the company loan separately and only credits money paid on the selected line', () => {
+  const start=annual(create(LIFE_STARTS[1]),'keys');
+  const mid={...start,age:46,cash:200000,pendingYearEvent:true};
+  const lend=selectEvent(mid,'year').choices[0];
+  expect(canAfford({...mid,cash:119999},lend.effect)).toBe(false);
+  const advanced=annual(mid,'lend');
+  expect(advanced.cash).toBe(80000);
+  expect(familyLoanOwed(advanced)).toBe(120000);
+  const due=nextYear(advanced).state;
+  const paid=annual(due,'partial');
+  expect(paid.cash).toBe(due.cash+80000);
+  expect(familyLoanOwed(paid)).toBe(40000);
+  const last={...paid,age:59,pendingYearEvent:true};
+  const event=selectEvent(last,'year');
+  const collect=resolveChoice(last,event,'collect');
+  expect(collect.state.cash).toBe(paid.cash+40000);
+  expect(familyLoanOwed(collect.state)).toBe(0);
+  const book=recordDecision(startBook(last),collect.state,event,'collect');
+  const alternative=activeLine(forkLife(decodeLife(encodeLife(book)),0));
+  const replay=replayScene(alternative.state,alternative.replay!)!;
+  const defer=resolveChoice(alternative.state,replay,'later').state;
+  const waived=resolveChoice(alternative.state,replay,'waive').state;
+  expect(defer.cash).toBe(paid.cash);
+  expect(familyLoanOwed(defer)).toBe(40000);
+  expect(waived.cash).toBe(paid.cash);
+  expect(familyLoanOwed(waived)).toBe(0);
+  expect(lifeYearsAlbumPhoto(nextYear(defer).state)).toBe(event.illustration);
  });
 
 });
