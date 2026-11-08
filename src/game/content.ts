@@ -1,3 +1,4 @@
+import { DAYWORK, FAMILY_HOME, FAMILY_PAY, HEIR } from './lifeStarts';
 import type { Career, CastMember, District, Goal, OriginCard, OriginSlot } from './types';
 
 export const HOUSING_NAMES = ['合租 / 亲友房', '普通租房', '改善租房', '自有住房'] as const;
@@ -73,6 +74,13 @@ export function castTitle(person: CastMember, age: number) {
 }
 
 const card = (slot:OriginSlot,id:string,name:string,rarity:OriginCard['rarity'],subtitle:string,description:string,tag:string,accent:string,effect:OriginCard['effect']):OriginCard=>({slot,id,name,rarity,subtitle,description,tag,accent,effect});
+export const LIFE_START_CARDS = [
+ card('出身','born-daywork','日结工','N','箱子先放门房','工钱是按班结的。过了点，床位也得再续。','做一班算一班','#726c54',{cash:-35220,setFlags:[DAYWORK]}),
+ card('家底','fund-thin','零钱和床位','N','床位先交了一晚','要留出明天的车钱。零钱都在夹层。','手上 ¥780','#77786a',{}),
+ card('出身','born-heir','顶级富二代','SSR','卡在自己手里','家里叫你去看一张采购单。这回问的是意见。','公司有门可进','#9f8152',{cash:538000,setFlags:[HEIR]}),
+ card('家底','fund-family','房租家里付','SSR','房卡跟银行卡分开放','家里只付指定账单。想拿现金，要从自己的卡里取。','每月代付上限 ¥18,000','#8a7a6d',{housing:2,setFlags:[FAMILY_HOME,FAMILY_PAY]}),
+];
+
 export const ORIGIN_POOLS: Record<OriginSlot,OriginCard[]> = {
  '出身':[
   card('出身','born-rich','富二代','SSR','起跑线是地下车库','家里说车随便开。后备厢那三箱样品顺路送一下。','家里有人','#ad8150',{cash:380000,face:18,network:15,setFlags:['family_rich']}),

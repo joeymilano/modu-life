@@ -1,3 +1,4 @@
+import { validLifeStartHand } from './lifeStarts';
 import { allOrigins, ending } from './engine';
 import { endingPhoto, LIFE_ALBUM_AGES, originPhoto, pearlPhoto, playerArt, stallPhoto, streetPhoto, TIMELINE_COVER } from './art';
 import { openingForecast } from './openingForecast';
@@ -365,7 +366,7 @@ export function readChallenge(params: URLSearchParams) {
 }
 
 function challengeCards(ids: string[]) {
- if (ids.length !== 5) return null;
+ if (ids.length !== 5 || !validLifeStartHand(ids)) return null;
  const all = allOrigins();
  const cards = ids.flatMap(id => all.filter(card => card.id === id));
  if (cards.length !== 5 || new Set(cards.map(card => card.slot)).size !== 5) return null;

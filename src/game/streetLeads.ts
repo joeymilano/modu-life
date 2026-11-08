@@ -1,3 +1,4 @@
+import { dayworkLead } from './lifeStarts';
 import { streetPhoto } from './art';
 import { firstNightLead } from './firstNight';
 import { pearlReceipt } from './pearl';
@@ -77,7 +78,7 @@ const leads: StreetLead[] = [
 
 export function streetLead(state: GameState) {
   if (state.pendingYearEvent || state.ended) return null;
-  const first = firstNightLead(state);
+  const first = firstNightLead(state) ?? dayworkLead(state);
   if (first) return first;
   const receipt = pearlReceipt(state);
   if (receipt) return { message: '江边有人叫你去对小票', event: receipt };

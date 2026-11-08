@@ -1,4 +1,5 @@
-import { CAREERS, CAST, GOALS, ORIGIN_POOLS } from './content';
+import { DAYWORK, DAYWORK_TEMP, FAMILY_CAP, FAMILY_HOME, FAMILY_PAY, HEIR, lifeStartRent, lifeStartYear, validLifeStartHand } from './lifeStarts';
+import { CAREERS, CAST, GOALS, LIFE_START_CARDS, ORIGIN_POOLS } from './content';
 import { FIRST_NIGHT_FLAG, firstNightYear } from './firstNight';
 import { lastDayEvent } from './lastDay';
 import { workYearEvent } from './workScenes';
@@ -24,7 +25,7 @@ export const CHAPTERS = [
 export const clamp = (n:number,min=0,max=100) => Math.max(min,Math.min(max,n));
 export function hashSeed(seed:string):number {let h=2166136261;for(const c of seed){h=Math.imul(h^c.charCodeAt(0),16777619);}return h>>>0 || 42;}
 export function randomStep(rng:number):[number,number] {let x=rng||42;x^=x<<13;x^=x>>>17;x^=x<<5;return [(x>>>0)/4294967296,x>>>0];}
-export const allOrigins = () => Object.values(ORIGIN_POOLS).flat();
+export const allOrigins = () => [...Object.values(ORIGIN_POOLS).flat(), ...LIFE_START_CARDS];
 export function drawOrigins(seed:string, reroll=0):OriginCard[] {
   let rng=hashSeed(seed+':'+reroll);
   return (['出身','家底','天赋','牵绊','秘密'] as OriginSlot[]).map(slot=>{const [r,next]=randomStep(rng);rng=next;const pool=ORIGIN_POOLS[slot];return pool[Math.floor(r*pool.length)];});
@@ -60,6 +61,7 @@ function applyEffect(state:GameState,effect:Effect,npcId?:string):GameState {
   if(effect.payRate!==undefined&&s.jobId)s.employment={...employmentOf(s),rate:effect.payRate};
   if(effect.housing!==undefined){
     s.housing=clamp(effect.housing,0,3);
+    s.flags=s.flags.filter(flag=>flag!==FAMILY_HOME&&flag!==FAMILY_PAY&&flag!==DAYWORK_TEMP);
     if(s.leaseRent!==undefined)s.flags=closeRentalLease(s.flags);
     delete s.leaseRent;
   }
@@ -90,20 +92,24 @@ export function createGame(seed:string,name:string,goal:GoalId,cards:OriginCard[
   let state:GameState={version:1,seed:seed.slice(0,32),rng:hashSeed(seed),name:name.trim().slice(0,12)||'小申',age:18,actions:3,goal,appearance:selectedAppearance,district:'bund',cash:36000,stats:{health:80,spirit:75,skill:28,face:30+LOOKS_BONUS[selectedAppearance.looks].face,network:20},jobId:null,jobRank:0,housing:0,origins:cards.map(c=>c.id),flags:[FIRST_NIGHT_FLAG],seenEvents:[],relationships:Object.fromEntries(CAST.map(c=>[c.id,{attraction:10,trust:15,commitment:0,met:false,memories:[]}])),partnerId:null,journal:[],pendingYearEvent:true,ended:false,totalEarned:0,yearsEmployed:0,rescues:0};
   for(const card of cards)state=applyEffect(state,card.effect);
   if(state.flags.some(f=>/own.?home|有房|home_owner/i.test(f)))state.housing=3;
-  state.cash=Math.max(3000,state.cash);
+  const daywork=state.flags.includes(DAYWORK), heir=state.flags.includes(HEIR);
+  state.cash=Math.max(daywork?0:3000,state.cash);
+  if(daywork||heir)state.district=daywork?'xinzhuang':'lujiazui';
   if(state.flags.includes('family_rich')&&state.flags.includes('card_frozen')){
     state.cash=Math.min(state.cash,24000);
     state.journal.push({age:18,title:'副卡暂时不给刷',text:'刷卡失败。老爸回了四个字，自己想办法。你翻遍账户，还能凑出两万四。',tag:'开局牵绊'});
   }
-  state.journal.push({age:18,title:'到上海了',text:'车门开了。手机刚切回信号，连着响了三声。',tag:'开局'});
+  state.journal.push({age:18,title:'到上海了',text:daywork?'床位只付了一晚。早班的地址存进了手机。':heir?'司机把箱子送到门厅。财务发来两份分开的账单。':'车门开了。手机刚切回信号，连着响了三声。',tag:'开局'});
   return state;
 }
 export function monthlyBudget(s:GameState){
   const salary=monthlySalary(s);
   const plan=householdPlan(s);
-  const rent=housingPayment(s.housing,s.leaseRent,plan==='shared');
+  const shared=plan==='shared';
+  const rent=lifeStartRent(s,housingPayment(s.housing,s.leaseRent,shared),shared);
   const living=1800+(s.partnerId?600:0)+(s.age>=40?500:0)+(plan==='standing'?STANDING_DATE_MONTHLY_COST:0);
-  return {salary,rent,living,net:salary-rent-living};
+  const familyPaid=s.housing===2&&s.flags.includes(FAMILY_HOME)&&s.flags.includes(FAMILY_PAY)?Math.min(FAMILY_CAP,rent+Math.min(living,1800)):0;
+  return {salary,rent,living,familyPaid,net:salary-rent-living+familyPaid};
 }
 export function eligibleEvent(e:LifeEvent,s:GameState,kind:ActivityKind|'year'):boolean {
   if(e.chainId==='family_card'&&e.chainStep===0&&!s.flags.some(f=>f==='family_rich'||f==='card_frozen'))return false;
@@ -122,7 +128,7 @@ export function oldYearLetter(state:GameState):LifeEvent|undefined {
   return event&&adaptYearLetter(event,state);
 }
 export function selectEvent(s:GameState,kind:ActivityKind|'year',npcId?:string):LifeEvent {
-  const annual = kind === 'year' ? [firstNightYear(s), lastDayEvent(s), workYearEvent(s), longTableYear(s)]
+  const annual = kind === 'year' ? [lifeStartYear(s), firstNightYear(s), lastDayEvent(s), workYearEvent(s), longTableYear(s)]
     .find(event=>event&&!s.seenEvents.includes(event.id)) : undefined;
   if (annual) return annual;
   let candidates=EVENTS.filter(e=>eligibleEvent(e,s,kind));
@@ -224,10 +230,13 @@ export function nextYear(state:GameState) {
     s.stats.spirit=clamp(s.stats.spirit-Math.round((mind+(late?3:0)+(commute?3:0))*activeMonths/12));}
   if(s.partnerId){const rel=s.relationships[s.partnerId];const keptInTouch=rel.memories.some(m=>m.startsWith(s.age+'岁 · '));if(!keptInTouch){rel.trust=clamp(rel.trust-(plan==='standing'?1:4));rel.commitment=clamp(rel.commitment-(plan==='standing'?1:2));}}
   const repayment=s.flags.includes(LOAN_DUE)?LOAN_INSTALLMENT:0;
-  s.cash+=income-expense-repayment;s.totalEarned+=income;if(workIncome>0)s.yearsEmployed++;
+  const familyPaid=budget.familyPaid*12;
+  s.cash+=income+familyPaid-expense-repayment;s.totalEarned+=income;
+  let uncovered=0;if(workIncome>0)s.yearsEmployed++;
   const notices:string[]=[];
   let note=workIncome?`工资到账 ¥${workIncome.toLocaleString()}，固定开支 ¥${expense.toLocaleString()}。`:`这一年没有固定工资，生活开支 ¥${expense.toLocaleString()}。`;
   if(commute&&activeMonths)notices.push('过江那趟赶了一年。你现在站着也能眯一会儿。');
+  if(familyPaid)note+=` 家里代付指定账单 ¥${familyPaid.toLocaleString()}。`;
   if(table.income)note+=` 长桌修补台入账 ¥${table.income.toLocaleString()}。`;
   if(stallIncome)note+=` 小吃街晚班入账 ¥${stallIncome.toLocaleString()}。`;
   if(plan==='shared')note+=` 同住的住房费，你这一年出了 ¥${rentExpense.toLocaleString()}。`;
@@ -237,11 +246,20 @@ export function nextYear(state:GameState) {
     note+=` 这期助学贷款已扣 ¥${repayment.toLocaleString()}。`;
   }
   if(employment.closedMonths>0)note+=` 旧岗位入账 ¥${employment.earned.toLocaleString()}，当前岗位计 ${activeMonths} 个月。`;
-  if(s.cash<0){const shortage=-s.cash;s.cash=6000;s.rescues++;s.stats.spirit=clamp(s.stats.spirit-8);s.housing=0;
+  if(s.cash<0&&s.flags.includes(DAYWORK)){
+    uncovered=-s.cash;s.cash=0;s.rescues++;s.housing=0;
     if(s.leaseRent!==undefined)s.flags=closeRentalLease(s.flags);
     delete s.leaseRent;
     if(s.partnerId)s.flags=s.flags.filter(flag=>flag!==householdFlag(s.partnerId!,'shared'));
-    s.flags=[...new Set([...s.flags,'needed_help'])];notices.push(`周转差了 ¥${shortage.toLocaleString()}。朋友帮你垫了一笔，你搬回合租房，手上留下 ¥6,000。`);s.journal.push({age:s.age,title:'先把这关过了',text:'朋友帮忙垫了周转钱，你搬回合租房。收好行李，先把明天的面试地址存下来。',tag:'重整'});}
+    s.flags=[...new Set([...s.flags,DAYWORK_TEMP,'needed_help'])];
+    s.stats.spirit=clamp(s.stats.spirit-8);
+    s.stats.health=clamp(s.stats.health-5);
+    notices.push(`基本开销按年算还差 ¥${uncovered.toLocaleString()}。原来的住处没续上，换成临时落脚，手上剩 ¥0。`);
+  }else if(s.cash<0){const shortage=-s.cash;s.cash=6000;s.rescues++;s.stats.spirit=clamp(s.stats.spirit-8);s.housing=0;
+    if(s.leaseRent!==undefined)s.flags=closeRentalLease(s.flags);
+    delete s.leaseRent;
+    if(s.partnerId)s.flags=s.flags.filter(flag=>flag!==householdFlag(s.partnerId!,'shared'));
+    s.flags=[...new Set([...s.flags.filter(flag=>flag!==FAMILY_HOME&&flag!==FAMILY_PAY),'needed_help'])];notices.push(`周转差了 ¥${shortage.toLocaleString()}。朋友帮你垫了一笔，你搬回合租房，手上留下 ¥6,000。`);s.journal.push({age:s.age,title:'先把这关过了',text:'朋友帮忙垫了周转钱，你搬回合租房。收好行李，先把明天的面试地址存下来。',tag:'重整'});}
   s.stats.health=clamp(s.stats.health-(s.age>40?3:1)-(table.income?2:0)-(stallIncome?2:0));s.stats.spirit=clamp(s.stats.spirit-2+table.spirit);
   if(s.stats.health<15){
     const care=Math.min(s.cash,3000);
@@ -253,7 +271,7 @@ export function nextYear(state:GameState) {
   s.journal.push({age:s.age,title:`${s.age}岁年度账本`,text:note,tag:'账本'});
   if(s.employment)s.employment={...employment,closedMonths:0,earned:0};
   s.age++;s.actions=3;s.ended=s.age>=60;s.pendingYearEvent=!s.ended;
-  return {state:s,income,tableIncome:table.income,stallIncome,expense,rentExpense:state.leaseRent!==undefined||plan==='shared'?rentExpense:undefined,sharedHousing:plan==='shared',note,notice,payroll,repayment};
+  return {state:s,income,familyPaid,uncovered,tableIncome:table.income,stallIncome,expense,rentExpense:state.leaseRent!==undefined||plan==='shared'?rentExpense:undefined,sharedHousing:plan==='shared',note,notice,payroll,repayment};
 }
 export function relationshipLabel(s:GameState,id:string){const r=s.relationships[id];if(!r?.met)return '未遇见';if(s.partnerId===id)return r.trust>75?'彼此笃定':'正在一起';if(r.trust>=70&&r.attraction>=50)return '心照不宣';if(r.trust>=45)return '熟悉的人';return '刚认识';}
 export function commitRelationship(s:GameState,id:string):GameState {const rel=s.relationships[id];if(!rel?.met||rel.trust<55||rel.attraction<45)throw new Error('再多了解彼此一点，现在还没到这一步。');let next=structuredClone(s);next.partnerId=id;next.relationships[id].commitment=clamp(rel.commitment+25);next.flags=[...new Set([...(s.partnerId===id?next.flags:clearHousehold(next.flags)),'committed'])];next.journal.push({age:s.age,title:`和${CAST.find(c=>c.id===id)?.name}一起`,text:'你们吃完饭，顺路一起去买了牙刷。回去的路上，谁也没再说客气话。',tag:'关系'});return next;}
@@ -289,7 +307,7 @@ export function validateSave(value:unknown):GameState {
   const work=s.employment;
   if(work!==undefined&&(!work||!Number.isInteger(work.sinceAge)||!finite(work.sinceAge,18,s.age)||!Number.isInteger(work.reviews)||!finite(work.reviews,0,42)||(work.reviewedAt!==undefined&&(!Number.isInteger(work.reviewedAt)||!finite(work.reviewedAt,work.sinceAge,s.age)))||!finite(work.rate,.5,MAX_PAY_RATE)||!Number.isInteger(work.closedMonths)||!finite(work.closedMonths,0,12)||!Number.isInteger(work.earned)||!finite(work.earned,0,1e7)))throw new Error('工作记录不完整。');
   for(const k of ['origins','flags','seenEvents'] as const)if(!Array.isArray(s[k])||s[k].length>1500||s[k].some(x=>typeof x!=='string'||x.length>120))throw new Error('档案记录无效。');
-  if(s.origins.length!==5||s.origins.some(id=>!allOrigins().some(c=>c.id===id)))throw new Error('开局卡片不存在。');
+  if(s.origins.length!==5||!validLifeStartHand(s.origins)||s.origins.some(id=>!allOrigins().some(c=>c.id===id)))throw new Error('开局卡片不存在。');
   if(!Array.isArray(s.journal)||s.journal.length>1000||s.journal.some(j=>!j||!finite(j.age,18,60)||typeof j.title!=='string'||j.title.length>200||typeof j.text!=='string'||j.text.length>5000||typeof j.tag!=='string'||j.tag.length>80))throw new Error('人生记录损坏。');
   if(!s.relationships||typeof s.relationships!=='object')throw new Error('关系记录不完整。');
   for(const npc of CAST){const r=s.relationships[npc.id];if(!r||!finite(r.attraction,0,100)||!finite(r.trust,0,100)||!finite(r.commitment,0,100)||typeof r.met!=='boolean'||!Array.isArray(r.memories)||r.memories.length>20||r.memories.some(x=>typeof x!=='string'||x.length>300))throw new Error('关系记录损坏。');}

@@ -18,7 +18,7 @@ import { isJobOffer, isSelfEmployed, jobOffer, type InterviewOffer } from './gam
 import { returnDate } from './game/dateReturns';
 import { householdPlan, householdVisit } from './game/household';
 import { CAREERS, CAST, castTitle, DISTRICTS, GOALS, HOUSING_NAMES } from './game/content';
-import { ACTIVITY_NAMES, CHAPTERS, SAVE_KEY, STAT_NAMES, canAfford, chapterOf, checkChance, commitRelationship, createGame, drawOrigins, monthlyBudget, newSeed, nextYear, publicOriginNames, relationshipLabel, resolveChoice, selectEvent } from './game/engine';
+import { ACTIVITY_NAMES, CHAPTERS, SAVE_KEY, STAT_NAMES, allOrigins, canAfford, chapterOf, checkChance, commitRelationship, createGame, drawOrigins, monthlyBudget, newSeed, nextYear, publicOriginNames, relationshipLabel, resolveChoice, selectEvent } from './game/engine';
 import { downloadBlob, challengeUrl, makeOpeningCard, makeShareCard, readChallenge, type SharedHand } from './game/share';
 import { draftFromEvent, isTicketHash, type Timeline } from './game/timelines';
 import { playSound, setAudioEnabled } from './game/audio';
@@ -29,6 +29,8 @@ import AppearancePicker from './components/AppearancePicker';
 import OpeningSwap from './components/OpeningSwap';
 import ArrivalInbox from './components/ArrivalInbox';
 import FirstNightChoices from './components/FirstNightChoices';
+import LifeStartPicker from './components/LifeStartPicker';
+import { FAMILY_CAP, lifeStartHousing, outstandingShiftPay, type LifeStart } from './game/lifeStarts';
 import { firstNightClue, firstNightLead, firstNightThread } from './game/firstNight';
 import ContactProfile from './components/ContactProfile';
 import { eventPhoto, interviewPhoto, LOOKS, streetPhoto } from './game/art';
@@ -49,7 +51,7 @@ const OwlPreview=lazy(()=>import('./components/OwlPreview'));
 const activityIcons:Record<ActivityKind,IconName>={career:'case',romance:'heart',rest:'leaf',learn:'book',housing:'home',social:'people',business:'coffee',explore:'eye'};
 const money=(n:number)=>'¥'+Math.round(n).toLocaleString('zh-CN');
 const STAT_COLORS:Record<StatKey,string>={health:'#7a8a5c',spirit:'#c59d4e',skill:'#60868b',face:'#b65b41',network:'#8b7991'};
-type Modal='help'|'journal'|'contacts'|'saves'|'career'|'romance'|'lines'|'challenge'|'swap'|null;
+type Modal='help'|'journal'|'contacts'|'saves'|'career'|'romance'|'lines'|'challenge'|'swap'|'starts'|null;
 type Mini={type:'laser'}|{type:'stall'}|{type:'rental';evidence:number}|{type:'dialogue';person:CastMember;career?:never}|{type:'dialogue';person?:never;career:Career};
 function useCompact(){const [value,setValue]=useState(window.innerWidth<850);useEffect(()=>{const on=()=>setValue(window.innerWidth<850);window.addEventListener('resize',on);return()=>window.removeEventListener('resize',on);},[]);return value;}
 function effectsText(e:Effect){const pairs:[string,number][]=[];if(e.cash)pairs.push(['积蓄',e.cash]);for(const k of Object.keys(STAT_NAMES) as StatKey[])if(e[k])pairs.push([STAT_NAMES[k],e[k]!]);if(e.trust)pairs.push(['信任',e.trust]);if(e.attraction)pairs.push(['好感',e.attraction]);if(e.commitment)pairs.push(['承诺',e.commitment]);return pairs;}
@@ -81,11 +83,13 @@ export default function App(){
  }
  const [challenge]=useState(()=>readChallenge(new URLSearchParams(window.location.search)));
  const [seed,setSeed]=useState(newSeed),[cards,setCards]=useState<OriginCard[]>([]),[revealed,setRevealed]=useState<number[]>([]),[rerolls,setRerolls]=useState(0),[name,setName]=useState('小申'),[goal,setGoal]=useState<GoalId>('free');
+ const [startProfile,setStartProfile]=useState<LifeStart>();
+ const lockedHand=Boolean(startProfile||challenge);
  const [setupStep,setSetupStep]=useState<'cards'|'cast'>('cards');
  const [activeCard,setActiveCard]=useState(0);
  const setupHeading=useRef<HTMLHeadingElement>(null);
  const [appearance,setAppearance]=useState<PlayerAppearance>({gender:'female',looks:'stunning'});
- const [modal,setModal]=useState<Modal>(null),[activeEvent,setActiveEvent]=useState<LifeEvent|null>(null),[eventNpc,setEventNpc]=useState<string|undefined>(),[outcome,setOutcome]=useState<(ChoiceResult&{annual?:boolean;income?:number;tableIncome?:number;stallIncome?:number;expense?:number;rentExpense?:number;sharedHousing?:boolean;repayment?:number;payroll?:ReturnType<typeof nextYear>['payroll'];source?:{event:LifeEvent;choiceId:string}})|null>(null),[mini,setMini]=useState<Mini|null>(null);
+ const [modal,setModal]=useState<Modal>(null),[activeEvent,setActiveEvent]=useState<LifeEvent|null>(null),[eventNpc,setEventNpc]=useState<string|undefined>(),[outcome,setOutcome]=useState<(ChoiceResult&{annual?:boolean;income?:number;tableIncome?:number;stallIncome?:number;expense?:number;rentExpense?:number;sharedHousing?:boolean;repayment?:number;familyPaid?:number;uncovered?:number;payroll?:ReturnType<typeof nextYear>['payroll'];source?:{event:LifeEvent;choiceId:string}})|null>(null),[mini,setMini]=useState<Mini|null>(null);
  const [selected,setSelected]=useState<Hotspot|null>(null),[destination,setDestination]=useState<[number,number]|null>(null),[walking,setWalking]=useState(false);
  const [profile,setProfile]=useState<CastMember>();
  const [swapIndex,setSwapIndex]=useState<number>();
@@ -151,18 +155,19 @@ export default function App(){
    window.scrollTo({top:0});
   });
  }
- function beginDraw(){
+ function beginDraw(start?:LifeStart){
   playSound('tap');
   const params=new URLSearchParams(window.location.search);
-  const nextSeed=(params.get('seed')||newSeed()).slice(0,32);
-  const initial=challenge?.cards??drawOrigins(nextSeed);
+  const nextSeed=start?.seed??(params.get('seed')||newSeed()).slice(0,32);
+  const initial=start?start.cards.map(id=>allOrigins().find(card=>card.id===id)!):challenge?.cards??drawOrigins(nextSeed);
   const sharedGoal=params.get('goal');
   const gender=params.get('gender'), looks=params.get('looks');
-  if(GOALS.some(item=>item.id===sharedGoal))setGoal(sharedGoal as GoalId);
-  if((gender==='female'||gender==='male')&&LOOKS.some(item=>item.id===looks))setAppearance({gender,looks:looks as PlayerAppearance['looks']});
+  if(!start&&GOALS.some(item=>item.id===sharedGoal))setGoal(sharedGoal as GoalId);
+  if(!start&&(gender==='female'||gender==='male')&&LOOKS.some(item=>item.id===looks))setAppearance({gender,looks:looks as PlayerAppearance['looks']});
+  setStartProfile(start);
   setSeed(nextSeed);
   setCards(initial);
-  setRevealed(challenge?.reveal?initial.map((_,index)=>index):[]);
+  setRevealed(start||challenge?.reveal?initial.map((_,index)=>index):[]);
   setRerolls(0);
   setActiveCard(0);
   setScreen('draw');
@@ -176,12 +181,12 @@ export default function App(){
  }
  function revealAll(){playSound('draw');setRevealed(cards.map((_,index)=>index));}
  function openSwap(index:number){
-  if(challenge||rerolls>=2)return;
+  if(lockedHand||rerolls>=2)return;
   playSound('tap');
   setSwapIndex(index);setModal('swap');
  }
  function chooseSwap(card:OriginCard){
-  if(modal!=='swap'||challenge||rerolls>=2||swapIndex===undefined)return;
+  if(modal!=='swap'||lockedHand||rerolls>=2||swapIndex===undefined)return;
   playSound('draw');
   setCards(old=>old.map((previous,i)=>i===swapIndex?card:previous));
   setRerolls(r=>r+1);
@@ -254,7 +259,7 @@ export default function App(){
   if(!event){notify('这次约会接不上了');return;}
   setMini(null);setActiveEvent(event);setEventNpc(person.id);
  }
- function advance(){if(!game||blocked)return;try{const r=nextYear(game);setGame(r.state);setOutcome({state:r.state,title:game.age+'岁，收个尾',text:r.notice,effect:{cash:r.income-r.expense-r.repayment},annual:true,income:r.income,tableIncome:r.tableIncome,stallIncome:r.stallIncome,expense:r.expense,rentExpense:r.rentExpense,sharedHousing:r.sharedHousing,repayment:r.repayment,payroll:r.payroll});setMobilePanel(null);playSound('year');}catch(e){notify((e as Error).message);}}
+ function advance(){if(!game||blocked)return;try{const r=nextYear(game);setGame(r.state);setOutcome({state:r.state,title:game.age+'岁，收个尾',text:r.notice,effect:{cash:r.income+r.familyPaid-r.expense-r.repayment+r.uncovered},annual:true,income:r.income,familyPaid:r.familyPaid,uncovered:r.uncovered,tableIncome:r.tableIncome,stallIncome:r.stallIncome,expense:r.expense,rentExpense:r.rentExpense,sharedHousing:r.sharedHousing,repayment:r.repayment,payroll:r.payroll});setMobilePanel(null);playSound('year');}catch(e){notify((e as Error).message);}}
  function closeOutcome(){setOutcome(null);if(game?.ended)setScreen('end');}
  function startRomance(person:CastMember){
   if(!game||game.actions<=0||game.pendingYearEvent||game.ended)return;
@@ -362,7 +367,8 @@ export default function App(){
  const birthScene=activeEvent?.id.startsWith('origin-arrival-')??false;
  const householdScene=activeEvent?.id.startsWith('household-')??false;
  const signedOffer=!!outcome?.source&&isJobOffer(outcome.source.event.id)&&outcome.effect.payRate!==undefined;
- const focusScene=openingMessages||Boolean(activeEvent?.firstDate)||rentalScene||workScene||tableScene||offerScene||birthScene||stallScene||householdScene;
+ const lifeStartScene=activeEvent?.id.startsWith('life-start-');
+ const focusScene=lifeStartScene||openingMessages||Boolean(activeEvent?.firstDate)||rentalScene||workScene||tableScene||offerScene||birthScene||stallScene||householdScene;
  const partingBill=activeEvent?.firstDate ? -(activeEvent.choices[0].effect.cash??0) : 0;
  const wideShot=scenePhoto?.startsWith('/art/shanghai-streets/first-night-')||scenePhoto?.startsWith('/art/dates/')||scenePhoto?.startsWith('/art/endings/farewell-')||scenePhoto?.startsWith('/art/work/')||scenePhoto?.startsWith('/art/pearl/')||parkScene||scenePhoto?.startsWith('/art/opening/')||scenePhoto?.startsWith('/art/rental/')||scenePhoto?.startsWith('/art/night-ferry/')||tableScene||offerScene||stallScene;
  const leadButtons=game&&(lead||cardLead)?<div className="story-leads">{[lead,cardLead].map(item=>item&&<button
@@ -376,9 +382,9 @@ export default function App(){
  return <div className={'app screen-'+screen+(compact?' is-compact':'')}>
  <header className="topbar"><Brand onClick={()=>{setScreen('home');setModal(null);}}/><nav className="topbar-actions"><button className="icon-button" title={audio?'关闭声音':'打开声音'} aria-label={audio?'关闭声音':'打开声音'} onClick={toggleAudio}><Icon name={audio?'sound':'mute'}/></button>{screen==='play'&&<button className="nav-button scene-switch" aria-pressed={map3d} onClick={()=>{setMap3d(!map3d);setWalking(false);setDestination(null);setSelected(null);}}><Icon name="eye" size={17}/><span>{map3d?'街景':'3D 地图'}</span></button>}{screen==='play'&&map3d&&<button className="icon-button" aria-label={night?'切换白天':'切换夜景'} onClick={()=>setNight(n=>!n)}><Icon name={night?'sun':'moon'}/></button>}<button className="nav-button" onClick={()=>setModal(screen==='play'?'journal':'help')}><Icon name={screen==='play'?'book':'eye'} size={17}/><span>{screen==='play'?'人生记事':'怎么玩'}</span></button><button className="nav-button outlined" onClick={()=>setModal('saves')}><Icon name="save" size={17}/><span>存档</span></button>{(screen==='play'||screen==='end')&&game&&<button className="nav-button time-nav" aria-label="时间线" onClick={()=>setModal('lines')}><Icon name="map" size={17}/><span>时间线</span></button>}</nav></header>
  {screen==='home'&&<main className="home-screen"><div className="home-copy"><h1 className="game-title"><img src="/brand/logo-poster.svg" alt="魔都人生" width="524" height="534" fetchPriority="high"/></h1><p className="home-description">{challenge?<>朋友递来一手牌<br/>{challenge.cards.slice(0,2).map(card=>card.name).join(' · ')}</>:<>刚到上海南站，手机响了三声<br/>看房、顶班、去码头，你先回谁？</>}</p><div className="home-start"><div className="mode-select" aria-label="选择游戏模式">
- <button className="mode-entry main-mode" onClick={beginDraw}><b>我的人生</b><span>{challenge?'接这手牌':'开局抽卡'} <Icon name="arrow" size={17}/></span></button>
+ <button className="mode-entry main-mode" onClick={()=>beginDraw()}><b>我的人生</b><span>{challenge?'接这手牌':'开局抽卡'} <Icon name="arrow" size={17}/></span></button>
  <button className="mode-entry guest-mode" onClick={()=>setParallel(true)}><b>重走别人的人生</b><span>去平行上海 <Icon name="arrow" size={17}/></span></button>
- </div><div className="home-quick-games"><button className="pearl-entry" onClick={()=>{window.location.hash=pearlHash(newSeed(),undefined,CURRENT_PEARL_RULES);}}><Icon name="bolt" size={17}/>先躲一轮激光</button><a className="pearl-entry" href={STALL_PATH}><Icon name="coffee" size={17}/>去小吃街顶班</a></div>{game&&<button className="continue-button" onClick={()=>{setScreen(game.ended?'end':'play');setModal(null);}}>继续上回 · {game.name}的{game.age}岁 <Icon name="chevron" size={16}/></button>}</div></div><div className="hero-city"><picture>
+ </div><button className="start-stories-entry" onClick={()=>setModal('starts')}><Icon name="dice" size={17}/><b>选定出身</b><span>日结工 / 顶级富二代</span><Icon name="arrow" size={16}/></button><div className="home-quick-games"><button className="pearl-entry" onClick={()=>{window.location.hash=pearlHash(newSeed(),undefined,CURRENT_PEARL_RULES);}}><Icon name="bolt" size={17}/>先躲一轮激光</button><a className="pearl-entry" href={STALL_PATH}><Icon name="coffee" size={17}/>去小吃街顶班</a></div>{game&&<button className="continue-button" onClick={()=>{setScreen(game.ended?'end':'play');setModal(null);}}>继续上回 · {game.name}的{game.age}岁 <Icon name="chevron" size={16}/></button>}</div></div><div className="hero-city"><picture>
   <source media="(max-width: 600px)" srcSet={streetPhoto('cover-south-station-mobile')}/>
   <img className="home-key-art" src={streetPhoto('cover-south-station')} alt="雨刚停，一位旅客在上海南站出口扶着行李箱回消息" fetchPriority="high"/>
  </picture><div className="hero-shade"/></div><div className="home-bottom"><span className="ticker-label">申城小报</span><div className="ticker"><span>外滩发布柠檬水预警</span><span>公园相亲角下雨，摊主撑伞继续</span><span>安福路面馆招一晚帮工，管饭</span></div></div></main>}
@@ -389,9 +395,9 @@ export default function App(){
   </nav>
   {setupStep==='cards'?<>
    <header className="setup-heading">
-    <h1 ref={setupHeading} tabIndex={-1}>{challenge?'同手牌挑战':'你的五张牌'}</h1>
+    <h1 ref={setupHeading} tabIndex={-1}>{startProfile?.title??(challenge?'同手牌挑战':'你的五张牌')}</h1>
     <div className="draw-tools">
-     {!challenge&&<span>重抽 <b>{2-rerolls}</b> 次</span>}
+     {!lockedHand&&<span>重抽 <b>{2-rerolls}</b> 次</span>}
      {!allRevealed&&<button className="secondary" onClick={revealAll}>全部揭晓 <Icon name="spark" size={17}/></button>}
     </div>
    </header>
@@ -425,7 +431,7 @@ export default function App(){
       </div>
       <div className="card-bottom">
        <span>{card.tag}</span>
-       {!challenge&&<button disabled={rerolls>=2} onClick={()=>openSwap(i)} aria-label={'重抽'+card.slot}><Icon name="dice" size={15}/>重抽</button>}
+       {!lockedHand&&<button disabled={rerolls>=2} onClick={()=>openSwap(i)} aria-label={'重抽'+card.slot}><Icon name="dice" size={15}/>重抽</button>}
       </div>
      </div>}
     </div>;
@@ -456,7 +462,7 @@ export default function App(){
    </AppearancePicker>
   </>}
  </main>}
- {screen==='play'&&game&&<main className="play-screen"><aside className={'life-sidebar '+(mobilePanel==='stats'?'mobile-open':'')}><div className="player-identity"><PlayerPortrait appearance={game.appearance} size={49} age={game.age}/><div><b>{game.name}</b><span>{game.appearance.gender==='female'?'女性':'男性'} · {LOOKS.find(l=>l.id===game.appearance.looks)?.name}</span></div><button className="identity-seal line-seal" onClick={()=>setModal('lines')} aria-label="查看当前时间线">{lineName(line!.id)}</button></div><div className="chapter-label"><span>第 {String(chapterOf(game.age)+1).padStart(2,'0')} 章</span><small>{chapter.years}</small></div><div className="age-row"><strong>{game.age}</strong><span>岁<br/><b>{chapter.name}</b></span><span className="age-stamp">来沪<br/>{game.age-17}年</span></div><div className="cash-block"><span>手头积蓄</span><strong>{money(game.cash)}</strong><div><span>每月结余</span><b className={budget!.net>=0?'positive':'negative'}>{budget!.net>=0?'+':''}{money(budget!.net)}</b></div></div><div className="stats-list">{(Object.keys(STAT_NAMES) as StatKey[]).map(k=><div className="stat-row" key={k}><span>{STAT_NAMES[k]}</span><div className="stat-track"><i style={{width:game.stats[k]+'%',background:STAT_COLORS[k]}}/></div><b>{game.stats[k]}</b></div>)}</div><button className="career-summary" onClick={()=>{if(game.actions<=0){notify('明年再谈工作，先结算这一年。');return;}setModal('career');}}><span className="summary-icon"><Icon name="case" size={20}/></span><span><small>{career?career.name:'当前工作'}</small><b>{career?career.ranks[game.jobRank]:'还在找机会'}</b></span><Icon name="chevron" size={16}/></button><div className="life-small-row"><span><Icon name="home" size={14}/>{HOUSING_NAMES[game.housing]}</span><span>{money(budget!.rent)}/月</span></div><button className="relationship-summary" onClick={()=>{setProfile(undefined);setModal('contacts');}}><Icon name="heart" size={17}/><span>{game.partnerId?'和'+CAST.find(c=>c.id===game.partnerId)?.name+(homePlan==='shared'?'一起住':homePlan==='standing'?'每周见面':'在一起'):'单身'}</span><Icon name="chevron" size={14}/></button><div className="time-budget"><div><b>今年剩几次行动</b><span>{game.actions} / 3</span></div><div className="time-tokens">{[0,1,2].map(i=><span key={i} className={i<game.actions?'available':'used'}><Icon name="clock" size={15}/>{i<game.actions?'还能安排':'已经用掉'}</span>)}</div></div><button className={'primary year-button '+(game.actions===0?'ready':'')} onClick={advance} disabled={blocked||game.pendingYearEvent}>结算这一年 <Icon name="arrow" size={19}/></button><small className="year-hint">{game.actions===0?'行动已用完':(lead||cardLead)?'还有消息':'结算后进入下一年'}</small></aside>
+ {screen==='play'&&game&&<main className="play-screen"><aside className={'life-sidebar '+(mobilePanel==='stats'?'mobile-open':'')}><div className="player-identity"><PlayerPortrait appearance={game.appearance} size={49} age={game.age}/><div><b>{game.name}</b><span>{game.appearance.gender==='female'?'女性':'男性'} · {LOOKS.find(l=>l.id===game.appearance.looks)?.name}</span></div><button className="identity-seal line-seal" onClick={()=>setModal('lines')} aria-label="查看当前时间线">{lineName(line!.id)}</button></div><div className="chapter-label"><span>第 {String(chapterOf(game.age)+1).padStart(2,'0')} 章</span><small>{chapter.years}</small></div><div className="age-row"><strong>{game.age}</strong><span>岁<br/><b>{chapter.name}</b></span><span className="age-stamp">来沪<br/>{game.age-17}年</span></div><div className="cash-block"><span>手头积蓄</span><strong>{money(game.cash)}</strong><div><span>每月结余</span><b className={budget!.net>=0?'positive':'negative'}>{budget!.net>=0?'+':''}{money(budget!.net)}</b></div></div>{!!budget!.familyPaid&&<div className="life-cash-detail"><span>家里代付上限</span><strong>{money(FAMILY_CAP)}/月</strong></div>}{!!outstandingShiftPay(game)&&<div className="life-cash-detail"><span>待结班费</span><strong>{money(outstandingShiftPay(game))}</strong></div>}<div className="stats-list">{(Object.keys(STAT_NAMES) as StatKey[]).map(k=><div className="stat-row" key={k}><span>{STAT_NAMES[k]}</span><div className="stat-track"><i style={{width:game.stats[k]+'%',background:STAT_COLORS[k]}}/></div><b>{game.stats[k]}</b></div>)}</div><button className="career-summary" onClick={()=>{if(game.actions<=0){notify('明年再谈工作，先结算这一年。');return;}setModal('career');}}><span className="summary-icon"><Icon name="case" size={20}/></span><span><small>{career?career.name:'当前工作'}</small><b>{career?career.ranks[game.jobRank]:'还在找机会'}</b></span><Icon name="chevron" size={16}/></button><div className="life-small-row"><span><Icon name="home" size={14}/>{lifeStartHousing(game)??HOUSING_NAMES[game.housing]}</span><span>{money(budget!.rent)}/月</span></div><button className="relationship-summary" onClick={()=>{setProfile(undefined);setModal('contacts');}}><Icon name="heart" size={17}/><span>{game.partnerId?'和'+CAST.find(c=>c.id===game.partnerId)?.name+(homePlan==='shared'?'一起住':homePlan==='standing'?'每周见面':'在一起'):'单身'}</span><Icon name="chevron" size={14}/></button><div className="time-budget"><div><b>今年剩几次行动</b><span>{game.actions} / 3</span></div><div className="time-tokens">{[0,1,2].map(i=><span key={i} className={i<game.actions?'available':'used'}><Icon name="clock" size={15}/>{i<game.actions?'还能安排':'已经用掉'}</span>)}</div></div><button className={'primary year-button '+(game.actions===0?'ready':'')} onClick={advance} disabled={blocked||game.pendingYearEvent}>结算这一年 <Icon name="arrow" size={19}/></button><small className="year-hint">{game.actions===0?'行动已用完':(lead||cardLead)?'还有消息':'结算后进入下一年'}</small></aside>
  <section data-night={map3d&&night} className={'city-stage '+(map3d?'city-map-mode':'city-street-mode')}>{map3d?<><div className="district-title"><span className="district-en">{district.en}</span><h1>{district.name}<small>· {night?'夜间':'白天'}</small></h1><p>{district.subtitle}</p></div><Suspense fallback={<LoadCity/>}><CityScene district={game.district} appearance={game.appearance} onNightOwl={openNightOwl} mode="play" selectedHotspot={selected?.id} destination={destination} onHotspot={requestHotspot} onArrive={arrive} night={night} compact={compact} reducedMotion={reducedMotion}/></Suspense></>:<StreetScene district={district} disabled={blocked||game.actions<=0||game.pendingYearEvent} onVisit={startActivity} onNightOwl={openNightOwl}/>}{compact&&leadButtons}{compact&&map3d&&!lead&&!cardLead&&!blocked&&!walking&&<div className="mobile-next"><div><span>{game.age}岁 · 这一年还剩 {game.actions} 格时间</span><p>{game.actions>0?'想去哪，点地点':'行动已用完'}</p></div>{game.actions>0?<button onClick={()=>game.jobId?setModal('romance'):setModal('career')}>{game.jobId?'约个人见见':'找个工作聊聊'}<Icon name="arrow" size={16}/></button>:<button onClick={advance}>年度结算<Icon name="arrow" size={16}/></button>}</div>}{map3d&&<div className="stage-bottom"><span><i className="red-dot"/>{walking?'正去'+selected?.name:'点地面走走，点地点办事'}</span>{walking?<button onClick={arrive}>直接进去 <Icon name="arrow" size={14}/></button>:<small>{compact?'逛街不扣行动':'WASD / 方向键移动 · 逛街不扣行动'}</small>}</div>}</section>
  <aside className={'places-sidebar '+(mobilePanel==='places'?'mobile-open':'')}><div className="places-top"><div><h2>{map3d?'街区地点':(lead||cardLead)?'手头的事':'刚发生的事'}</h2></div></div>{!compact&&leadButtons}{!map3d&&lastEntry&&<article className="street-journal">
  <small>{lastEntry.age}岁 · {lastEntry.tag}</small><h3>{lastEntry.title}</h3><p>{lastEntry.text}</p>
@@ -466,8 +472,8 @@ export default function App(){
  {compact&&<nav className="mobile-tools"><button onClick={()=>setMobilePanel(v=>v==='stats'?null:'stats')}><Icon name="people" size={17}/>{game.age}岁 · {money(game.cash)}</button><button onClick={()=>setMobilePanel(v=>v==='places'?null:'places')}><Icon name={map3d?'map':'book'} size={17}/>{map3d?'地点':'手头的事'}</button><button onClick={advance} disabled={blocked||game.pendingYearEvent}>年度结算 <Icon name="arrow" size={16}/></button></nav>}
  </main>}
  {screen==='end'&&game&&<EndingScreen game={game} sharing={sharing} onShare={share}
-  onChallenge={copyChallenge} onDraw={beginDraw} onJournal={()=>setModal('journal')} onLines={()=>setModal('lines')}/>}
- {dialogOpen&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget&&!activeEvent&&!mini&&!outcome)setModal(null);}}><section className={'modal '+(activeEvent?'event-modal':'')+(wideShot?' wide-shot-modal':'')+(openingMessages?' arrival-modal':'')+(arrivalReply?' arrival-reply-modal':'')+(nightClue?' first-night-meeting':'')+(activeEvent?.firstDate?' date-parting-modal':'')+(rentalScene?' rental-negotiation':'')+(tableScene?' long-table-modal':'')+(parkScene?' match-scene':'')+(workScene?' handover-scene':'')+(offerScene?' job-offer-modal':'')+(birthScene||stallScene||householdScene?' birth-scene-modal':'')+(mini?' minigame-modal':'')+(mini?.type==='rental'?' rental-modal':'')+(mini?.type==='stall'?' stall-modal':'')+(mini?.type==='dialogue'?(mini.person?' date-modal':' date-modal work-interview-modal'):'')+(modal==='romance'?' romance-modal':'')+(modal==='journal'?' journal-modal':'')+(modal==='swap'?' swap-modal':'')+(modal==='lines'?' lines-modal':'')} role="dialog" aria-modal="true" aria-label={activeEvent?.title||(arrivalContact?arrivalContact.name+'回你了':outcome?.title)||(mini?.type==='stall'?'晚风小吃街':mini?'人生现场':modal==='saves'?'存档':modal==='swap'?'换牌':modal==='journal'?'人生记事':modal==='lines'?'时间线':modal==='contacts'?(profile?.name??'认识的人'):'魔都人生')}>
+  onChallenge={copyChallenge} onDraw={()=>beginDraw()} onJournal={()=>setModal('journal')} onLines={()=>setModal('lines')}/>}
+ {dialogOpen&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget&&!activeEvent&&!mini&&!outcome)setModal(null);}}><section className={'modal '+(activeEvent?'event-modal':'')+(wideShot?' wide-shot-modal':'')+(openingMessages?' arrival-modal':'')+(arrivalReply?' arrival-reply-modal':'')+(nightClue?' first-night-meeting':'')+(lifeStartScene?' life-start-scene':'')+(activeEvent?.firstDate?' date-parting-modal':'')+(rentalScene?' rental-negotiation':'')+(tableScene?' long-table-modal':'')+(parkScene?' match-scene':'')+(workScene?' handover-scene':'')+(offerScene?' job-offer-modal':'')+(birthScene||stallScene||householdScene?' birth-scene-modal':'')+(mini?' minigame-modal':'')+(mini?.type==='rental'?' rental-modal':'')+(mini?.type==='stall'?' stall-modal':'')+(mini?.type==='dialogue'?(mini.person?' date-modal':' date-modal work-interview-modal'):'')+(modal==='romance'?' romance-modal':'')+(modal==='journal'?' journal-modal':'')+(modal==='swap'?' swap-modal':'')+(modal==='starts'?' life-start-modal':'')+(modal==='lines'?' lines-modal':'')} role="dialog" aria-modal="true" aria-label={activeEvent?.title||(arrivalContact?arrivalContact.name+'回你了':outcome?.title)||(mini?.type==='stall'?'晚风小吃街':mini?'人生现场':modal==='saves'?'存档':modal==='swap'?'换牌':modal==='starts'?'选一种开局':modal==='journal'?'人生记事':modal==='lines'?'时间线':modal==='contacts'?(profile?.name??'认识的人'):'魔都人生')}>
  {!(activeEvent&&game?.pendingYearEvent)&&<button className="modal-close icon-button" aria-label="关闭" onClick={()=>{if(outcome)closeOutcome();else{setModal(null);setMini(null);dismissEvent();}}}><Icon name="close"/></button>}
  {modal==='help'&&<div className="help-content"><h2>怎么玩</h2><div className="help-step"><b>01</b><div><h3>先抽五张人生牌</h3><p>每类一张。重抽时看两张备选，换上才用一次机会。</p></div></div><div className="help-step"><b>02</b><div><h3>每年三次行动</h3><p>点地点办事，每次扣一格。走路、换城区不扣行动。</p></div></div><div className="help-step"><b>03</b><div><h3>年底结账</h3><p>点年度结算，工资到账，房租和生活费一起扣。六十岁结局。</p></div></div><button className="primary" onClick={()=>setModal(null)}>晓得了 <Icon name="check" size={18}/></button><small className="fiction-note">人物与怪谈均为虚构</small></div>}
  {modal==='lines'&&book&&<LifeLines book={book} onFork={branchFrom} onSwitch={returnToLine} onDrop={id=>setBook(current=>current?dropLine(current,id):current)}/>}
@@ -475,6 +481,7 @@ export default function App(){
   <h2>把这手牌发给朋友</h2>
   <input aria-label="同手牌挑战链接" value={handLink} readOnly onFocus={event=>event.currentTarget.select()}/>
  </div>}
+ {modal==='starts'&&<LifeStartPicker onPick={beginDraw}/>}
  {modal==='swap'&&swapIndex!==undefined&&<OpeningSwap cards={cards} index={swapIndex} seed={seed} round={rerolls+1}
   goal={goal} appearance={appearance} complete={allRevealed} onChoose={chooseSwap} onKeep={()=>setModal(null)}/>}
  {modal==='journal'&&game&&<div className="journal-content"><h2>记事本</h2><div className="journal-list">{game.journal.slice().reverse().map((j,i)=><article key={i}><div><b>{j.age}</b><span>岁</span></div><section><span className="journal-tag">{j.tag}</span><h3>{j.title}</h3><p>{j.text}</p></section></article>)}</div><button className="secondary" onClick={exportSave}><Icon name="download" size={17}/>导出完整人生档案</button></div>}
@@ -529,7 +536,7 @@ export default function App(){
  {!!outcome.tableIncome&&<div><span>长桌修补台</span><b>+{money(outcome.tableIncome)}</b></div>}{!!outcome.stallIncome&&<div><span>小吃街晚班</span><b>+{money(outcome.stallIncome)}</b></div>}{outcome.rentExpense!==undefined?<>
   <div><span>{outcome.sharedHousing?'你承担的全年住房费':'这份租约的全年房租'}</span><b>−{money(outcome.rentExpense)}</b></div>
   <div><span>全年生活开支</span><b>−{money((outcome.expense||0)-outcome.rentExpense)}</b></div>
- </>:<div><span>全年住房与生活</span><b>−{money(outcome.expense||0)}</b></div>}{!!outcome.repayment&&<div><span>这期助学贷款</span><b>−{money(outcome.repayment)}</b></div>}<div><span>现在手上</span><strong>{money(game.cash)}</strong></div></div>:<div className="effect-badges">{effectsText(outcome.effect).map(([label,n])=><span key={label} className={n>0?'gain':'loss'}>{label} <b>{label==='积蓄'?(n>0?'+':'−')+money(Math.abs(n)):(n>0?'+':'')+n}</b></span>)}{outcome.effect.job&&<span className={outcome.effect.job==='unemployed'?'loss':'gain'}>{outcome.effect.job==='unemployed'?'开始待业':'新的职业机会'}</span>}{signedOffer?<span className="gain">{isSelfEmployed(game.jobId??'')?'月收入估算':'约定月薪'} <b>{money(budget!.salary)}</b></span>:outcome.effect.payRate!==undefined&&<span className={outcome.effect.payRate<1?'loss':'gain'}>薪资按原价 <b>{Math.round(outcome.effect.payRate*100)}%</b> 发</span>}</div>}{arrivalLead&&arrivalReply&&<button className="arrival-go" onClick={()=>openLead(arrivalLead.event)}>
+ </>:<div><span>全年住房与生活</span><b>−{money(outcome.expense||0)}</b></div>}{!!outcome.familyPaid&&<div><span>家里代付指定账单</span><b>+{money(outcome.familyPaid)}</b></div>}{!!outcome.uncovered&&<div className="year-shortfall"><span>基本开销缺口</span><b>{money(outcome.uncovered)}</b></div>}{!!outcome.repayment&&<div><span>这期助学贷款</span><b>−{money(outcome.repayment)}</b></div>}<div><span>现在手上</span><strong>{money(game.cash)}</strong></div></div>:<div className="effect-badges">{effectsText(outcome.effect).map(([label,n])=><span key={label} className={n>0?'gain':'loss'}>{label} <b>{label==='积蓄'?(n>0?'+':'−')+money(Math.abs(n)):(n>0?'+':'')+n}</b></span>)}{outcome.effect.job&&<span className={outcome.effect.job==='unemployed'?'loss':'gain'}>{outcome.effect.job==='unemployed'?'开始待业':'新的职业机会'}</span>}{signedOffer?<span className="gain">{isSelfEmployed(game.jobId??'')?'月收入估算':'约定月薪'} <b>{money(budget!.salary)}</b></span>:outcome.effect.payRate!==undefined&&<span className={outcome.effect.payRate<1?'loss':'gain'}>薪资按原价 <b>{Math.round(outcome.effect.payRate*100)}%</b> 发</span>}</div>}{arrivalLead&&arrivalReply&&<button className="arrival-go" onClick={()=>openLead(arrivalLead.event)}>
   {arrivalReply.go} <Icon name="arrow" size={19}/>
  </button>}<button className={'primary'+(arrivalReply?' arrival-later':'')} onClick={closeOutcome}>{arrivalReply?'先逛逛':game.ended?'回头看看这一生':outcome.annual?game.age+'岁，接着过':'继续'} <Icon name="arrow" size={19}/></button><div className="outcome-links">
  {outcome.annual&&book&&book.lines.length>1&&<button className="text-button" onClick={()=>{closeOutcome();setModal('lines');}}>对照另一条线 <Icon name="map" size={16}/></button>}
