@@ -5,7 +5,7 @@ export const LOOKS:{id:LooksLevel;name:string;line:string;flavor:string;face:num
  {id:'stunning',name:'惊艳全场',line:'路过咖啡店，主理人亲自开门',flavor:'回头率超标',face:16,attraction:6},
 ];
 const agedHeads = new Set(['mao', 'he', 'lu']);
-const contactPortraits = new Set(['tang', 'wu', 'fang', 'boss']);
+const contactPortraits = new Set(['tang', 'wu', 'fang', 'boss', 'gao']);
 
 export function portraitArt(id: string, full: boolean, age = 18): string {
  const aged = age >= 53 && agedHeads.has(id);

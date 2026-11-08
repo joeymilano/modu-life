@@ -1,3 +1,4 @@
+import { ANFU_CORNER_TICKET, CORNER_STILLS, cornerPhoto } from './streetCorners';
 import { laterDaywork, laterHeir } from './lifeYears';
 import { contactEvidence, FANG_TICKET_SCENES } from './contactStories';
 import type { EventChoice, LifeEvent } from './types';
@@ -55,6 +56,7 @@ const ticketShots = new Set([
   ...OPENING_STILLS.map(openingPhoto),
   ...LIFE_YEARS_STILLS.map(lifeYearsPhoto),
   ...CONTACT_STILLS.map(contactPhoto),
+  ...CORNER_STILLS.map(cornerPhoto),
   ...TABLE_STILLS.map(tablePhoto),
   ...FERRY_STILLS.map(ferryPhoto),
   stallPhoto('close'), stallPhoto('burnt'),
@@ -254,6 +256,21 @@ const depositStory: Timeline = {
  ],
 };
 
+const [queueCup, queued, gaveSeat] = ANFU_CORNER_TICKET;
+const queueReturn = (event: LifeEvent): Turn => {
+ const turn = lateTurn(event,'后来','安福路 · 门口的折椅',[['tea',end],['lend',end]]);
+ return {...turn,options:turn.options.map(option=>({...option,shot:event.illustration}))};
+};
+const coffeeQueue: Timeline = {
+ id:'queue-cup',kind:'life',title:'那杯咖啡替谁排队',author:'魔都人生',
+ original:'我排完收了六十。照片后来上了同城榜，里面只有我一只手。再去时，陈恺已经把椅子修好了。',
+ turns:[
+  lateTurn(queueCup,'那个下午','安福路 · 不急咖啡',[['queue',1],['seat',2]]),
+  queueReturn(queued),
+  queueReturn(gaveSeat),
+ ],
+};
+
 export const CITY_TIMELINES: Timeline[] = [
   {
     id: 'last-train', kind: 'life', title: '末班车开走之前', author: '魔都人生',
@@ -396,6 +413,7 @@ export const CITY_TIMELINES: Timeline[] = [
   warehouseCard,
   factoryHandover,
   depositStory,
+  coffeeQueue,
   {
     id: 'scallion-bill', kind: 'life', title: '隔壁桌的葱油饼', author: '魔都人生',
     original: '我说了句「放回去」，林佳没理我，自己跟隔壁道了歉。散的时候她把餐巾留在账单底下。我过了两天再去找，老板说早擦桌子了。',
