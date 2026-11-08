@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import type { DistrictId } from '../game/types';
 import type { Obstacle } from './pathfinding';
+import { BUND_BANK, BUND_LANDMARKS, PUDONG_LANDMARKS } from './riverLayout';
 
 const BOX=new THREE.BoxGeometry(1,1,1);
 const paint=new Map<string,THREE.MeshStandardMaterial>();
@@ -97,9 +98,110 @@ export function OrientalPearl({night=false}:{night?:boolean}){
   <mesh position={[0,11.3,0]} castShadow><cylinderGeometry args={[.025,.075,2,8]}/><meshStandardMaterial color='#b9c8c1' metalness={.5}/></mesh>
  </group>;
 }
-export function Jinmao({night=false}:{night?:boolean}){return <group>{Array.from({length:9},(_,i)=>{const w=2.4-i*.19,h=1.05;return <group key={i} position={[0,i*.96,0]}><Block position={[0,h/2,0]} size={[w,h,w]} color={i%2?'#b8c3b8':'#9fada7'} metalness={.3} roughness={.4}/><Windows width={w} depth={w} height={h} floors={1} modern night={night}/><Block position={[0,h,0]} size={[w+.15,.12,w+.15]} color='#dddcc9'/></group>})}<mesh position={[0,9.7,0]}><cylinderGeometry args={[.025,.16,1.7,8]}/><meshStandardMaterial color='#c9cbbd'/></mesh></group>;}
-export function FinancialCenter({night=false}:{night?:boolean}){return <group><Block position={[0,4.65,0]} size={[2.4,9.3,1.55]} color='#7c9e9a' metalness={.4} roughness={.3}/><Windows width={2.4} depth={1.55} height={9.3} floors={13} modern night={night}/><Block position={[-.9,10.1,0]} size={[.6,1.7,1.55]} color='#98b6ad' metalness={.4}/><Block position={[.9,10.1,0]} size={[.6,1.7,1.55]} color='#98b6ad' metalness={.4}/><Block position={[0,11.05,0]} size={[2.4,.55,1.55]} color='#b9c9bd' metalness={.4}/></group>;}
-export function ShanghaiTower({night=false}:{night?:boolean}){return <group>{Array.from({length:18},(_,i)=>{const r=1.25-i*.029;return <group key={i} position={[0,i*.69+.36,0]} rotation={[0,i*.065,0]}><mesh castShadow receiveShadow><cylinderGeometry args={[r-.028,r,.71,8]}/><meshStandardMaterial color={i%2?'#99b6aa':'#b4c9b9'} metalness={.4} roughness={.28}/></mesh><mesh position={[0,.34,0]}><cylinderGeometry args={[r+.02,r+.02,.04,8]}/><meshStandardMaterial color={night?'#d8c486':'#d4ded0'}/></mesh></group>})}<mesh position={[0,12.7,0]}><cylinderGeometry args={[.22,.72,.65,8]}/><meshStandardMaterial color='#bbcdb9'/></mesh></group>;}
+const jinmaoTiers = [
+ {y:0,height:2.55,width:2.35}, {y:2.55,height:1.45,width:2.12}, {y:4,height:1.25,width:1.89},
+ {y:5.25,height:1.12,width:1.66}, {y:6.37,height:.98,width:1.43}, {y:7.35,height:.86,width:1.19},
+ {y:8.21,height:.76,width:.94}, {y:8.97,height:.64,width:.73},
+];
+function Jinmao({night}: {night: boolean}) {
+ return <group name="jinmao-tower">
+  <Block position={[0,.13,0]} size={[2.75,.25,2.75]} color="#929696"/>
+  {jinmaoTiers.map(({y,height,width},index)=><group key={y} position={[0,y,0]}>
+   <Block position={[0,height/2,0]} size={[width,height,width]} color={index%2?'#7e9597':'#96a6a6'} metalness={.28} roughness={.44}/>
+   <Windows width={width} depth={width} height={Math.max(1.15,height)} floors={index===0?3:1} modern night={night}/>
+   <Block position={[0,height-.06,0]} size={[width+.13,.12,width+.13]} color={night?'#cfbd93':'#c6c9c1'}/>
+  </group>)}
+  <mesh position={[0,9.94,0]} castShadow>
+   <cylinderGeometry args={[.018,.29,1.24,8]}/>
+   <meshStandardMaterial color="#c8c9bd" metalness={.35} roughness={.4} emissive="#a58556" emissiveIntensity={night?.26:0}/>
+  </mesh>
+ </group>;
+}
+
+function FinancialCenter({night}: {night: boolean}) {
+ const geometry=useMemo(()=>{
+  const facade=new THREE.Shape();
+  facade.moveTo(-1.34,0);facade.lineTo(1.34,0);facade.lineTo(1.02,11.5);facade.lineTo(-1.02,11.5);facade.closePath();
+  const portal=new THREE.Path();
+  portal.moveTo(-.58,9.36);portal.lineTo(-.75,10.91);portal.lineTo(.75,10.91);portal.lineTo(.58,9.36);portal.closePath();
+  facade.holes.push(portal);
+  const shell=new THREE.ExtrudeGeometry(facade,{depth:1.46,bevelEnabled:false});
+  shell.translate(0,0,-.73);
+  const lines:number[]=[];
+  for(const side of [-1,1]){
+   for(let i=1;i<=32;i++){
+    const y=i*.28, half=1.34-.32*y/11.5;
+    lines.push(-half,y,side*.735,half,y,side*.735);
+   }
+   for(let i=-3;i<=3;i++) lines.push(i*.315,.2,side*.737,i*.27,9.05,side*.737);
+   lines.push(-.58,9.36,side*.738,-.75,10.91,side*.738,-.75,10.91,side*.738,.75,10.91,side*.738,
+    .75,10.91,side*.738,.58,9.36,side*.738,.58,9.36,side*.738,-.58,9.36,side*.738);
+  }
+  const seams=new THREE.BufferGeometry();
+  seams.setAttribute('position',new THREE.Float32BufferAttribute(lines,3));
+  return {shell,seams};
+ },[]);
+ useEffect(()=>()=>{geometry.shell.dispose();geometry.seams.dispose();},[geometry]);
+ return <group name="world-financial-center">
+  <mesh geometry={geometry.shell} castShadow receiveShadow>
+   <meshStandardMaterial color={night?'#45606b':'#83a1ab'} metalness={.33} roughness={.34}
+    emissive="#374e5c" emissiveIntensity={night?.34:0}/>
+  </mesh>
+  <lineSegments geometry={geometry.seams}>
+   <lineBasicMaterial color={night?'#b0a68e':'#d6e1df'} transparent opacity={night?.65:.68}/>
+  </lineSegments>
+  <Block position={[0,.1,0]} size={[2.82,.2,1.72]} color="#8b999b"/>
+ </group>;
+}
+
+function ShanghaiTower({night}: {night: boolean}) {
+ const geometry=useMemo(()=>{
+  const rings=42,panels=36;
+  const vertices:number[]=[],colors:number[]=[],triangles:number[]=[],lines:number[]=[];
+  const base=new THREE.Color('#739399'),sky=new THREE.Color('#c2d1cd');
+  const panelPoint=(floor:number,panel:number,offset=1)=>{
+   const level=floor/rings, angle=panel/panels*Math.PI*2, twist=level*Math.PI*2/3;
+   const radius=1.32*(1-.37*level)*(1+.135*Math.cos(3*angle))*offset;
+   return [radius*Math.cos(angle+twist),.08+12.88*level+.32*Math.cos(angle-.35)*level**7,
+    radius*Math.sin(angle+twist)];
+  };
+  for(let floor=0;floor<=rings;floor++){
+   for(let panel=0;panel<panels;panel++){
+    vertices.push(...panelPoint(floor,panel));
+    const shade=.37+.25*Math.cos(panel/panels*2*Math.PI+floor*.055)+.11*Math.cos(panel*1.9)+.18*floor/rings;
+    const color=base.clone().lerp(sky,shade);
+    colors.push(color.r,color.g,color.b);
+    const from=floor*panels+panel, next=floor*panels+(panel+1)%panels;
+    if(floor<rings) {
+     triangles.push(from,from+panels,next,next,from+panels,next+panels);
+     if(panel%3===0) lines.push(...panelPoint(floor,panel,1.005),...panelPoint(floor+1,panel,1.005));
+    }
+    if(floor%2===0) lines.push(...panelPoint(floor,panel,1.005),...panelPoint(floor,panel+1,1.005));
+   }
+  }
+  const crown=vertices.length/3;
+  vertices.push(0,12.96,0);colors.push(sky.r,sky.g,sky.b);
+  for(let panel=0;panel<panels;panel++) triangles.push(crown,rings*panels+(panel+1)%panels,rings*panels+panel);
+  const shell=new THREE.BufferGeometry();
+  shell.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));
+  shell.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
+  shell.setIndex(triangles);shell.computeVertexNormals();
+  const seams=new THREE.BufferGeometry();
+  seams.setAttribute('position',new THREE.Float32BufferAttribute(lines,3));
+  return {shell,seams};
+ },[]);
+ useEffect(()=>()=>{geometry.shell.dispose();geometry.seams.dispose();},[geometry]);
+ return <group name="shanghai-tower">
+  <mesh geometry={geometry.shell} castShadow receiveShadow>
+   <meshStandardMaterial color={night?'#7c98a7':'#ffffff'} vertexColors metalness={.25} roughness={.28}
+    emissive="#405b6c" emissiveIntensity={night?.50:0}/>
+  </mesh>
+  <lineSegments geometry={geometry.seams}>
+   <lineBasicMaterial color={night?'#b9d3db':'#e1eeee'} transparent opacity={night?.52:.57}/>
+  </lineSegments>
+  <Block position={[0,.11,0]} size={[2.75,.22,2.6]} color="#9faaa6"/>
+ </group>;
+}
 function CornerBuilding({night=false}:{night?:boolean}){
  const body=useMemo(()=>{const s=new THREE.Shape();s.moveTo(-2.8,-1.9);s.lineTo(2.8,-1.9);s.lineTo(-2.8,2.1);s.closePath();const g=new THREE.ExtrudeGeometry(s,{depth:5.8,bevelEnabled:true,bevelThickness:.08,bevelSize:.06,bevelSegments:1});g.rotateX(-Math.PI/2);return g;},[]);
  const trim=useMemo(()=>{const s=new THREE.Shape();s.moveTo(-2.86,-1.96);s.lineTo(2.86,-1.96);s.lineTo(-2.86,2.16);s.closePath();const g=new THREE.ExtrudeGeometry(s,{depth:.08,bevelEnabled:false});g.rotateX(-Math.PI/2);return g;},[]);
@@ -112,20 +214,141 @@ class ModelBoundary extends Component<{children:ReactNode;fallback:ReactNode},{f
 function LoadedModel({url,height,maxWidth,maxDepth,rotationY=0,onLoaded}:{url:string;height:number;maxWidth?:number;maxDepth?:number;rotationY?:number;onLoaded?:()=>void}){const {scene}=useGLTF(url);const model=useMemo(()=>{const root=new THREE.Group();root.add(scene.clone(true));root.rotation.y=rotationY;root.traverse(o=>{if((o as THREE.Mesh).isMesh){o.castShadow=true;o.receiveShadow=true;}});const box=new THREE.Box3().setFromObject(root),size=new THREE.Vector3(),center=new THREE.Vector3();box.getSize(size);box.getCenter(center);const scale=Math.min(height/Math.max(size.y,.001),maxWidth?maxWidth/Math.max(size.x,.001):Infinity,maxDepth?maxDepth/Math.max(size.z,.001):Infinity);return {root,scale,center,minY:box.min.y};},[scene,height,maxWidth,maxDepth,rotationY]);useEffect(()=>{onLoaded?.();},[url,onLoaded]);return <group scale={model.scale}><group position={[-model.center.x,-model.minY,-model.center.z]}><primitive object={model.root}/></group></group>;}
 export function ModelSlotView({slot,manifest,children,height,onLoaded}:{slot:string;manifest:ModelManifest;children:ReactNode;height:number;onLoaded?:()=>void}){const entry=manifest[slot];return entry?.url?<ModelBoundary key={entry.url} fallback={children}><Suspense fallback={children}><LoadedModel url={entry.url} onLoaded={onLoaded} height={entry.targetHeight??height} maxWidth={entry.maxWidth} maxDepth={entry.maxDepth} rotationY={entry.rotationY}/></Suspense></ModelBoundary>:children;}
 
+function BundClock({height,night}: {height:number;night:boolean}) {
+ const face=useMemo(()=>{
+  const canvas=document.createElement('canvas');
+  canvas.width=canvas.height=192;
+  const ctx=canvas.getContext('2d')!;
+  ctx.translate(96,96);
+  ctx.fillStyle='#343d39';
+  ctx.fillRect(-96,-96,192,192);
+  ctx.beginPath();ctx.arc(0,0,78,0,2*Math.PI);ctx.fillStyle='#e2dac3';ctx.fill();
+  ctx.strokeStyle='#454a41';ctx.lineWidth=4;
+  for(let i=0;i<12;i++){
+   const a=i*Math.PI/6;
+   ctx.beginPath();ctx.moveTo(63*Math.sin(a),63*Math.cos(a));ctx.lineTo(73*Math.sin(a),73*Math.cos(a));ctx.stroke();
+  }
+  ctx.lineWidth=7;
+  ctx.beginPath();ctx.moveTo(-33,13);ctx.lineTo(0,0);ctx.lineTo(24,-47);ctx.stroke();
+  const texture=new THREE.CanvasTexture(canvas);
+  texture.colorSpace=THREE.SRGBColorSpace;
+  return texture;
+ },[]);
+ useEffect(()=>()=>face.dispose(),[face]);
+ return <group position={[0,height,0]}>
+  <Block position={[0,.2,0]} size={[1.96,.4,1.77]} color="#b0aea0"/>
+  <Block position={[0,1.19,0]} size={[1.57,1.82,1.57]} color="#c3beb0"/>
+  <Block position={[0,2.17,0]} size={[1.79,.18,1.79]} color="#b5b1a5"/>
+  <Block position={[0,2.32,0]} size={[1.49,.2,1.49]} color="#8a8d83"/>
+  {[0,1,2,3].map(side=><group key={side} rotation={[0,side*Math.PI/2,0]}>
+   <mesh position={[0,1.55,.79]}>
+    <planeGeometry args={[.91,.91]}/>
+    <meshBasicMaterial map={face} color={night?'#ffdda0':'#f3eee0'}/>
+   </mesh>
+   {[-.52,.52].map(x=><Block key={x} position={[x,.77,.802]} size={[.16,.44,.04]} color="#5e6b69"/>)}
+  </group>)}
+ </group>;
+}
+
+function BundHeritage({kind,width,depth,height,night,stone,copper}: {
+ kind:'peace-hotel'|'customs-house';width:number;depth:number;height:number;night:boolean;
+ stone?:THREE.Texture;copper?:THREE.Texture;
+}) {
+ const hotel=kind==='peace-hotel';
+ const trim=hotel?'#b4a89b':'#c8c0ad';
+ const columns=hotel?[-2.66,-1.97,-1.28,0,1.28,1.97,2.66]:[-2.54,-1.71,-.86,0,.86,1.71,2.54];
+ return <group name={kind} rotation={[0,Math.PI/2,0]}>
+  <mesh position={[0,height/2,0]} castShadow receiveShadow>
+   <boxGeometry args={[width,height,depth]}/>
+   <meshStandardMaterial color={stone?'#d6d0c0':'#aca79b'} map={stone} bumpMap={stone} bumpScale={.043} roughness={.91}/>
+  </mesh>
+  <Windows width={width} depth={depth} height={height} floors={hotel?5:4} night={night}/>
+  {[.26,1.14,height-.45,height-.08].map((y,i)=><Block key={y} position={[0,y,0]}
+   size={[width+.19,.11+i*.023,depth+.18]} color={trim}/>)}
+  {[-1,1].map(side=><group key={side} rotation={[0,side===1?0:Math.PI,0]}>
+   {columns.map(x=><Block key={x} position={[x,height*.48,depth/2+.038]} size={[.16,height*.73,.108]} color={trim}/>)}
+   <Block position={[0,.53,depth/2+.09]} size={[.75,.91,.15]} color={night?'#b39968':'#526661'}/>
+   {[-1.41,1.41].map(x=><Block key={x} position={[x,.58,depth/2+.077]}
+    size={[.47,.76,.08]} color={night?'#967e55':'#596b68'}/>)}
+  </group>)}
+  {hotel?<group position={[.98,height,0]}>
+   <Block position={[0,.28,0]} size={[2.73,.56,2.58]} color="#a6998b"/>
+   <mesh position={[0,1.37,0]} rotation={[0,Math.PI/4,0]} castShadow receiveShadow>
+    <coneGeometry args={[1.83,1.7,4]}/>
+    <meshStandardMaterial color="#6a8972" map={copper} bumpMap={copper} bumpScale={.027}
+     metalness={.16} roughness={.75} emissive="#285144" emissiveIntensity={night?.12:0}/>
+   </mesh>
+   <Block position={[0,2.25,0]} size={[.11,.28,.11]} color="#66766a"/>
+  </group>:<BundClock height={height} night={night}/>}
+ </group>;
+}
+
+const skylineModels = {'oriental-pearl':OrientalPearl,jinmao:Jinmao,'financial-center':FinancialCenter,'shanghai-tower':ShanghaiTower};
+
 export interface BuildingSpec {x:number;z:number;width:number;depth:number;height:number;kind:'house'|'office';color?:string;shop?:string;roof?:string}
 const HOUSE_POS=[-8,-4,4,8];
 export function getBuildings(district:DistrictId):BuildingSpec[]{
- if(district==='bund')return [...[-8,-4].map((x,i)=>({x,z:-5.8,width:3.1,depth:3.2,height:4.4+i*.5,kind:'house' as const,shop:['沪上邮局','和平书店'][i]})),...HOUSE_POS.map((x,i)=>({x,z:5.5,width:3.1,depth:3.2,height:3.4+(i%2)*.6,kind:'house' as const,shop:['弄堂生煎','梧桐花店','好好咖啡','老街照相'][i]}))];
+ if(district==='bund')return [
+  {x:-9.7,z:-6.5,width:3.55,depth:3.6,height:3.5,kind:'house',shop:'沪上邮局',roof:'#77635a'},
+  {x:-5.3,z:-6.5,width:3.4,depth:3.7,height:4.25,kind:'house',shop:'和平书店',roof:'#8b5c4d'},
+  {x:-9.25,z:5.8,width:3.5,depth:3.2,height:3.0,kind:'house',shop:'弄堂生煎',roof:'#8a6359'},
+  {x:-4.9,z:5.8,width:3.5,depth:3.4,height:3.6,kind:'house',shop:'老街照相',roof:'#6d6b5a'},
+ ];
  if(district==='anfu')return [...HOUSE_POS.map((x,i)=>({x,z:-5.9,width:3.1,depth:3.8,height:3.6+(i%3)*.55,kind:'house' as const,color:['#dcc9a8','#b99777','#d8c7a9','#e2d1b0'][i],shop:['面包与早晨','小小书店','弄里咖啡','今天花店'][i]})),...[-8,-4].map((x,i)=>({x,z:5.7,width:3.1,depth:3.4,height:3.5,kind:'house' as const,shop:['沪上理发','只此旧物'][i]}))];
  if(district==='people')return [...HOUSE_POS.map((x,i)=>({x,z:6,width:3.1,depth:3.5,height:3.5+i%2,kind:'house' as const,shop:['人民茶馆','简历复印','一碗馄饨','人民书店'][i]})),{x:7,z:-6,width:4.2,depth:3.4,height:4.8,kind:'office',color:'#b9bba4'}];
  if(district==='lujiazui')return [...[-8,-4,4,8].map((x,i)=>({x,z:6,width:3.15,depth:3.4,height:[5,6.5,4.7,5.9][i],kind:'office' as const,color:['#b1b9a5','#8fa8a0','#c6c2a7','#acbdb1'][i]})),{x:-7,z:-5.5,width:4,depth:4,height:7.4,kind:'office'}];
  if(district==='zhangjiang')return [...HOUSE_POS.map((x,i)=>({x,z:-6,width:3.3,depth:3.7,height:[4.4,5.6,4.8,4.2][i],kind:'office' as const,color:['#aac4b4','#d8d4b8','#9fb6ab','#b8c6b6'][i]})),...[-8,7].map(x=>({x,z:6,width:4.1,depth:3.7,height:3.3,kind:'office' as const,color:'#d1cfb6'}))];
  return [...HOUSE_POS.map((x,i)=>({x,z:-6,width:3.2,depth:3.6,height:[5.5,6.5,5.8,5][i],kind:'house' as const,color:['#d2c9aa','#c6b99a','#d9c6a4','#cbb799'][i],roof:'#716d56',shop:['小区东门','邻里服务','望月公寓','青年公寓'][i]})),...HOUSE_POS.map((x,i)=>({x,z:6,width:3.1,depth:3.5,height:2.5+i%2*.4,kind:'house' as const,shop:['邻里菜场','房屋租售','早点铺','修修补补'][i]}))];
 }
-export function getObstacles(district:DistrictId):Obstacle[]{const a:Obstacle[]=getBuildings(district).map(b=>({x:b.x,z:b.z,width:b.width+.22,depth:b.depth+.25}));if(district==='bund'||district==='lujiazui'){a.push({x:2.6,z:-5.8,width:2.8,depth:2.8},{x:6,z:-7,width:2.4,depth:2.4},{x:8.2,z:-3.9,width:2.1,depth:2.1},{x:-1.2,z:-8.5,width:2.4,depth:2.4});if(district==='bund')a.push({x:13,z:0,width:5.2,depth:25},{x:-2.6,z:9,width:1.65,depth:1.7});}if(district==='anfu')a.push({x:5,z:6,width:5.8,depth:4.2});if(district==='people')a.push({x:-6,z:-5,width:5.8,depth:3.6});return a;}
-export function CityArchitecture({district,night,manifest,wallMap,onLoaded}:{district:DistrictId;night:boolean;manifest:ModelManifest;wallMap?:THREE.Texture;onLoaded?:(slot:string)=>void}){const buildings=getBuildings(district);return <group>
- {buildings.map((b,i)=>{const building=b.kind==='house'?<House width={b.width} depth={b.depth} height={b.height} color={b.color} roof={b.roof} shop={b.shop} night={night} wallMap={wallMap}/>:<Office width={b.width} depth={b.depth} height={b.height} color={b.color} night={night}/>;const slot=district==='bund'&&i===0?'bund-facade':district==='zhangjiang'&&i===1?'zhangjiang-campus':district==='xinzhuang'&&i===0?'residential-block':null;return <group key={i} position={[b.x,0,b.z]}>{slot?<ModelSlotView slot={slot} manifest={manifest} height={b.height}>{building}</ModelSlotView>:building}</group>;})}
- {(district==='bund'||district==='lujiazui')&&<><group position={[2.6,0,-5.8]}><ModelSlotView slot='oriental-pearl' manifest={manifest} height={12.2} onLoaded={()=>onLoaded?.('oriental-pearl')}><OrientalPearl night={night}/></ModelSlotView></group><group position={[6,0,-7]}><ModelSlotView slot='shanghai-tower' manifest={manifest} height={13.2}><ShanghaiTower night={night}/></ModelSlotView></group><group position={[8.2,0,-3.9]} rotation={[0,.72,0]}><ModelSlotView slot='financial-center' manifest={manifest} height={11.5}><FinancialCenter night={night}/></ModelSlotView></group><group position={[-1.2,0,-8.5]}><ModelSlotView slot='jinmao' manifest={manifest} height={10.5}><Jinmao night={night}/></ModelSlotView></group></>}
+export function getObstacles(district:DistrictId):Obstacle[] {
+ const buildings=getBuildings(district);
+ const footprints:Obstacle[]=buildings.map(b=>({x:b.x,z:b.z,width:b.width+.22,depth:b.depth+.25}));
+ if(district==='bund') {
+  footprints.push(...BUND_LANDMARKS.map(b=>({x:b.x,z:b.z,width:b.width+.22,depth:b.depth+.25})));
+  const width=BUND_BANK.eastEnd-BUND_BANK.westQuay;
+  footprints.push({x:BUND_BANK.westQuay+width/2,z:0,width,depth:BUND_BANK.length+1},
+   {x:-2.6,z:9,width:1.65,depth:1.7});
+ }
+ if(district==='lujiazui') {
+  footprints.push(...PUDONG_LANDMARKS.map(tower=>({
+   x:tower.local[0],z:tower.local[1],width:tower.width,depth:tower.depth,
+  })));
+ }
+ if(district==='anfu') footprints.push({x:5,z:6,width:5.8,depth:4.2});
+ if(district==='people') footprints.push({x:-6,z:-5,width:5.8,depth:3.6});
+ return footprints;
+}
+
+export function CityArchitecture({district,night,manifest,wallMap,bundStone,bundCopper,onLoaded}: {
+ district:DistrictId;night:boolean;manifest:ModelManifest;wallMap?:THREE.Texture;
+ bundStone?:THREE.Texture;bundCopper?:THREE.Texture;onLoaded?:(slot:string)=>void;
+}) {
+ const buildings=getBuildings(district);
+ return <group>
+  {buildings.map((b,i)=>{
+   const building=b.kind==='house'
+    ? <House width={b.width} depth={b.depth} height={b.height} color={b.color} roof={b.roof} shop={b.shop} night={night} wallMap={wallMap}/>
+    : <Office width={b.width} depth={b.depth} height={b.height} color={b.color} night={night}/>;
+   const slot=district==='zhangjiang'&&i===1?'zhangjiang-campus':district==='xinzhuang'&&i===0?'residential-block':null;
+   return <group key={i} position={[b.x,0,b.z]}>{slot?<ModelSlotView slot={slot} manifest={manifest} height={b.height}>{building}</ModelSlotView>:building}</group>;
+  })}
+  {district==='bund'&&BUND_LANDMARKS.map(b=>{
+   const facade=<BundHeritage kind={b.id} width={b.depth} depth={b.width} height={b.height}
+    night={night} stone={bundStone??wallMap} copper={bundCopper}/>;
+   return <group key={b.id} position={[b.x,0,b.z]}>
+    {b.id==='customs-house'?<ModelSlotView slot="bund-facade" manifest={manifest} height={b.height+2.3}>{facade}</ModelSlotView>:facade}
+   </group>;
+  })}
+  {(district==='bund'||district==='lujiazui')&&PUDONG_LANDMARKS.map(tower=>{
+   const east=district==='bund';
+   const [x,z]=east?tower.east:tower.local;
+   const Tower=skylineModels[tower.id];
+   return <group key={tower.id} position={[x,0,z]} rotation={[0,east?tower.eastTurn:tower.localTurn,0]}>
+    <ModelSlotView slot={tower.id} manifest={manifest} height={tower.height} onLoaded={()=>onLoaded?.(tower.id)}>
+     <Tower night={night}/>
+    </ModelSlotView>
+   </group>;
+  })}
  {district==='anfu'&&<group position={[5,0,6]}><ModelSlotView slot='wukang-corner' manifest={manifest} height={6.5} onLoaded={()=>onLoaded?.('wukang-corner')}><CornerBuilding night={night}/></ModelSlotView></group>}
  {district==='people'&&<><mesh position={[-6,.025,-5]} rotation={[-Math.PI/2,0,0]}><circleGeometry args={[2.1,32]}/><meshStandardMaterial color='#80a99b' metalness={.22} roughness={.2}/></mesh><group position={[-6,0,-5]}><mesh position={[0,.42,0]}><cylinderGeometry args={[.55,.72,.8,12]}/><meshStandardMaterial color='#c7cab0'/></mesh><mesh position={[0,.88,0]}><sphereGeometry args={[.27,12,8]}/><meshStandardMaterial color='#e9dfba'/></mesh></group><group position={[3,0,-5.8]}><mesh position={[0,2.2,0]}><coneGeometry args={[1.8,.9,6]}/><meshStandardMaterial color='#687965'/></mesh>{[0,1,2,3,4,5].map(i=><Block key={i} position={[Math.sin(i*Math.PI/3)*1.4,1,Math.cos(i*Math.PI/3)*1.4]} size={[.12,2,.12]} color='#d6c39a'/>)}</group></>}
  {district==='zhangjiang'&&<group position={[0,0,5.8]}><Round position={[0,.12,0]} size={[7,.24,3.9]} color='#d5d6be' radius={.12}/><mesh position={[0,2,0]} rotation={[Math.PI/2,0,0]} castShadow><torusGeometry args={[1.4,.12,6,32]}/><meshStandardMaterial color='#c27045' metalness={.2}/></mesh><Sign text='把问题留在这里' width={2.5} position={[0,.8,1.9]} color='#8f613c'/></group>}

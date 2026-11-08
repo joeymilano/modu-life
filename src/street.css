@@ -77,7 +77,6 @@
 .event-modal:has(.event-photo) .event-choices button { border-radius: 2px; }
 .event-modal:has(.event-photo) .event-visual::after { background: linear-gradient(transparent,#18272b55); inset: 82% 0 0; }
 .event-modal:has(.event-photo) .event-body { font-size: clamp(14px,1.18vw,17px); line-height: 1.8; }
-.city-map-mode > .story-leads { position: absolute; left: 13px; bottom: 42px; z-index: 6; width: calc(100% - 26px); }
 .city-street-mode > .story-leads { margin: 0; }
 
 @media (max-width: 850px) {
@@ -96,6 +95,13 @@
   .street-index { font-size: 10px; }
   .career-preview { width: calc(100% + 24px); margin-inline: -12px; }
   .city-street-mode > .story-leads { order: -1; margin: 0 0 8px; }
+  .city-map-mode {
+    display: grid; grid-template-columns: minmax(0,1fr); grid-template-rows: minmax(240px,1fr) auto auto;
+    overflow-y: auto; overflow-x: hidden;
+  }
+  .city-map-mode > :is(.story-leads,.mobile-next) { position: static; margin: 0 13px; width: auto; }
+  .city-map-mode > .stage-bottom { position: static; padding: 9px 15px 13px; }
+  .city-map-mode .owl-hotspot > span { display: none; }
   .screen-play .scene-switch { min-width: 38px; padding: 0 5px; }
   .screen-play .scene-switch span { display: inline; font-size: 10px; }
   .event-modal .event-photo { height: clamp(158px,43vw,270px); margin-bottom: 14px; }

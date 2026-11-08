@@ -1,0 +1,28 @@
+{
+  "method": "Built-in image generation, individual albedo texture scans",
+  "materials": {
+    "bund-stone": {
+      "file": "public/art/city-materials/bund-stone.webp",
+      "resolution": [
+        512,
+        512
+      ],
+      "prompt": "Albedo material photograph, seamless 1024 square tile of aged grey beige granite ashlar used on early 20th century Shanghai Bund commercial buildings. Broad precisely cut shallow horizontal stone courses with staggered subtle seams, very fine mineral grain and weathering, softly weathered from Huangpu humidity. Light neutral medium gray beige with no yellow cast. Tile covers roughly two metres of wall. Perfectly orthographic straight on flat even neutral lighting, no shadows, no strong baked highlight, no windows, no corner, no text, no ground. Photoreal surface intended for a tiny detailed architectural model. Strict tileable edges both directions and no striking marks."
+    },
+    "bund-copper": {
+      "file": "public/art/city-materials/bund-copper.webp",
+      "resolution": [
+        512,
+        512
+      ],
+      "prompt": "Albedo material photograph, seamless 1024 square tile of aged dark jade oxidized patinated copper with fine vertical standing seams inspired by the historic Peace Hotel's copper roof in Shanghai. Desaturated smoky deep sea-green with a hint of gray blue, finely mottled mineral oxidation, evenly spaced subtle ribs; no bright teal, no heavy grunge, no shiny reflections. Orthographic straight overhead flat material scan, even diffuse neutral lighting and no shadows. No border, eaves, lettering, decor, perspective, other objects, symbols or repeated prominent marks. Strict tileable both directions."
+    }
+  },
+  "architectureReferences": {
+    "Peace Hotel copper roof": "https://www.shanghai.gov.cn/nw5827/20200905/0001-5827_632318.html",
+    "Bund Customs House clock": "https://www.shanghai.gov.cn/nw4411/20250929/222f09ea1ab4462592c433197d1d5330.html",
+    "Shanghai Tower spiral": "https://www.gensler.com/uploads/document/242/file/Shanghai_Tower_Facade_Design_Process_11_10_2011.pdf",
+    "Shanghai World Financial Center portal": "https://www.kpf.com/project/shanghai-world-financial-center",
+    "Jin Mao Tower setbacks": "https://www.som.com/projects/jin-mao-tower/"
+  }
+}

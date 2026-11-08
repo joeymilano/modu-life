@@ -2,10 +2,14 @@ import { useMemo, useRef } from 'react';
 import { RoundedBox } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import type { Group, Texture } from 'three';
-import { Block, Lamp } from './CityModels';
+import { Block, Lamp, Tree } from './CityModels';
 import { CitySurface } from './CitySurfaces';
+import { BUND_BANK } from './riverLayout';
 
 const railingPosts = [-11.7, -10.2, -8.7, -7.2, -5.7, -4.2, -2.7, -1.2, .3, 3.5, 5, 6.5, 8, 9.5, 11, 12];
+const riverWidth = BUND_BANK.eastQuay - BUND_BANK.westQuay;
+const riverCenter = BUND_BANK.westQuay + riverWidth / 2;
+const eastBankWidth = BUND_BANK.eastEnd - BUND_BANK.eastQuay;
 
 function WaterGlints({ night, reducedMotion }: { night: boolean; reducedMotion: boolean }) {
   const uniforms = useMemo(() => ({ time: { value: 0 }, afterDark: { value: 0 } }), []);
@@ -13,8 +17,8 @@ function WaterGlints({ night, reducedMotion }: { night: boolean; reducedMotion: 
     uniforms.time.value = reducedMotion ? 0 : clock.elapsedTime;
     uniforms.afterDark.value = night ? 1 : 0;
   });
-  return <mesh position={[12.55, .108, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-    <planeGeometry args={[5.9, 24.3]} />
+  return <mesh position={[riverCenter, .108, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+    <planeGeometry args={[riverWidth, BUND_BANK.length]} />
     <shaderMaterial uniforms={uniforms} transparent depthWrite={false} toneMapped={false}
       vertexShader={
         'varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }'
@@ -25,13 +29,20 @@ function WaterGlints({ night, reducedMotion }: { night: boolean; reducedMotion: 
         varying vec2 vUv;
         void main() {
           float t = time * 0.65;
-          float wave = sin(vUv.x * 75.0 + vUv.y * 140.0 + t * 2.3) * 0.5 + 0.5;
-          float chop = sin(vUv.x * 43.0 - vUv.y * 191.0 - t) * 0.5 + 0.5;
-          float edge = smoothstep(0.0, 0.04, vUv.x) * (1.0 - smoothstep(0.55, 1.0, vUv.x));
+          float jitter = sin(vUv.y * 25.0 + vUv.x * 19.0) * 2.8 + sin(vUv.x * 31.0 - t) * 1.2;
+          float wave = sin(vUv.x * 98.0 + vUv.y * 65.0 + jitter + t * 2.3) * 0.5 + 0.5;
+          float chop = sin(vUv.x * 39.0 - vUv.y * 132.0 + jitter - t) * 0.5 + 0.5;
+          float shoreFade = smoothstep(0.0, 0.04, vUv.x) * (1.0 - smoothstep(0.94, 1.0, vUv.x));
           float stripe = vUv.y + sin(vUv.x * 25.0 + t) * 0.008;
-          float lamp = exp(-abs(stripe - 0.345) * 42.0) + exp(-abs(stripe - 0.675) * 48.0);
-          vec3 tint = mix(vec3(0.74, 0.86, 0.93), vec3(1.0, 0.73, 0.40), afterDark);
-          float strength = mix(0.08, lamp * 0.40, afterDark) * edge * pow(wave * chop, 2.0);
+          float westLights = (exp(-abs(stripe - 0.345) * 40.0) + exp(-abs(stripe - 0.675) * 42.0)) *
+                            exp(-vUv.x * 2.7);
+          float eastLights = (exp(-abs(stripe - 0.17) * 31.0) + exp(-abs(stripe - 0.42) * 35.0) +
+                            exp(-abs(stripe - 0.60) * 32.0) + exp(-abs(stripe - 0.815) * 33.0)) *
+                            exp(-(1.0-vUv.x) * 1.8);
+          vec3 lampTint = mix(vec3(1.0, 0.71, 0.37), vec3(0.63, 0.79, 1.0), smoothstep(0.3, 0.75, vUv.x));
+          vec3 tint = mix(vec3(0.74, 0.86, 0.93), lampTint, afterDark);
+          float glint = smoothstep(0.48, 0.95, wave) * mix(0.38, 1.0, chop);
+          float strength = mix(0.095, (westLights + eastLights) * 0.46, afterDark) * shoreFade * glint;
           gl_FragColor = vec4(tint, strength);
         }
       `} />
@@ -87,16 +98,29 @@ function Ferry({ night, reducedMotion }: { night: boolean; reducedMotion: boolea
   </group>;
 }
 
-export default function BundWaterfront({ river, night, reducedMotion }: { river?: Texture; night: boolean; reducedMotion: boolean }) {
+export default function BundWaterfront({ river, paving, night, reducedMotion }: {
+  river?: Texture; paving?: Texture; night: boolean; reducedMotion: boolean;
+}) {
   useFrame(({ clock }) => { if (river) river.offset.set(reducedMotion ? 0 : clock.elapsedTime * .008, 0); });
   return <group>
-    <CitySurface position={[12.55, .099, 0]} size={[5.9, 24.3]} map={river} tile={6.7} color={night ? '#71899a' : '#a6b7ba'} roughness={night ? .40 : .52} relief={.045} metalness={.24} />
+    <CitySurface position={[riverCenter, .099, 0]} size={[riverWidth, BUND_BANK.length]} map={river} tile={6.7}
+      color={night ? '#547789' : '#7899a3'} roughness={night ? .40 : .52} relief={.038} metalness={.24} />
     <WaterGlints night={night} reducedMotion={reducedMotion} />
-    <Block position={[9.65, .14, 0]} size={[.4, .32, 24.3]} color="#b6b6aa" />
-    <Block position={[9.65, .31, 0]} size={[.49, .11, 24.3]} color="#c6c7b9" />
+    <CitySurface position={[BUND_BANK.eastQuay + eastBankWidth / 2, .039, 0]}
+      size={[eastBankWidth, BUND_BANK.length]} map={paving} color="#a9b5b6" tile={4.2} relief={.02} />
+    <Block position={[BUND_BANK.westQuay, .14, 0]} size={[.40, .32, BUND_BANK.length]} color="#b6b6aa" />
+    <Block position={[BUND_BANK.westQuay, .31, 0]} size={[.49, .11, BUND_BANK.length]} color="#c6c7b9" />
+    <Block position={[BUND_BANK.eastQuay, .14, 0]} size={[.34, .31, BUND_BANK.length]} color="#9aa7a7" />
+    <Block position={[BUND_BANK.eastQuay + .54, .062, 0]} size={[.85, .055, BUND_BANK.length]} color="#bac4bd" shadow={false} />
+    {[-10.5,-5,0,5,10.5].map((z,i)=><group key={z} position={[BUND_BANK.eastQuay + 1.15,0,z]}>
+      <Tree position={[0,0,.8]} tone={i} small />
+      <Lamp position={[0,0,-.74]} night={night} />
+    </group>)}
     {railingPosts.map((z, index) => <group key={z}>
-      <Block position={[9.64, .68, z]} size={[.086, .68, .086]} color="#46575b" />
-      {index < railingPosts.length - 1 && z !== .3 && [.65, .98].map(y => <Block key={y} position={[9.64, y, (z + railingPosts[index + 1]) / 2]} size={[.065, .045, railingPosts[index + 1] - z]} color="#506267" shadow={false} />)}
+      <Block position={[BUND_BANK.westQuay, .68, z]} size={[.086, .68, .086]} color="#46575b" />
+      {index < railingPosts.length - 1 && z !== .3 && [.65, .98].map(y => <Block key={y}
+        position={[BUND_BANK.westQuay, y, (z + railingPosts[index + 1]) / 2]}
+        size={[.065, .045, railingPosts[index + 1] - z]} color="#506267" shadow={false} />)}
     </group>)}
     <group position={[10.02, 0, 1.9]} name="bund-ferry-landing">
       <Block position={[0, .14, 0]} size={[1.9, .28, 2.85]} color="#8e9899" />
