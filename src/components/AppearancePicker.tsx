@@ -1,6 +1,6 @@
 import { lazy, Suspense, useState, type ReactNode } from 'react';
 import type { PlayerAppearance } from '../game/types';
-import { LOOKS, playerArt } from '../game/art';
+import { LIFE_ALBUM_AGES, LOOKS, playerArt } from '../game/art';
 import { PlayerPortrait } from './Portrait';
 import Icon from './Icon';
 
@@ -9,8 +9,9 @@ const ModelPreview = lazy(() => import('./OwlPreview').then(module => ({default:
 export default function AppearancePicker({value, onChange, children}: {
  value: PlayerAppearance; onChange: (value: PlayerAppearance) => void; children: ReactNode;
 }) {
+ const [age, setAge] = useState<(typeof LIFE_ALBUM_AGES)[number]>(18);
  const [preview, setPreview] = useState(false);
- const canPreview = value.gender === 'female' && value.looks === 'stunning';
+ const canPreview = age === 18 && value.gender === 'female' && value.looks === 'stunning';
  const selected = LOOKS.find(look => look.id === value.looks)!;
  function pick(next: PlayerAppearance) {
   setPreview(false);
@@ -21,12 +22,18 @@ export default function AppearancePicker({value, onChange, children}: {
    {canPreview && preview ? <div className="player-model-preview casting-model-view">
     <Suspense fallback={<p>转台准备中</p>}><ModelPreview slot="player-female-stunning" rotationY={-Math.PI / 2}
      label="绿裙角色三维模型，可以拖动旋转"/></Suspense>
-   </div> : <div className="casting-photo" key={value.gender + value.looks}>
-    <PlayerPortrait appearance={value} full/>
+   </div> : <div className="casting-photo" key={value.gender + value.looks + age}>
+    <PlayerPortrait appearance={value} age={age} full/>
    </div>}
-   <div className="casting-plate" aria-live="polite">
-    <strong>{selected.name}</strong>
-    <span>{selected.face ? `腔势 +${selected.face} · 初见好感 +${selected.attraction}` : '无外貌加成'}</span>
+   <div className="casting-strip">
+    <div className="casting-plate" aria-live="polite">
+     <strong>{selected.name}</strong>
+     <span>{selected.face ? `腔势 +${selected.face} · 初见好感 +${selected.attraction}` : '无外貌加成'}</span>
+    </div>
+    <div className="casting-ages" role="group" aria-label="照片年龄">
+     {LIFE_ALBUM_AGES.map(year => <button type="button" key={year} aria-pressed={age === year}
+      onClick={() => {setPreview(false); setAge(year);}}>{year} 岁</button>)}
+    </div>
    </div>
    {canPreview && <button className="casting-model" aria-expanded={preview} onClick={() => setPreview(open => !open)}>
     <Icon name="eye" size={16}/>{preview ? '收起 3D' : '看看 3D 形象'}
@@ -43,7 +50,7 @@ export default function AppearancePicker({value, onChange, children}: {
    <div className="casting-options" role="group" aria-label="选择颜值">
     {LOOKS.map(look => <button key={look.id} className="casting-option" aria-pressed={value.looks === look.id}
      aria-label={'颜值 ' + look.name} onClick={() => pick({...value, looks: look.id})}>
-     <img src={playerArt({gender: value.gender, looks: look.id}, false)} alt="" width={240} height={240} decoding="async"/>
+     <img src={playerArt({gender: value.gender, looks: look.id}, false, age)} alt="" width={256} height={256} decoding="async"/>
      <span>{look.name}</span>
     </button>)}
    </div>

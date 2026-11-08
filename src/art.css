@@ -38,7 +38,15 @@
 .appearance-note>p{font-size:10px;color:#8a6949;text-align:right;line-height:1.8;}
 .appearance-note>p>span{display:block;color:#8c8e7b;}
 .player-identity{display:flex;align-items:center;gap:12px;padding-bottom:19px;margin-bottom:17px;border-bottom:1px solid #d5d8c5;}
-.player-identity>div:nth-child(2){flex:1;}
+.player-identity>div{min-width:0;flex:1;}
+.player-photo-trigger {
+ position: relative; flex: none; display: block; padding: 0; background: transparent; border-radius: 4px;
+}
+.player-photo-trigger > svg {
+ position: absolute; bottom: -3px; right: -3px; width: 19px; height: 19px; padding: 3px;
+ border: 1px solid #f1e6ca; border-radius: 50%; color: #fff4d5; background: #354739;
+}
+.player-photo-trigger:hover > svg { background: #96543a; }
 .player-identity b{font-family:var(--serif);font-size:18px;}
 .player-identity span:not(.identity-seal){display:block;font-size:9px;color:#8a8f78;margin-top:5px;}
 .identity-seal{font-family:var(--serif);color:#ad693e;border:1px solid #ba905c;padding:3px 5px;font-size:16px;opacity:.7;}

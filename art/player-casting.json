@@ -1,0 +1,222 @@
+{
+  "method": "Built-in image generation, individual live-action character stills",
+  "referenceCommit": "f544e093799767291fdcbf8cdc39fdb53cffa430",
+  "portraits": {
+    "player-female-charming": {
+      "portrait": "public/art/portraits/player-female-charming.webp",
+      "avatar": "public/art/portraits/head/player-female-charming.webp",
+      "referencePortrait": "public/art/portraits/player-female-charming.webp",
+      "avatarCrop": [
+        244,
+        68,
+        677,
+        501
+      ],
+      "prompt": "Create one vertical 2:3 photorealistic casting still for the Chinese Shanghai life sim 魔都人生. Attached portrait is the exact identity reference of the fictional 18-year-old adult protagonist. Show the same young adult, same facial bone structure, eyes, brows, nose, mouth, hairstyle silhouette, skin shade, and wardrobe palette. Take a new photograph with more confident cinematic staging. Setting: on a Shanghai bakery doorstep with an open dark wooden frame behind her, tucking a plain folded paper bread bag under one arm as she breaks into a grin, brick-red corduroy shirt over off-white tee, unmistakable short tousled black bob. Late morning, warm sun on one cheek, gray pavement and soft leaves. Head down to waist with face big enough for a portrait crop, hair comfortably within bounds, eyes and whole face clear at x=50% and y=27%. Shanghai independent film still, candid believable pose, rich blacks, soft daylight, natural skin texture and color, modest 35mm grain, real optical background blur, intentionally composed without looking like an advertisement. One person only. No lettering, margins, graphic frames, logo, watermark or signature."
+    },
+    "player-female-charming-midlife": {
+      "portrait": "public/art/portraits/player-female-charming-midlife.webp",
+      "avatar": "public/art/portraits/head/player-female-charming-midlife.webp",
+      "referencePortrait": "public/art/portraits/player-female-charming.webp",
+      "avatarCrop": [
+        219,
+        55,
+        701,
+        537
+      ],
+      "prompt": "Create one 2:3 vertical photorealistic character still for the Shanghai narrative game 魔都人生. The attached young portrait is the exact same fictional Chinese adult protagonist at age 18. This is a new candid shot of the person at exactly age 46. Preserve identity closely through eyes, nose, mouth, jaw and characteristic hair silhouette: chin-length blunt black bob with a little flyaway hair, recognizable wide spontaneous smile, warm lively eyes, rounder face, deep rust color. Stage: outside the back door of a small neighborhood florist after closing, standing with her arms folded loosely as someone out of frame has just made her laugh, soft brick-colored cardigan, a few gray threads in her short bob. Clearly visible natural age 46 around eyes and jaw, realistic pores and uneven skin texture, no deaging, no caricature. This is a Shanghai independent-film scene. Real worn surfaces and lived-in light, soft contrast with rich blacks, natural color and fine 35mm grain, photographic optics, subtle background detail, clothes look worn rather than like costumes. Show head and chest down to waist, face fully clear in the upper middle of the image around x=50% and y=28%; space around hair; eyes visible, outfit and gesture in lower half. Include only one clearly seen person. No words, graphics, frames, signature, watermarks, overt city icons, beauty filter, or studio lighting. The shot should feel like a different day in the same person's life."
+    },
+    "player-female-charming-senior": {
+      "portrait": "public/art/portraits/player-female-charming-senior.webp",
+      "avatar": "public/art/portraits/head/player-female-charming-senior.webp",
+      "referencePortrait": "public/art/portraits/player-female-charming.webp",
+      "avatarCrop": [
+        222,
+        63,
+        724,
+        565
+      ],
+      "prompt": "Create one 2:3 vertical photorealistic character still for the Shanghai narrative game 魔都人生. The attached young portrait is the exact same fictional Chinese adult protagonist at age 18. This is a new candid shot of the person at exactly age 60. Preserve identity closely through eyes, nose, mouth, jaw and characteristic hair silhouette: chin-length blunt black bob with a little flyaway hair, recognizable wide spontaneous smile, warm lively eyes, rounder face, deep rust color. Stage: seated beside the window in an old Shanghai neighborhood bakery with pale 4pm light on her smile, rust-red knitted vest, short salt-and-pepper bob with the same blunt line, unposed laugh. Clearly visible natural age 60 around eyes and jaw, realistic pores and uneven skin texture, no deaging, no caricature. This is a Shanghai independent-film scene. Real worn surfaces and lived-in light, soft contrast with rich blacks, natural color and fine 35mm grain, photographic optics, subtle background detail, clothes look worn rather than like costumes. Show head and chest down to waist, face fully clear in the upper middle of the image around x=50% and y=28%; space around hair; eyes visible, outfit and gesture in lower half. Include only one clearly seen person. No words, graphics, frames, signature, watermarks, overt city icons, beauty filter, or studio lighting. The shot should feel like a different day in the same person's life."
+    },
+    "player-female-everyday": {
+      "portrait": "public/art/portraits/player-female-everyday.webp",
+      "avatar": "public/art/portraits/head/player-female-everyday.webp",
+      "referencePortrait": "public/art/portraits/player-female-everyday.webp",
+      "avatarCrop": [
+        253,
+        70,
+        665,
+        482
+      ],
+      "prompt": "Create one vertical 2:3 photorealistic casting still for the Chinese Shanghai life sim 魔都人生. Attached portrait is the exact identity reference of the fictional 18-year-old adult protagonist. Show the same young adult, same facial bone structure, eyes, brows, nose, mouth, hairstyle silhouette, skin shade, and wardrobe palette. Take a new photograph with more confident cinematic staging. Setting: a shared stair landing in a Shanghai lane house, moving a canvas tote higher on her shoulder while looking up toward someone on the stairs. She has an easy closed-mouth smile. Lived-in navy hooded jacket over a heather gray crewneck, tote has no text. Bright reflected morning light on green-painted wall. Head down to waist with face big enough for a portrait crop, hair comfortably within bounds, eyes and whole face clear at x=50% and y=27%. Shanghai independent film still, candid believable pose, rich blacks, soft daylight, natural skin texture and color, modest 35mm grain, real optical background blur, intentionally composed without looking like an advertisement. One person only. No lettering, margins, graphic frames, logo, watermark or signature."
+    },
+    "player-female-everyday-midlife": {
+      "portrait": "public/art/portraits/player-female-everyday-midlife.webp",
+      "avatar": "public/art/portraits/head/player-female-everyday-midlife.webp",
+      "referencePortrait": "public/art/portraits/player-female-everyday.webp",
+      "avatarCrop": [
+        207,
+        50,
+        712,
+        555
+      ],
+      "prompt": "Create one 2:3 vertical photorealistic character still for the Shanghai narrative game 魔都人生. The attached young portrait is the exact same fictional Chinese adult protagonist at age 18. This is a new candid shot of the person at exactly age 46. Preserve identity closely through eyes, nose, mouth, jaw and characteristic hair silhouette: oval face, natural thick brows, narrow lively dark eyes, black hair loosely pulled back with two strands at the temples, understated calm, navy and gray. Stage: shared covered landing in a Shanghai lane house in soft evening light, seated by the window taking her glasses off after reading, modest navy jacket and worn gray cotton shirt, unfussy posture. Clearly visible natural age 46 around eyes and jaw, realistic pores and uneven skin texture, no deaging, no caricature. This is a Shanghai independent-film scene. Real worn surfaces and lived-in light, soft contrast with rich blacks, natural color and fine 35mm grain, photographic optics, subtle background detail, clothes look worn rather than like costumes. Show head and chest down to waist, face fully clear in the upper middle of the image around x=50% and y=28%; space around hair; eyes visible, outfit and gesture in lower half. Include only one clearly seen person. No words, graphics, frames, signature, watermarks, overt city icons, beauty filter, or studio lighting. The shot should feel like a different day in the same person's life."
+    },
+    "player-female-everyday-senior": {
+      "portrait": "public/art/portraits/player-female-everyday-senior.webp",
+      "avatar": "public/art/portraits/head/player-female-everyday-senior.webp",
+      "referencePortrait": "public/art/portraits/player-female-everyday.webp",
+      "avatarCrop": [
+        205,
+        45,
+        684,
+        524
+      ],
+      "prompt": "Create one 2:3 vertical photorealistic character still for the Shanghai narrative game 魔都人生. The attached young portrait is the exact same fictional Chinese adult protagonist at age 18. This is a new candid shot of the person at exactly age 60. Preserve identity closely through eyes, nose, mouth, jaw and characteristic hair silhouette: oval face, natural thick brows, narrow lively dark eyes, black hair loosely pulled back with two strands at the temples, understated calm, navy and gray. Stage: at a lane-house window in cool early daylight after rain, settling onto a cane chair with a plain enamel mug on the sill, navy cardigan and gray shirt, silver threaded hair gathered into the same low tie. Clearly visible natural age 60 around eyes and jaw, realistic pores and uneven skin texture, no deaging, no caricature. This is a Shanghai independent-film scene. Real worn surfaces and lived-in light, soft contrast with rich blacks, natural color and fine 35mm grain, photographic optics, subtle background detail, clothes look worn rather than like costumes. Show head and chest down to waist, face fully clear in the upper middle of the image around x=50% and y=28%; space around hair; eyes visible, outfit and gesture in lower half. Include only one clearly seen person. No words, graphics, frames, signature, watermarks, overt city icons, beauty filter, or studio lighting. The shot should feel like a different day in the same person's life."
+    },
+    "player-female-stunning": {
+      "portrait": "public/art/portraits/player-female-stunning.webp",
+      "avatar": "public/art/portraits/head/player-female-stunning.webp",
+      "referencePortrait": "public/art/portraits/player-female-stunning.webp",
+      "avatarCrop": [
+        198,
+        110,
+        652,
+        564
+      ],
+      "prompt": "Create one vertical 2:3 photorealistic casting still for the Chinese Shanghai life sim 魔都人生. Attached portrait is the exact identity reference of the fictional 18-year-old adult protagonist. Show the same young adult, same facial bone structure, eyes, brows, nose, mouth, hairstyle silhouette, skin shade, and wardrobe palette. Take a new photograph with more confident cinematic staging. Setting: in a Shanghai Art Deco café booth just after dusk, dark emerald velvet high-neck fitted sleeveless dress with subtly draped fabric, a single small gold earring, swept-up black hair, self-possessed gaze toward someone across the table. One hand rests under her chin, faintly amused. Honey-colored lamplight and cool evening glass. Head down to waist with face big enough for a portrait crop, hair comfortably within bounds, eyes and whole face clear at x=50% and y=27%. Shanghai independent film still, candid believable pose, rich blacks, soft daylight, natural skin texture and color, modest 35mm grain, real optical background blur, intentionally composed without looking like an advertisement. One person only. No lettering, margins, graphic frames, logo, watermark or signature."
+    },
+    "player-female-stunning-midlife": {
+      "portrait": "public/art/portraits/player-female-stunning-midlife.webp",
+      "avatar": "public/art/portraits/head/player-female-stunning-midlife.webp",
+      "referencePortrait": "public/art/portraits/player-female-stunning.webp",
+      "avatarCrop": [
+        210,
+        92,
+        654,
+        536
+      ],
+      "prompt": "Create one 2:3 vertical photorealistic character still for the Shanghai narrative game 魔都人生. The attached young portrait is the exact same fictional Chinese adult protagonist at age 18. This is a new candid shot of the person at exactly age 46. Preserve identity closely through eyes, nose, mouth, jaw and characteristic hair silhouette: distinct angled almond eyes, elegantly arched brows, small slightly crooked smile, clear facial structure, dark hair swept back with wisps, dark emerald. Stage: beside a coat check in an old Shanghai restaurant just before dinner service, leaning her shoulder against the wood jamb, modern fitted dark emerald velvet jacket over ivory silk, restrained evening make-up, quietly striking at forty-six, lightly greying temples. Clearly visible natural age 46 around eyes and jaw, realistic pores and uneven skin texture, no deaging, no caricature. This is a Shanghai independent-film scene. Real worn surfaces and lived-in light, soft contrast with rich blacks, natural color and fine 35mm grain, photographic optics, subtle background detail, clothes look worn rather than like costumes. Show head and chest down to waist, face fully clear in the upper middle of the image around x=50% and y=28%; space around hair; eyes visible, outfit and gesture in lower half. Include only one clearly seen person. No words, graphics, frames, signature, watermarks, overt city icons, beauty filter, or studio lighting. The shot should feel like a different day in the same person's life."
+    },
+    "player-female-stunning-senior": {
+      "portrait": "public/art/portraits/player-female-stunning-senior.webp",
+      "avatar": "public/art/portraits/head/player-female-stunning-senior.webp",
+      "referencePortrait": "public/art/portraits/player-female-stunning.webp",
+      "avatarCrop": [
+        217,
+        101,
+        649,
+        533
+      ],
+      "prompt": "Create one 2:3 vertical photorealistic character still for the Shanghai narrative game 魔都人生. The attached young portrait is the exact same fictional Chinese adult protagonist at age 18. This is a new candid shot of the person at exactly age 60. Preserve identity closely through eyes, nose, mouth, jaw and characteristic hair silhouette: distinct angled almond eyes, elegantly arched brows, small slightly crooked smile, clear facial structure, dark hair swept back with wisps, dark emerald. Stage: sitting at an old Shanghai restaurant booth early in the day while the shop is empty, turned toward soft window light, refined dark jade blouse and a single little brass earring, strong angular gaze, gray swept-back hair and realistic skin lines, quietly elegant. Clearly visible natural age 60 around eyes and jaw, realistic pores and uneven skin texture, no deaging, no caricature. This is a Shanghai independent-film scene. Real worn surfaces and lived-in light, soft contrast with rich blacks, natural color and fine 35mm grain, photographic optics, subtle background detail, clothes look worn rather than like costumes. Show head and chest down to waist, face fully clear in the upper middle of the image around x=50% and y=28%; space around hair; eyes visible, outfit and gesture in lower half. Include only one clearly seen person. No words, graphics, frames, signature, watermarks, overt city icons, beauty filter, or studio lighting. The shot should feel like a different day in the same person's life."
+    },
+    "player-male-charming": {
+      "portrait": "public/art/portraits/player-male-charming.webp",
+      "avatar": "public/art/portraits/head/player-male-charming.webp",
+      "referencePortrait": "public/art/portraits/player-male-charming.webp",
+      "avatarCrop": [
+        249,
+        102,
+        687,
+        540
+      ],
+      "prompt": "Create one vertical 2:3 photorealistic casting still for the Chinese Shanghai life sim 魔都人生. Attached portrait is the exact identity reference of the fictional 18-year-old adult protagonist. Show the same young adult, same facial bone structure, eyes, brows, nose, mouth, hairstyle silhouette, skin shade, and wardrobe palette. Take a new photograph with more confident cinematic staging. Setting: inside an Anfu Road record shop near the open entrance with overcast side-light, leaning casually on a waist-height record bin, a soft navy jacket over light oatmeal knit, tousled black waves, affectionate crooked smile. Vinyl spines read as soft color blocks, no legible type. Head down to waist with face big enough for a portrait crop, hair comfortably within bounds, eyes and whole face clear at x=50% and y=27%. Shanghai independent film still, candid believable pose, rich blacks, soft daylight, natural skin texture and color, modest 35mm grain, real optical background blur, intentionally composed without looking like an advertisement. One person only. No lettering, margins, graphic frames, logo, watermark or signature."
+    },
+    "player-male-charming-midlife": {
+      "portrait": "public/art/portraits/player-male-charming-midlife.webp",
+      "avatar": "public/art/portraits/head/player-male-charming-midlife.webp",
+      "referencePortrait": "public/art/portraits/player-male-charming.webp",
+      "avatarCrop": [
+        253,
+        71,
+        685,
+        503
+      ],
+      "prompt": "Create one 2:3 vertical photorealistic character still for the Shanghai narrative game 魔都人生. The attached young portrait is the exact same fictional Chinese adult protagonist at age 18. This is a new candid shot of the person at exactly age 46. Preserve identity closely through eyes, nose, mouth, jaw and characteristic hair silhouette: floppy wavy black hair, soft dark eyes, crooked smile and warm rounded cheeks, a navy layer over a beige knit. Stage: leaning on the doorway of an Anfu Road secondhand record store in afternoon shade, sleeves pushed up over a light beige knit, medium wavy hair starting to gray, eyes creasing as he is mid-sentence. Clearly visible natural age 46 around eyes and jaw, realistic pores and uneven skin texture, no deaging, no caricature. This is a Shanghai independent-film scene. Real worn surfaces and lived-in light, soft contrast with rich blacks, natural color and fine 35mm grain, photographic optics, subtle background detail, clothes look worn rather than like costumes. Show head and chest down to waist, face fully clear in the upper middle of the image around x=50% and y=28%; space around hair; eyes visible, outfit and gesture in lower half. Include only one clearly seen person. No words, graphics, frames, signature, watermarks, overt city icons, beauty filter, or studio lighting. The shot should feel like a different day in the same person's life."
+    },
+    "player-male-charming-senior": {
+      "portrait": "public/art/portraits/player-male-charming-senior.webp",
+      "avatar": "public/art/portraits/head/player-male-charming-senior.webp",
+      "referencePortrait": "public/art/portraits/player-male-charming.webp",
+      "avatarCrop": [
+        239,
+        80,
+        707,
+        548
+      ],
+      "prompt": "Create one 2:3 vertical photorealistic character still for the Shanghai narrative game 魔都人生. The attached young portrait is the exact same fictional Chinese adult protagonist at age 18. This is a new candid shot of the person at exactly age 60. Preserve identity closely through eyes, nose, mouth, jaw and characteristic hair silhouette: floppy wavy black hair, soft dark eyes, crooked smile and warm rounded cheeks, a navy layer over a beige knit. Stage: seated in a quiet used record and book shop near the old tram route, turned toward the cool window with one hand resting on a closed paperback at frame bottom, soft salt-and-pepper curls, same cheerful uneven smile, navy cardigan over beige cotton. Clearly visible natural age 60 around eyes and jaw, realistic pores and uneven skin texture, no deaging, no caricature. This is a Shanghai independent-film scene. Real worn surfaces and lived-in light, soft contrast with rich blacks, natural color and fine 35mm grain, photographic optics, subtle background detail, clothes look worn rather than like costumes. Show head and chest down to waist, face fully clear in the upper middle of the image around x=50% and y=28%; space around hair; eyes visible, outfit and gesture in lower half. Include only one clearly seen person. No words, graphics, frames, signature, watermarks, overt city icons, beauty filter, or studio lighting. The shot should feel like a different day in the same person's life."
+    },
+    "player-male-everyday": {
+      "portrait": "public/art/portraits/player-male-everyday.webp",
+      "avatar": "public/art/portraits/head/player-male-everyday.webp",
+      "referencePortrait": "public/art/portraits/player-male-everyday.webp",
+      "avatarCrop": [
+        258,
+        95,
+        634,
+        471
+      ],
+      "prompt": "Create one vertical 2:3 photorealistic casting still for the Chinese Shanghai life sim 魔都人生. Attached portrait is the exact identity reference of the fictional 18-year-old adult protagonist. Show the same young adult, same facial bone structure, eyes, brows, nose, mouth, hairstyle silhouette, skin shade, and wardrobe palette. Take a new photograph with more confident cinematic staging. Setting: just outside a modest Shanghai metro exit, standing with one shoulder against the tiled return wall, a plain cross-body bag over a charcoal worker jacket and dark t-shirt, blue jeans, close-cut dark hair. Soft overcast noon, rain-slick sidewalk in the distance, gentle ordinary smile. Head down to waist with face big enough for a portrait crop, hair comfortably within bounds, eyes and whole face clear at x=50% and y=27%. Shanghai independent film still, candid believable pose, rich blacks, soft daylight, natural skin texture and color, modest 35mm grain, real optical background blur, intentionally composed without looking like an advertisement. One person only. No lettering, margins, graphic frames, logo, watermark or signature."
+    },
+    "player-male-everyday-midlife": {
+      "portrait": "public/art/portraits/player-male-everyday-midlife.webp",
+      "avatar": "public/art/portraits/head/player-male-everyday-midlife.webp",
+      "referencePortrait": "public/art/portraits/player-male-everyday.webp",
+      "avatarCrop": [
+        257,
+        75,
+        608,
+        426
+      ],
+      "prompt": "Create one 2:3 vertical photorealistic character still for the Shanghai narrative game 魔都人生. The attached young portrait is the exact same fictional Chinese adult protagonist at age 18. This is a new candid shot of the person at exactly age 46. Preserve identity closely through eyes, nose, mouth, jaw and characteristic hair silhouette: short straight black hair, wider jaw, straight brows, slightly asymmetrical friendly smile, washed charcoal twill and blue denim. Stage: outside an older Shanghai metro exit at blue hour after a brief shower, leaning on the low tile wall holding folded reading glasses, short hair going gray at the temples, washed charcoal chore jacket. Clearly visible natural age 46 around eyes and jaw, realistic pores and uneven skin texture, no deaging, no caricature. This is a Shanghai independent-film scene. Real worn surfaces and lived-in light, soft contrast with rich blacks, natural color and fine 35mm grain, photographic optics, subtle background detail, clothes look worn rather than like costumes. Show head and chest down to waist, face fully clear in the upper middle of the image around x=50% and y=28%; space around hair; eyes visible, outfit and gesture in lower half. Include only one clearly seen person. No words, graphics, frames, signature, watermarks, overt city icons, beauty filter, or studio lighting. The shot should feel like a different day in the same person's life."
+    },
+    "player-male-everyday-senior": {
+      "portrait": "public/art/portraits/player-male-everyday-senior.webp",
+      "avatar": "public/art/portraits/head/player-male-everyday-senior.webp",
+      "referencePortrait": "public/art/portraits/player-male-everyday.webp",
+      "avatarCrop": [
+        235,
+        78,
+        679,
+        522
+      ],
+      "prompt": "Create one 2:3 vertical photorealistic character still for the Shanghai narrative game 魔都人生. The attached young portrait is the exact same fictional Chinese adult protagonist at age 18. This is a new candid shot of the person at exactly age 60. Preserve identity closely through eyes, nose, mouth, jaw and characteristic hair silhouette: short straight black hair, wider jaw, straight brows, slightly asymmetrical friendly smile, washed charcoal twill and blue denim. Stage: sitting outside a Shanghai street bicycle shop on a low stool at the end of the afternoon, upper body turned slightly toward camera, same grin, closely cut mostly gray hair, faded charcoal jacket, real sun and age on skin. Clearly visible natural age 60 around eyes and jaw, realistic pores and uneven skin texture, no deaging, no caricature. This is a Shanghai independent-film scene. Real worn surfaces and lived-in light, soft contrast with rich blacks, natural color and fine 35mm grain, photographic optics, subtle background detail, clothes look worn rather than like costumes. Show head and chest down to waist, face fully clear in the upper middle of the image around x=50% and y=28%; space around hair; eyes visible, outfit and gesture in lower half. Include only one clearly seen person. No words, graphics, frames, signature, watermarks, overt city icons, beauty filter, or studio lighting. The shot should feel like a different day in the same person's life."
+    },
+    "player-male-stunning": {
+      "portrait": "public/art/portraits/player-male-stunning.webp",
+      "avatar": "public/art/portraits/head/player-male-stunning.webp",
+      "referencePortrait": "public/art/portraits/player-male-stunning.webp",
+      "avatarCrop": [
+        170,
+        96,
+        558,
+        484
+      ],
+      "prompt": "Create one vertical 2:3 photorealistic casting still for the Chinese Shanghai life sim 魔都人生. Attached portrait is the exact identity reference of the fictional 18-year-old adult protagonist. Show the same young adult, same facial bone structure, eyes, brows, nose, mouth, hairstyle silhouette, skin shade, and wardrobe palette. Take a new photograph with more confident cinematic staging. Setting: outside a Shanghai brick café just after sunset, an unhurried glance toward the camera, dark plum corduroy jacket over an ivory tee, one hand in his pocket and plain coffee cup in the other, signature dark windswept forelock. Warm interior light and blue hour reflections, strong profile visible three-quarters. Head down to waist with face big enough for a portrait crop, hair comfortably within bounds, eyes and whole face clear at x=50% and y=27%. Shanghai independent film still, candid believable pose, rich blacks, soft daylight, natural skin texture and color, modest 35mm grain, real optical background blur, intentionally composed without looking like an advertisement. One person only. No lettering, margins, graphic frames, logo, watermark or signature."
+    },
+    "player-male-stunning-midlife": {
+      "portrait": "public/art/portraits/player-male-stunning-midlife.webp",
+      "avatar": "public/art/portraits/head/player-male-stunning-midlife.webp",
+      "referencePortrait": "public/art/portraits/player-male-stunning.webp",
+      "avatarCrop": [
+        246,
+        83,
+        640,
+        477
+      ],
+      "prompt": "Create one 2:3 vertical photorealistic character still for the Shanghai narrative game 魔都人生. The attached young portrait is the exact same fictional Chinese adult protagonist at age 18. This is a new candid shot of the person at exactly age 46. Preserve identity closely through eyes, nose, mouth, jaw and characteristic hair silhouette: swept wavy black hair with a loose front lock, high cheekbones, long sharp jawline, distinct dark eyes and level confident gaze, aubergine outerwear. Stage: standing inside the sheltered threshold of a riverside ferry waiting hall at late dusk, body angled toward the glass and face to camera, deep plum wool jacket over a plain white tee, a little grey at the temples, confident and composed. Clearly visible natural age 46 around eyes and jaw, realistic pores and uneven skin texture, no deaging, no caricature. This is a Shanghai independent-film scene. Real worn surfaces and lived-in light, soft contrast with rich blacks, natural color and fine 35mm grain, photographic optics, subtle background detail, clothes look worn rather than like costumes. Show head and chest down to waist, face fully clear in the upper middle of the image around x=50% and y=28%; space around hair; eyes visible, outfit and gesture in lower half. Include only one clearly seen person. No words, graphics, frames, signature, watermarks, overt city icons, beauty filter, or studio lighting. The shot should feel like a different day in the same person's life."
+    },
+    "player-male-stunning-senior": {
+      "portrait": "public/art/portraits/player-male-stunning-senior.webp",
+      "avatar": "public/art/portraits/head/player-male-stunning-senior.webp",
+      "referencePortrait": "public/art/portraits/player-male-stunning.webp",
+      "avatarCrop": [
+        217,
+        72,
+        641,
+        496
+      ],
+      "prompt": "Create one 2:3 vertical photorealistic character still for the Shanghai narrative game 魔都人生. The attached young portrait is the exact same fictional Chinese adult protagonist at age 18. This is a new candid shot of the person at exactly age 60. Preserve identity closely through eyes, nose, mouth, jaw and characteristic hair silhouette: swept wavy black hair with a loose front lock, high cheekbones, long sharp jawline, distinct dark eyes and level confident gaze, aubergine outerwear. Stage: against the outer wall at the Bund ferry landing just before dusk, torso tilted away but face clearly toward the camera, dark burgundy merino sweater, silver waves with the same front lock, pronounced cheeks, lined face, dignified, a bit amused. Clearly visible natural age 60 around eyes and jaw, realistic pores and uneven skin texture, no deaging, no caricature. This is a Shanghai independent-film scene. Real worn surfaces and lived-in light, soft contrast with rich blacks, natural color and fine 35mm grain, photographic optics, subtle background detail, clothes look worn rather than like costumes. Show head and chest down to waist, face fully clear in the upper middle of the image around x=50% and y=28%; space around hair; eyes visible, outfit and gesture in lower half. Include only one clearly seen person. No words, graphics, frames, signature, watermarks, overt city icons, beauty filter, or studio lighting. The shot should feel like a different day in the same person's life."
+    }
+  }
+}
