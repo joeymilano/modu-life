@@ -10,7 +10,7 @@ import { ferryVisit } from './ferryVisit';
 import { isStallSettlement, replayStall } from './stall';
 import { isJobOffer, replayJobOffer } from './jobOffers';
 import { openingLead } from './originStories';
-import { ALL_RENTAL_CLUES, rentalNegotiation } from './rental';
+import { ALL_RENTAL_CLUES, isRentalRenewal, rentalNegotiation, rentalRenewal } from './rental';
 import type { ActivityKind, FirstDatePicks, GameState, LifeEvent } from './types';
 
 export const MAX_LINES = 8;
@@ -74,6 +74,10 @@ export function replayScene(state: GameState, scene: SceneRef): LifeEvent | null
   if (scene.kind === 'career' && isJobOffer(scene.eventId)) return replayJobOffer(state, scene.eventId);
   if (scene.eventId.startsWith('bund-ferry-')) {
     const event = ferryVisit(state);
+    return event?.id === scene.eventId ? event : null;
+  }
+  if (isRentalRenewal(scene.eventId)) {
+    const event = rentalRenewal(state);
     return event?.id === scene.eventId ? event : null;
   }
   if (scene.kind === 'rental') {

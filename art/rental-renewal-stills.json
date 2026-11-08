@@ -1,0 +1,48 @@
+{
+  "generator": "Built-in ImageGen",
+  "referenceCommit": "7a43042",
+  "direction": "Natural available light, worn materials and recognizable props throughout an ordinary Minhang walk-up. Preserve Fang Jie's face and burgundy cardigan across inspections and renewals. Photograph the small act of reading, pointing, listening or handing over a key.",
+  "delivery": "Nine 3:2 environment and story stills. One full-height portrait and a matching crop for the avatar.",
+  "assets": {
+    "public/art/rental/room.webp": {
+      "reference": "public/art/rental/room.webp",
+      "prompt": "Landscape 3:2. Preserve the physical geometry of the compact Shanghai Minhang second-floor room in reference, worn iron single bed and cream gray checked duvet on left, fading pink-floral curtains around the old aluminium window, worn reddish dark laminate table and a lease sheet with blue-tag key on right. Camera just inside doorway in a fresh angle, closer to the bed than reference but still showing whole room. Put the small distinctly peeling white damp patch at around x=17% y=34%, kitchen exhaust fan through the barred window around x=60% y=44%, angled one-page contract and key centered around x=78% y=76%. All three game targets clearly separate. Modest, inhabited atmosphere in soft late-afternoon daylight, dim interior with lifted shadows and real scuffs on the doorframe. No person, no UI, no signage."
+    },
+    "public/art/rental/wall.webp": {
+      "reference": "public/art/rental/wall.webp",
+      "prompt": "Landscape 3:2 photograph from just beside the iron bed in an older compact Shanghai Minhang rental. Match same checked cream gray pillow, little fading pink-floral curtains and pale gray wall as reference. Show a close-up where the new lighter white paint ends in an irregular small cluster of blistered paint and a faint drip line in the lower half, beside the old bed's headboard. Light rakes across from the window to make the blister texture readable, close enough for a small mobile screen and naturally ordinary. No severe damage, no horror or extreme black mold, no hands, no labels."
+    },
+    "public/art/rental/contract.webp": {
+      "reference": "public/art/rental/contract.webp",
+      "prompt": "Landscape 3:2. Close live-action detail of the same worn red-brown dark laminate table in a real Shanghai rental room, rough little scratches in focus, two plain ivory printed rental pages slightly offset with the lower page visible, cheap black capped pen and small blue key tag with one worn brass key. The natural window light is bright enough to see the mundane paper, shadows are soft. Composition is as if a seated young tenant is just about to lift the top page, no hands needed. Print faint blurred black rows, not readable; actual Chinese typesetting will be overlaid outside image by the game. No numbers, watermarks or readable text."
+    },
+    "public/art/rental/window.webp": {
+      "reference": "public/art/rental/window.webp",
+      "prompt": "Landscape 3:2. A live-action observer has slid the barred aluminium window of an ordinary Shanghai Minhang rental ten centimeters open. The side of the pale floral curtain and old dusty aluminium handle at left edge, diagonal view across a narrow residential lane at the back of a small restaurant. The circular kitchen exhaust fan realistically housed in a weathered square metal casing is centered about 60% across, a plausible large duct, old tile and an ordinary laundry rack. At edge of shutters a little kitchen light begins warming up, natural ambient evening light, no intense sheen, realistic brick wall and pipes. Exhaust fan recognizable at small size, no text or graphic effects."
+    },
+    "public/art/rental/talk.webp": {
+      "reference": "public/art/rental/talk.webp",
+      "prompt": "Landscape 3:2 story still in the same small old Minhang Shanghai rental from reference. Preserve the same fictional agent Fang Jie from reference, early forties Chinese woman, dark hair casually tied back, deep burgundy ribbed cardigan over off-white shirt. Seat her beside a scratched brown laminate table at a candid diagonal as she lifts a cheap black pen away and holds down the edge of a short contract with two fingers, speaking to tenant just outside frame, eyebrows raised like she'd also prefer the owner stop honking. Single blue-tagged key on table, soft natural side window light, plaid iron bed and pink-floral curtain subtly visible behind. Face and key in central 68%, no front-on posed smile or readable print."
+    },
+    "public/art/rental/upstairs.webp": {
+      "reference": "public/art/rental/upstairs.webp",
+      "prompt": "Landscape 3:2 story still in a different quiet third-floor room in the same older Shanghai Minhang building. Keep identical building trim and normal size, sunlight above the tree canopy, naturally ordinary sparse room, older narrow bed and laminate desk, on the right of photo one olive-gray casement is actually open toward waving plane tree leaves, no visible exhaust fan. Camera diagonally from the doorway at eye height, visible quiet gaps and real architecture, less cramped than downstairs. A brass key with a faded mustard tag lies by a plain bowl on table. No people or text."
+    },
+    "public/art/portraits/fang.webp": {
+      "reference": "public/art/portraits/fang.webp",
+      "prompt": "Vertical 2:3 environmental portrait. Same fictional early forties Shanghainese rental agent Fang Jie in reference, same thin deep burgundy ribbed cardigan, ivory cotton tee and gray-black hair pulled back with loose strands. In the stairwell of a modest Minhang Shanghai walk-up she has just walked down half a flight with a thin black folder and pauses at a landing to slip the blue-tagged key off a key ring. She looks sideways at the person walking beside her, giving a slightly apologetic half smile, outdoors soft reflected light. Natural workday face with fine lines, adult, relaxed. Frame from above hair to thigh, face x=50% y=29%, both eyes visible for avatar crop."
+    },
+    "public/art/rental/renew-fee.webp": {
+      "reference": "public/art/rental/talk.webp",
+      "prompt": "Landscape 3:2 story still, fictional Fang Jie looks exactly like the reference adult actor, hair tied back and burgundy cardigan with white T-shirt. A year later at the same little scratched red-brown table in the downstairs Shanghai Minhang rental. Shot from doorway at an angle; she has just slid two overlapping copies of a lease toward the tenant and flipped one up so she can compare the lines. Her eyebrows lift at a charge that has come back. A small cream dish with the same blue-tagged key and a little dark pen beside the paper, part of faded floral curtain in the background, neutral daylight with pale wall bounce. Face and paperwork both near center, no legible letters, no glamor."
+    },
+    "public/art/rental/renew-fan.webp": {
+      "reference": "public/art/rental/talk.webp",
+      "prompt": "Landscape 3:2 story still, preserve fictional agent Fang Jie, her tied-back hair and signature deep burgundy ribbed cardigan over ivory tee. She stands just inside the aluminium sliding window of the same cramped Shanghai Minhang rental room, lifting the latch with a natural hand and looking across the narrow lane at an old square kitchen exhaust fan which has stopped. A tired cook in a muted blue apron can just be seen at a small open back door downstairs, everyday relaxed. Soft calm late light on Fang's profile, plaid bedding at lower edge and floral curtain folded aside, authentic aged plaster. Keep face, hand and fan readable in center crop. No signs, no motion blur effects."
+    },
+    "public/art/rental/renew-tree.webp": {
+      "reference": "public/art/rental/talk.webp",
+      "prompt": "Landscape 3:2 story still. Same fictional Shanghainese property agent Fang Jie, early forties, tied hair, burgundy cardigan and ivory tee. In a brighter quiet third-floor rental above the old lane. A real plane-tree branch can be seen outside the open window, she stands at the small laminate desk just inside, puts down a short folded paper with one hand and looks back at a tenant by the door with a wry knowing look. On the windowsill an ordinary plastic clothes peg and two dry leaves, credible Shanghai apartment scale. Soft reflective natural daylight, same neutral palette and natural face. Center face and folded paper, no readable text."
+    }
+  }
+}

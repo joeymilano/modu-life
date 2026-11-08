@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { createGame, drawOrigins, monthlyBudget, nextYear, resolveChoice, validateSave } from '../src/game/engine';
 import { activeLine, decodeLife, encodeLife, forkLife, recordDecision, replayScene, startBook } from '../src/game/lifeLines';
-import { ALL_RENTAL_CLUES, RENTAL_CLUES, rentalNegotiation } from '../src/game/rental';
-import { ticketFromHash, validateTicket, walk } from '../src/game/timelines';
+import { ALL_RENTAL_CLUES, RENTAL_CLUES, rentalNegotiation, rentalRenewal } from '../src/game/rental';
+import { streetLead } from '../src/game/streetLeads';
+import { draftFromEvent, ticketFromHash, validateTicket, walk } from '../src/game/timelines';
 import type { GameState, LifeEvent } from '../src/game/types';
 
 const start = (): GameState => ({
@@ -65,5 +66,60 @@ describe('莘庄看房', () => {
   ]);
   expect(walk(timeline, [{ pick: 0 }]).next).toBe(1);
   expect(walk(timeline, [{ pick: 1 }]).next).toBe(2);
+ });
+
+ it('opens the appropriate renewal after the first ledger and keeps original lease choices replayable', () => {
+  const initial = start();
+  const signing = rentalNegotiation(ALL_RENTAL_CLUES);
+  for (const [choice, kind, renewalChoice, rent] of [
+   ['amend', 'fee', 'copy', 3000],
+   ['sign', 'fan', 'stop', 3000],
+   ['upstairs', 'tree', 'upgrade', 3900],
+  ] as const) {
+   const signed = resolveChoice(initial, signing, choice).state;
+   expect(rentalRenewal(signed)).toBeUndefined();
+   const next = nextYear(signed).state;
+   expect(rentalRenewal(next)).toBeUndefined();
+   const ready = { ...next, pendingYearEvent: false };
+   const event = streetLead(ready)!.event;
+   expect(event.id).toBe('rental-renewal-' + kind);
+   expect(event.illustration).toBe('/art/rental/renew-' + kind + '.webp');
+   const renewed = resolveChoice(ready, event, renewalChoice);
+   expect(renewed.state.cash).toBe(ready.cash + (kind === 'fan' ? 900 : 0));
+   expect(renewed.state.leaseRent).toBe(rent);
+   expect(nextYear(renewed.state).rentExpense).toBe(rent * 12);
+   expect(rentalRenewal({ ...renewed.state, age: 20 })).toBeUndefined();
+   const ticket = draftFromEvent(event, renewalChoice, renewed.text, ready.age, '莘庄');
+   expect(ticket.turns[0].shot).toBe(event.illustration);
+   const fork = activeLine(forkLife(decodeLife(encodeLife(recordDecision(startBook(ready), renewed.state, event, renewalChoice))), 0));
+   expect(replayScene(fork.state, fork.replay!)).toEqual(event);
+  }
+ });
+
+ it('honors saved paperwork, supports legacy rent, and stops renewing a replaced lease', () => {
+  const initial = start();
+  const signed = resolveChoice(initial, rentalNegotiation(0), 'sign').state;
+  const next = { ...nextYear(signed).state, pendingYearEvent: false };
+  const noPage = rentalRenewal(next)!;
+  expect(noPage.choices[0].effect.cash).toBe(0);
+  const legacy = { ...next, flags: next.flags.filter(flag => flag !== 'rental-xinzhuang-active') };
+  expect(rentalRenewal(validateSave(legacy))).toEqual(noPage);
+  const move: LifeEvent = { id: 'replacement-lease', title: '另签一间', text: '', category: 'housing',
+   choices: [{ id: 'move', label: '搬家', reply: '', effect: { housing: 1, leaseRent: 3300 } }] };
+  const moved = resolveChoice(legacy, move, 'move').state;
+  expect(rentalRenewal(moved)).toBeUndefined();
+  const broke = nextYear({ ...signed, cash: 0, jobId: null }).state;
+  expect(rentalRenewal({ ...broke, pendingYearEvent: false })).toBeUndefined();
+  expect(rentalRenewal({ ...next, district: 'people' })).toBeUndefined();
+ });
+
+ it('lets guests follow all three leases in a separate renewal story', () => {
+  const { timeline } = validateTicket(ticketFromHash('#story=rental-second-year'));
+  for (const [picks, photo] of [[[0,0], 'renew-fee'], [[0,1], 'renew-fan'], [[1], 'renew-tree']] as const) {
+   const route = picks.map(pick => ({ pick }));
+   const index = walk(timeline, route).next!;
+   expect(timeline.turns[index].shot).toBe('/art/rental/' + photo + '.webp');
+   expect(walk(timeline, [...route, { pick: 0 }]).next).toBeNull();
+  }
  });
 });

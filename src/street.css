@@ -176,11 +176,11 @@
 @media (max-width: 480px) and (max-height: 720px) {
   .arrival-modal .event-photo { aspect-ratio: 5 / 2; }
   .arrival-modal .event-photo > img { object-position: 18% 40%; }
-  .match-scene .event-photo { aspect-ratio: 2 / 1; }
-  .match-scene .event-content h2 { margin-top: 12px; }
-  .match-scene .event-body { margin-top: 10px; line-height: 1.55; }
-  .match-scene .event-choices { gap: 6px; margin-top: 12px; }
-  .match-scene .event-choices > button { min-height: 52px; padding-block: 8px; }
+  :is(.match-scene,.rental-negotiation) .event-photo { aspect-ratio: 2 / 1; }
+  :is(.match-scene,.rental-negotiation) .event-content h2 { margin-top: 12px; }
+  :is(.match-scene,.rental-negotiation) .event-body { margin-top: 10px; line-height: 1.55; }
+  :is(.match-scene,.rental-negotiation) .event-choices { gap: 6px; margin-top: 12px; }
+  :is(.match-scene,.rental-negotiation) .event-choices > button { min-height: 52px; padding-block: 8px; }
   .arrival-modal .event-choices { margin-top: 14px; gap: 7px; }
   .arrival-modal .event-choices > button { padding-block: 8px; min-height: 66px; }
   :is(.job-offer-modal,.birth-scene-modal) .event-photo { aspect-ratio: 2 / 1; margin-bottom: 11px; }

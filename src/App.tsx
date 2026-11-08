@@ -32,7 +32,7 @@ import RentalGame from './components/RentalGame';
 import StallGame from './components/StallGame';
 import { isStallSettlement, settleStall, stallCommitment, stallSchedule, type StallScore } from './game/stall';
 import { STALL_PATH } from './game/stallChallenge';
-import { rentalNegotiation } from './game/rental';
+import { isRentalRenewal, rentalNegotiation, rentalRenewal } from './game/rental';
 import LaserGame from './components/LaserGame';
 import './opening-draw.css';
 import { CURRENT_PEARL_RULES, isPearlPath, pearlHash, pearlReward, readPearlChallenge, type PearlChallenge } from './game/pearl';
@@ -147,7 +147,7 @@ export default function App(){
   if(!game)return;
   if(game.actions<=0||game.pendingYearEvent){notify('先把这一年结算好，明年继续。');return;}
   playSound('tap');
-  const visit=h.id==='people-match'?parkVisit(game)?.event:h.id==='bund-ferry'?ferryVisit(game):null;
+  const visit=h.id==='people-match'?parkVisit(game)?.event:h.id==='bund-ferry'?ferryVisit(game):h.id==='xin-rent'?rentalRenewal(game):null;
   if(visit){setActiveEvent(visit);setEventNpc(visit.speakerId);setMobilePanel(null);return;}
   if(h.kind==='career'){if(game.jobId)openEvent('career');else setModal('career');return;}
   if(h.kind==='romance'){
@@ -292,6 +292,7 @@ export default function App(){
  const scenePhoto=activeEvent&&!isOwl&&(activeEvent.illustration||!speaker)?eventPhoto(activeEvent,district.id):null;
  const openingMessages=activeEvent?.id==='first-night-arrival';
  const rentalEvidence=activeEvent?.rentalEvidence;
+ const rentalScene=rentalEvidence!==undefined||!!activeEvent&&isRentalRenewal(activeEvent.id);
  const tableScene=scenePhoto?.startsWith('/art/long-table/')??false;
  const parkScene=scenePhoto?.startsWith('/art/matchmaking/')??false;
  const offerScene=!!activeEvent&&isJobOffer(activeEvent.id);
@@ -299,7 +300,7 @@ export default function App(){
  const birthScene=activeEvent?.id.startsWith('origin-arrival-')??false;
  const householdScene=activeEvent?.id.startsWith('household-')??false;
  const signedOffer=!!outcome?.source&&isJobOffer(outcome.source.event.id)&&outcome.effect.payRate!==undefined;
- const focusScene=Boolean(activeEvent?.firstDate)||rentalEvidence!==undefined||tableScene||offerScene||birthScene||stallScene||householdScene;
+ const focusScene=Boolean(activeEvent?.firstDate)||rentalScene||tableScene||offerScene||birthScene||stallScene||householdScene;
  const partingBill=activeEvent?.firstDate ? -(activeEvent.choices[0].effect.cash??0) : 0;
  const wideShot=scenePhoto?.startsWith('/art/shanghai-streets/first-night-')||scenePhoto?.startsWith('/art/dates/')||scenePhoto?.startsWith('/art/endings/farewell-')||scenePhoto?.startsWith('/art/work/')||scenePhoto?.startsWith('/art/pearl/')||parkScene||scenePhoto?.startsWith('/art/opening/')||scenePhoto?.startsWith('/art/rental/')||scenePhoto?.startsWith('/art/night-ferry/')||tableScene||offerScene||stallScene;
  const leadButtons=game&&(lead||cardLead)?<div className="story-leads">{[lead,cardLead].map(item=>item&&<button
@@ -384,7 +385,7 @@ export default function App(){
  </main>}
  {screen==='end'&&game&&<EndingScreen game={game} sharing={sharing} onShare={share}
   onChallenge={copyChallenge} onDraw={beginDraw} onJournal={()=>setModal('journal')} onLines={()=>setModal('lines')}/>}
- {dialogOpen&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget&&!activeEvent&&!mini&&!outcome)setModal(null);}}><section className={'modal '+(activeEvent?'event-modal':'')+(wideShot?' wide-shot-modal':'')+(openingMessages?' arrival-modal':'')+(activeEvent?.firstDate?' date-parting-modal':'')+(rentalEvidence!==undefined?' rental-negotiation':'')+(tableScene?' long-table-modal':'')+(parkScene?' match-scene':'')+(offerScene?' job-offer-modal':'')+(birthScene||stallScene||householdScene?' birth-scene-modal':'')+(mini?' minigame-modal':'')+(mini?.type==='rental'?' rental-modal':'')+(mini?.type==='stall'?' stall-modal':'')+(mini?.type==='dialogue'?(mini.person?' date-modal':' date-modal work-interview-modal'):'')+(modal==='romance'?' romance-modal':'')+(modal==='journal'?' journal-modal':'')+(modal==='lines'?' lines-modal':'')} role="dialog" aria-modal="true" aria-label={activeEvent?.title||outcome?.title||(mini?.type==='stall'?'晚风小吃街':mini?'人生现场':modal==='saves'?'存档':modal==='journal'?'人生记事':modal==='lines'?'时间线':modal==='contacts'?(profile?.name??'认识的人'):'魔都人生')}>
+ {dialogOpen&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget&&!activeEvent&&!mini&&!outcome)setModal(null);}}><section className={'modal '+(activeEvent?'event-modal':'')+(wideShot?' wide-shot-modal':'')+(openingMessages?' arrival-modal':'')+(activeEvent?.firstDate?' date-parting-modal':'')+(rentalScene?' rental-negotiation':'')+(tableScene?' long-table-modal':'')+(parkScene?' match-scene':'')+(offerScene?' job-offer-modal':'')+(birthScene||stallScene||householdScene?' birth-scene-modal':'')+(mini?' minigame-modal':'')+(mini?.type==='rental'?' rental-modal':'')+(mini?.type==='stall'?' stall-modal':'')+(mini?.type==='dialogue'?(mini.person?' date-modal':' date-modal work-interview-modal'):'')+(modal==='romance'?' romance-modal':'')+(modal==='journal'?' journal-modal':'')+(modal==='lines'?' lines-modal':'')} role="dialog" aria-modal="true" aria-label={activeEvent?.title||outcome?.title||(mini?.type==='stall'?'晚风小吃街':mini?'人生现场':modal==='saves'?'存档':modal==='journal'?'人生记事':modal==='lines'?'时间线':modal==='contacts'?(profile?.name??'认识的人'):'魔都人生')}>
  {!(activeEvent&&game?.pendingYearEvent)&&<button className="modal-close icon-button" aria-label="关闭" onClick={()=>{if(outcome)closeOutcome();else{setModal(null);setMini(null);dismissEvent();}}}><Icon name="close"/></button>}
  {modal==='help'&&<div className="help-content"><h2>怎么玩</h2><div className="help-step"><b>01</b><div><h3>先抽五张人生牌</h3><p>每类一张，有两次重抽机会。</p></div></div><div className="help-step"><b>02</b><div><h3>每年三次行动</h3><p>点地点办事，每次扣一格。走路、换城区不扣行动。</p></div></div><div className="help-step"><b>03</b><div><h3>年底结账</h3><p>点年度结算，工资到账，房租和生活费一起扣。六十岁结局。</p></div></div><button className="primary" onClick={()=>setModal(null)}>晓得了 <Icon name="check" size={18}/></button><small className="fiction-note">人物与怪谈均为虚构</small></div>}
  {modal==='lines'&&book&&<LifeLines book={book} onFork={branchFrom} onSwitch={returnToLine} onDrop={id=>setBook(current=>current?dropLine(current,id):current)}/>}

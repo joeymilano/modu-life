@@ -8,6 +8,7 @@ import { EVENTS } from './events';
 import { LOAN_DUE, LOAN_INSTALLMENT } from './originStories';
 import { STALL_YEARLY_PAY, stallCommitment } from './stall';
 import { clearHousehold, householdFlag, householdPlan, housingPayment, STANDING_DATE_MONTHLY_COST } from './household';
+import { closeRentalLease } from './rental';
 import type { ActivityKind, ChoiceResult, Effect, EventChoice, GameState, GoalId, LifeEvent, LooksLevel, OriginCard, OriginSlot, PlayerAppearance, StatKey } from './types';
 
 export const STAT_NAMES: Record<StatKey,string> = { health:'身体', spirit:'心气', skill:'本事', face:'腔势', network:'人脉' };
@@ -53,6 +54,7 @@ function applyEffect(state:GameState,effect:Effect,npcId?:string):GameState {
   if(effect.payRate!==undefined&&s.jobId)s.employment={...employmentOf(s),rate:effect.payRate};
   if(effect.housing!==undefined){
     s.housing=clamp(effect.housing,0,3);
+    if(s.leaseRent!==undefined)s.flags=closeRentalLease(s.flags);
     delete s.leaseRent;
   }
   if(effect.leaseRent!==undefined&&s.housing===1)s.leaseRent=effect.leaseRent;
@@ -229,7 +231,9 @@ export function nextYear(state:GameState) {
     note+=` 这期助学贷款已扣 ¥${repayment.toLocaleString()}。`;
   }
   if(employment.closedMonths>0)note+=` 旧岗位入账 ¥${employment.earned.toLocaleString()}，当前岗位计 ${activeMonths} 个月。`;
-  if(s.cash<0){const shortage=-s.cash;s.cash=6000;s.rescues++;s.stats.spirit=clamp(s.stats.spirit-8);s.housing=0;delete s.leaseRent;
+  if(s.cash<0){const shortage=-s.cash;s.cash=6000;s.rescues++;s.stats.spirit=clamp(s.stats.spirit-8);s.housing=0;
+    if(s.leaseRent!==undefined)s.flags=closeRentalLease(s.flags);
+    delete s.leaseRent;
     if(s.partnerId)s.flags=s.flags.filter(flag=>flag!==householdFlag(s.partnerId!,'shared'));
     s.flags=[...new Set([...s.flags,'needed_help'])];notices.push(`周转差了 ¥${shortage.toLocaleString()}。朋友帮你垫了一笔，你搬回合租房，手上留下 ¥6,000。`);s.journal.push({age:s.age,title:'先把这关过了',text:'朋友帮忙垫了周转钱，你搬回合租房。收好行李，先把明天的面试地址存下来。',tag:'重整'});}
   s.stats.health=clamp(s.stats.health-(s.age>40?3:1)-(table.income?2:0)-(stallIncome?2:0));s.stats.spirit=clamp(s.stats.spirit-2+table.spirit);

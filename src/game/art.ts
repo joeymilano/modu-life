@@ -88,7 +88,7 @@ export function ferryPhoto(shot: (typeof FERRY_STILLS)[number]): string {
  return '/art/night-ferry/' + shot + '.webp';
 }
 
-export const RENTAL_STILLS = ['room', 'wall', 'contract', 'window', 'talk', 'upstairs'] as const;
+export const RENTAL_STILLS = ['room', 'wall', 'contract', 'window', 'talk', 'upstairs', 'renew-fee', 'renew-fan', 'renew-tree'] as const;
 
 export function rentalPhoto(shot: (typeof RENTAL_STILLS)[number]): string {
  return '/art/rental/' + shot + '.webp';

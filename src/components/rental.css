@@ -39,6 +39,27 @@
   display: block; margin-top: 10px; padding: 8px 9px;
   background: #e9dfca; color: #594324; font-size: 12px; line-height: 1.45;
 }
+.rental-contract {
+  margin-top: 12px; padding: 10px 12px 6px; border: 1px solid #d3c7ae;
+  background: #fcf8ec; color: #293d32;
+}
+.contract-heading {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
+  padding-bottom: 7px; color: #684e35;
+}
+.contract-heading > span { font: 700 17px/1.25 var(--serif); }
+.contract-heading > small { font: 11px/1 ui-monospace,monospace; }
+.rental-contract > button {
+  display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); align-items: center;
+  width: 100%; min-height: 42px; gap: 7px; padding: 5px 4px; text-align: left;
+  border: 0; border-top: 1px solid #dbd2bd; border-radius: 0; font-size: 12px; color: inherit;
+}
+.rental-contract > button > b { font-weight: 600; text-align: right; }
+.rental-contract > button:hover:not(:disabled), .rental-contract > button[aria-pressed="true"] { background: #ede5d1; }
+.rental-contract > button[data-saved="true"] { background: #e9debf; box-shadow: inset 3px 0 #9a5638; }
+.rental-detail .contract-note:not(:empty) {
+  margin-top: 8px; padding-left: 8px; border-left: 2px solid #9a5638; color: #60452f; font-size: 13px;
+}
 .rental-notes {
   display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
   margin: 20px 0 12px; border-top: 1px solid #cfc5af; padding-top: 13px; font-size: 12px;

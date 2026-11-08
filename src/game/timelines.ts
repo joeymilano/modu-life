@@ -1,6 +1,7 @@
 import type { EventChoice, LifeEvent } from './types';
 import { PARK_RETURN_TICKET_SCENES, PARK_TICKET_SCENES } from './matchmaking';
-import { FERRY_STILLS, FIRST_NIGHT_STILLS, MATCH_STILLS, OPENING_STILLS, TABLE_STILLS, datePhoto, farewellPhoto, ferryPhoto, matchPhoto, offerPhoto, openingPhoto, pearlPhoto, rentalPhoto, stallPhoto, streetPhoto, tablePhoto, workPhoto } from './art';
+import { RENEWAL_TICKET_SCENES } from './rental';
+import { FERRY_STILLS, FIRST_NIGHT_STILLS, MATCH_STILLS, OPENING_STILLS, RENTAL_STILLS, TABLE_STILLS, datePhoto, farewellPhoto, ferryPhoto, matchPhoto, offerPhoto, openingPhoto, pearlPhoto, rentalPhoto, stallPhoto, streetPhoto, tablePhoto, workPhoto } from './art';
 import { CAREERS, CAST } from './content';
 import { PHOTO_SHOP_STILLS, PHOTO_SHOP_STORY, photoShopStill } from './photoShop';
 
@@ -58,7 +59,7 @@ const ticketShots = new Set([
   ...(['reorg', 'overtime', 'shift', 'invoice', 'return'] as const).map(workPhoto),
   ...CAST.filter(person => person.role === 'romance').flatMap(person => [datePhoto(person.id, 'parting'), datePhoto(person.id, 'return'), datePhoto(person.id, 'home')]),
   datePhoto('lin', 'meeting'),
-  rentalPhoto('room'), rentalPhoto('talk'), rentalPhoto('upstairs'),
+  ...RENTAL_STILLS.map(rentalPhoto),
 ]);
 
 function validShot(value: unknown) {
@@ -119,6 +120,35 @@ const parkReturn: Timeline = {
       place: ['公园后街 · 二楼', '街坊活动室', '菜场 · 小黄鱼摊'][index],
       scene: event.text, shot: event.illustration,
       options: (index === 1 ? [event.choices[1], event.choices[2]] : event.choices.slice(0, 2)).map(choice => ticketOption(choice, null)),
+    })),
+  ],
+};
+
+const rentalReturn: Timeline = {
+  id: 'rental-second-year', kind: 'life', title: '设备停了，设备费没停', author: '魔都人生',
+  original: '我当时签的三千三。续约前排风机坏了三个月，方姐问我要不要找一下旧单据。我拿手机找了十分钟，先翻出来一份楼下的外卖。',
+  turns: [
+    {
+      date: '搬进来一年', place: '莘庄 · 楼梯间', shot: rentalPhoto('room'),
+      scene: '方姐在楼梯拐弯处等你，拿着三份续约单。她说二楼换了帘，三楼能换窗。你问涨了多少，她从楼梯上又下来两步，说得先看你上回签的是哪间。',
+      options: [
+        { move: '我签的是二楼，把旧单子带上', after: '方姐上楼拿了旧钥匙。她看了眼外面，说今天怎么这么安静。', next: 1 },
+        { move: '我住三楼，先去看看窗', after: '窗外有人正给梧桐修枝。叶子落了两片在窗台上，方姐把新单放在旁边。', next: 4 },
+      ],
+    },
+    {
+      date: '上了半层楼', place: '二楼 · 房门口', shot: rentalPhoto('contract'),
+      scene: '方姐翻到第二页。租金底下还有一条。你想起来去年她问过你，要不要等房东回复再签。',
+      options: [
+        { move: '那天已经把三百划掉了', after: '你从夹层抽出旧合同。方姐看见那条线，才想起来当时用的是她的笔。', next: 2 },
+        { move: '当时我照交，单据都还在', after: '你把那几张单据摊开。窗外连一点机器声也听不到。', next: 3 },
+      ],
+    },
+    ...RENEWAL_TICKET_SCENES.map((event, index) => ({
+      date: ['签字之前', '隔壁还没开火', '三楼看完窗'][index],
+      place: ['二楼 · 桌边', '二楼 · 窗边', '三楼 · 窗台'][index],
+      scene: event.text, shot: event.illustration,
+      options: event.choices.slice(0, 2).map(choice => ticketOption(choice, null)),
     })),
   ],
 };
@@ -260,6 +290,7 @@ export const CITY_TIMELINES: Timeline[] = [
       },
     ],
   },
+  rentalReturn,
   {
     id: 'scallion-bill', kind: 'life', title: '隔壁桌的葱油饼', author: '魔都人生',
     original: '我说了句「放回去」，林佳没理我，自己跟隔壁道了歉。散的时候她把餐巾留在账单底下。我过了两天再去找，老板说早擦桌子了。',

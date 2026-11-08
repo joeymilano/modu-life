@@ -2,6 +2,7 @@ import { streetPhoto } from './art';
 import { firstNightLead } from './firstNight';
 import { pearlReceipt } from './pearl';
 import { parkVisit } from './matchmaking';
+import { rentalRenewal } from './rental';
 import type { GameState, LifeEvent } from './types';
 
 interface StreetLead {
@@ -81,5 +82,7 @@ export function streetLead(state: GameState) {
   if (receipt) return { message: '江边有人叫你去对小票', event: receipt };
   const match = state.district === 'people' ? parkVisit(state) : null;
   if (match?.message) return { message: match.message, event: match.event };
+  const renewal = rentalRenewal(state);
+  if (renewal) return { message: '方姐把续约单送来了', event: renewal };
   return leads.find(lead => !state.seenEvents.includes(lead.event.id) && lead.available(state)) ?? null;
 }
