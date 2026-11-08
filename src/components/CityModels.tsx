@@ -6,6 +6,7 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import type { DistrictId } from '../game/types';
 import type { Obstacle } from './pathfinding';
 import { BUND_BANK, BUND_LANDMARKS, PUDONG_LANDMARKS } from './riverLayout';
+import { districtFootprints, WUKANG_FOOTPRINT } from './districtLayout';
 
 const BOX=new THREE.BoxGeometry(1,1,1);
 const paint=new Map<string,THREE.MeshStandardMaterial>();
@@ -15,7 +16,7 @@ export function Block({position=[0,0,0],size=[1,1,1],color='#e5dcc5',rotation=[0
 }
 function Round({position=[0,0,0],size=[1,1,1],color='#dfd8bd',radius=.08}:{position?:[number,number,number];size?:[number,number,number];color?:string;radius?:number}){return <RoundedBox args={size} radius={radius} smoothness={2} position={position} castShadow receiveShadow><meshStandardMaterial color={color} roughness={.85}/></RoundedBox>;}
 const signTextures=new Map<string,THREE.CanvasTexture>();
-function Sign({text,width=1.5,position=[0,0,0],color='#314a3b',ink='#f9edcf'}:{text:string;width?:number;position?:[number,number,number];color?:string;ink?:string}){
+export function Sign({text,width=1.5,position=[0,0,0],color='#314a3b',ink='#f9edcf'}:{text:string;width?:number;position?:[number,number,number];color?:string;ink?:string}){
  const texture=useMemo(()=>{const key=text+color+ink;let t=signTextures.get(key);if(!t){const c=document.createElement('canvas');c.width=768;c.height=176;const ctx=c.getContext('2d')!;ctx.fillStyle=color;ctx.fillRect(0,0,768,176);ctx.strokeStyle=ink;ctx.lineWidth=3;ctx.strokeRect(10,10,748,156);ctx.fillStyle=ink;ctx.font='bold 68px "Songti SC", "Noto Serif CJK SC", serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,384,91);t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;signTextures.set(key,t);}return t;},[text,color,ink]);
  return <mesh position={position}><planeGeometry args={[width,width*.229]}/><meshBasicMaterial map={texture} toneMapped={false}/></mesh>;
 }
@@ -286,7 +287,6 @@ function BundHeritage({kind,width,depth,height,night,stone,copper}: {
 const skylineModels = {'oriental-pearl':OrientalPearl,jinmao:Jinmao,'financial-center':FinancialCenter,'shanghai-tower':ShanghaiTower};
 
 export interface BuildingSpec {x:number;z:number;width:number;depth:number;height:number;kind:'house'|'office';color?:string;shop?:string;roof?:string}
-const HOUSE_POS=[-8,-4,4,8];
 export function getBuildings(district:DistrictId):BuildingSpec[]{
  if(district==='bund')return [
   {x:-9.7,z:-6.5,width:3.55,depth:3.6,height:3.5,kind:'house',shop:'沪上邮局',roof:'#77635a'},
@@ -294,15 +294,27 @@ export function getBuildings(district:DistrictId):BuildingSpec[]{
   {x:-9.25,z:5.8,width:3.5,depth:3.2,height:3.0,kind:'house',shop:'弄堂生煎',roof:'#8a6359'},
   {x:-4.9,z:5.8,width:3.5,depth:3.4,height:3.6,kind:'house',shop:'老街照相',roof:'#6d6b5a'},
  ];
- if(district==='anfu')return [...HOUSE_POS.map((x,i)=>({x,z:-5.9,width:3.1,depth:3.8,height:3.6+(i%3)*.55,kind:'house' as const,color:['#dcc9a8','#b99777','#d8c7a9','#e2d1b0'][i],shop:['面包与早晨','小小书店','弄里咖啡','今天花店'][i]})),...[-8,-4].map((x,i)=>({x,z:5.7,width:3.1,depth:3.4,height:3.5,kind:'house' as const,shop:['沪上理发','只此旧物'][i]}))];
- if(district==='people')return [...HOUSE_POS.map((x,i)=>({x,z:6,width:3.1,depth:3.5,height:3.5+i%2,kind:'house' as const,shop:['人民茶馆','简历复印','一碗馄饨','人民书店'][i]})),{x:7,z:-6,width:4.2,depth:3.4,height:4.8,kind:'office',color:'#b9bba4'}];
+ if(district==='anfu')return [
+  {x:-9.4,z:-6.3,width:3.8,depth:3.85,height:3.7,kind:'house',color:'#e9d3b8',shop:'今天花店',roof:'#746052'},
+  {x:-4.8,z:-6.15,width:4.05,depth:4.16,height:4.35,kind:'house',color:'#d8b199',shop:'小小书店',roof:'#665b53'},
+  {x:1.25,z:-6.45,width:4.2,depth:4.0,height:3.6,kind:'house',color:'#e6c9ac',shop:'面包出炉',roof:'#8c6b5a'},
+  {x:7.4,z:-6.5,width:4.3,depth:3.9,height:4.6,kind:'house',color:'#d7bc9e',shop:'沪上理发',roof:'#6c675a'},
+  {x:-9.5,z:7.1,width:3.5,depth:3.5,height:3.25,kind:'house',color:'#e4c6aa',shop:'不急咖啡',roof:'#936151'},
+ ];
+ if(district==='people')return [
+  {x:-10.15,z:7.7,width:3.55,depth:3.0,height:2.55,kind:'house',shop:'人民茶馆',roof:'#7b6656'},
+  {x:10.8,z:6.9,width:3.35,depth:3.2,height:2.85,kind:'house',shop:'一碗馄饨',roof:'#786754'},
+ ];
  if(district==='lujiazui')return [...[-8,-4,4,8].map((x,i)=>({x,z:6,width:3.15,depth:3.4,height:[5,6.5,4.7,5.9][i],kind:'office' as const,color:['#b1b9a5','#8fa8a0','#c6c2a7','#acbdb1'][i]})),{x:-7,z:-5.5,width:4,depth:4,height:7.4,kind:'office'}];
- if(district==='zhangjiang')return [...HOUSE_POS.map((x,i)=>({x,z:-6,width:3.3,depth:3.7,height:[4.4,5.6,4.8,4.2][i],kind:'office' as const,color:['#aac4b4','#d8d4b8','#9fb6ab','#b8c6b6'][i]})),...[-8,7].map(x=>({x,z:6,width:4.1,depth:3.7,height:3.3,kind:'office' as const,color:'#d1cfb6'}))];
- return [...HOUSE_POS.map((x,i)=>({x,z:-6,width:3.2,depth:3.6,height:[5.5,6.5,5.8,5][i],kind:'house' as const,color:['#d2c9aa','#c6b99a','#d9c6a4','#cbb799'][i],roof:'#716d56',shop:['小区东门','邻里服务','望月公寓','青年公寓'][i]})),...HOUSE_POS.map((x,i)=>({x,z:6,width:3.1,depth:3.5,height:2.5+i%2*.4,kind:'house' as const,shop:['邻里菜场','房屋租售','早点铺','修修补补'][i]}))];
+ if(district==='zhangjiang')return [];
+ return [
+  {x:-8.4,z:6.8,width:3.85,depth:3.5,height:2.6,kind:'house',color:'#bdb296',shop:'邻里菜场',roof:'#696c58'},
+  {x:-3.85,z:7.15,width:3.4,depth:3.25,height:2.35,kind:'house',color:'#c4b89d',shop:'修修补补',roof:'#736254'},
+ ];
 }
 export function getObstacles(district:DistrictId):Obstacle[] {
- const buildings=getBuildings(district);
- const footprints:Obstacle[]=buildings.map(b=>({x:b.x,z:b.z,width:b.width+.22,depth:b.depth+.25}));
+ const footprints:Obstacle[]=getBuildings(district).map(b=>({x:b.x,z:b.z,width:b.width+.22,depth:b.depth+.25}));
+ footprints.push(...districtFootprints(district));
  if(district==='bund') {
   footprints.push(...BUND_LANDMARKS.map(b=>({x:b.x,z:b.z,width:b.width+.22,depth:b.depth+.25})));
   const width=BUND_BANK.eastEnd-BUND_BANK.westQuay;
@@ -314,23 +326,20 @@ export function getObstacles(district:DistrictId):Obstacle[] {
    x:tower.local[0],z:tower.local[1],width:tower.width,depth:tower.depth,
   })));
  }
- if(district==='anfu') footprints.push({x:5,z:6,width:5.8,depth:4.2});
- if(district==='people') footprints.push({x:-6,z:-5,width:5.8,depth:3.6});
  return footprints;
 }
 
-export function CityArchitecture({district,night,manifest,wallMap,bundStone,bundCopper,onLoaded}: {
+export function CityArchitecture({district,night,manifest,wallMap,laneBrick,bundStone,bundCopper,onLoaded}: {
  district:DistrictId;night:boolean;manifest:ModelManifest;wallMap?:THREE.Texture;
- bundStone?:THREE.Texture;bundCopper?:THREE.Texture;onLoaded?:(slot:string)=>void;
+ laneBrick?:THREE.Texture;bundStone?:THREE.Texture;bundCopper?:THREE.Texture;onLoaded?:(slot:string)=>void;
 }) {
  const buildings=getBuildings(district);
  return <group>
-  {buildings.map((b,i)=>{
+  {buildings.map(b=>{
    const building=b.kind==='house'
-    ? <House width={b.width} depth={b.depth} height={b.height} color={b.color} roof={b.roof} shop={b.shop} night={night} wallMap={wallMap}/>
+    ? <House width={b.width} depth={b.depth} height={b.height} color={b.color} roof={b.roof} shop={b.shop} night={night} wallMap={district==='anfu'?laneBrick??wallMap:wallMap}/>
     : <Office width={b.width} depth={b.depth} height={b.height} color={b.color} night={night}/>;
-   const slot=district==='zhangjiang'&&i===1?'zhangjiang-campus':district==='xinzhuang'&&i===0?'residential-block':null;
-   return <group key={i} position={[b.x,0,b.z]}>{slot?<ModelSlotView slot={slot} manifest={manifest} height={b.height}>{building}</ModelSlotView>:building}</group>;
+   return <group key={b.x+':'+b.z} position={[b.x,0,b.z]}>{building}</group>;
   })}
   {district==='bund'&&BUND_LANDMARKS.map(b=>{
    const facade=<BundHeritage kind={b.id} width={b.depth} depth={b.width} height={b.height}
@@ -349,9 +358,8 @@ export function CityArchitecture({district,night,manifest,wallMap,bundStone,bund
     </ModelSlotView>
    </group>;
   })}
- {district==='anfu'&&<group position={[5,0,6]}><ModelSlotView slot='wukang-corner' manifest={manifest} height={6.5} onLoaded={()=>onLoaded?.('wukang-corner')}><CornerBuilding night={night}/></ModelSlotView></group>}
- {district==='people'&&<><mesh position={[-6,.025,-5]} rotation={[-Math.PI/2,0,0]}><circleGeometry args={[2.1,32]}/><meshStandardMaterial color='#80a99b' metalness={.22} roughness={.2}/></mesh><group position={[-6,0,-5]}><mesh position={[0,.42,0]}><cylinderGeometry args={[.55,.72,.8,12]}/><meshStandardMaterial color='#c7cab0'/></mesh><mesh position={[0,.88,0]}><sphereGeometry args={[.27,12,8]}/><meshStandardMaterial color='#e9dfba'/></mesh></group><group position={[3,0,-5.8]}><mesh position={[0,2.2,0]}><coneGeometry args={[1.8,.9,6]}/><meshStandardMaterial color='#687965'/></mesh>{[0,1,2,3,4,5].map(i=><Block key={i} position={[Math.sin(i*Math.PI/3)*1.4,1,Math.cos(i*Math.PI/3)*1.4]} size={[.12,2,.12]} color='#d6c39a'/>)}</group></>}
- {district==='zhangjiang'&&<group position={[0,0,5.8]}><Round position={[0,.12,0]} size={[7,.24,3.9]} color='#d5d6be' radius={.12}/><mesh position={[0,2,0]} rotation={[Math.PI/2,0,0]} castShadow><torusGeometry args={[1.4,.12,6,32]}/><meshStandardMaterial color='#c27045' metalness={.2}/></mesh><Sign text='把问题留在这里' width={2.5} position={[0,.8,1.9]} color='#8f613c'/></group>}
+ {district==='anfu'&&<group position={[WUKANG_FOOTPRINT.x,0,WUKANG_FOOTPRINT.z]}><ModelSlotView slot='wukang-corner' manifest={manifest} height={6.5} onLoaded={()=>onLoaded?.('wukang-corner')}><CornerBuilding night={night}/></ModelSlotView></group>}
+
  </group>;}
 
 

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 
-const surfaces = ['asphalt', 'paving', 'limestone', 'river', 'bund-stone', 'bund-copper'] as const;
+const surfaces = ['asphalt', 'paving', 'limestone', 'river', 'bund-stone', 'bund-copper', 'lane-brick', 'campus-glass', 'apartment-tile'] as const;
 export type CityTextures = Partial<Record<(typeof surfaces)[number], THREE.Texture>>;
 
 export function useCityTextures(): CityTextures {

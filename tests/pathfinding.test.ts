@@ -3,6 +3,7 @@ import { findPath, isWalkable } from '../src/components/pathfinding';
 import { getObstacles } from '../src/components/CityModels';
 import { BUND_BANK, PUDONG_LANDMARKS } from '../src/components/riverLayout';
 import { DISTRICTS } from '../src/game/content';
+import { CAMPUS_POND, PEOPLE_MUSEUM, PEOPLE_POND, WUKANG_FOOTPRINT, XIN_STATION, XIN_STALLS } from '../src/components/districtLayout';
 describe('city walking',()=>{
   it('walks around a building without cutting through its footprint',()=>{
     const obstacles=[{x:0,z:0,width:3,depth:4}];
@@ -35,6 +36,22 @@ describe('city walking',()=>{
     const obstacles=getObstacles('lujiazui');
     for (const place of DISTRICTS.find(district=>district.id==='lujiazui')!.hotspots) {
       expect(findPath([0,4.3],place.position,obstacles).at(-1),place.id).toEqual(place.position);
+    }
+  });
+  it.each([
+    ['anfu', [WUKANG_FOOTPRINT]],
+    ['people', [PEOPLE_MUSEUM, PEOPLE_POND]],
+    ['zhangjiang', [CAMPUS_POND]],
+    ['xinzhuang', [XIN_STATION, ...XIN_STALLS]],
+  ] as const)('leaves every %s hotspot reachable around the new landmarks', (district, landmarks) => {
+    const obstacles = getObstacles(district);
+    for (const place of DISTRICTS.find(area => area.id === district)!.hotspots) {
+      const route = findPath([0,4.3], place.position, obstacles);
+      expect(route.at(-1), place.id).toEqual(place.position);
+      expect(route.every(point => isWalkable(point, obstacles)), place.id).toBe(true);
+    }
+    for (const {x,z} of landmarks) {
+      expect(isWalkable([x,z], obstacles)).toBe(false);
     }
   });
 });

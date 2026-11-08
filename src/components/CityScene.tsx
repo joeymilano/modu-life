@@ -6,6 +6,7 @@ import { DISTRICTS } from '../game/content';
 import type { DistrictId } from '../game/types';
 import { Bench, Block, CityArchitecture, Figure, getObstacles, NightOwlPostbox, ModelSlotView, Lamp, Tree, Umbrella, type ModelManifest } from './CityModels';
 import BundWaterfront from './BundWaterfront';
+import DistrictLandmarks from './DistrictLandmarks';
 import { CitySurface, useCityTextures, type CityTextures } from './CitySurfaces';
 import { findPath, isWalkable, type Point2 } from './pathfinding';
 import { BUND_BANK, BUND_LABEL_OFFSETS } from './riverLayout';
@@ -25,8 +26,7 @@ function CameraRig({compact,district,hero,reducedMotion,onReady}:{
  const waterfront=district==='bund';
  const eyeX=waterfront?-28:31,eyeZ=waterfront?37:35;
  const focusX=waterfront?5.15:0,focusY=waterfront?2.65:1.75;
- const compactWidth=district==='lujiazui'?39:31;
- const width=waterfront?50:compact?compactWidth:42, height=waterfront?35:compact?33:34;
+ const width=waterfront?50:compact?39:42, height=waterfront?35:compact?33:34;
  useEffect(()=>{
   const c=camera as THREE.OrthographicCamera;
   c.zoom=Math.min(size.width/width,size.height/height);
@@ -42,23 +42,26 @@ function CameraRig({compact,district,hero,reducedMotion,onReady}:{
  });
  return null;
 }
-function Road({asphalt,night,end=14.7}:{asphalt:CityTextures['asphalt'];night:boolean;end?:number}){
- const color=asphalt?(night?'#ced4d8':'#90979b'):'#505a5f',roughness=night?.61:.95;
+function Road({asphalt,night,end=14.7,crossStreet}:{asphalt:CityTextures['asphalt'];night:boolean;end?:number;crossStreet:boolean}){
+ const color=asphalt?(crossStreet?(night?'#ced4d8':'#90979b'):'#d2d7d4'):'#505a5f',roughness=night?.61:.95;
  const rightCurb=end-1.65;
  return <group>
   <CitySurface position={[(end-14.7)/2,.054,0]} size={[end+14.7,2.72]} map={asphalt} color={color} tile={4} roughness={roughness} relief={.022}/>
-  <CitySurface position={[0,.056,0]} size={[2.72,22.5]} map={asphalt} color={color} tile={4} roughness={roughness} relief={.022}/>
-  {[-1.48,1.48].map(z=><group key={z}>
+  {crossStreet&&<CitySurface position={[0,.056,0]} size={[2.72,22.5]} map={asphalt} color={color} tile={4} roughness={roughness} relief={.022}/>}
+  {crossStreet?[-1.48,1.48].map(z=><group key={z}>
    <Block position={[-8.1,.055,z]} size={[12.9,.06,.15]} color='#b4b5a9' shadow={false}/>
    <Block position={[1.65+rightCurb/2,.055,z]} size={[rightCurb,.06,.15]} color='#b4b5a9' shadow={false}/>
-  </group>)}
-  {[-1.48,1.48].flatMap(x=>[-6.4,6.4].map(z=><Block key={x+':'+z} position={[x,.055,z]} size={[.15,.06,9.7]} color='#b4b5a9' shadow={false}/>))}
+  </group>):[-1.48,1.48].map(z=><Block key={z} position={[0,.055,z]} size={[29.4,.06,.15]} color='#b4b5a9' shadow={false}/>)}
+  {crossStreet&&[-1.48,1.48].flatMap(x=>[-6.4,6.4].map(z=><Block key={x+':'+z} position={[x,.055,z]} size={[.15,.06,9.7]} color='#b4b5a9' shadow={false}/>))}
   {[-12,-9,-6,-3,3,6,9,12].filter(x=>x+.5<end).map(x=><Block key={x} position={[x,.063,0]} size={[.85,.007,.05]} color='#a4a18e' shadow={false}/>)}
-  {[-6,-3.8,3.8,6].map(z=><Block key={z} position={[0,.063,z]} size={[.05,.007,.85]} color='#a4a18e' shadow={false}/>)}
-  {[-2.13,2.13].flatMap((z,j)=>Array.from({length:6},(_,i)=><Block key={j+'-'+i} position={[-.98+i*.392,.068,z]} size={[.21,.008,.66]} color='#d5d5c7' shadow={false}/>))}
+  {crossStreet&&[-6,-3.8,3.8,6].map(z=><Block key={z} position={[0,.063,z]} size={[.05,.007,.85]} color='#a4a18e' shadow={false}/>)}
+  {crossStreet&&[-2.13,2.13].flatMap((z,j)=>Array.from({length:6},(_,i)=><Block key={j+'-'+i} position={[-.98+i*.392,.068,z]} size={[.21,.008,.66]} color='#d5d5c7' shadow={false}/>))}
  </group>;
 }
 function StreetFurniture({district,night}:{district:DistrictId;night:boolean}){
+ if(district!=='bund'&&district!=='lujiazui')return <group>
+  {[-12,1,11.9].map(x=><Lamp key={x} position={[x,0,1.9]} night={night}/>)}
+ </group>;
  const xs=district==='bund'?[-12]:[-12,12];
  return <group>
  {xs.flatMap((x,j)=>[-7.8,-3,2.8,7.7].map((z,i)=><Tree key={`${j}-${i}`} position={[x,0,z]} tone={i+j}/>))}
@@ -67,9 +70,7 @@ function StreetFurniture({district,night}:{district:DistrictId;night:boolean}){
  {[-10,-5,5,9].map(x=><Lamp key={x} position={[x,0,1.9]} night={night}/>)}
  {[-8,-3,3,8].map((x,i)=><Bench key={x} position={[x,0,-2]} rotation={i%2?Math.PI:0}/>)}
  <Umbrella position={[-10.7,0,5.2]} color='#b54c35'/><Umbrella position={[-10.7,0,7.3]} color='#ddbf6d'/>
- {district==='anfu'&&<><Umbrella position={[1.9,0,7.4]} color='#b04c39'/><Bench position={[1.9,0,4.3]} rotation={Math.PI/2}/></>}
- {district==='people'&&<>{[-9,-3,5].map((x,i)=><Umbrella key={x} position={[x,0,-7.6]} color={['#ba614e','#ba9759','#81916a'][i]}/>)}{[-9,-6,-3].map(x=><Tree key={x} position={[x,0,-8.3]} tone={2}/>)}</>}
- {district==='zhangjiang'&&[-3,3].map(x=><group key={x}><Tree position={[x,0,4.5]} tone={2}/><Tree position={[x,0,7.2]} tone={0}/></group>)}
+
  </group>;
 }
 function Taxi({offset=0,color='#bdad55',reducedMotion,end=13}:{offset?:number;color?:string;reducedMotion:boolean;end?:number}){
@@ -168,18 +169,23 @@ function Player({district,destination,onArrive,walkRequest,reducedMotion,appeara
 }
 type HotspotLabelRefs = RefObject<Map<string, HTMLButtonElement>>;
 const compactLabelOffsets = [[-14,10],[10,-12],[-8,14],[14,-9]] as const;
-const compactOwlOffset = [3,24] as const;
+const neighborhoodLabelOffsets = [[-27,9],[16,-34],[-13,23],[32,-15]] as const;
+const compactLabelOverrides: Record<string,readonly [number,number]> = {
+ 'night-owl':[3,24], 'xin-street':[63,2],
+};
 function Hotspots({district,selected,labelRefs,compact}:{
  district:DistrictId;selected?:string|null;labelRefs:HotspotLabelRefs;compact:boolean;
 }){
  const config=DISTRICTS.find(d=>d.id===district);const projected=useMemo(()=>new THREE.Vector3(),[]);
+ const compactOffsets=district==='bund'||district==='lujiazui'?compactLabelOffsets:neighborhoodLabelOffsets;
  const spots=useMemo(()=>[...(config?.hotspots??[]),...(district==='bund'?[{id:'night-owl',position:[-2.6,9] as Point2}]:[])],[config,district]);
  useFrame(({camera,size})=>{
   camera.updateMatrixWorld();
   for(const [index,h] of spots.entries()){
    const button=labelRefs.current.get(h.id);if(!button)continue;
    projected.set(h.position[0],h.id==='night-owl'?3.8:1.1,h.position[1]).project(camera);
-   const offset=compact&&h.id==='night-owl'?compactOwlOffset:BUND_LABEL_OFFSETS[h.id]??(compact?compactLabelOffsets[index]:undefined);
+   const cityOffset=BUND_LABEL_OFFSETS[h.id];
+   const offset=compact?(compactLabelOverrides[h.id]??cityOffset??compactOffsets[index]):cityOffset;
    const x=(projected.x*.5+.5)*size.width+(offset?.[0]??0);
    const y=(-projected.y*.5+.5)*size.height+(offset?.[1]??0);
    button.style.transform=`translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0) translate(-50%,-50%)`;
@@ -209,14 +215,14 @@ function World({district,selectedHotspot,onHotspot,destination,onArrive,night=fa
    <RoundedBox args={[slabWidth,.62,BUND_BANK.length]} radius={.18} smoothness={3} position={[slabCenter,-.29,0]} receiveShadow castShadow><meshStandardMaterial color={night?'#606d74':'#a7aca8'} roughness={.94}/></RoundedBox>
    <CitySurface position={[bund?BUND_BANK.westEnd+westWidth/2:0,.036,0]} size={[bund?westWidth-.08:30.94,24.16]}
     map={textures.paving} color={park?'#b5b8a7':'#d2d2c6'} tile={4.2} relief={.018} roughness={night?.68:.95}/>
-   {park&&<><RoundedBox args={[11,.06,6.9]} radius={.5} smoothness={2} position={[-6,.05,-5.8]} receiveShadow><meshStandardMaterial color='#8da47c' roughness={1}/></RoundedBox><Block position={[2,.07,-5.7]} size={[1,.06,6]} color='#e1d3a8'/></>}
-   <Road asphalt={textures.asphalt} night={night} end={bund?8.95:undefined}/>
+   {!park&&<Road asphalt={textures.asphalt} night={night} end={bund?8.95:undefined} crossStreet={bund||district==='lujiazui'}/>}
    {bund&&<BundWaterfront river={textures.river} paving={textures.paving} night={night} reducedMotion={reducedMotion}/>}
-   <CityArchitecture district={district} night={night} manifest={manifest} wallMap={textures.limestone}
+   <CityArchitecture district={district} night={night} manifest={manifest} wallMap={textures.limestone} laneBrick={textures['lane-brick']}
     bundStone={textures['bund-stone']} bundCopper={textures['bund-copper']} onLoaded={onModelLoaded}/>
+   <DistrictLandmarks district={district} night={night} manifest={manifest} textures={textures} onLoaded={onModelLoaded}/>
    <StreetFurniture district={district} night={night}/>{bund&&<NightOwlPostbox manifest={manifest} onLoaded={owlLoaded} onOpen={()=>{if(!inputBlocked())onNightOwl?.();}}/>}
-   <Taxi offset={-7} reducedMotion={reducedMotion} end={bund?8.4:undefined} color='#b8aa58'/>
-   {!compact&&<Taxi offset={7} reducedMotion={reducedMotion} end={bund?8.4:undefined} color='#426a58'/>}
+   {!park&&<Taxi offset={-7} reducedMotion={reducedMotion} end={bund?8.4:undefined} color='#b8aa58'/>}
+   {!park&&!compact&&<Taxi offset={7} reducedMotion={reducedMotion} end={bund?8.4:undefined} color='#426a58'/>}
    {[{start:[-6,2.55] as Point2,color:'#395d4c'},{start:[4,-2.6] as Point2,color:'#cf9d5b'},{start:[8,2.55] as Point2,color:'#b76b52'},{start:[-8,-2.55] as Point2,color:'#667c8b'}].slice(0,compact?2:4).map((p,i)=><Pedestrian key={i} {...p} index={i} reducedMotion={reducedMotion}/>)}
    {mode==='play'&&<><Player key={district} district={district} destination={destination} onArrive={onArrive} walkRequest={walkRequest} reducedMotion={reducedMotion} appearance={appearance} manifest={manifest} onModelLoaded={onModelLoaded}/><Hotspots district={district} selected={selectedHotspot} labelRefs={labelRefs} compact={compact}/></>}
    <mesh rotation={[-Math.PI/2,0,0]} position={[0,.105,0]} onPointerDown={groundClick}><planeGeometry args={[31,24]}/><meshBasicMaterial transparent opacity={0} depthWrite={false}/></mesh>

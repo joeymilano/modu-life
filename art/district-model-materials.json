@@ -1,0 +1,14 @@
+{
+  "treatment": "游戏比例的原创街区模型。墙砖、幕墙玻璃和住宅外墙贴图为 ImageGen 生成并压缩成 512×512 WebP。",
+  "references": {
+    "安福路": "https://www.shanghai.gov.cn/citywalk/20260625/3492b1b945c146fc96c4585d7b04f00d.html",
+    "人民广场": "https://www.shanghaimuseum.net/mu/frontend/pg/infomation/about",
+    "张江": "https://www.shanghai.gov.cn/gwk/search/content/75fce214-8ff7-4e57-a63d-48c3e109f655",
+    "莘庄": "public/art/corners/xinzhuang.webp"
+  },
+  "textures": {
+    "public/art/city-materials/lane-brick.webp": "One seamless 1024×1024 square photographic albedo tile for a finely detailed architectural model. Shanghai former French Concession lane-house brickwork, 1920s buff-grey and muted warm umber tiny horizontal bricks with subtle aged red areas, narrow taupe mortar, half bond, faint coastal grime and worn lime at edges. No single standout features. Straight orthographic flat facade crop, evenly diffuse light, no directional highlights, no windows, no labels, no foreground. Repeats unobtrusively as clay brick.",
+    "public/art/city-materials/campus-glass.webp": "One seamless 1024×1024 square photographic albedo map for a small architectural model. Slightly reflective muted green-blue translucent office curtain glass with extremely subtle horizontal muted variations, diffused soft sky and cool silver, almost continuous material with faint old vertical streaks. This is the glass itself, no window frames or strong reflection, no recognizable environment or skyline, no perspective, no text. Neutral evenly illuminated material sample.",
+    "public/art/city-materials/apartment-tile.webp": "One seamless 1024×1024 square photographic albedo of tiny matte ceramic mosaic facade tiles from a late twentieth century Shanghai residential compound. Warm ivory-grey and desaturated tan mosaic squares with sparse slight color variations, dark thin grout but no black lines, subtle dust and realistic weather. Orthographic straight-on square material sample, diffused neutral lighting, strictly no symbols, writing, building edges, windows, doors, props, reflections, perspective or borders."
+  }
+}
