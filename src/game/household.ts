@@ -1,4 +1,4 @@
-import { datePhoto } from './art';
+import { dateScenePhoto } from './art';
 import { CAST } from './content';
 import type { GameState, LifeEvent } from './types';
 
@@ -101,7 +101,7 @@ export function householdVisit(state: GameState, personId: string): LifeEvent | 
   : scene.text;
  return {
   id, title: plan ? '这次还照旧伐' : scene.title, text, category: 'romance', tag: '两个人的事',
-  speakerId: personId, district: person.district, illustration: datePhoto(personId, 'home'),
+  speakerId: personId, district: person.district, illustration: dateScenePhoto(personId,'home',state.age),
   choices: [
    { id: 'share', label: plan === 'shared' ? '继续一起住，账照六四分' : '把钥匙配上，住房费六四分',
     hint: `${moving?`搬家花 ¥${moving.toLocaleString('zh-CN')} · `:''}${newHome?'租一间普通房 · ':''}${rentHint}`,

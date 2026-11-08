@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { dateScenePhoto, portraitArt } from '../src/game/art';
 import { CAST } from '../src/game/content';
 import { dateAnswer, dateTableChoice, finishDate, firstDateParting, romanceQuestions } from '../src/game/dates';
 import { returnDate } from '../src/game/dateReturns';
@@ -34,6 +35,23 @@ describe('date scenes', () => {
   expect(romanceQuestions(lu, ['night-saved-box'])[0].text).toContain('有疤的橘子');
   expect(romanceQuestions(he, ['night-offer'])[0].text).toContain('蓝围裙');
   expect(romanceQuestions(lu, ['night-offer'])[0].text).toBe(romanceQuestions(lu, [])[0].text);
+ });
+
+ it.each(cast)('keeps $name at the current age in the date, profile and shared fork', person => {
+  for (const [age,stage] of [[32,'midlife'],[53,'senior']] as const) {
+   const state={...newGame(),age,district:person.district};
+   const picture=`/art/portraits/${person.id}-${stage}.webp`;
+   const parting=firstDateParting(state,person,[0,0])!;
+   expect(parting.illustration).toBe(picture);
+   expect(dateScenePhoto(person.id,'meeting',age)).toBe(portraitArt(person.id,true,age));
+   const result=resolveChoice(state,parting,'friend');
+   const book=recordDecision(startBook(state),result.state,parting,'friend');
+   const branch=activeLine(forkLife(decodeLife(encodeLife(book)),0));
+   expect(replayScene(branch.state,branch.replay!)?.illustration).toBe(picture);
+   expect(returnDate(result.state,person.id)?.illustration).toBe(picture);
+   const ticket={...draftFromEvent(parting,'friend',result.text,age,'上海'),author:'小申'};
+   expect(validateTicket({version:1,timeline:ticket}).timeline.turns[0].shot).toBe(picture);
+  }
  });
 
  it('offers a unique return to each real date and preserves friend choices', () => {

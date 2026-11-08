@@ -4,11 +4,11 @@ export const LOOKS:{id:LooksLevel;name:string;line:string;flavor:string;face:num
  {id:'charming',name:'颇有姿色',line:'出门常被问路，偶尔被要微信',flavor:'有点回头率',face:8,attraction:3},
  {id:'stunning',name:'惊艳全场',line:'路过咖啡店，主理人亲自开门',flavor:'回头率超标',face:16,attraction:6},
 ];
-const agedHeads = new Set(['mao', 'he', 'lu']);
-const contactPortraits = new Set(['tang', 'wu', 'fang', 'boss', 'gao', 'father', 'qiao', 'xia', 'aunt', 'uncle']);
+const contactPortraits = new Set(['tang', 'wu', 'fang', 'boss', 'gao', 'father', 'aunt', 'uncle',
+ 'xia', 'ning', 'lin', 'chen', 'qiao', 'yang', 'lu', 'he']);
 
 export function portraitArt(id: string, full: boolean, age = 18): string {
- const aged = age >= 53 && agedHeads.has(id);
+ const aged = age >= 53 && id === 'mao';
  if (full && aged) return '/art/endings/farewell-' + id + '.webp';
  const stage = aged || (contactPortraits.has(id) && age >= 53) ? '-senior' : contactPortraits.has(id) && age >= 32 ? '-midlife' : '';
  return '/art/portraits/' + (full ? '' : 'head/') + id + stage + '.webp';
@@ -48,10 +48,15 @@ export function farewellPhoto(person: 'mao' | 'he' | 'lu'): string {
  return `/art/endings/farewell-${person}.webp`;
 }
 
-export function datePhoto(personId: string, scene: 'meeting' | 'middle' | 'parting' | 'return' | 'home'): string {
+type DateShot = 'meeting' | 'middle' | 'parting' | 'return' | 'home';
+
+export function datePhoto(personId: string, scene: DateShot): string {
  return `/art/dates/${personId}-${scene}.webp`;
 }
 
+export function dateScenePhoto(personId: string, scene: DateShot, age: number) {
+ return age >= 32 ? portraitArt(personId,true,age) : datePhoto(personId,scene);
+}
 export type WorkPhoto = 'reorg' | 'overtime' | 'shift' | 'invoice' | 'return' | 'interview-office' | 'interview-shop' | 'payroll' | 'settlement';
 
 export function workPhoto(shot: WorkPhoto): string {

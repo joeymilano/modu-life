@@ -1,4 +1,4 @@
-import { datePhoto } from './art';
+import { dateScenePhoto } from './art';
 import { dateAnswer, dateAnswerEffect, dateTableChoice, hasDated } from './dates';
 import { CAST } from './content';
 import type { Effect, EventChoice, GameState, LifeEvent } from './types';
@@ -150,7 +150,7 @@ export function returnDate(state: GameState, personId: string): LifeEvent | unde
  };
  return {
   id, title: story.title, text: story.text + (echo ? '\n' + echo.line : ''), category: 'romance', speakerId: personId,
-  illustration: datePhoto(personId, 'return'), district: CAST.find(person => person.id === personId)?.district,
+  illustration: dateScenePhoto(personId,'return',state.age), district: CAST.find(person => person.id === personId)?.district,
   tag: withFriend ? '朋友见面' : waiting ? '还没定下来' : '再见一面',
   choices: [
    withFriend ? choice('friend', story.friend) : waiting ? {...choice('friend',story.friend,dateAnswerEffect(personId,'friends')),hint:'以后按朋友相处'} :

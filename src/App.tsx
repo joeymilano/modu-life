@@ -45,6 +45,7 @@ import { familyHousingCap } from './game/heirCapital';
 import { lifeStartHousing, outstandingShiftPay, type LifeStart } from './game/lifeStarts';
 import { firstNightClue, firstNightLead, firstNightThread } from './game/firstNight';
 import ContactProfile from './components/ContactProfile';
+import DateRoster from './components/DateRoster';
 import { eventPhoto, interviewPhoto, LOOKS, streetPhoto } from './game/art';
 import { DialogueGame } from './components/MiniGames';
 import RentalGame from './components/RentalGame';
@@ -308,10 +309,16 @@ export default function App(){
   if(!game||game.actions<=0||game.pendingYearEvent||game.ended)return;
   const answer=dateAnswer(game,person.id);
   if(answer==='left')return;
-  const followup=returnDate(game,person.id)??(!homePlan?householdVisit(game,person.id):undefined);
+  const destination={...game,district:person.district};
+  const followup=returnDate(destination,person.id)??(!homePlan?householdVisit(destination,person.id):undefined);
+  setGame(destination);
   setModal(null);
-  if(followup){setActiveEvent(followup);setEventNpc(person.id);setMobilePanel(null);}
-  else if(hasDated(game,person.id))openEvent(answer==='friends'?'social':'romance',person.id);
+  setMobilePanel(null);
+  if(followup){setActiveEvent(followup);setEventNpc(person.id);}
+  else if(hasDated(destination,person.id)){
+   setActiveEvent(selectEvent(destination,answer==='friends'?'social':'romance',person.id));
+   setEventNpc(person.id);
+  }
   else setMini({type:'dialogue',person});
  }
  function talkHousehold(person:CastMember){
@@ -421,11 +428,12 @@ export default function App(){
  const relocationScene=activeEvent?.id.startsWith('life-start-move-');
  const relocationResult=outcome?.source?.event.id.startsWith('life-start-move-');
  const dateReturnScene=activeEvent?.id.startsWith('date-return-');
+ const datePortraitScene=(dateReturnScene||activeEvent?.firstDate||householdScene)&&scenePhoto?.startsWith('/art/portraits/');
  const contactScene=scenePhoto?.startsWith('/art/contacts/');
  const cornerScene=scenePhoto?.startsWith('/art/corners/');
  const focusScene=blossomsScene||forwardScene||cornerScene||contactScene||dateReturnScene||lifeStartScene||openingMessages||Boolean(activeEvent?.firstDate)||rentalScene||workScene||tableScene||offerScene||birthScene||stallScene||householdScene;
  const partingBill=activeEvent?.firstDate ? -(activeEvent.choices[0].effect.cash??0) : 0;
- const wideShot=blossomsScene||relocationScene||cornerScene||contactScene||scenePhoto?.startsWith('/art/shanghai-streets/first-night-')||scenePhoto?.startsWith('/art/dates/')||scenePhoto?.startsWith('/art/endings/farewell-')||scenePhoto?.startsWith('/art/endings/life-')||scenePhoto?.startsWith('/art/work/')||scenePhoto?.startsWith('/art/pearl/')||parkScene||scenePhoto?.startsWith('/art/opening/')||scenePhoto?.startsWith('/art/rental/')||scenePhoto?.startsWith('/art/night-ferry/')||tableScene||offerScene||stallScene;
+ const wideShot=datePortraitScene||blossomsScene||relocationScene||cornerScene||contactScene||scenePhoto?.startsWith('/art/shanghai-streets/first-night-')||scenePhoto?.startsWith('/art/dates/')||scenePhoto?.startsWith('/art/endings/farewell-')||scenePhoto?.startsWith('/art/endings/life-')||scenePhoto?.startsWith('/art/work/')||scenePhoto?.startsWith('/art/pearl/')||parkScene||scenePhoto?.startsWith('/art/opening/')||scenePhoto?.startsWith('/art/rental/')||scenePhoto?.startsWith('/art/night-ferry/')||tableScene||offerScene||stallScene;
  const leadButtons=game&&(lead||cardLead)?<div className="story-leads">{[lead,cardLead].map(item=>item&&<button
   key={item.event.id} className={'story-lead'+(item===cardLead?' opening-lead':'')}
   disabled={blocked||game.actions<=0} onClick={()=>openLead(item.event)}>
@@ -528,7 +536,7 @@ export default function App(){
  </main>}
  {screen==='end'&&game&&<EndingScreen game={game} sharing={sharing} onShare={share}
   onChallenge={copyChallenge} onDraw={()=>beginDraw()} onJournal={()=>setModal('journal')} onLines={()=>setModal('lines')}/>}
- {dialogOpen&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget&&!activeEvent&&!mini&&!outcome)setModal(null);}}><section className={'modal '+(activeEvent?'event-modal':'')+(wideShot?' wide-shot-modal':'')+(openingMessages?' arrival-modal':'')+(arrivalReply?' arrival-reply-modal':'')+(nightClue?' first-night-meeting':'')+(lifeStartScene?' life-start-scene':'')+(classDocument?' class-lives-scene':'')+(relocationScene?' relocation-scene':'')+(activeEvent?.firstDate?' date-parting-modal':'')+(dateReturnScene?' date-return-modal':'')+(rentalScene?' rental-negotiation':'')+(tableScene?' long-table-modal':'')+(parkScene?' match-scene':'')+(forwardScene?' forward-scene':'')+(workScene?' handover-scene':'')+(offerScene?' job-offer-modal':'')+(birthScene||stallScene||householdScene?' birth-scene-modal':'')+(mini?' minigame-modal':'')+(mini?.type==='rental'?' rental-modal':'')+(mini?.type==='stall'?' stall-modal':'')+(mini?.type==='dialogue'?(mini.person?' date-modal first-date-modal':' date-modal work-interview-modal'):'')+(modal==='romance'?' romance-modal':'')+(modal==='journal'?' journal-modal':'')+(modal==='swap'?' swap-modal':'')+(modal==='starts'?' life-start-modal':'')+(modal==='lines'?' lines-modal':'')} role="dialog" aria-modal="true" aria-label={activeEvent?.title||(arrivalContact?arrivalContact.name+'回你了':outcome?.title)||(mini?.type==='stall'?'晚风小吃街':mini?'人生现场':modal==='saves'?'存档':modal==='swap'?'换牌':modal==='starts'?'选一种开局':modal==='journal'?'人生记事':modal==='lines'?'时间线':modal==='contacts'?(profile?.name??'认识的人'):'魔都人生')}>
+ {dialogOpen&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget&&!activeEvent&&!mini&&!outcome)setModal(null);}}><section className={'modal '+(activeEvent?'event-modal':'')+(wideShot?' wide-shot-modal':'')+(openingMessages?' arrival-modal':'')+(arrivalReply?' arrival-reply-modal':'')+(nightClue?' first-night-meeting':'')+(lifeStartScene?' life-start-scene':'')+(classDocument?' class-lives-scene':'')+(relocationScene?' relocation-scene':'')+(activeEvent?.firstDate?' date-parting-modal':'')+(dateReturnScene?' date-return-modal':'')+(rentalScene?' rental-negotiation':'')+(tableScene?' long-table-modal':'')+(parkScene?' match-scene':'')+(forwardScene?' forward-scene':'')+(workScene?' handover-scene':'')+(offerScene?' job-offer-modal':'')+(birthScene||stallScene||householdScene?' birth-scene-modal':'')+(mini?' minigame-modal':'')+(mini?.type==='rental'?' rental-modal':'')+(mini?.type==='stall'?' stall-modal':'')+(mini?.type==='dialogue'?(mini.person?' date-modal first-date-modal':' date-modal work-interview-modal'):'')+(modal==='romance'?' romance-modal':'')+(modal==='journal'?' journal-modal':'')+(modal==='swap'?' swap-modal':'')+(modal==='starts'?' life-start-modal':'')+(modal==='lines'?' lines-modal':'')} role="dialog" aria-modal="true" aria-label={activeEvent?.title||(arrivalContact?arrivalContact.name+'回你了':outcome?.title)||(mini?.type==='stall'?'晚风小吃街':mini?'人生现场':modal==='saves'?'存档':modal==='swap'?'换牌':modal==='starts'?'选一种开局':modal==='romance'?'约谁出来':modal==='journal'?'人生记事':modal==='lines'?'时间线':modal==='contacts'?(profile?.name??'认识的人'):'魔都人生')}>
  {!(activeEvent&&game?.pendingYearEvent)&&<button className="modal-close icon-button" aria-label="关闭" onClick={()=>{if(outcome)closeOutcome();else{setModal(null);setMini(null);dismissEvent();}}}><Icon name="close"/></button>}
  {modal==='help'&&<div className="help-content"><h2>怎么玩</h2><div className="help-step"><b>01</b><div><h3>先抽五张人生牌</h3><p>每类一张。重抽时看两张备选，换上才用一次机会。</p></div></div><div className="help-step"><b>02</b><div><h3>每年三次行动</h3><p>点地点办事，每次扣一格。走路、换城区不扣行动。</p></div></div><div className="help-step"><b>03</b><div><h3>年底结账</h3><p>点年度结算，工资到账，房租和生活费一起扣。六十岁结局。</p></div></div><button className="primary" onClick={()=>setModal(null)}>晓得了 <Icon name="check" size={18}/></button><small className="fiction-note">人生故事与街头偶遇均为虚构</small><MusicCredit/></div>}
  {modal==='lines'&&book&&<LifeLines book={book} onFork={branchFrom} onSwitch={returnToLine} onDrop={id=>setBook(current=>current?dropLine(current,id):current)}/>}
@@ -568,11 +576,9 @@ export default function App(){
    </button>)}</div>
    {game.jobId&&<button className="text-button" onClick={()=>{setModal(null);openEvent('career');}}>处理工作上的事 <Icon name="chevron" size={16}/></button>}
  </div>}
- {modal==='romance'&&game&&<div className="romance-content"><h2>约谁出来</h2><div className="romance-grid">{CAST.filter(p=>p.role==='romance').map(p=>{
-  const answer=dateAnswer(game,p.id);
-  const action=answer==='left'?'已经道别':!homePlan&&householdVisit(game,p.id)?'聊聊以后怎么住':answer==='friends'?'以朋友身份碰面':answer==='waiting'?'先见一面':hasDated(game,p.id)?'再约一次':'约见面';
-  return <button key={p.id} disabled={answer==='left'} onClick={()=>startRomance(p)}><Portrait person={p} full age={game.age}/><h3>{p.name}<small>{relationshipLabel(game,p.id)}</small></h3><span>{p.title} · {p.ageOffset+game.age}岁</span><p>{p.description}</p><b>{action} {answer!=='left'&&<Icon name="arrow" size={15}/>}</b></button>;})}</div><button className="text-button" onClick={()=>{setModal(null);openEvent('romance',game.partnerId||undefined);}}>看看最近的感情状况 <Icon name="chevron" size={16}/></button></div>}
- {activeEvent&&game&&(openingMessages?<ArrivalInbox event={activeEvent} heading={sceneHeading} onReply={choose}/>:<><div className={'event-visual'+(scenePhoto?' event-photo':'')}>
+ {modal==='romance'&&game&&<DateRoster game={game} onPick={startRomance}
+  onOther={()=>{setModal(null);openEvent('romance',game.partnerId||undefined);}}/>}
+ {activeEvent&&game&&(openingMessages?<ArrivalInbox event={activeEvent} heading={sceneHeading} onReply={choose}/>:<><div className={'event-visual'+(scenePhoto?' event-photo':'')+(datePortraitScene?' date-portrait-photo':'')}>
   {scenePhoto?<img src={scenePhoto} alt=""/>:isOwl?<Suspense fallback={<LoadCity/>}><OwlPreview/></Suspense>:speaker&&<Portrait person={speaker} full age={game.age}/>}
  </div><div className="event-content"><div className="event-meta"><span>{activeEvent.tag||ACTIVITY_NAMES[activeEvent.category as ActivityKind]||'这一年'}</span><small>{game.age}岁 · {activeEvent.category==='year'?'不扣行动':'1 格行动'}</small></div>
  {speaker&&!activeEvent.firstDate&&!birthScene&&!stallScene&&!householdScene&&<div className="event-speaker"><Portrait person={speaker} size={54} age={game.age}/><div><b>{speaker.name}</b><small>{relocationScene?(speaker.id==='father'?'公司负责人':'仓库调度'):classDocument?(speaker.id==='father'?'公司负责人':'仓库老工友'):castTitle(speaker,game.age)}</small></div></div>}<h2 ref={focusScene?sceneHeading:undefined} tabIndex={focusScene?-1:undefined}>{activeEvent.title}</h2><p className="event-body">{activeEvent.text}</p>{relocationScene&&<RelocationPapers game={game} event={activeEvent}/>}
@@ -623,7 +629,7 @@ export default function App(){
  {mini?.type==='rental'&&game&&<RentalGame initialEvidence={mini.evidence} age={game.age} onTalk={openRental}/>}
  {mini?.type==='stall'&&game&&<StallGame seed={game.seed} age={game.age} schedule={stallSchedule(game.seed,game.age,game.actions)} onCloseBooks={closeStallBooks}/>}
  {mini?.type==='dialogue'&&game&&(mini.person?
-  <DialogueGame person={mini.person} skill={game.stats.skill} cash={game.cash} flags={game.flags} onParting={picks=>openParting(mini.person,picks)}/>:
+  <DialogueGame person={mini.person} age={game.age} skill={game.stats.skill} cash={game.cash} flags={game.flags} onParting={picks=>openParting(mini.person,picks)}/>:
   <DialogueGame career={mini.career} skill={game.stats.skill} cash={game.cash} flags={game.flags} onFinish={miniFinish} onOffer={openJobOffer}/>)}
  </section></div>}
  <input ref={fileInput} className="visually-hidden" type="file" accept=".json,application/json" aria-label="导入人生档案文件" onChange={e=>void importSave(e.target.files?.[0])}/>

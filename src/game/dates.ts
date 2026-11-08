@@ -1,6 +1,6 @@
 import type { CastMember, Effect, FirstDatePicks, GameState, LifeEvent } from './types';
 import { CAST } from './content';
-import { datePhoto } from './art';
+import { dateScenePhoto } from './art';
 
 type Answer={label:string;reply:string;points:number;cost?:number; intent?:'date'|'friend'|'leave'};
 export type Question={text:string;answers:Answer[]};
@@ -182,7 +182,7 @@ export function firstDateParting(state: GameState, person: CastMember, picks: Fi
  return {
   id: `mini-${person.id}-${state.age}-${state.actions}`, category: 'romance', tag: '临走前',
   title: `和${person.name}见一面`, text: `${afterDinner[person.id][picks[1]]}\n${parting.text}`, speakerId: person.id, district: person.district,
-  illustration: datePhoto(person.id, 'parting'), firstDate: picks,
+  illustration: dateScenePhoto(person.id,'parting',state.age), firstDate: picks,
   choices: parting.answers.map(answer => {
    const { effect, text } = finishDate(person, answer, score + answer.points, bill + (answer.cost ?? 0));
    return {

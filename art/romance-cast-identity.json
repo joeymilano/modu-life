@@ -1,0 +1,267 @@
+{
+  "generator": "Built-in ImageGen",
+  "referenceCommit": "36c3def",
+  "direction": "Shanghai narrative casting stills with stable character identities and believable age progression.",
+  "characters": {
+    "xia": {
+      "portrait": "public/art/portraits/xia.webp",
+      "avatar": "public/art/portraits/head/xia.webp",
+      "referencePortrait": "public/art/portraits/xia.webp",
+      "referenceAvatar": "public/art/portraits/head/xia.webp",
+      "avatarCrop": [
+        214,
+        126,
+        551,
+        463
+      ],
+      "prompt": "New vertical 2:3 photo portrait from two identity references. Keep their exact face and personal visual cues, with natural Shanghai feature-film light, no glamour smoothing, clear eyes near 30% image height, framing from hair to above the knees, and no text. On an Anfu Road side street in Shanghai, young adult architect Xu Xiaowen (20-23), holding a white rolled drawing and pushing one arm against a dark teal old print shop door. Finely worn tobacco-brown work overshirt and white tee, small dark tortoiseshell glasses, distinctive scruffy bun with loose strands, same human face and quietly amused eyes as references. Daybreak side light, faint figure in shop and old terrazzo below. She looks slightly toward the camera as if just being called."
+    },
+    "ning": {
+      "portrait": "public/art/portraits/ning.webp",
+      "avatar": "public/art/portraits/head/ning.webp",
+      "referencePortrait": "public/art/portraits/ning.webp",
+      "referenceAvatar": "public/art/portraits/head/ning.webp",
+      "avatarCrop": [
+        231,
+        66,
+        619,
+        454
+      ],
+      "prompt": "New vertical 2:3 photo portrait from two identity references. Keep their exact face and personal visual cues, with natural Shanghai feature-film light, no glamour smoothing, clear eyes near 30% image height, framing from hair to above the knees, and no text. Outside a bright glass and brushed metal prototype lab in Zhangjiang in late afternoon, young adult engineer Zhou Ning (22-25) pauses to zip his understated navy work fleece while holding a small dull silver thermos. Exact black framed glasses, lightly untidy side-parted hair and natural gentle smile from reference. Hint of rain through the campus lobby, calm fluorescent mixed light, small detail of brushed steel door trim. Gaze just past camera toward someone waiting, no corporate stock photo."
+    },
+    "lin": {
+      "portrait": "public/art/portraits/lin.webp",
+      "avatar": "public/art/portraits/head/lin.webp",
+      "referencePortrait": "public/art/portraits/lin.webp",
+      "referenceAvatar": "public/art/portraits/head/lin.webp",
+      "avatarCrop": [
+        260,
+        101,
+        609,
+        450
+      ],
+      "prompt": "New vertical 2:3 photo portrait from two identity references. Keep their exact face and personal visual cues, with natural Shanghai feature-film light, no glamour smoothing, clear eyes near 30% image height, framing from hair to above the knees, and no text. Community illustrator Lin Jia (21-24) in Xinzhuang, at a low blue Formica counter next to an unpretentious little noodle shop's window. She has a small sketch pad in one hand and a graphite pencil tucked behind one ear, same straight chin-length dark bob with blunt bangs and exact bright, humorous smile from references, olive ochre canvas jacket. Body turned to move off the stool, glancing at an approaching person. Sun filtered by older storefront glass, light red paper scrap on tabletop. Real neighborhood, no costume."
+    },
+    "chen": {
+      "portrait": "public/art/portraits/chen.webp",
+      "avatar": "public/art/portraits/head/chen.webp",
+      "referencePortrait": "public/art/portraits/chen.webp",
+      "referenceAvatar": "public/art/portraits/head/chen.webp",
+      "avatarCrop": [
+        301,
+        67,
+        539,
+        305
+      ],
+      "prompt": "New vertical 2:3 photo portrait from two identity references. Keep their exact face and personal visual cues, with natural Shanghai feature-film light, no glamour smoothing, clear eyes near 30% image height, framing from hair to above the knees, and no text. Anfu Road independent coffee shop manager Chen Kai (23-26) in the shop doorway at open, olive cotton work jacket and plain charcoal t-shirt, exact wavy tousled dark hair and distinct facial structure of reference, relaxed half smile. He props the hinged wooden door open with his heel, holds a small plain white ceramic cup in left hand, right hand on door frame, apron casually folded behind. Soft green sycamore light and dim timber interior, no printed logo or cafe glamour."
+    },
+    "qiao": {
+      "portrait": "public/art/portraits/qiao.webp",
+      "avatar": "public/art/portraits/head/qiao.webp",
+      "referencePortrait": "public/art/portraits/qiao.webp",
+      "referenceAvatar": "public/art/portraits/head/qiao.webp",
+      "avatarCrop": [
+        245,
+        44,
+        615,
+        414
+      ],
+      "prompt": "New vertical 2:3 photo portrait from two identity references. Keep their exact face and personal visual cues, with natural Shanghai feature-film light, no glamour smoothing, clear eyes near 30% image height, framing from hair to above the knees, and no text. Near a modern office lobby in Lujiazui, financial analyst Qiao Min (22-24) takes off a slim silver watch over one wrist as if stopping after work. Exact distinctive face, dark low tidy swept-back ponytail and restrained alert expression from reference. Dark graphite tailored suit with a pale ivory shirt, no luxury logos. Diagonal soft sunlight over an elevator hall and real stone window ledge, city modern but inhabited. Three-quarter body turn with understated confidence, no fashion-advertisement pose."
+    },
+    "yang": {
+      "portrait": "public/art/portraits/yang.webp",
+      "avatar": "public/art/portraits/head/yang.webp",
+      "referencePortrait": "public/art/portraits/yang.webp",
+      "referenceAvatar": "public/art/portraits/head/yang.webp",
+      "avatarCrop": [
+        264,
+        116,
+        572,
+        424
+      ],
+      "prompt": "New vertical 2:3 photo portrait from two identity references. Keep their exact face and personal visual cues, with natural Shanghai feature-film light, no glamour smoothing, clear eyes near 30% image height, framing from hair to above the knees, and no text. Social worker Yang Fan (22-25) stepping out of a neighborhood activity room near People's Square, gently turning to hold the edge of the chipped dark green wooden door. Exact quietly reassuring face, side-swept short black hair from reference, light sand canvas overshirt, plain tee. Slim kraft folder under left arm, soft sidelight reflecting from worn terrazzo. Ordinary Shanghai hand-painted noticeboard behind but no legible writing, single clear expression and eyes, not posing."
+    },
+    "lu": {
+      "portrait": "public/art/portraits/lu.webp",
+      "avatar": "public/art/portraits/head/lu.webp",
+      "referencePortrait": "public/art/portraits/lu.webp",
+      "referenceAvatar": "public/art/portraits/head/lu.webp",
+      "avatarCrop": [
+        279,
+        102,
+        582,
+        405
+      ],
+      "prompt": "New vertical 2:3 photo portrait from two identity references. Keep their exact face and personal visual cues, with natural Shanghai feature-film light, no glamour smoothing, clear eyes near 30% image height, framing from hair to above the knees, and no text. Live music performer Lu Jia (21-24) at an understated Bund side-street rehearsal space loading door after afternoon sound check. Exact reference face, loose collarbone-length slightly wavy black hair, genuinely spontaneous amused expression. Weathered oxblood lightweight jacket, faded black tee and dark trousers. Coiling a real black instrument lead loosely in one hand, scuffed amplifier case at edge of frame, sliver of real Shanghai brick lane behind her. Soft warm doorway glow with cooler blue street light, candid and individual, no concert-stage spectacle."
+    },
+    "he": {
+      "portrait": "public/art/portraits/he.webp",
+      "avatar": "public/art/portraits/head/he.webp",
+      "referencePortrait": "public/art/portraits/he.webp",
+      "referenceAvatar": "public/art/portraits/head/he.webp",
+      "avatarCrop": [
+        234,
+        102,
+        607,
+        475
+      ],
+      "prompt": "New vertical 2:3 photo portrait from two identity references. Keep their exact face and personal visual cues, with natural Shanghai feature-film light, no glamour smoothing, clear eyes near 30% image height, framing from hair to above the knees, and no text. Owner-cook He Liang (23-26) leaning out from the service end of his unpretentious Xinzhuang noodle shop before dinner service. Exact black rectangular glasses, short slightly side-parted dark hair, friendly face and unforced grin from reference. Deep indigo work apron over plain black shirt, folded white towel in hand, front edge of brushed metal counter. Warm kitchen practicals and window bounce, worn cream tiles, no restaurant ad aesthetic. He is about to turn to answer someone, not posing."
+    },
+    "lin-midlife": {
+      "portrait": "public/art/portraits/lin-midlife.webp",
+      "avatar": "public/art/portraits/head/lin-midlife.webp",
+      "referencePortrait": "public/art/portraits/lin.webp",
+      "referenceAvatar": "public/art/portraits/head/lin.webp",
+      "avatarCrop": [
+        213,
+        55,
+        565,
+        407
+      ],
+      "prompt": "Create a new single vertical 2:3 photorealistic character portrait in the same art direction as the supplied young reference photographs of fictional Shanghai adult Lin Jia. These are identity references. Age the same unmistakable person to 40–44, middle age with subtle creases, subtle gray only as appropriate and same eyes, nose and face shape. Identity cue: community illustrator; chin-length bob, unmistakable blunt fringe and quick mischievous eyes. New setting and moment: municipal mural workshop, holding a paint-speckled tracing sheet under spring window light, warm mustard linen jacket. Shoot a candid independent Shanghai film casting photograph, from top of hair to above knees, eyes at 25–30% image height and face near horizontal center, natural texture and asymmetrical real posture, never heavy beauty smoothing, no text, no graphics. Use natural believable lighting and clear eyes. Preserve identity and ethnicity very closely, avoid extreme or stereotyped signs of age."
+    },
+    "lin-senior": {
+      "portrait": "public/art/portraits/lin-senior.webp",
+      "avatar": "public/art/portraits/head/lin-senior.webp",
+      "referencePortrait": "public/art/portraits/lin.webp",
+      "referenceAvatar": "public/art/portraits/head/lin.webp",
+      "avatarCrop": [
+        236,
+        116,
+        575,
+        455
+      ],
+      "prompt": "Create a new single vertical 2:3 photorealistic character portrait in the same art direction as the supplied young reference photographs of fictional Shanghai adult Lin Jia. These are identity references. Age the same unmistakable person to 57–62, realistic gradual aging, gray intermixed with original hair and authentic age lines; fully recognizable by the exact same eyes, face shape and expression. Identity cue: community illustrator; chin-length bob, unmistakable blunt fringe and quick mischievous eyes. New setting and moment: a drawing corner in her shared Xinzhuang studio, her now silver-mixed blunt bob framing the same frank smile, pencils and a pale green pin board behind. Shoot a candid independent Shanghai film casting photograph, from top of hair to above knees, eyes at 25–30% image height and face near horizontal center, natural texture and asymmetrical real posture, never heavy beauty smoothing, no text, no graphics. Use natural believable lighting and clear eyes. Preserve identity and ethnicity very closely, avoid extreme or stereotyped signs of age."
+    },
+    "chen-midlife": {
+      "portrait": "public/art/portraits/chen-midlife.webp",
+      "avatar": "public/art/portraits/head/chen-midlife.webp",
+      "referencePortrait": "public/art/portraits/chen.webp",
+      "referenceAvatar": "public/art/portraits/head/chen.webp",
+      "avatarCrop": [
+        285,
+        59,
+        601,
+        375
+      ],
+      "prompt": "Create a new single vertical 2:3 photorealistic character portrait in the same art direction as the supplied young reference photographs of fictional Shanghai adult Chen Kai. These are identity references. Age the same unmistakable person to 40–44, middle age with subtle creases, subtle gray only as appropriate and same eyes, nose and face shape. Identity cue: independent coffee shop manager, distinctive wavy dark hair, warm face and asymmetric smile. New setting and moment: Anfu Road shop opening door, subtle weathering in the old olive work jacket and natural smile lines, light from sycamores reflected off the wet steps. Shoot a candid independent Shanghai film casting photograph, from top of hair to above knees, eyes at 25–30% image height and face near horizontal center, natural texture and asymmetrical real posture, never heavy beauty smoothing, no text, no graphics. Use natural believable lighting and clear eyes. Preserve identity and ethnicity very closely, avoid extreme or stereotyped signs of age."
+    },
+    "chen-senior": {
+      "portrait": "public/art/portraits/chen-senior.webp",
+      "avatar": "public/art/portraits/head/chen-senior.webp",
+      "referencePortrait": "public/art/portraits/chen.webp",
+      "referenceAvatar": "public/art/portraits/head/chen.webp",
+      "avatarCrop": [
+        222,
+        42,
+        572,
+        392
+      ],
+      "prompt": "Create a new single vertical 2:3 photorealistic character portrait in the same art direction as the supplied young reference photographs of fictional Shanghai adult Chen Kai. These are identity references. Age the same unmistakable person to 57–62, realistic gradual aging, gray intermixed with original hair and authentic age lines; fully recognizable by the exact same eyes, face shape and expression. Identity cue: independent coffee shop manager, distinctive wavy dark hair, warm face and asymmetric smile. New setting and moment: standing by his well-used cafe's window seat, short salt-and-pepper waves, the same smile, carrying two plain cups in olive overshirt at morning opening. Shoot a candid independent Shanghai film casting photograph, from top of hair to above knees, eyes at 25–30% image height and face near horizontal center, natural texture and asymmetrical real posture, never heavy beauty smoothing, no text, no graphics. Use natural believable lighting and clear eyes. Preserve identity and ethnicity very closely, avoid extreme or stereotyped signs of age."
+    },
+    "ning-midlife": {
+      "portrait": "public/art/portraits/ning-midlife.webp",
+      "avatar": "public/art/portraits/head/ning-midlife.webp",
+      "referencePortrait": "public/art/portraits/ning.webp",
+      "referenceAvatar": "public/art/portraits/head/ning.webp",
+      "avatarCrop": [
+        226,
+        38,
+        586,
+        398
+      ],
+      "prompt": "Create a new single vertical 2:3 photorealistic character portrait in the same art direction as the supplied young reference photographs of fictional Shanghai adult Zhou Ning. These are identity references. Age the same unmistakable person to 40–44, middle age with subtle creases, subtle gray only as appropriate and same eyes, nose and face shape. Identity cue: research engineer with black rectangular glasses and a gentle thoughtful expression, neat slightly untidy side part. New setting and moment: Zhangjiang tech campus workbench area at shift change, navy fleece and thin stainless thermos, tired under-eyes but a very specific faint smile. Shoot a candid independent Shanghai film casting photograph, from top of hair to above knees, eyes at 25–30% image height and face near horizontal center, natural texture and asymmetrical real posture, never heavy beauty smoothing, no text, no graphics. Use natural believable lighting and clear eyes. Preserve identity and ethnicity very closely, avoid extreme or stereotyped signs of age."
+    },
+    "ning-senior": {
+      "portrait": "public/art/portraits/ning-senior.webp",
+      "avatar": "public/art/portraits/head/ning-senior.webp",
+      "referencePortrait": "public/art/portraits/ning.webp",
+      "referenceAvatar": "public/art/portraits/head/ning.webp",
+      "avatarCrop": [
+        220,
+        28,
+        580,
+        388
+      ],
+      "prompt": "Create a new single vertical 2:3 photorealistic character portrait in the same art direction as the supplied young reference photographs of fictional Shanghai adult Zhou Ning. These are identity references. Age the same unmistakable person to 57–62, realistic gradual aging, gray intermixed with original hair and authentic age lines; fully recognizable by the exact same eyes, face shape and expression. Identity cue: research engineer with black rectangular glasses and a gentle thoughtful expression, neat slightly untidy side part. New setting and moment: older engineer pausing near the Zhangjiang campus gate, matte dark glasses and salt-and-pepper hair, navy canvas coat, the soft gray of the late-afternoon sidewalk. Shoot a candid independent Shanghai film casting photograph, from top of hair to above knees, eyes at 25–30% image height and face near horizontal center, natural texture and asymmetrical real posture, never heavy beauty smoothing, no text, no graphics. Use natural believable lighting and clear eyes. Preserve identity and ethnicity very closely, avoid extreme or stereotyped signs of age."
+    },
+    "yang-midlife": {
+      "portrait": "public/art/portraits/yang-midlife.webp",
+      "avatar": "public/art/portraits/head/yang-midlife.webp",
+      "referencePortrait": "public/art/portraits/yang.webp",
+      "referenceAvatar": "public/art/portraits/head/yang.webp",
+      "avatarCrop": [
+        285,
+        33,
+        635,
+        383
+      ],
+      "prompt": "Create a new single vertical 2:3 photorealistic character portrait in the same art direction as the supplied young reference photographs of fictional Shanghai adult Yang Fan. These are identity references. Age the same unmistakable person to 40–44, middle age with subtle creases, subtle gray only as appropriate and same eyes, nose and face shape. Identity cue: Shanghai social worker, swept black short hair, quiet direct eyes and distinctly broad cheeks. New setting and moment: under the doorway of an older People's Square community activity room, tan work jacket, chipped green door and one kraft file, lightly weathered face. Shoot a candid independent Shanghai film casting photograph, from top of hair to above knees, eyes at 25–30% image height and face near horizontal center, natural texture and asymmetrical real posture, never heavy beauty smoothing, no text, no graphics. Use natural believable lighting and clear eyes. Preserve identity and ethnicity very closely, avoid extreme or stereotyped signs of age."
+    },
+    "yang-senior": {
+      "portrait": "public/art/portraits/yang-senior.webp",
+      "avatar": "public/art/portraits/head/yang-senior.webp",
+      "referencePortrait": "public/art/portraits/yang.webp",
+      "referenceAvatar": "public/art/portraits/head/yang.webp",
+      "avatarCrop": [
+        241,
+        43,
+        640,
+        442
+      ],
+      "prompt": "Create a new single vertical 2:3 photorealistic character portrait in the same art direction as the supplied young reference photographs of fictional Shanghai adult Yang Fan. These are identity references. Age the same unmistakable person to 57–62, realistic gradual aging, gray intermixed with original hair and authentic age lines; fully recognizable by the exact same eyes, face shape and expression. Identity cue: Shanghai social worker, swept black short hair, quiet direct eyes and distinctly broad cheeks. New setting and moment: holding the old wooden door of the activity room for someone outside the frame, same gently observant face with gray temples and little eye creases, tan layered jacket, paper forms tucked under the arm. Shoot a candid independent Shanghai film casting photograph, from top of hair to above knees, eyes at 25–30% image height and face near horizontal center, natural texture and asymmetrical real posture, never heavy beauty smoothing, no text, no graphics. Use natural believable lighting and clear eyes. Preserve identity and ethnicity very closely, avoid extreme or stereotyped signs of age."
+    },
+    "he-midlife": {
+      "portrait": "public/art/portraits/he-midlife.webp",
+      "avatar": "public/art/portraits/head/he-midlife.webp",
+      "referencePortrait": "public/art/portraits/he.webp",
+      "referenceAvatar": "public/art/portraits/head/he.webp",
+      "avatarCrop": [
+        184,
+        72,
+        507,
+        395
+      ],
+      "prompt": "Create a new single vertical 2:3 photorealistic character portrait in the same art direction as the supplied young reference photographs of fictional Shanghai adult He Liang. These are identity references. Age the same unmistakable person to 40–44, middle age with subtle creases, subtle gray only as appropriate and same eyes, nose and face shape. Identity cue: Shanghai noodle shop owner, black rectangular glasses, short dark hair, eye crease when he smiles. New setting and moment: in a real Xinzhuang noodle shop, dark apron faded by washing, collar rolled up, keeping an eye on a pot behind the serving pass, human and at ease. Shoot a candid independent Shanghai film casting photograph, from top of hair to above knees, eyes at 25–30% image height and face near horizontal center, natural texture and asymmetrical real posture, never heavy beauty smoothing, no text, no graphics. Use natural believable lighting and clear eyes. Preserve identity and ethnicity very closely, avoid extreme or stereotyped signs of age."
+    },
+    "lu-midlife": {
+      "portrait": "public/art/portraits/lu-midlife.webp",
+      "avatar": "public/art/portraits/head/lu-midlife.webp",
+      "referencePortrait": "public/art/portraits/lu.webp",
+      "referenceAvatar": "public/art/portraits/head/lu.webp",
+      "avatarCrop": [
+        299,
+        146,
+        596,
+        443
+      ],
+      "prompt": "Create a new single vertical 2:3 photorealistic character portrait in the same art direction as the supplied young reference photographs of fictional Shanghai adult Lu Jia. These are identity references. Age the same unmistakable person to 40–44, middle age with subtle creases, subtle gray only as appropriate and same eyes, nose and face shape. Identity cue: musician with collarbone-length wavy dark hair and an unmistakable candid laugh. New setting and moment: standing beside a familiar Bund rehearsal-space doorway after a small gig, oxblood jacket, holding a coil of taped guitar cable, airy mixed light, maturity visible in expression and natural smile lines. Shoot a candid independent Shanghai film casting photograph, from top of hair to above knees, eyes at 25–30% image height and face near horizontal center, natural texture and asymmetrical real posture, never heavy beauty smoothing, no text, no graphics. Use natural believable lighting and clear eyes. Preserve identity and ethnicity very closely, avoid extreme or stereotyped signs of age."
+    },
+    "he-senior": {
+      "portrait": "public/art/portraits/he-senior.webp",
+      "avatar": "public/art/portraits/head/he-senior.webp",
+      "referencePortrait": "public/art/portraits/he.webp",
+      "referenceAvatar": "public/art/portraits/head/he.webp",
+      "avatarCrop": [
+        200,
+        66,
+        601,
+        467
+      ],
+      "prompt": "One new vertical 2:3 cinematic photo portrait. Use both provided young images as identity references for the same fictional man He Liang, now a recognizably older adult around 60, black rectangular glasses, same small grin and cheeks, short black hair mixed with natural gray and light crow's feet. He is at the open kitchen pass of his own longtime Xinzhuang noodle shop, about to push an empty bowl closer to the person he is talking to, worn navy apron over plain dark crew neck, old cream tile, soft warm light and indirect daylight. Mid-length photograph down to above the knees, eyes centered near 30% height and clearly lit for avatar cropping, everyday dignity, Shanghai indie film still, real anatomy and no glamour or overt aging effects, no text. Preserve the exact recognizable eyes, smile and facial structure from references."
+    },
+    "lu-senior": {
+      "portrait": "public/art/portraits/lu-senior.webp",
+      "avatar": "public/art/portraits/head/lu-senior.webp",
+      "referencePortrait": "public/art/portraits/lu.webp",
+      "referenceAvatar": "public/art/portraits/head/lu.webp",
+      "avatarCrop": [
+        267,
+        74,
+        590,
+        397
+      ],
+      "prompt": "One new vertical 2:3 cinematic photo portrait. Use both provided young images as identity references for the same fictional Shanghai woman Lu Jia, now a recognizably older adult around 58, collarbone-length naturally wavy hair with gray strands, same facial shape, alert eyes and unforced spontaneous laugh, believable smile lines. She is near the Bund, standing in the doorway of a small rehearsal room after packing up, oxblood work jacket over a black tee, a guitar strap loosely looped over one hand, oxidized wood and soft daylight. Mid-length photograph to above knees, eyes centered near 30% height and clear for avatar crop. Natural texture, non-stereotyped age, real anatomy, subdued warmth and patina like an independent Shanghai feature film, no text or graphics. Preserve her face faithfully."
+    }
+  }
+}

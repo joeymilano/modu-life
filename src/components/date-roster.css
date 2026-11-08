@@ -1,0 +1,61 @@
+.romance-modal:has(.date-roster) {
+  max-width: 1110px; padding: 0; background: #eae1cd;
+}
+.date-roster {
+  --roster-ink: #233832;
+  color: var(--roster-ink); padding: clamp(18px,3vw,32px);
+}
+.date-roster-head {
+  display: flex; justify-content: space-between; align-items: end; gap: 13px;
+  margin-bottom: 15px; padding: 0 33px 13px 0; border-bottom: 1px solid #a99d7e;
+}
+.date-roster-head h2 { font: 700 clamp(27px,4vw,44px)/1.08 var(--serif); }
+.date-roster-head p { margin-top: 7px; color: #526156; font-size: 12px; }
+.date-roster-head p span { margin-inline: 2px; }
+.date-roster-filter { display: flex; gap: 4px; }
+.date-roster-filter button {
+  min-height: 39px; padding: 6px 11px; background: transparent; color: var(--roster-ink);
+  border: 1px solid #a99d7e; border-radius: 3px; font-size: 12px; font-weight: 700; white-space: nowrap;
+}
+.date-roster-filter button[aria-pressed="true"] { background: #29473d; border-color: #29473d; color: #fff1d6; }
+.date-roster-filter button:hover:not([aria-pressed="true"]) { background: #e0d2b5; }
+.date-roster-filter span { margin-left: 4px; font-variant-numeric: tabular-nums; }
+.date-roster .romance-grid { margin-top: 0; }
+.date-roster .romance-grid > .date-roster-card {
+  display: flex; flex-direction: column; min-width: 0; padding: 0;
+  background: #f3ead7; color: var(--roster-ink); border-color: #ab9d7f; border-radius: 3px;
+}
+.date-roster-card:focus-visible { outline-offset: 3px; }
+.date-roster .date-roster-card:not(:disabled):hover { background: #f8f0df; border-color: #8b563c; }
+.date-roster-frame { position: relative; width: 100%; aspect-ratio: 1.22/1; background: #243a33; overflow: hidden; }
+.date-roster .date-roster-frame .portrait-full { width: 100%; height: 100%; margin: 0; }
+.date-roster .date-roster-frame img { object-position: 50% 11%; }
+.date-roster-frame > span {
+  position: absolute; left: 9px; bottom: 9px; padding: 4px 7px; border: 1px solid #dcc8a85c;
+  background: #23352eeb; color: #fff0d2; font-size: 11px; line-height: 1.1;
+}
+.date-roster-details { display: flex; flex-direction: column; flex: 1; width: 100%; padding: 10px 12px 0; }
+.date-roster-name { display: flex; justify-content: space-between; align-items: baseline; gap: 5px; }
+.date-roster .date-roster-name h3 { margin: 0; font: 700 clamp(20px,2.2vw,26px)/1.13 var(--serif); }
+.date-roster-name > span { font-size: 11px; color: #5b6859; white-space: nowrap; }
+.date-roster-details > small { margin-top: 4px; font-size: 11px; color: #485c50; }
+.date-roster .date-roster-details > p { margin: 7px 0 10px; min-height: 0; color: #374b40; font-size: 12px; line-height: 1.45; }
+.date-roster .date-roster-details > b {
+  display: flex; justify-content: space-between; gap: 3px; align-items: center; min-height: 39px;
+  margin-top: auto; border-top: 1px solid #bbad8d; color: #6d3a2c; font-size: 12px;
+}
+.date-roster-other { margin-top: 13px; color: #614534; min-height: 44px; }
+@media (max-width: 520px) {
+ .date-roster { padding: 16px 12px 10px; }
+ .date-roster-head { flex-direction: column; align-items: start; gap: 9px; margin-bottom: 10px; padding-bottom: 10px; }
+ .date-roster-filter button { min-height: 37px; }
+ .date-roster-frame { aspect-ratio: 1/1.14; }
+ .date-roster-details { padding-inline: 8px; }
+}
+
+.first-date-modal .date-visual[data-portrait] > img,
+.wide-shot-modal .date-portrait-photo > img { object-position: 50% 17%; }
+@media (max-width: 850px) {
+ .first-date-modal .date-visual[data-portrait] > img,
+ .wide-shot-modal .date-portrait-photo > img { object-position: 50% 8%; }
+}

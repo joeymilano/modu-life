@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Career, CastMember, Effect, FirstDatePicks } from '../game/types';
 import { romanceQuestions, type Question } from '../game/dates';
-import { datePhoto, interviewPhoto, offerPhoto } from '../game/art';
+import { dateScenePhoto, interviewPhoto, offerPhoto } from '../game/art';
 import { isSelfEmployed, offerTopic, type InterviewOffer } from '../game/jobOffers';
 import Icon from './Icon';
 import { Portrait } from './Portrait';
@@ -88,28 +88,28 @@ function interviewQuestions(career:Career):Question[]{const contract=isSelfEmplo
  {label:contract?'问哪天交，临时改怎么算':'问晚上和周末谁接电话',reply:contract?'他把第二页抽了出来。':'对方从抽屉里拿出排班表。',points:2},
  {label:contract?'都好说，什么时候开工':'都可以，我比较能吃苦',reply:'对方拿起了笔。',points:0}]}
 ];}
-function DialogueShot({src, person, previous}: {src: string; person?: CastMember; previous?: string}) {
+function DialogueShot({src, person, previous, age}: {src: string; person?: CastMember; previous?: string; age: number}) {
  const [ready, setReady] = useState(false);
  return <>
   {!ready && (previous ? <img className="date-hold" src={previous} alt=""/> :
-   person && <Portrait person={person} full decorative/>)}
+   person && <Portrait person={person} full age={age} decorative/>)}
   <img className={'date-shot' + (ready ? ' visible' : '')} src={src} alt="" onLoad={() => setReady(true)}/>
  </>;
 }
 
-type DialogueProps = {skill:number;cash:number;flags:string[]} & (
+type DialogueProps = {skill:number;cash:number;flags:string[];age?:number} & (
  {person:CastMember;career?:never;onParting:(picks:FirstDatePicks)=>void;onFinish?:never;onOffer?:never} |
  {person?:never;career:Career;onParting?:never;onFinish:(effect:Effect,text:string)=>void;onOffer:(offer:InterviewOffer)=>void}
 );
 
-export function DialogueGame({person,career,skill,cash,flags,onFinish,onParting,onOffer}:DialogueProps){
+export function DialogueGame({person,career,skill,cash,flags,age=18,onFinish,onParting,onOffer}:DialogueProps){
  const [picks,setPicks]=useState<number[]>([]);
  const [selected,setSelected]=useState<number|null>(null);
  const questionRef=useRef<HTMLDivElement>(null);
  const replyRef=useRef<HTMLDivElement>(null);
  const round=picks.length;
- const shot=person?datePhoto(person.id,round===0?'meeting':'middle'):interviewPhoto(career.id);
- const nextShot=person?datePhoto(person.id,round===0?'middle':'parting'):offerPhoto(career.id);
+ const shot=person?dateScenePhoto(person.id,round===0?'meeting':'middle',age):interviewPhoto(career.id);
+ const nextShot=person?dateScenePhoto(person.id,round===0?'middle':'parting',age):offerPhoto(career.id);
  const questions=person?romanceQuestions(person,flags):interviewQuestions(career);
  const question=questions[round];
  const answer=selected===null?null:question.answers[selected];
@@ -117,10 +117,11 @@ export function DialogueGame({person,career,skill,cash,flags,onFinish,onParting,
  const spent=earlier.reduce((total,item)=>total+(item.cost??0),0);
 
  useEffect(()=>{
+  if (shot===nextShot) return;
   const image=new Image();
   image.fetchPriority='low';
   image.src=nextShot;
- },[nextShot]);
+ },[nextShot,shot]);
 
  useEffect(()=>{
   if(!person||round===0)return;
@@ -154,8 +155,8 @@ export function DialogueGame({person,career,skill,cash,flags,onFinish,onParting,
  }
 
  return <div className="dialogue-game">
-  <div className="date-visual">
-   <DialogueShot key={shot} src={shot} person={person} previous={person&&round>0?datePhoto(person.id,'meeting'):undefined}/>
+  <div className="date-visual" data-portrait={person&&age>=32||undefined}>
+   <DialogueShot key={shot} src={shot} person={person} age={age} previous={person&&round>0?dateScenePhoto(person.id,'meeting',age):undefined}/>
    <div className="date-visual-caption"><b>{person?.name??career?.name}</b>{person&&<small>{person.title}</small>}</div>
   </div>
   <div className="dialogue-content">

@@ -9,7 +9,7 @@ import type { EventChoice, LifeEvent } from './types';
 import { PARK_RETURN_TICKET_SCENES, PARK_TICKET_SCENES } from './matchmaking';
 import { RENEWAL_TICKET_SCENES } from './rental';
 import { HANDOVER_TICKET } from './workHandover';
-import { CONTACT_STILLS, FERRY_STILLS, FIRST_NIGHT_STILLS, LIFE_YEARS_STILLS, MATCH_STILLS, OPENING_STILLS, RENTAL_STILLS, TABLE_STILLS, contactPhoto, datePhoto, farewellPhoto, ferryPhoto, handoverPhoto, lifeYearsPhoto, matchPhoto, offerPhoto, openingPhoto, pearlPhoto, rentalPhoto, stallPhoto, streetPhoto, tablePhoto, workPhoto } from './art';
+import { CONTACT_STILLS, FERRY_STILLS, FIRST_NIGHT_STILLS, LIFE_YEARS_STILLS, MATCH_STILLS, OPENING_STILLS, RENTAL_STILLS, TABLE_STILLS, contactPhoto, datePhoto, dateScenePhoto, farewellPhoto, ferryPhoto, handoverPhoto, lifeYearsPhoto, matchPhoto, offerPhoto, openingPhoto, pearlPhoto, rentalPhoto, stallPhoto, streetPhoto, tablePhoto, workPhoto } from './art';
 import { CAREERS, CAST } from './content';
 import { PHOTO_SHOP_STILLS, PHOTO_SHOP_STORY, photoShopStill } from './photoShop';
 
@@ -71,7 +71,10 @@ const ticketShots = new Set([
   ...(['receipt', 'booth', 'night-office'] as const).map(pearlPhoto),
   ...(['mao', 'he', 'lu'] as const).map(farewellPhoto),
   ...(['reorg', 'overtime', 'shift', 'invoice', 'return', 'payroll', 'settlement'] as const).map(workPhoto),
-  ...CAST.filter(person => person.role === 'romance').flatMap(person => [datePhoto(person.id, 'parting'), datePhoto(person.id, 'return'), datePhoto(person.id, 'home')]),
+  ...CAST.filter(person => person.role === 'romance').flatMap(({id}) => [
+    datePhoto(id,'parting'), datePhoto(id,'return'), datePhoto(id,'home'),
+    dateScenePhoto(id,'parting',32), dateScenePhoto(id,'parting',53),
+  ]),
   datePhoto('lin', 'meeting'), datePhoto('lin', 'middle'),
   ...RENTAL_STILLS.map(rentalPhoto),
 ]);
