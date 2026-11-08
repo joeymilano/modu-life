@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { CITY_TIMELINES, readTickets, removeTicket, saveTicket, ticketFromHash, validateTicket, walk, type Ticket } from '../src/game/timelines';
+import { storyComparisons } from '../src/game/timelineComparison';
 
 describe('parallel timelines', () => {
   const ticket = (): Ticket => structuredClone({ version: 1, timeline: CITY_TIMELINES[0] });
@@ -72,6 +73,47 @@ describe('parallel timelines', () => {
     const modified = structuredClone(story);
     modified.timeline.turns[1].options[0].shot = 'https://example.com/tracking.webp';
     expect(validateTicket(modified).timeline.turns[1].options[0].shot).toBeUndefined();
+  });
+
+  it('compares finished branches at the first differing choice, including a saved receipt from before the new stills', () => {
+    const opened = ticketFromHash('#story=pearl-signal');
+    const newReceipt: Ticket = { ...opened, route: [{pick:0},{pick:1}] };
+    const oldReceipt: Ticket = { ...structuredClone(opened), route: [{pick:1}] };
+    delete oldReceipt.timeline.turns[0].options[1].shot;
+    const otherScenario = structuredClone(oldReceipt);
+    otherScenario.timeline.turns[0].options[1].after = '公司已经搬走了。';
+    const comparisons = storyComparisons(newReceipt, [
+      otherScenario, { ...opened, route:[{pick:0}] }, newReceipt, oldReceipt, oldReceipt,
+    ]);
+    expect(comparisons).toHaveLength(1);
+    expect(comparisons[0].comparison).toMatchObject({
+      place:'外滩 · 轮渡口',
+      left:{path:'A·B', choice:'端着柠檬水上船', ending:'喝掉，留在这里帮忙收摊', shot:'/art/timelines/pearl-close.webp'},
+      right:{path:'B', shot:'/art/timelines/pearl-office.webp'},
+    });
+    expect(storyComparisons({ ...opened, route:[{pick:0}] }, [oldReceipt])).toEqual([]);
+  });
+
+  it('distinguishes two write-in replies to the same question', () => {
+    const question = validateTicket({version:1,timeline:{
+      id:'question-reply',kind:'question',title:'先等谁',author:'测试',original:'',
+      turns:[{date:'晚上八点',place:'上海',scene:'车已经到了。',options:[]}],
+    }});
+    const current: Ticket = {...question, route:[{pick:2,note:'先等一会儿'}]};
+    const previous: Ticket = {...question, route:[{pick:2,note:'让司机开吧'}]};
+    expect(storyComparisons(current,[previous])[0].comparison).toMatchObject({
+      left:{path:'C',after:'先等一会儿'},right:{path:'C',after:'让司机开吧'},
+    });
+  });
+
+  it('keeps the seven ending stills through share-ticket validation', () => {
+    const train = validateTicket(ticketFromHash('#story=last-train')).timeline;
+    const pearl = validateTicket(ticketFromHash('#story=pearl-signal')).timeline;
+    const photos = [train,pearl].flatMap(timeline=>timeline.turns.flatMap(turn=>
+      turn.options.filter(option=>option.next===null).map(option=>option.shot)));
+    expect(photos).toHaveLength(7);
+    expect(photos.every(shot=>shot?.startsWith('/art/timelines/'))).toBe(true);
+    expect(new Set(photos).size).toBe(7);
   });
 
   it('collapses old duplicate receipts and keeps only one copy on replay', () => {

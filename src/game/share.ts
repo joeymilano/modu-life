@@ -13,6 +13,7 @@ import { SITE_URL } from './site';
 import { STALL_ORDER_COUNT, stallRank } from './stall';
 import { stallChallengeUrl, type StallChallenge } from './stallChallenge';
 import { signedYearMoney, yearMoment, yearMoney, type YearReceipt } from './yearReceipt';
+import type { StoryComparison } from './timelineComparison';
 function lines(ctx:CanvasRenderingContext2D,text:string,x:number,y:number,max:number,lineHeight:number){let line='';for(const c of text){if(ctx.measureText(line+c).width>max){ctx.fillText(line,x,y);y+=lineHeight;line=c;}else line+=c;}ctx.fillText(line,x,y);return y;}
 type PhotoFrame = [x: number, y: number, width: number, height: number];
 
@@ -334,6 +335,69 @@ export async function makeStoryPhoto(shot: string, title: string, choice: string
  if (!await paintChallengeCode(ctx, invite, 1032, 838, 180)) throw new Error('照片上的码没印出来');
  return new Promise((resolve, reject) => canvas.toBlob(blob =>
   blob ? resolve(blob) : reject(new Error('这张照片没洗出来')), 'image/png'));
+}
+
+export async function makeStoryComparison(title: string, comparison: StoryComparison, invite: string): Promise<Blob> {
+ const { date, place, scene, left, right } = comparison;
+ const sides = [left,right];
+ const showStills = Boolean(left.shot && right.shot && left.shot !== right.shot);
+ const longText = scene.length > 105 || sides.some(side => side.choice.length > 20 || side.after.length > 90);
+ const canvas = document.createElement('canvas');
+ canvas.width = 1080;
+ canvas.height = showStills || longText ? 1440 : 1080;
+ const ctx = canvas.getContext('2d');
+ if (!ctx) throw new Error('对照图没存下来');
+ const write = (value:string,x:number,y:number,width:number,leading:number) => {
+  let line = '';
+  const parts = value.replace(/\s+/g,' ').match(/[A-Za-z0-9]{1,16}|./gu) ?? [];
+  for (const part of parts) {
+   if (line && ctx.measureText(line + part).width > width && !/^[，。！？、；）】”’]/u.test(part)) {
+    ctx.fillText(line,x,y,width);
+    y += leading;
+    line = part;
+   } else line += part;
+  }
+  ctx.fillText(line,x,y,width);
+  return y;
+ };
+ await paintCardHeader(ctx, '平行上海 · 两条走法');
+ ctx.fillStyle = cardInk;
+ ctx.font = 'bold 65px ' + cardSerif;
+ ctx.fillText(title, 64, 210, 952);
+ ctx.font = '27px sans-serif';
+ ctx.fillText(date + ' · ' + place, 64, 265, 952);
+ const photoY = 307, photoHeight = 372;
+ const contentY = showStills ? 700 : write(scene,64,316,952,36) + 32;
+ const footerY = canvas.height - 215;
+ await Promise.all(sides.map((side,index) => {
+  const x = index === 0 ? 64 : 551;
+  const top = showStills ? photoY : contentY;
+  ctx.fillStyle = index === 0 ? '#f0e0cc' : '#e2e6d9';
+  ctx.fillRect(x, top, 465, footerY - 20 - top);
+  if (showStills && side.shot) return paintPhoto(ctx, side.shot, [x, photoY, 465, photoHeight], .36);
+ }));
+ for (const [index, side] of sides.entries()) {
+  const x = index === 0 ? 88 : 575;
+  ctx.fillStyle = index === 0 ? cardRust : cardInk;
+  ctx.font = 'bold 25px sans-serif';
+  ctx.fillText((index === 0 ? '这回' : '另一条') + ' · ' + side.path, x, contentY + 39, 417);
+  ctx.fillStyle = cardInk;
+  ctx.font = 'bold 34px ' + cardSerif;
+  const baseline = write(side.choice, x, contentY + 94, 417, 44);
+  const summary = side.after.replace(/\s+/g,' ');
+  const long = summary.length > 110;
+  ctx.font = (long ? 22 : 27) + 'px sans-serif';
+  write(summary, x, baseline + 59, 417, long ? 29 : 32);
+ }
+ const hasCode = await paintChallengeCode(ctx, invite, 1016, footerY + 23, 171);
+ ctx.fillStyle = cardInk;
+ ctx.fillRect(64, footerY, 952, 2);
+ ctx.font = 'bold 33px ' + cardSerif;
+ ctx.fillText(hasCode ? '扫码，换你走一条' : '回平行上海，再走一条', 64, footerY + 75);
+ ctx.font = '24px sans-serif';
+ ctx.fillText('modulife.pages.dev', 64, footerY + 125);
+ return new Promise((resolve, reject) => canvas.toBlob(blob =>
+  blob ? resolve(blob) : reject(new Error('对照图没存下来')), 'image/png'));
 }
 
 export async function makeLineCard(first: LifeLine, second: LifeLine): Promise<Blob> {

@@ -1,0 +1,62 @@
+{
+  "method": "Built-in image generation, individual film stills",
+  "stills": {
+    "pearl-office": {
+      "file": "public/art/timelines/pearl-office.webp",
+      "references": [
+        "public/art/timelines/pearl-kiosk.webp",
+        "public/art/timelines/pearl-quay.webp"
+      ],
+      "prompt": "Generate ONE 3:2 landscape naturalistic Shanghai independent-film still for the narrative game 魔都人生. The references set exact fictional identities and realistic cinematic tone. New moment: The same fictional Shanghai man from the kiosk portrait appears twice in one believable meeting room, same facial identity and unruly dark hair. Left copy stands at a half-open glass door holding a cheap clear lemon drink with yellow lemon slices. Right copy is seated at the end of the meeting table by a laptop, having just presented. A couple of off-focus coworkers have turned to stare; no lettering on screens. Rainy Monday light, financial district office, just enough awkwardness to read as a joke. Main subjects grouped in central frame, never a split image. Precise Shanghai textures, tactile lived-in clothing and wood, fine documentary grain, gentle directional light, rich blacks without crushed faces, realistic skin. Carefully composed for a wide game scene and a central square crop in a two-image story receipt. Bring the narrative gesture close to central x=50%, keep faces and hands clear in central area. No frame, captions, watermark, typography, logos, glow effects, airbrushing, or comic styling."
+    },
+    "pearl-monday": {
+      "file": "public/art/timelines/pearl-monday.webp",
+      "references": [
+        "public/art/timelines/pearl-kiosk.webp",
+        "public/art/timelines/pearl-quay.webp"
+      ],
+      "prompt": "Generate ONE 3:2 landscape naturalistic Shanghai independent-film still for the narrative game 魔都人生. The references set exact fictional identities and realistic cinematic tone. New moment: The same fictional Shanghai man five years younger in navy at a Zhangjiang-era office workbench, seated beside a coworker who is thoughtfully examining a cheap clear cup with lemon slices that has just been returned to Monday. Long desks, half-raised blinds, diffused pale morning light, plain navy jacket, believable tired humor. The cup is central foreground, main man and one coworker in the central two thirds. No logos or legible writing. Precise Shanghai textures, tactile lived-in clothing and wood, fine documentary grain, gentle directional light, rich blacks without crushed faces, realistic skin. Carefully composed for a wide game scene and a central square crop in a two-image story receipt. Bring the narrative gesture close to central x=50%, keep faces and hands clear in central area. No frame, captions, watermark, typography, logos, glow effects, airbrushing, or comic styling."
+    },
+    "pearl-close": {
+      "file": "public/art/timelines/pearl-close.webp",
+      "references": [
+        "public/art/timelines/pearl-kiosk.webp",
+        "public/art/timelines/pearl-quay.webp"
+      ],
+      "prompt": "Generate ONE 3:2 landscape naturalistic Shanghai independent-film still for the narrative game 魔都人生. The references set exact fictional identities and realistic cinematic tone. New moment: The same fictional Shanghai man as the five-years-older kiosk keeper and his younger double, central at the counter of the tiny riverside lemon stand after closing. One wears the worn navy jacket and puts a neat handful of coins in the other’s palm, clear empty lemon cup and partly lowered weathered aluminum shutter. Both faces recognizable, no surreal overlays. Distant Shanghai waterfront ferry lights through the opening and cool blue evening against one warm light bulb, a small knowing smile. Precise Shanghai textures, tactile lived-in clothing and wood, fine documentary grain, gentle directional light, rich blacks without crushed faces, realistic skin. Carefully composed for a wide game scene and a central square crop in a two-image story receipt. Bring the narrative gesture close to central x=50%, keep faces and hands clear in central area. No frame, captions, watermark, typography, logos, glow effects, airbrushing, or comic styling."
+    },
+    "train-carpool": {
+      "file": "public/art/timelines/train-carpool.webp",
+      "references": [
+        "public/art/timelines/last-train.webp",
+        "public/art/timelines/zhangjiang-desk.webp",
+        "public/art/timelines/shoe-repair.webp"
+      ],
+      "prompt": "Generate ONE 3:2 landscape naturalistic Shanghai independent-film still for the narrative game 魔都人生. The references set exact fictional identities and realistic cinematic tone. New moment: A slightly older version of the Chinese woman from the first two references steps out of a modest light-colored commuter sedan at the old shoe repair stall from the third reference. Dad with gray chore shirt is present at the stool in the center, glancing up. Young adult male coworker stays in the sedan, soft Friday afternoon light filtering through plane trees, upper bodies clear, no text or logo. Precise Shanghai textures, tactile lived-in clothing and wood, fine documentary grain, gentle directional light, rich blacks without crushed faces, realistic skin. Carefully composed for a wide game scene and a central square crop in a two-image story receipt. Bring the narrative gesture close to central x=50%, keep faces and hands clear in central area. No frame, captions, watermark, typography, logos, glow effects, airbrushing, or comic styling."
+    },
+    "train-desks": {
+      "file": "public/art/timelines/train-desks.webp",
+      "references": [
+        "public/art/timelines/last-train.webp",
+        "public/art/timelines/zhangjiang-desk.webp"
+      ],
+      "prompt": "Generate ONE 3:2 landscape naturalistic Shanghai independent-film still for the narrative game 魔都人生. The references set exact fictional identities and realistic cinematic tone. New moment: The same late-twenties Shanghai woman from the station and desk shots and her young male coworker have started a tiny project office after quitting. They are at a single borrowed long scarred wooden table with two second-hand laptops, a power strip and one chair missing, barely enough afternoon light through an industrial window. Her camel jacket and specific brows and face continuity matter. A laugh that feels slightly tired. Keep their faces near center, no readable text. Precise Shanghai textures, tactile lived-in clothing and wood, fine documentary grain, gentle directional light, rich blacks without crushed faces, realistic skin. Carefully composed for a wide game scene and a central square crop in a two-image story receipt. Bring the narrative gesture close to central x=50%, keep faces and hands clear in central area. No frame, captions, watermark, typography, logos, glow effects, airbrushing, or comic styling."
+    },
+    "train-stream": {
+      "file": "public/art/timelines/train-stream.webp",
+      "references": [
+        "public/art/timelines/last-train.webp",
+        "public/art/timelines/shoe-repair.webp"
+      ],
+      "prompt": "Generate ONE 3:2 landscape naturalistic Shanghai independent-film still for the narrative game 魔都人生. The references set exact fictional identities and realistic cinematic tone. New moment: At the same Shanghai lane shoe-repair shop, the same older Chinese father in his gray chore shirt is seated working and the same adult daughter now about 29 is next to him, switching off a little livestream ring light after a shift. A phone on a stand pointed down at his hands and one brown shoe. The phone has no readable words. Amber single bulb under a cloth canopy, cooled empty lane behind. Their restrained amused expressions and the hands in the center matter. Precise Shanghai textures, tactile lived-in clothing and wood, fine documentary grain, gentle directional light, rich blacks without crushed faces, realistic skin. Carefully composed for a wide game scene and a central square crop in a two-image story receipt. Bring the narrative gesture close to central x=50%, keep faces and hands clear in central area. No frame, captions, watermark, typography, logos, glow effects, airbrushing, or comic styling."
+    },
+    "train-queue": {
+      "file": "public/art/timelines/train-queue.webp",
+      "references": [
+        "public/art/timelines/last-train.webp",
+        "public/art/timelines/shoe-repair.webp"
+      ],
+      "prompt": "Generate ONE 3:2 landscape naturalistic Shanghai independent-film still for the narrative game 魔都人生. The references set exact fictional identities and realistic cinematic tone. New moment: An old Chinese father in the same gray chore shirt and his late-twenties daughter from the reference have kept their Shanghai shoe repair stall open for the people already waiting. Across the worn wood workbench, a customer holds out an old bus card sleeve with a tiny worn receipt tucked inside, unreadable. Dad is at the bench, daughter beside him, focus on the sleeve and recognizable faces in the middle two thirds, other people softly blurred on the sidewalk. Natural winter afternoon side-light. Precise Shanghai textures, tactile lived-in clothing and wood, fine documentary grain, gentle directional light, rich blacks without crushed faces, realistic skin. Carefully composed for a wide game scene and a central square crop in a two-image story receipt. Bring the narrative gesture close to central x=50%, keep faces and hands clear in central area. No frame, captions, watermark, typography, logos, glow effects, airbrushing, or comic styling."
+    }
+  }
+}

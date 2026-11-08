@@ -49,6 +49,13 @@ const archiveShots = {
   chair: '/art/timelines/third-chair.webp',
   pearlFirst: '/art/timelines/pearl-quay.webp',
   pearlLater: '/art/timelines/pearl-kiosk.webp',
+  pearlOffice: '/art/timelines/pearl-office.webp',
+  pearlMonday: '/art/timelines/pearl-monday.webp',
+  pearlClose: '/art/timelines/pearl-close.webp',
+  trainCarpool: '/art/timelines/train-carpool.webp',
+  trainDesks: '/art/timelines/train-desks.webp',
+  trainStream: '/art/timelines/train-stream.webp',
+  trainQueue: '/art/timelines/train-queue.webp',
 };
 const ticketShots = new Set([
   streetPhoto('station'),
@@ -395,16 +402,16 @@ export const CITY_TIMELINES: Timeline[] = [
         date: '2024年 · 29岁', place: '张江 · 工位 37', shot: archiveShots.office,
         scene: '公司搬昆山，工资照发，地铁加班车单程九十分钟。你刚算完，组里小周蹲下来问「师傅，你走我也走，行伐？」签字表传到你这儿了。',
         options: [
-          { move: '签，和小周一起去昆山', after: '第一个月你们拼车。后来小周嫌油费贵，自己考了驾照。礼拜五，他顺路把你送到爸的摊前。', next: end },
-          { move: '把签字表传下去，约小周出去谈', after: '两人借来一张长桌，接了以前看不上眼的小单。头一个月只够交房租，小周把「总经理」的椅子挂闲鱼卖了。', next: end },
+          { move: '签，和小周一起去昆山', after: '第一个月你们拼车。后来小周嫌油费贵，自己考了驾照。礼拜五，他顺路把你送到爸的摊前。', next: end, shot: archiveShots.trainCarpool },
+          { move: '把签字表传下去，约小周出去谈', after: '两人借来一张长桌，接了以前看不上眼的小单。头一个月只够交房租，小周把「总经理」的椅子挂闲鱼卖了。', next: end, shot: archiveShots.trainDesks },
         ],
       },
       {
         date: '2024年 · 29岁', place: '愚园路 · 修鞋摊', shot: archiveShots.shoe,
         scene: '你当年晚到半天，试用没过。如今牌子上写着「修鞋配钥匙」，底下新添一行「奢侈品修复」。探店博主递来合同，今晚带货，抽四成。爸拿手指头在桌上算。',
         options: [
-          { move: '签一场，镜头只拍手', after: '直播卖出十七双护理券。关灯之后，爸问你「刚刚那个说我手好看的，是真人伐？」', next: end },
-          { move: '拒了，先给排队的人修完', after: '第一个顾客掏出公交卡包，里面还夹着你爸八年前写的取件条。上面的电话少了一位。', next: end },
+          { move: '签一场，镜头只拍手', after: '直播卖出十七双护理券。关灯之后，爸问你「刚刚那个说我手好看的，是真人伐？」', next: end, shot: archiveShots.trainStream },
+          { move: '拒了，先给排队的人修完', after: '第一个顾客掏出公交卡包，里面还夹着你爸八年前写的取件条。上面的电话少了一位。', next: end, shot: archiveShots.trainQueue },
         ],
       },
     ],
@@ -432,15 +439,15 @@ export const CITY_TIMELINES: Timeline[] = [
         scene: '你刚戳开四块钱的柠檬水，东方明珠扫过来一道红光。手机收到两条来自自己的语音。一条说「把杯子给我，别迟到」，另一条说「上船，我这边已经周五了」。今天明明是周一。',
         options: [
           { move: '端着柠檬水上船', after: '船到浦东，售票员把船票撕成两张。一张是今天，另一张是五年后。', next: 1 },
-          { move: '照常去公司，顺手带杯柠檬水', after: '你推开会议室，另一个你刚讲完 PPT。老板鼓掌，让你俩分一下这个月的工资。', next: end },
+          { move: '照常去公司，顺手带杯柠檬水', after: '你推开会议室，另一个你刚讲完 PPT。老板鼓掌，让你俩分一下这个月的工资。', next: end, shot: archiveShots.pearlOffice },
         ],
       },
       {
         date: '2031年 · 星期五', place: '浦东 · 江边小卖部', shot: archiveShots.pearlLater,
         scene: '来接你的那个人穿着你的旧外套。公司去年倒了，TA 在渡口卖柠檬水。收摊前只剩一杯，贴了张便签「带回去给周一的我」。',
         options: [
-          { move: '把这杯带回周一', after: '你把杯子放在工位上。坐你隔壁的人一看配方，问你下班有没有空，一起去找个摊位。', next: end },
-          { move: '喝掉，留在这里帮忙收摊', after: '对方递给你一卷零钱。你数完才知道，这个宇宙的五块钱能买两张船票。', next: end },
+          { move: '把这杯带回周一', after: '你把杯子放在工位上。坐你隔壁的人一看配方，问你下班有没有空，一起去找个摊位。', next: end, shot: archiveShots.pearlMonday },
+          { move: '喝掉，留在这里帮忙收摊', after: '对方递给你一卷零钱。你数完才知道，这个宇宙的五块钱能买两张船票。', next: end, shot: archiveShots.pearlClose },
         ],
       },
     ],

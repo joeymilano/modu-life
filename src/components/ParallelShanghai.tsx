@@ -1,14 +1,23 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
-import { downloadBlob, makeStoryPhoto } from '../game/share';
+import { downloadBlob, makeStoryComparison, makeStoryPhoto } from '../game/share';
 import { playSound } from '../game/audio';
+import { storyComparisons, type StoryComparison } from '../game/timelineComparison';
 import MusicCredit from './MusicCredit';
 import {
   CITY_TIMELINES, isTicketHash, readTickets, removeTicket, saveTicket, ticketFromHash, ticketLink, timelineShot, validateTicket, walk,
   type Move, type Ticket, type Timeline, type Turn,
 } from '../game/timelines';
-import { PHOTO_SHOP_STORY, photoShopStill } from '../game/photoShop';
+import { PHOTO_SHOP_STORY } from '../game/photoShop';
+import StoryReceiptCompare from './StoryReceiptCompare';
 import Icon from './Icon';
 import './parallel.css';
+
+const featuredStories = [
+ { id:'last-photo', tab:'照相馆', hook:'房东七点来收钥匙。拍条告别短片，能拿四千。', action:'替阿宝做个决定' },
+ { id:'pearl-signal', tab:'江边来信', hook:'四块钱的柠檬水还没喝，五年后的你先发来了语音。', action:'去轮渡口' },
+ { id:'last-train', tab:'末班车', hook:'明早要去张江报到，爸的手被缝鞋机压了。闸机三分钟后关。', action:'走到闸机前' },
+ { id:'staff-bed', tab:'那张门卡', hook:'莘庄空出一张床。补贴要不要续，表决单送到了外滩。', action:'看看那张门卡' },
+].map(story => ({ ...story, timeline: CITY_TIMELINES.find(timeline => timeline.id === story.id)! }));
 
 const blankTurn = (): Turn => ({
   date: '', place: '', scene: '',
@@ -108,7 +117,7 @@ function TicketCard({ ticket, index, onClick, illustrated = false }: { ticket: T
     : timeline.kind === 'life' ? '人生线' : '现实题';
   const cover = illustrated ? timelineShot(timeline, 0) : undefined;
   return <button className={'parallel-ticket' + (cover ? ' illustrated-ticket' : '')} onClick={onClick}>
-    {cover && <img className="parallel-ticket-cover" src={cover} alt="" loading="lazy" decoding="async" />}
+    {cover && <img className="parallel-ticket-cover" src={cover} alt="" loading={index < 3 ? 'eager' : 'lazy'} decoding="async" />}
     <span className="parallel-ticket-copy">
     <span className="parallel-ticket-meta">
       <b>{String(index + 1).padStart(2, '0')}</b>
@@ -117,6 +126,7 @@ function TicketCard({ ticket, index, onClick, illustrated = false }: { ticket: T
     </span>
     <strong>{timeline.title}</strong>
     <span>{first.date} · {first.place}</span>
+    {illustrated && <span className="parallel-ticket-preview">{first.scene}</span>}
     {!illustrated && <small>{timeline.author}</small>}
     </span>
   </button>;
@@ -133,6 +143,7 @@ export default function ParallelShanghai({ onClose, hash, preset, audio, onAudio
   const [answering, setAnswering] = useState(false);
   const [answer, setAnswer] = useState('');
   const [printing, setPrinting] = useState(false);
+  const [featured, setFeatured] = useState(0);
   const [usePreset, setUsePreset] = useState(Boolean(preset));
   const titleRef = useRef<HTMLHeadingElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -214,6 +225,19 @@ export default function ParallelShanghai({ onClose, hash, preset, audio, onAudio
     }
   }
 
+  async function printComparison(timeline: Timeline, comparison: StoryComparison) {
+    setPrinting(true);
+    try {
+      const invite = ticketLink({ version: 1, timeline });
+      const photo = await makeStoryComparison(timeline.title, comparison, invite);
+      downloadBlob(photo, `${timeline.title}-两条走法.png`);
+    } catch {
+      setStatus('对照图没存下来，等会儿再试');
+    } finally {
+      setPrinting(false);
+    }
+  }
+
   async function importTicket(file?: File) {
     if (!file) return;
     try {
@@ -244,6 +268,7 @@ export default function ParallelShanghai({ onClose, hash, preset, audio, onAudio
     const last = steps.at(-1);
     const number = route.length + 1;
     const movePath = route.map(move => 'ABC'[move.pick]).join('·') || '起点';
+    const comparisons = next === null ? storyComparisons(ticket, entries) : [];
     const siblings = entries.filter(entry => entry.timeline.id === timeline.id && entry.route?.length && JSON.stringify(entry.route) !== JSON.stringify(route));
     const saved = entries.some(entry => JSON.stringify(entry) === JSON.stringify(ticket));
     const map = <aside className="parallel-map">
@@ -293,7 +318,9 @@ export default function ParallelShanghai({ onClose, hash, preset, audio, onAudio
               {printing ? '正在洗照片' : '洗一张带走'} <Icon name="download" size={17} />
             </button>}
           </div>
-          {last?.option.shot && <img className="parallel-ending-photo" src={last.option.shot} alt="" decoding="async" />}
+          {comparisons.length ? <StoryReceiptCompare key={titleKey} options={comparisons} printing={printing} endingPhoto={last?.option.shot}
+            onPrint={comparison => void printComparison(timeline, comparison)} />
+            : last?.option.shot && <img className="parallel-ending-photo" src={last.option.shot} alt="" decoding="async" />}
           <div className="parallel-results">
             <article><span className="parallel-stamp">这回的走法 · {movePath}</span>
               {steps.map(({ option, turn }, index) => <section key={index}>
@@ -325,15 +352,23 @@ export default function ParallelShanghai({ onClose, hash, preset, audio, onAudio
   } else if (editing) {
     content = <Editor key={editing} kind={editing} preset={usePreset ? preset : undefined} onSave={next => { setEditing(null); open(next); keep(next); }} />;
   } else {
+    const selection = featuredStories[featured];
     content = <>
-      <div className="parallel-hero">
-        <img src={photoShopStill('counter')} alt="" fetchPriority="high" />
+      <div className="parallel-hero" data-feature={selection.id}>
+        <img key={selection.id} src={timelineShot(selection.timeline, 0)} alt="" fetchPriority="high" />
         <div className="parallel-hero-copy">
           <h1 ref={titleRef} tabIndex={-1}>重走别人的人生</h1>
-          <h2>{PHOTO_SHOP_STORY.title}</h2>
-          <p>房东七点来收钥匙。拍条告别短片，能拿四千。</p>
-          <button className="parallel-primary" onClick={() => open({ version: 1, timeline: PHOTO_SHOP_STORY })}>替阿宝做个决定 <Icon name="arrow" size={18} /></button>
+          <h2>{selection.timeline.title}</h2>
+          <p>{selection.hook}</p>
+          <button className="parallel-primary" onClick={() => open({ version: 1, timeline: selection.timeline })}>{selection.action} <Icon name="arrow" size={18} /></button>
         </div>
+      </div>
+      <div className="parallel-reel" role="group" aria-label="精选故事">
+        {featuredStories.map((story, index) => <button key={story.id} type="button" aria-pressed={index === featured}
+          onClick={() => { setFeatured(index); playSound('tap'); }}>
+          <img src={timelineShot(story.timeline, 0)} alt="" width={1320} height={880} decoding="async"/>
+          <span><small>{String(index + 1).padStart(2, '0')}</small>{story.tab}</span>
+        </button>)}
       </div>
       <section className="parallel-shelf">
         <div className="parallel-shelf-head">
