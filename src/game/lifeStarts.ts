@@ -1,5 +1,6 @@
 import { openingPhoto } from './art';
 import { laterDaywork, laterHeir } from './lifeYears';
+import { warehouseHeirYear, warehouseWorkerYear } from './relocation';
 import type { Effect, EventChoice, GameState, LifeEvent } from './types';
 
 export const DAYWORK = 'daywork-start';
@@ -159,14 +160,14 @@ export function lifeStartYear(state: GameState) {
   if (state.age === 19) return state.flags.includes(DAYWORK_DUE) ? shiftPay : state.flags.includes(DAYWORK_REMAINDER) ? remainingPay :
    state.flags.includes(DAYWORK_TEMP) ? {...shiftBed,text:'去年的床位没能续上。吴师傅把你的行李先寄在门房，问你今天想先见收货岗的人，还是先接一班日结。'} : shiftBed;
   if (state.age === 20) return state.flags.includes(DAYWORK_REMAINDER) ? remainingPay : workerThird;
-  return laterDaywork(state);
+  return warehouseWorkerYear(state) ?? laterDaywork(state);
  }
  if (state.flags.includes(HEIR)) {
   if (state.age === 18) return firstKeys;
   if (state.age === 19) return board;
   if (state.age === 20) return boardThird(state);
   if (state.age === 25 && state.flags.includes(HEIR_HANDOVER)) return heirReview;
-  return laterHeir(state);
+  return warehouseHeirYear(state) ?? laterHeir(state);
  }
 }
 

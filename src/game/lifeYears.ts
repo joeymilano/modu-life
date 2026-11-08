@@ -1,4 +1,5 @@
 import { lifeYearsPhoto } from './art';
+import { relocationBudget, remembersWarehouseBus } from './relocation';
 import { NIGHT_WORK } from './workFlags';
 import type { Effect, EventChoice, GameState, LifeEvent } from './types';
 
@@ -33,9 +34,10 @@ function later(id: string, title: string, text: string, choices: EventChoice[], 
 export function laterDaywork(state: Pick<GameState,'age'|'jobId'|'flags'>) {
  if (state.age === 46) return later(
   'daywork-rota','夜班表上又是你',
-  state.jobId === 'service'
+  (state.jobId === 'service'
    ? '新排班贴上去了，连续四周都是夜班。你把手套晾在水池边。领班过来问，愿不愿意换到白天收货，工资少些，回去还能赶上最后一趟公交。'
-   : '以前那家仓库换了领班。他翻出你的号码，问还愿不愿意回来带几个人。白班做收货，夜班多点钱。他把两张排班表都拍了过来。',
+   : '以前那家仓库换了领班。他翻出你的号码，问还愿不愿意回来带几个人。白班做收货，夜班多点钱。他把两张排班表都拍了过来。') +
+  (remembersWarehouseBus(state)?'想起当年去松江那班车，你先问清楚晚班怎么回家。':''),
   [
    choice('day','去白天收货，少拿一些','早班第一个来的也是个老面孔。你教他先看批次，再数箱数。收工出来天还亮着，你第一次在这条街上买到了刚出锅的菜。',{job:'service',payRate:.85,health:8,spirit:4,setFlags:[DAY_SHIFT],removeFlags:[NIGHT_SHIFT,NIGHT_WORK]},'按岗位工资的 85% 结 · 白班'),
    choice('night','接夜班，把加的工钱写清楚','你在排班上签了字，特地把夜班那栏拍下来。回来时小区门口已经有人买早点，你揣着热豆浆上楼。',{job:'service',payRate:1.2,health:-5,setFlags:[NIGHT_SHIFT,NIGHT_WORK],removeFlags:[DAY_SHIFT]},'按岗位工资的 120% 结 · 夜班'),
@@ -62,7 +64,9 @@ export function familyLoanOwed(state: Pick<GameState,'flags'>) {
 
 export function laterHeir(state: Pick<GameState,'age'|'flags'>) {
  if (state.age === 46) return later('heir-loan','这笔从谁的卡走',
-  '一笔货款还没收回来，设备定金却到期了。财务把公司账户和你的账本分开放。你可以借十二万给公司周转，也可以让采购改期。车间主管坐在旁边，说哪一批东西可以先不买。',[
+  '一笔货款还没收回来，设备定金却到期了。财务把公司账户和你的账本分开放。' +
+  (relocationBudget(state)?'你认出公司那本。上回搬仓的报价也夹在里面，边上还有车队的回单。':'') +
+  '你可以借十二万给公司周转，也可以让采购改期。车间主管坐在旁边，说哪一批东西可以先不买。',[
    choice('lend','用个人账户借十二万，写清还款日','转账从你自己的卡里扣。财务另记了一笔公司欠你的款，把日期抄给你。老爸下意识说家里的钱，财务让他把付款人姓名念了一遍。',{cash:-fullLoan,network:7,skill:6,setFlags:[HEIR_LENT]},'个人付出 '+yuan(fullLoan)+' · 公司欠款单列'),
    choice('cut','把采购分两批，先让财务排账','车间把不急用的设备从这批划掉。供应商来过两趟，第三趟才把新交货期写在单子上。',{skill:9,network:4,spirit:4,setFlags:[HEIR_CUT]},'个人账户不动'),
    choice('delegate','请财务和车间会签，我只听结果','会议室空了半小时。两人回来时把意见写成了两张，车间那张正反面都用上了。',{network:7,skill:7,spirit:6},'个人账户不动'),

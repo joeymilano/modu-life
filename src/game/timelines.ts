@@ -1,3 +1,4 @@
+import { RELOCATION_PLANS, RELOCATION_SHOTS, RELOCATION_TICKET, relocationPhoto } from './relocation';
 import { ANFU_CORNER_TICKET, CORNER_STILLS, cornerPhoto } from './streetCorners';
 import { laterDaywork, laterHeir } from './lifeYears';
 import { contactEvidence, FANG_TICKET_SCENES } from './contactStories';
@@ -57,6 +58,7 @@ const ticketShots = new Set([
   ...LIFE_YEARS_STILLS.map(lifeYearsPhoto),
   ...CONTACT_STILLS.map(contactPhoto),
   ...CORNER_STILLS.map(cornerPhoto),
+  ...RELOCATION_SHOTS.map(relocationPhoto),
   ...TABLE_STILLS.map(tablePhoto),
   ...FERRY_STILLS.map(ferryPhoto),
   stallPhoto('close'), stallPhoto('burnt'),
@@ -271,6 +273,32 @@ const coffeeQueue: Timeline = {
  ],
 };
 
+const [workerMove, heirMove, workerRevisit, heirRevisit] = RELOCATION_TICKET;
+const receiptEnding = (turn: Turn, scene = turn.scene): Turn => ({
+ ...turn,scene,options:turn.options.map(option=>({...option,...(option.next===null&&{shot:turn.shot})})),
+});
+const amount = (value: number) => '¥'+value.toLocaleString('zh-CN');
+const warehouseMove: Timeline = {
+ id:'move-warehouse',kind:'life',title:'仓库搬走那年',author:'魔都人生',
+ original:'我当时在门口等六点二十那班。后来才知道，楼上那张报价单上，还留着另一个办法。',
+ turns:[
+  {
+   date:'36 岁 · 搬仓前',place:'莘庄 · 旧仓门口',shot:relocationPhoto('warehouse'),
+   scene:'车还没开。高原在门口发两张排班单，楼上也有两页纸，财务在等家里管事的人签。你先跟哪一边走？',
+   options:[
+    {move:'跟高原去门口，看排班和工钱',after:'车头停在老门口。高原指了指时间，让你先看看哪张单赶得上。',next:1},
+    {move:'上楼看公司要签的预算',after:'老爸把笔推过来。楼下有人敲了两下车窗，问司机今天跑不跑。',next:2},
+   ],
+  },
+  receiptEnding(lateTurn(workerMove,'36 岁 · 排班','莘庄 · 老门口',[['transfer',3],['local',end]]),
+   '六点二十从老门口发车。跟去松江，岗位工资按原薪的 '+Math.round(workerMove.choices[0].effect.payRate!*100)+'% 结，回家要换一次车。旧库还有三个月就近收货，按原薪结。高原把两张单各往前递了一点。'),
+  receiptEnding(lateTurn(heirMove,'36 岁 · 签预算','莘庄 · 调度室',[['shuttle',4],['close',end]]),
+   '老爸把公司的九万块搬仓预算推过来。包半年班车报价 '+amount(RELOCATION_PLANS[0].initial)+'。按期搬完并结清工钱要留 '+amount(RELOCATION_PLANS[2].initial)+'。楼下的人还在等发车时间。'),
+  receiptEnding(lateTurn(workerRevisit,'37 岁 · 续车','松江 · 候车棚',[['express',end],['rebate',end]])),
+  receiptEnding(lateTurn(heirRevisit,'37 岁 · 核余额','莘庄 · 调度室',[['extend',end],['finish',end]])),
+ ],
+};
+
 export const CITY_TIMELINES: Timeline[] = [
   {
     id: 'last-train', kind: 'life', title: '末班车开走之前', author: '魔都人生',
@@ -414,6 +442,7 @@ export const CITY_TIMELINES: Timeline[] = [
   factoryHandover,
   depositStory,
   coffeeQueue,
+  warehouseMove,
   {
     id: 'scallion-bill', kind: 'life', title: '隔壁桌的葱油饼', author: '魔都人生',
     original: '我说了句「放回去」，林佳没理我，自己跟隔壁道了歉。散的时候她把餐巾留在账单底下。我过了两天再去找，老板说早擦桌子了。',

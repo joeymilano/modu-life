@@ -1,0 +1,32 @@
+.relocation-paper {
+  position: relative; margin: 13px 0 14px; padding: 9px 13px 11px;
+  border: 1px solid #baae91; border-left: 3px solid #94604b;
+  background: #e9e1cb; color: #34463b; font-size: 13px;
+}
+.relocation-paper header, .relocation-paper dl > div {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 6px 12px;
+}
+.relocation-paper header { padding-bottom: 6px; border-bottom: 1px dashed #aa9f84; }
+.relocation-paper header b { font: 700 16px/1.2 var(--serif); }
+.relocation-paper header span { color: #84503c; font-size: 11px; letter-spacing: .08em; }
+.relocation-paper dl { margin: 4px 0 0; }
+.relocation-paper dl > div { padding: 3px 0; }
+.relocation-paper dd { margin: 0; color: #435548; text-align: right; }
+.relocation-company dl { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 6px; }
+.relocation-company dl > div { display: block; padding: 4px 0; }
+.relocation-company dt { font-size: 11px; color: #695b43; }
+.relocation-company dd { margin-top: 2px; text-align: left; font-weight: 700; }
+.relocation-meter { margin-top: 3px; height: 3px; background: #c9bfa4; overflow: hidden; }
+.relocation-meter i { display: block; height: 100%; background: #88503c; }
+.outcome-content .relocation-balance {
+  width: fit-content; margin: 9px auto; padding: 7px 12px; color: #34463b; background: #e7dfc9; font-size: 13px;
+}
+.outcome-content .relocation-balance b { margin-left: 9px; color: #834a36; }
+@media(max-width:850px) {
+ .relocation-paper { margin: 10px 0 11px; font-size: 12px; }
+ .relocation-paper header b { font-size: 15px; }
+}
+.relocation-scene .event-content h2:focus { outline: none; }
+@media (max-width: 480px) and (min-height: 721px) {
+ .event-modal.relocation-scene .event-photo { aspect-ratio: 1.92; margin-bottom: 10px; }
+}
