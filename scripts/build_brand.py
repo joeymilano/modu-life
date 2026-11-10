@@ -1,48 +1,111 @@
-"""Export outlined game wordmarks and a compact Pearl playing-card symbol."""
+"""Build Modu Life wordmarks and app icons using Noto Sans CJK SC Black and Chrome."""
+
+import argparse
 from pathlib import Path
-from fontTools.ttLib import TTCollection
-from fontTools.pens.svgPathPen import SVGPathPen
+
 from fontTools.pens.boundsPen import BoundsPen
+from fontTools.pens.svgPathPen import SVGPathPen
+from fontTools.ttLib import TTFont
+from playwright.sync_api import sync_playwright
 
-ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / 'public' / 'brand'
-OUT.mkdir(exist_ok=True)
-font = TTCollection('/System/Library/Fonts/Supplemental/Songti.ttc').fonts[0]
-glyphs = font.getGlyphSet()
-cmap = font.getBestCmap()
+PUBLIC = Path(__file__).resolve().parents[1] / 'public'
+TITLE = '魔都人生'
+GOLD = '#ffe168'
+PAPER = '#fff5e4'
+CORAL = '#f87e78'
+INK = '#17131d'
 
-def character(char, x, y, width, height, color):
-    glyph = glyphs[cmap[ord(char)]]
-    bounds = BoundsPen(glyphs); glyph.draw(bounds)
-    left, bottom, right, top = bounds.bounds
-    scale = min(width / (right-left), height / (top-bottom))
-    pen = SVGPathPen(glyphs); glyph.draw(pen)
-    tx = x + (width-(right-left)*scale)/2 - left*scale
-    ty = y + (height-(top-bottom)*scale)/2 + top*scale
-    return f'<path fill="{color}" transform="translate({tx:.3f} {ty:.3f}) scale({scale:.5f} {-scale:.5f})" d="{pen.getCommands()}"/>'
+# A punched arrival ticket with the Oriental Pearl and the bend of the Huangpu.
+TICKET = f'''
+<path fill="{CORAL}" d="M25 35 99 23l13 15-8 62-76 11-12-14Z"/>
+<path fill="{GOLD}" d="M23 29 93 18l13 15-8 62-76 11-12-14Z"/>
+<g fill="{INK}">
+  <path d="M59 27h4v15h-4zm-2 24h8v14h-8zm-3 22 5 2-7 10-8 2zm10 1 5-2 6 9-7 2z"/>
+  <circle cx="61" cy="46" r="6"/>
+  <circle cx="61" cy="67" r="12"/>
+  <path d="M18 90c15 3 24 2 43-4 15-5 25-6 39-5l-1 5c-13-1-22 0-37 5-18 6-30 7-45 4z"/>
+</g>
+'''
 
-def svg(viewbox, shapes, title='魔都人生'):
-    return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{viewbox}" role="img" aria-label="{title}"><title>{title}</title>{shapes}</svg>\n'
 
-def symbol(cream='#f5e8ca', gold='#d8af72'):
-    # A cut-corner playing card with two Pearl spheres and three open support legs.
-    return f'''<path fill="#a6402d" d="M5 0H51L64 13V80H0V5Z"/>
-<path fill="none" stroke="{gold}" stroke-width="1.2" d="M9 5H47L59 17V75H5V9M54 6V10H58"/>
-<g fill="{cream}"><path d="M31 12H33V20H31ZM30 27H34V42H30ZM27 53H30L25 67H21ZM34 53H37L43 67H39ZM31 53H33V67H31Z"/><circle cx="32" cy="24" r="4.5"/><circle cx="32" cy="48" r="9"/></g>
-<g stroke="#a6402d" fill="none"><path d="M24 48H40M28 44H36M28 52H36" stroke-width="1.2"/></g>'''
+def svg(viewbox, shapes):
+    return (
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{viewbox}" '
+        f'role="img" aria-label="{TITLE}"><title>{TITLE}</title>{shapes}</svg>\n'
+    )
 
-hero = character('魔', 6, 10, 246, 242, '#f5e8ca')
-hero += character('都', 272, 10, 246, 242, '#f5e8ca')
-hero += character('人', 6, 282, 246, 242, '#d8af72')
-hero += character('生', 272, 282, 246, 242, '#d8af72')
-# Narrow architectural rules, kept outside the characters for legibility.
-hero += '<path d="M5 267H228M296 267H519" stroke="#d8af72" stroke-width="1" opacity=".65"/><path d="M253 267L262 258L271 267L262 276Z" fill="#a6402d"/>'
-(OUT/'logo-poster.svg').write_text(svg('0 0 524 534',hero))
-for variant, ink in [('light','#f5e8ca'),('dark','#173a30')]:
-    shapes = '<g transform="translate(0 0) scale(.8)">'+symbol()+'</g>'
-    for i,char in enumerate('魔都人生'):
-        shapes += character(char, 65+i*52, 9, 46, 46, ink)
-    (OUT/f'logo-{variant}.svg').write_text(svg('0 0 273 64',shapes))
-(OUT/'symbol.svg').write_text(svg('0 0 64 80',symbol(),'魔都人生牌'))
-(ROOT/'public/favicon.svg').write_text(svg('0 0 80 80','<rect width="80" height="80" rx="16" fill="#153a30"/><g transform="translate(13 7) scale(.82)">'+symbol()+'</g>'))
-print('Exported poster, light/dark wordmarks, symbol and favicon. Text is outlined; no font download needed.')
+
+def lettering(font, text, start, pitch, width, height, y):
+    glyphs, cmap = font.getGlyphSet(), font.getBestCmap()
+    paths = []
+    for i, char in enumerate(text):
+        glyph = glyphs[cmap[ord(char)]]
+        bounds = BoundsPen(glyphs)
+        glyph.draw(bounds)
+        left, bottom, right, top = bounds.bounds
+        pen = SVGPathPen(glyphs)
+        glyph.draw(pen)
+        sx = width / (right - left)
+        sy = height / (top - bottom)
+        tx = start + i * pitch - left * sx
+        ty = y + top * sy
+        paths.append(
+            f'<path transform="translate({tx:.3f} {ty:.3f}) scale({sx:.6f} {-sy:.6f})" '
+            f'd="{pen.getCommands()}"/>'
+        )
+    return ''.join(paths)
+
+
+def render_app_icons(icon, maskable):
+    outputs = (
+        ('apple-touch-icon.png', 180, icon),
+        ('icon-192.png', 192, icon),
+        ('icon-512.png', 512, icon),
+        ('icon-maskable-512.png', 512, maskable),
+    )
+    directory = PUBLIC / 'icons'
+    directory.mkdir(exist_ok=True)
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(channel='chrome')
+        page = browser.new_page()
+        for name, size, source in outputs:
+            page.set_viewport_size({'width': size, 'height': size})
+            page.set_content('<style>body{margin:0}svg{display:block;width:100vw;height:100vh}</style>' + source)
+            page.screenshot(path=directory / name)
+        browser.close()
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('font', type=Path, help='Path to NotoSansCJKsc-Black.otf')
+    font = TTFont(parser.parse_args().font)
+    brand = PUBLIC / 'brand'
+
+    city = lettering(font, '魔都', 18, 125, 116, 104, 6)
+    life = lettering(font, '人生', 268, 125, 116, 104, 6)
+    poster = f'''
+<defs><g id="city">{city}</g><g id="life">{life}</g></defs>
+<g transform="skewX(-7)">
+  <g fill="#783d62" transform="translate(7 8)">
+    <use href="#city"/><use href="#life"/>
+  </g>
+  <use href="#city" fill="{PAPER}"/><use href="#life" fill="{GOLD}"/>
+</g>
+'''
+    (brand / 'logo-poster.svg').write_text(svg('0 0 524 126', poster))
+    (brand / 'symbol.svg').write_text(svg('0 0 128 128', TICKET))
+
+    wordmark = lettering(font, TITLE, 68, 50, 42, 43, 10)
+    for variant, ink in [('light', PAPER), ('dark', INK)]:
+        shapes = f'<g transform="scale(.5)">{TICKET}</g><g fill="{ink}">{wordmark}</g>'
+        (brand / f'logo-{variant}.svg').write_text(svg('0 0 273 64', shapes))
+
+    background = f'<rect width="128" height="128" fill="{INK}"/>'
+    icon = svg('0 0 128 128', background + TICKET)
+    (PUBLIC / 'favicon.svg').write_text(icon)
+    maskable = svg('0 0 128 128', background + f'<g transform="translate(13.4 13.4) scale(.79)">{TICKET}</g>')
+    render_app_icons(icon, maskable)
+
+
+if __name__ == '__main__':
+    main()

@@ -33,7 +33,7 @@ with sync_playwright() as playwright:
     page.wait_for_function('navigator.serviceWorker.controller !== null')
     initial = cached_paths(page)
     assert len(initial) <= 25
-    assert '/art/shanghai-streets/cover-south-station-mobile.webp' in initial
+    assert '/art/title/shanghai-stories-mobile.webp' in initial
     assert not any(path.endswith(('.glb', '.mp3')) or path.startswith('/art/arrival/') for path in initial)
 
     button(page, '接这手牌').click()

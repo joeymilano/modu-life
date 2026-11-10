@@ -36,11 +36,8 @@ with sync_playwright() as p:
  # The actual rendered app supplies a dedicated social preview, without remote images.
  page.get_by_role('button',name='魔都人生首页').click();page.set_viewport_size({'width':1200,'height':630})
  page.add_style_tag(content='''
-    .toast,.screen-home .topbar,.home-bottom,.screen-home .home-start { display:none }
-    .screen-home .home-screen { height:630px;min-height:630px;padding:40px 0 40px 6% }
-    .screen-home .home-copy { padding:0;min-height:0 }
-    .screen-home .home-copy h1.game-title { margin:0 0 24px }
-    .screen-home .game-title img { width:300px }
+    .toast,.screen-home .topbar,.title-stories,.title-menu,.title-arcades,.title-location { display:none }
+    .title-stage { min-height:630px }
  ''')
  page.locator('.home-key-art').evaluate('img=>img.decode()')
  page.locator('.game-title img').evaluate('img=>img.decode()')

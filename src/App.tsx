@@ -44,6 +44,7 @@ import ArrivalInbox from './components/ArrivalInbox';
 import SceneChoices from './components/SceneChoices';
 import { contactEvidence, contactStory } from './game/contactStories';
 import LifeStartPicker from './components/LifeStartPicker';
+import TitleScreen from './components/TitleScreen';
 import { familyHousingCap } from './game/heirCapital';
 import { lifeStartHousing, outstandingShiftPay, type LifeStart } from './game/lifeStarts';
 import { firstNightClue, firstNightLead, firstNightThread } from './game/firstNight';
@@ -55,7 +56,6 @@ import { DialogueGame } from './components/MiniGames';
 import RentalGame from './components/RentalGame';
 import StallGame from './components/StallGame';
 import { isStallSettlement, settleStall, stallCommitment, stallSchedule, type StallScore } from './game/stall';
-import { STALL_PATH } from './game/stallChallenge';
 import { isRentalRenewal, rentalNegotiation, rentalRenewal } from './game/rental';
 import { isWorkHandover, workHandover } from './game/workHandover';
 import LaserGame from './components/LaserGame';
@@ -452,13 +452,12 @@ export default function App(){
  if(parallel)return <Suspense fallback={<LoadCity/>}><ParallelShanghai onClose={closeParallel} hash={timelineHash} preset={timelineDraft} audio={audio} onAudio={toggleAudio}/></Suspense>;
  return <div className={'app screen-'+screen+(compact?' is-compact':'')}>
  <header className="topbar"><Brand onClick={()=>{setScreen('home');setModal(null);}}/><nav className="topbar-actions"><button className="icon-button" title={audio?'关闭声音':'打开声音'} aria-label={audio?'关闭声音':'打开声音'} onClick={toggleAudio}><Icon name={audio?'sound':'mute'}/></button>{screen==='play'&&<button className="nav-button scene-switch" aria-pressed={map3d} onClick={()=>{setMap3d(!map3d);setWalking(false);setDestination(null);setSelected(null);}}><Icon name="eye" size={17}/><span>{map3d?'街景':'3D 地图'}</span></button>}{screen==='play'&&map3d&&<button className="icon-button" aria-label={night?'切换白天':'切换夜景'} onClick={()=>setNight(n=>!n)}><Icon name={night?'sun':'moon'}/></button>}<button className="nav-button" onClick={()=>setModal(screen==='play'?'journal':'help')}><Icon name={screen==='play'?'book':'eye'} size={17}/><span>{screen==='play'?'人生记事':'怎么玩'}</span></button><button className="nav-button outlined" onClick={()=>setModal('saves')}><Icon name="save" size={17}/><span>存档</span></button>{(screen==='play'||screen==='end')&&game&&<button className="nav-button time-nav" aria-label="时间线" onClick={()=>setModal('lines')}><Icon name="map" size={17}/><span>时间线</span></button>}</nav></header>
- {screen==='home'&&<main className="home-screen"><div className="home-copy"><h1 className="game-title"><img src="/brand/logo-poster.svg" alt="魔都人生" width="524" height="534" fetchPriority="high"/></h1><p className="home-description">{challenge?<>朋友递来一手牌<br/>{challenge.cards.slice(0,2).map(card=>card.name).join(' · ')}</>:<>刚到上海南站，手机响了三声<br/>看房、顶班、去码头，你先回谁？</>}</p><div className="home-start"><div className="mode-select" aria-label="选择游戏模式">
- <button className="mode-entry main-mode" onClick={()=>beginDraw()}><b>我的人生</b><span>{challenge?'接这手牌':'开局抽卡'} <Icon name="arrow" size={17}/></span></button>
- <button className="mode-entry guest-mode" onClick={()=>setParallel(true)}><b>重走别人的人生</b><span>去平行上海 <Icon name="arrow" size={17}/></span></button>
- </div><button className="start-stories-entry" onClick={()=>setModal('starts')}><Icon name="dice" size={17}/><b>选定出身</b><span>日结工 / 顶级富二代</span><Icon name="arrow" size={16}/></button><div className="home-quick-games"><button className="pearl-entry" onClick={()=>{window.location.hash=pearlHash(newSeed(),undefined,CURRENT_PEARL_RULES);}}><Icon name="bolt" size={17}/>先躲一轮激光</button><a className="pearl-entry" href={STALL_PATH}><Icon name="coffee" size={17}/>去小吃街顶班</a></div>{game&&<button className="continue-button" onClick={()=>{setScreen(game.ended?'end':'play');setModal(null);}}>继续上回 · {game.name}的{game.age}岁 <Icon name="chevron" size={16}/></button>}</div></div><div className="hero-city"><picture>
-  <source media="(max-width: 600px)" srcSet={streetPhoto('cover-south-station-mobile')}/>
-  <img className="home-key-art" src={streetPhoto('cover-south-station')} alt="雨刚停，一位旅客在上海南站出口扶着行李箱回消息" fetchPriority="high"/>
- </picture><div className="hero-shade"/></div><div className="home-bottom"><span className="ticker-label">申城小报</span><div className="ticker"><span><a className="ticker-story" href="#story=paper-forward" aria-label="试玩相亲群里那张图">相亲群转错了一张纸 ↗</a></span><span><a className="ticker-story" href="#story=huanghe-toast">黄河路叫你去庆功 ↗</a></span><span><a className="ticker-story" href="#story=staff-bed">宿舍这笔钱 ↗</a></span></div></div></main>}
+ {screen==='home'&&<TitleScreen
+  hand={challenge?.cards.slice(0,2).map(card=>card.name).join(' · ')}
+  resume={game?{label:`${game.name}的${game.age}岁`,onSelect:()=>{setScreen(game.ended?'end':'play');setModal(null);}}:undefined}
+  onDraw={()=>beginDraw()} onParallel={()=>setParallel(true)} onSelectOrigin={()=>setModal('starts')}
+  onPearl={()=>{window.location.hash=pearlHash(newSeed(),undefined,CURRENT_PEARL_RULES);}}
+ />}
  {screen==='draw'&&<main className="draw-screen setup-screen">
   <nav className="setup-steps" aria-label="开局准备">
    <button onClick={()=>moveSetup('cards')} aria-current={setupStep==='cards'?'step':undefined}><span>01</span> 抽牌</button>

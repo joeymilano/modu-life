@@ -4,8 +4,8 @@ import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { resolve, relative } from 'node:path';
 import { createHash } from 'node:crypto';
 const homeArt = [
-  '/art/shanghai-streets/cover-south-station.webp',
-  '/art/shanghai-streets/cover-south-station-mobile.webp',
+  '/art/title/shanghai-stories.webp',
+  '/art/title/shanghai-stories-mobile.webp',
   '/art/shanghai-streets/first-night-arrival.webp',
   '/art/corners/bund.webp',
 ];
@@ -32,7 +32,7 @@ const offlinePrecache = {
     const index = readFileSync(resolve(root, 'index.html'), 'utf8');
     const entryAssets = Array.from(index.matchAll(/(?:src|href)="(\/assets\/[^"]+)"/g), match => match[1]);
     const core = ['/', '/favicon.svg', '/manifest.webmanifest', ...homeArt, ...entryAssets,
-      ...Array.from(pack.keys()).filter(url => url.startsWith('/brand/'))];
+      ...Array.from(pack.keys()).filter(url => /^\/(brand|icons)\//.test(url))];
     const precache = Array.from(new Set(core));
     for (const url of precache) {
       if (!pack.has(url)) throw new Error(`Offline shell asset is missing: ${url}`);

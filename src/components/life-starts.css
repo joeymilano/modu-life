@@ -1,22 +1,4 @@
-.home-start .start-stories-entry {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 42px;
-  width: 100%;
-  margin-top: 7px;
-  padding: 6px 10px;
-  border: 1px solid #dbb77c62;
-  border-radius: 3px;
-  background: #263029eb;
-  color: #f3e3bf;
-  text-align: left;
-  font-size: 13px;
-}
 
-.home-start .start-stories-entry:hover { background: #36463a; }
-.start-stories-entry > span { color: #efe0c4; font-size: 12px; }
-.start-stories-entry > svg:last-child { margin-left: auto; }
 .modal.life-start-modal { max-width: 900px; padding: 0; background: #26312b; color: #f6ebd4; }
 .life-start-modal .modal-close { color: #ffedc7; background: #384940; }
 .life-start-modal .modal-close:hover { background: #526352; }
@@ -53,7 +35,6 @@
 .annual-ledger .year-shortfall { color: #813d2d; }
 
 @media (max-width: 480px) {
-  .home-start .start-stories-entry { margin-top: 5px; min-height: 38px; }
   .life-start-picker { padding: 18px 11px 13px; }
   .life-start-picker h2 { margin-bottom: 12px; }
   .life-start-options { gap: 6px; }
