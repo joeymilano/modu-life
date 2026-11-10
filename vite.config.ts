@@ -31,8 +31,9 @@ const offlinePrecache = {
 
     const index = readFileSync(resolve(root, 'index.html'), 'utf8');
     const entryAssets = Array.from(index.matchAll(/(?:src|href)="(\/assets\/[^"]+)"/g), match => match[1]);
-    const core = ['/', '/manifest.webmanifest', ...homeArt, ...entryAssets,
-      ...Array.from(pack.keys()).filter(url => /^\/(brand\/shanghai-stories|icons)\//.test(url))];
+    const core = ['/', '/manifest.webmanifest', '/brand/shanghai-stories/logo-poster.svg',
+      '/icons/pearl-dusk/apple-touch-icon.png', '/icons/pearl-dusk/icon-192.png', ...homeArt, ...entryAssets,
+      ...Array.from(pack.keys()).filter(url => url.startsWith('/brand/pearl-dusk/'))];
     const precache = Array.from(new Set(core));
     for (const url of precache) {
       if (!pack.has(url)) throw new Error(`Offline shell asset is missing: ${url}`);

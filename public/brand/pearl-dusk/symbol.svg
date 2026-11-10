@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="魔都人生"><title>魔都人生</title>
+<g stroke="#24132e" stroke-width="2.5" stroke-linejoin="round">
+  <path fill="#ffe0b0" d="M61 38 62.5 17 65 6 67 17 68 38z"/>
+  <path fill="#ffc19c" d="M53 50h8l-1 29h-9z"/>
+  <path fill="#b775a2" d="M69 50h7l2 29h-9z"/>
+  <path fill="#784a81" d="M60 62h9v4h-9z"/>
+  <path fill="#bd6e97" d="M60 99h10l1 15-5 4h-8z"/>
+  <path fill="#ffd09b" d="M47 96 55 99 40 117H29z"/>
+  <path fill="#b46c9d" d="m74 99 9-3 17 21H88z"/>
+  <circle cx="65" cy="27.5" r="4.8" fill="#f47393"/>
+  <ellipse cx="65" cy="42" rx="14.6" ry="11.3" fill="#ee5f8b"/>
+  <ellipse cx="64.5" cy="88.5" rx="21.5" ry="15.8" fill="#f77388"/>
+</g>
+<path fill="#80355e" d="M78 39a13.7 10 0 0 1-23 10c10 1 19-3 23-10zm7 47a20 14.4 0 0 1-35 11c16 1 29-4 35-11z"/>
+<path fill="#ffce91" d="M53 40q2-7 12-8l-5 4-4 5zm-8 46q4-9 17-11l-5 5-9 8z"/>
+<path fill="#262643" d="M51 42q13-4 28 0v3q-14-3-27 1zm-7 46q19-6 41-1v3.5q-22-4-40 1z"/>
+</svg>

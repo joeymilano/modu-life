@@ -70,7 +70,7 @@ async function paintCardHeader(ctx: CanvasRenderingContext2D, label: string) {
  ctx.fillStyle = cardRust;
  ctx.fillRect(64, 48, 952, 4);
  const logo = new Image();
- logo.src = '/brand/shanghai-stories/logo-dark.svg';
+ logo.src = '/brand/pearl-dusk/logo-dark.svg';
  try {
   await logo.decode();
   ctx.drawImage(logo, 64, 68, 213, 50);
@@ -417,7 +417,7 @@ export async function makeLineCard(first: LifeLine, second: LifeLine): Promise<B
  ctx.fillStyle = ink;
  ctx.fillRect(60, 54, 960, 4);
  const logo = new Image();
- logo.src = '/brand/shanghai-stories/logo-dark.svg';
+ logo.src = '/brand/pearl-dusk/logo-dark.svg';
  try {
   await logo.decode();
   ctx.drawImage(logo, 60, 73, 220, 52);
