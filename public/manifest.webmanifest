@@ -8,7 +8,7 @@
   "theme_color": "#121117",
   "icons": [
     {
-      "src": "/favicon.svg",
+      "src": "/brand/shanghai-stories/icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"

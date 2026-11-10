@@ -41,7 +41,7 @@ export default function TitleScreen({ hand, resume, onDraw, onParallel, onSelect
 
       <div className="title-copy">
         <p className="title-kicker"><span aria-hidden="true"/> 上海 <i/> SHANGHAI</p>
-        <h1 className="game-title"><img src="/brand/logo-poster.svg" alt="魔都人生" width={524} height={126}/></h1>
+        <h1 className="game-title"><img src="/brand/shanghai-stories/logo-poster.svg" alt="魔都人生" width={524} height={126}/></h1>
         <p className="title-english" lang="en">MODU LIFE</p>
         <p className="title-hook">{hand !== undefined
           ? <>朋友递来一手牌<br/>{hand}</>

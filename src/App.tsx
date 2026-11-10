@@ -72,7 +72,7 @@ type Modal='help'|'journal'|'contacts'|'saves'|'career'|'romance'|'lines'|'chall
 type Mini={type:'laser'}|{type:'stall'}|{type:'rental';evidence:number}|{type:'dialogue';person:CastMember;career?:never}|{type:'dialogue';person?:never;career:Career};
 function useCompact(){const [value,setValue]=useState(window.innerWidth<850);useEffect(()=>{const on=()=>setValue(window.innerWidth<850);window.addEventListener('resize',on);return()=>window.removeEventListener('resize',on);},[]);return value;}
 function effectsText(e:Effect){const pairs:[string,number][]=[];if(e.cash)pairs.push(['积蓄',e.cash]);for(const k of Object.keys(STAT_NAMES) as StatKey[])if(e[k])pairs.push([STAT_NAMES[k],e[k]!]);if(e.trust)pairs.push(['信任',e.trust]);if(e.attraction)pairs.push(['好感',e.attraction]);if(e.commitment)pairs.push(['承诺',e.commitment]);return pairs;}
-function Brand({onClick}:{onClick:()=>void}){return <button className="brand" onClick={onClick} aria-label="魔都人生首页"><img className="brand-dark" src="/brand/logo-dark.svg" alt="" width="273" height="64"/><img className="brand-light" src="/brand/logo-light.svg" alt="" width="273" height="64"/></button>;}
+function Brand({onClick}:{onClick:()=>void}){return <button className="brand" onClick={onClick} aria-label="魔都人生首页"><img className="brand-dark" src="/brand/shanghai-stories/logo-dark.svg" alt="" width="273" height="64"/><img className="brand-light" src="/brand/shanghai-stories/logo-light.svg" alt="" width="273" height="64"/></button>;}
 const isParallelHash=(hash:string)=>hash==='#parallel'||isTicketHash(hash);
 function LoadCity(){return <div className="city-loading"><span className="loading-orbit"/><span>进城中</span></div>;}
 export default function App(){
@@ -486,7 +486,7 @@ export default function App(){
     return <div key={i} className={'origin-card '+(visible?'revealed':'unrevealed')} data-current={i===activeCard} style={{'--card-accent':card.accent,'--card-delay':i*35+'ms'} as React.CSSProperties}>
      {!visible?<button className="card-back" onClick={()=>revealCard(i)} aria-label={'揭晓'+card.slot}>
       <span className="back-serial">{String(i+1).padStart(2,'0')}</span>
-      <img src="/brand/symbol.svg" width={76} height={76} alt=""/>
+      <img src="/brand/shanghai-stories/symbol.svg" width={76} height={76} alt=""/>
       <b>{card.slot}</b><small>翻牌 <Icon name="arrow" size={13}/></small>
      </button>:<div className="card-front" key={card.id}>
       <div className="card-top"><span>{card.slot}</span><b className={'rarity rarity-'+card.rarity}>{card.rarity}</b></div>

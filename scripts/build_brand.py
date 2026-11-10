@@ -79,7 +79,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('font', type=Path, help='Path to NotoSansCJKsc-Black.otf')
     font = TTFont(parser.parse_args().font)
-    brand = PUBLIC / 'brand'
+    brand = PUBLIC / 'brand' / 'shanghai-stories'
+    brand.mkdir(exist_ok=True)
 
     city = lettering(font, '魔都', 18, 125, 116, 104, 6)
     life = lettering(font, '人生', 268, 125, 116, 104, 6)
@@ -102,6 +103,7 @@ def main():
 
     background = f'<rect width="128" height="128" fill="{INK}"/>'
     icon = svg('0 0 128 128', background + TICKET)
+    (brand / 'icon.svg').write_text(icon)
     (PUBLIC / 'favicon.svg').write_text(icon)
     maskable = svg('0 0 128 128', background + f'<g transform="translate(13.4 13.4) scale(.79)">{TICKET}</g>')
     render_app_icons(icon, maskable)
