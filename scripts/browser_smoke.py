@@ -1,4 +1,4 @@
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import expect, sync_playwright
 import json, os, time
 from pathlib import Path
 
@@ -43,11 +43,11 @@ with sync_playwright() as p:
     choose_year(page)
     page.wait_for_timeout(700)
     page.screenshot(path=str(OUT/'play-desktop.png'),full_page=True)
-    # Actual five-wave reflex encounter.
+    # Play the current laser encounter through to its receipt.
     go_hotspot(page,'四元观景位')
     page.get_by_role('button',name='拿稳柠檬水，开始躲').click()
-    until=time.time()+16
-    while time.time()<until:
+    until=time.monotonic()+35
+    while time.monotonic()<until:
         if page.locator('.phase-done').count():break
         danger=page.locator('.phase-warn .laser-lane.danger')
         if danger.count():
@@ -55,6 +55,8 @@ with sync_playwright() as p:
             page.locator('.laser-lane').nth((index+1)%3).click()
         page.wait_for_timeout(100)
     assert page.locator('.phase-done').count(), 'laser did not finish'
+    laser_rounds=page.locator('.laser-rounds li').count()
+    assert laser_rounds==8
     page.screenshot(path=str(OUT/'laser-desktop.png'),full_page=True)
     page.get_by_role('button',name='喝完再走').click()
     page.locator('.outcome-content .primary').click()
@@ -62,6 +64,7 @@ with sync_playwright() as p:
     page.locator('.career-summary').click()
     page.locator('.career-option').filter(has_text='技术研发').click()
     next_dialogue(page,[0,1,0])
+    page.get_by_role('button',name='签普通班，到点走').click()
     page.locator('.outcome-content .primary').click()
     # First date uses its own questions and records the selected person.
     go_hotspot(page,'江风约会')
@@ -83,6 +86,7 @@ with sync_playwright() as p:
     go_hotspot(page,'弄堂租房处')
     page.get_by_role('button',name='墙角',exact=True).click()
     page.get_by_role('button',name='合同',exact=True).click()
+    page.get_by_role('button',name='第六条 · 设备维护费').click()
     page.get_by_role('button',name='窗外',exact=True).click()
     page.get_by_role('button',name='去跟方姐谈').click()
     page.get_by_role('button',name='划掉设备费，渗水也写进去').click()
@@ -100,8 +104,7 @@ with sync_playwright() as p:
     page.get_by_role('button',name='3D 地图').click()
     for name in ['安福路','人民广场','陆家嘴','张江','外滩']:
         page.locator('.district-nav button').filter(has_text=name).click()
-        page.wait_for_timeout(350)
-        assert page.locator('canvas').count()==1
+        expect(page.locator('.city-stage canvas')).to_be_visible()
     page.get_by_role('button',name='切换夜景').click()
     page.wait_for_timeout(700);page.screenshot(path=str(OUT/'night-desktop.png'),full_page=True)
     saved=json.loads(page.evaluate('localStorage.getItem("modu-life-v1")'))
@@ -120,7 +123,7 @@ with sync_playwright() as p:
     m.get_by_role('button',name='手头的事',exact=True).click()
     m.screenshot(path=str(OUT/'places-mobile.png'),full_page=True)
     assert m.locator('.places-sidebar.mobile-open').is_visible()
-    print(json.dumps({'passed':True,'desktop':'1440×1000','mobile':'390×844','laser':'5波真实闪避','interview':'3轮通过','romance':'关系独立记忆','annual':'18→19','rental':'3线索后签约','save':'手动＋自动＋刷新恢复','districts':'六区与夜景','page_errors':errors},ensure_ascii=False))
+    print(json.dumps({'passed':True,'desktop':'1440×1000','mobile':'390×844','laser':f'{laser_rounds}波真实闪避','interview':'3轮后签约','romance':'关系独立记忆','annual':'18→19','rental':'3线索后签约','save':'手动＋自动＋刷新恢复','districts':'六区与夜景','page_errors':errors},ensure_ascii=False))
     assert not errors, errors
     browser.close()
 

@@ -58,9 +58,12 @@ npm run dev
 npm test
 npm run build
 python3 scripts/browser_smoke.py
+python3 scripts/arrival_acceptance.py
 ```
 
 浏览器脚本需要Python Playwright与本机Chrome，以及先启动的本地开发服务。脚本默认访问 `http://localhost:5173/`；覆盖桌面和手机尺寸、激光、面试、约会、年末结算、租房、存档与六区切换。它属于浏览器模拟测试，不能代替iPhone或Android真机性能验收。启动正式预览后可运行 `python3 scripts/offline_acceptance.py`，验证首次缓存、离线读档、3D 地标和断点续下载。
+
+到站走查还需要 `python3 -m playwright install webkit`。它会在 Chrome 和 WebKit 的桌面、手机尺寸上读完三条消息，逐一回复三个联系人并玩到 19 岁，覆盖在待回复时刷新后继续存档。可通过 `GAME_URL` 指定要验收的网址。
 
 ## 后续模型升级
 
