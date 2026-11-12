@@ -35,7 +35,7 @@ export default function HeirAssets({ game, tab, onTab, onVisit }: {
     const booked=game.seenEvents.includes(event.id);
     const price=Math.min(...event.choices.map(choice=>-(choice.effect.cash??0)));
     return <button type="button" key={event.id} className="concierge-card" disabled={booked} onClick={()=>onVisit(event)}>
-     <img src={event.illustration} alt="" loading="lazy"/>
+     <img src={event.illustration} alt="" decoding="async"/>
      <span className="concierge-card-details">
       <small>{event.location}</small>
       <b>{name}</b>

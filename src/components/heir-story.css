@@ -1,11 +1,13 @@
 .app .modal:has(>.heir-assets) {
   width: min(840px, 100%);
+  max-width: 840px;
+  padding: clamp(16px, 2.6vw, 30px);
   background: var(--game-panel);
   color: var(--game-white);
   border: 1px solid var(--game-line);
 }
 .app .modal:has(>.heir-assets) .modal-close { background: var(--game-row); color: var(--game-white); }
-.app .heir-assets > header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; margin: 0 36px 16px 0; }
+.app .heir-assets > header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; margin: 0 38px 16px 0; }
 .heir-assets h2 { margin: 0; font: 800 clamp(24px,4vw,37px)/1.15 var(--serif); letter-spacing: .025em; }
 .heir-assets header > div { display: grid; gap: 2px; }
 .heir-assets header small, .heir-assets li small, .heir-assets > p { color: var(--game-muted); }
@@ -111,7 +113,7 @@
   .concierge-access { padding: 6px 10px; gap: 7px; min-height: 44px; }
 }
 @media (max-width: 540px) {
-  .app .heir-assets > header { gap: 6px 8px; margin-inline-end: 30px; }
+  .app .heir-assets > header { gap: 6px 8px; margin-inline-end: 38px; }
   .concierge-wallet strong { font-size: 17px; }
   .concierge-grid { grid-template-columns: 1fr; gap: 7px; }
   .concierge-card { grid-template: auto / minmax(88px,34%) minmax(0,1fr); align-items: center; }
