@@ -44,3 +44,7 @@
  .event-modal.blossoms-menu .event-content .event-body { line-height: 1.55; }
  .blossoms-menu .event-choices > button { min-height: 48px; padding-block: 6px; }
 }
+.paper-answers { display: flex; flex-wrap: wrap; align-items: center; gap: 5px 8px; margin-block: 8px; }
+.paper-answers > b { width: 100%; font-size: 13px; }
+.app .paper-answers .secondary { min-height: 44px; color: var(--game-white); background: var(--game-panel); border-color: var(--game-line); }
+.app .paper-answers .secondary:hover { border-color: var(--game-yellow); }

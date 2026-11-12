@@ -1,4 +1,5 @@
 import { openingPhoto } from './art';
+import { heirStoryPhoto } from './heirStory';
 import { HEIR_TERMS, heirTerms } from './heirCapital';
 import type { EventChoice, GameState, LifeEvent } from './types';
 import { LONG_COMMUTE, NIGHT_WORK } from './workFlags';
@@ -22,7 +23,7 @@ export function staffBedRent(state: Pick<GameState, 'age' | 'housing' | 'flags'>
 const event = (shot: Parameters<typeof openingPhoto>[0], worker: boolean, title: string, text: string, choices: EventChoice[]): LifeEvent => ({
  id:'life-start-class-'+shot, title, text, choices, category:'year',
  district:worker?'xinzhuang':'bund', speakerId:worker?'wu':'father',
- tag:worker?'莘庄 · 仓配宿舍':'外滩 · 家里公司的账', illustration:openingPhoto(shot),
+ tag:worker?'莘庄 · 仓配宿舍':'外滩 · 家里公司的账', illustration:worker?openingPhoto(shot):heirStoryPhoto('boardroom'),
 });
 
 const workerBed = event('worker-bed',true,'床位和工牌一起领',

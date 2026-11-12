@@ -6,7 +6,7 @@ export const LOOKS:{id:LooksLevel;name:string;line:string;flavor:string;face:num
 ];
 const contactPortraits = new Set(['tang', 'wu', 'fang', 'boss', 'gao', 'father', 'aunt', 'uncle',
  'mao', 'mother', 'song', 'yu', 'fei', 'yan', 'sun', 'qi',
- 'xia', 'ning', 'lin', 'chen', 'qiao', 'yang', 'lu', 'he']);
+ 'xia', 'ning', 'lin', 'chen', 'qiao', 'yang', 'lu', 'he', 'father-heir', 'mother-heir']);
 
 export function portraitArt(id: string, full: boolean, age = 18): string {
  const stage = !contactPortraits.has(id) || age < 32 ? '' : age < 53 ? '-midlife' : '-senior';
@@ -71,6 +71,7 @@ export function handoverPhoto(careerId: string): string {
 }
 
 export function originPhoto(cardId: string): string {
+ if (cardId==='born-system'||cardId==='fund-system') return '/art/system-story/phone.webp';
  return `/art/origins/${cardId}.webp`;
 }
 

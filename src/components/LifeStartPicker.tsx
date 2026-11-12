@@ -9,7 +9,7 @@ export default function LifeStartPicker({onPick}: {onPick: (start: LifeStart) =>
    {LIFE_STARTS.map(start => <button type="button" key={start.id} onClick={() => onPick(start)}>
     <div className="start-portrait">
      <img src={start.photo} alt="" width={1320} height={880} decoding="async"/>
-     <div className="start-title"><span>{start.id==='daywork'?'莘庄':'陆家嘴'}</span><h3>{start.title}</h3></div>
+     <div className="start-title"><span>{start.place}</span><h3>{start.title}</h3></div>
     </div>
     <div className="start-details">
      <div className="start-balance"><span>初始资金</span><b>¥{start.id==='heir'?(start.cash/10000).toLocaleString('zh-CN')+' 万':start.cash.toLocaleString('zh-CN')}</b></div>

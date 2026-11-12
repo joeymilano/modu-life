@@ -1,6 +1,10 @@
 import { CAST } from './content';
 import { replayContactStory } from './contactStories';
-import { ACTIVITY_NAMES, oldYearLetter, SAVE_KEY, selectEvent, validateSave } from './engine';
+import { ACTIVITY_NAMES, oldYearLetter, replayCatalogEvent, SAVE_KEY, selectEvent, validateSave } from './engine';
+import { replayHeirVisit } from './heirStory';
+import { heirBoardVisit } from './lifeStarts';
+import { campaignLead } from './lifeCampaign';
+import { systemRedemption } from './systemStory';
 import { replayLocalLead, streetLead } from './streetLeads';
 import { replayCorner } from './streetCorners';
 import { nightOwlLetter } from './encounters';
@@ -76,6 +80,11 @@ export function replayScene(state: GameState, scene: SceneRef): LifeEvent | null
   if (scene.eventId.startsWith('contact-')) return replayContactStory(state,scene.eventId);
   if (scene.eventId.startsWith('street-corner-')) return replayCorner(state,scene.eventId);
   if (scene.kind === 'lead' && scene.eventId.startsWith('street-')) return replayLocalLead(state,scene.eventId);
+  if (scene.kind === 'lead') {
+    const visits = [replayHeirVisit(state,scene.eventId), heirBoardVisit(state), campaignLead(state)?.event, systemRedemption(state)];
+    const event = visits.find(visit=>visit?.id===scene.eventId);
+    if (event) return event;
+  }
   if (scene.kind === 'business' && isStallSettlement(scene.eventId)) return replayStall(state, scene.eventId);
   if (scene.kind === 'career' && isJobOffer(scene.eventId)) return replayJobOffer(state, scene.eventId);
   if (scene.eventId.startsWith('bund-ferry-')) {
@@ -113,6 +122,7 @@ export function replayScene(state: GameState, scene: SceneRef): LifeEvent | null
   if (event?.id === scene.eventId) return event;
   // Saved branches can point to a year's original letter after a new scene takes its place.
   if (scene.kind === 'year' && scene.eventId === `year-${state.age}`) return oldYearLetter(state) ?? null;
+  if (scene.kind in ACTIVITY_NAMES) return replayCatalogEvent(state,scene.eventId,scene.kind as ActivityKind,scene.npc);
   return null;
 }
 
@@ -121,7 +131,8 @@ export function recordDecision(book: LifeBook, state: GameState, event: LifeEven
   const { journal, ...before } = line.state;
   const isRental = event.rentalEvidence !== undefined;
   const kind = isRental ? 'rental' : event.firstDate ? 'date' : event.tag === '开局插曲' ? 'origin' : event.id.startsWith('matchmaking-') ? 'match' : event.tag === '夜猫子来信' ? 'owl' :
-    streetLead(line.state)?.event.id === event.id ? 'lead' : event.category;
+    (replayHeirVisit(line.state,event.id) || heirBoardVisit(line.state)?.id === event.id || campaignLead(line.state)?.event.id===event.id
+      || systemRedemption(line.state)?.id===event.id || streetLead(line.state)?.event.id === event.id) ? 'lead' : event.category;
   const defaultEvent = replayScene(line.state, { kind, eventId: event.id });
   const scene: SceneRef = {
     kind, eventId: event.id,

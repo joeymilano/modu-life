@@ -159,6 +159,10 @@ export function firstNightClue(eventId: string) {
 
 export const FIRST_NIGHT_FLAG = 'first_night_v2';
 
+export function hasSharedWithMao(state: GameState) {
+  return state.flags.some(flag => flag === 'night-shared' || flag === 'night-shared-later' || flag === 'roommates_0');
+}
+
 export function firstNightLead(state: GameState) {
   if (state.age !== 18 || state.pendingYearEvent || !state.flags.includes(FIRST_NIGHT_FLAG)) return null;
   return routes.find(route => state.flags.includes(route.flag) && !state.seenEvents.includes(route.event.id)) ?? null;

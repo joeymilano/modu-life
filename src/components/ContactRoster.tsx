@@ -1,4 +1,4 @@
-import { CAST, castTitle, DISTRICTS } from '../game/content';
+import { CAST, castForGame, castTitle, DISTRICTS } from '../game/content';
 import { contactStory } from '../game/contactStories';
 import { relationshipLabel } from '../game/engine';
 import type { CastMember, GameState } from '../game/types';
@@ -14,7 +14,7 @@ export default function ContactRoster({game, filter, onFilter, onProfile, onComm
  onProfile: (person: CastMember) => void; onCommit: (person: CastMember) => void;
 }) {
  const all = CAST.map(person => ({
-  person, relation: game.relationships[person.id], visit: contactStory(game, person.id),
+  person: castForGame(person,game), relation: game.relationships[person.id], visit: contactStory(game, person.id),
  })).sort((a, b) => Number(!!b.visit) - Number(!!a.visit) || Number(b.relation.met) - Number(a.relation.met));
  const lists = { all, met: all.filter(contact => contact.relation.met), messages: all.filter(contact => contact.visit) };
 

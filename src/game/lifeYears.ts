@@ -1,4 +1,5 @@
 import { lifeYearsPhoto } from './art';
+import { heirStoryPhoto } from './heirStory';
 import { relocationBudget, remembersWarehouseBus } from './relocation';
 import { NIGHT_WORK } from './workFlags';
 import type { Effect, EventChoice, GameState, LifeEvent } from './types';
@@ -27,7 +28,7 @@ function later(id: string, title: string, text: string, choices: EventChoice[], 
   category: 'year',
   district: work ? 'xinzhuang' : 'lujiazui',
   tag: shot.endsWith('-final') ? endTag : work ? '排班' : '家里公司的账',
-  illustration: lifeYearsPhoto(shot),
+  illustration: shot==='heir-mid'?heirStoryPhoto('midlife'):lifeYearsPhoto(shot),
  };
 }
 

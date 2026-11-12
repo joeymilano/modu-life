@@ -1,3 +1,5 @@
+.app .modal:has(>.contacts-content,>.contact-profile) { background: var(--game-panel); color: var(--game-white); }
+.app .modal:has(>.contacts-content,>.contact-profile) > .modal-close { background: var(--game-row); color: var(--game-white); }
 .relationship-summary .contact-access { display: grid; gap: 3px; min-width: 0; color: #405349; }
 .contact-access b { font: 700 15px/1.15 var(--serif); }
 .contact-access small { font-size: 11px; line-height: 1.4; }
@@ -6,14 +8,14 @@
   display: flex; flex-wrap: wrap; gap: 6px; margin: 15px 0 16px;
 }
 .contact-filters button {
-  min-height: 44px; padding: 6px 12px; border: 1px solid #b5ad97; border-radius: 2px;
-  color: #3e5347; background: #eee7d8; white-space: nowrap; font-size: 13px;
+  min-height: 44px; padding: 6px 12px; border: 1px solid var(--game-line); border-radius: 2px;
+  color: var(--game-white); background: var(--game-row); white-space: nowrap; font-size: 13px;
 }
-.contact-filters button:hover { background: #e6dcc6; }
-.contact-filters button[aria-pressed="true"] { background: #30493c; border-color: #30493c; color: #fbf0d8; }
+.contact-filters button:hover { background: #3c303b; }
+.contact-filters button[aria-pressed="true"] { background: var(--game-yellow); border-color: var(--game-yellow); color: var(--game-black); }
 .contact-filters button span { margin-left: 3px; font-variant-numeric: tabular-nums; opacity: .85; }
 .contact-roster-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; }
-.contact-roster-card { min-width: 0; background: #fff9eb; border: 1px solid #c9bfa9; border-radius: 3px; }
+.contact-roster-card { min-width: 0; background: var(--game-row); border: 1px solid var(--game-line); border-radius: 3px; }
 .contact-roster-open { display: block; width: 100%; padding: 0; background: none; text-align: left; border-radius: 2px; }
 .contact-roster-photo {
   position: relative; aspect-ratio: 1 / 1.04; background: #34453a; color: #fff4db;
@@ -32,13 +34,13 @@
 }
 .contact-roster-caption strong { font: 700 clamp(17px,2.15vw,25px)/1.12 var(--serif); }
 .contact-roster-caption svg { flex: none; }
-.contact-roster-label { display: grid; gap: 4px; padding: 7px 9px 9px; color: #2c4036; }
+.contact-roster-label { display: grid; gap: 4px; padding: 7px 9px 9px; color: var(--game-white); }
 .contact-roster-label span { font-size: 12px; line-height: 1.5; }
-.contact-roster-label small { color: #566557; font-size: 11px; line-height: 1.45; }
-.contact-roster-card:has(.contact-message-marker) .contact-roster-label span { color: #8d3b27; font-weight: 700; }
-.contact-roster-commit { min-height: 44px; margin-inline: 7px; color: #8d3b27; }
-.contact-roster-empty { border-block: 1px solid #cdc1a8; padding: 20px 0; color: #566557; }
-.contact-roster-empty .text-button { min-height: 44px; color: #8d3b27; }
+.contact-roster-label small { color: var(--game-muted); font-size: 11px; line-height: 1.45; }
+.contact-roster-card:has(.contact-message-marker) .contact-roster-label span { color: var(--game-yellow); font-weight: 700; }
+.contact-roster-commit { min-height: 44px; margin-inline: 7px; color: var(--game-yellow); }
+.contact-roster-empty { border-block: 1px solid var(--game-line); padding: 20px 0; color: var(--game-muted); }
+.contact-roster-empty .text-button { min-height: 44px; color: var(--game-yellow); }
 @media (max-width: 740px) {
   .contact-roster-grid { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 9px; }
 }
@@ -53,7 +55,7 @@
 .modal:has(.contact-profile) { max-width: 830px; }
 .contact-profile {
   display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr);
-  background: #f2ecdf; min-width: 0;
+  background: var(--game-panel); min-width: 0;
 }
 .contact-profile-photo { min-height: 470px; margin: 0; position: relative; background: #212b2a; }
 .contact-profile-photo .portrait { position: absolute; inset: 0; height: 100%; }
@@ -65,30 +67,30 @@
 }
 .contact-profile-info {
   min-width: 0; padding: 30px clamp(23px,4vw,47px);
-  align-self: center; color: #293c35;
+  align-self: center; color: var(--game-white);
 }
-.contact-profile-info .text-button { color: #824632; margin-bottom: 15px; min-height: 44px; }
+.contact-profile-info .text-button { color: var(--game-yellow); margin-bottom: 15px; min-height: 44px; }
 .contact-profile-info h2 { font: 700 clamp(34px,4vw,52px)/1.18 var(--serif); margin: 0 0 8px; }
 .contact-profile-info p { margin-top: 13px; font-size: 15px; line-height: 1.75; }
-.contact-profile-info .contact-profile-place { margin-top: 0; color: #53665e; font-size: 13px; }
+.contact-profile-info .contact-profile-place { margin-top: 0; color: var(--game-muted); font-size: 13px; }
 .contact-profile-status {
   display: flex; flex-wrap: wrap; gap: 8px 15px; padding-block: 14px; margin-top: 17px;
-  border-top: 1px solid #c2bdac; font-size: 13px;
+  border-top: 1px solid var(--game-line); font-size: 13px;
 }
 .contact-profile-info ul { list-style: none; margin: 0; padding: 0; }
-.contact-profile-info .contact-profile-plan { margin: 0 0 10px; padding: 7px 9px; background: #e6decb; color: #4c4c39; font-size: 13px; }
+.contact-profile-info .contact-profile-plan { margin: 0 0 10px; padding: 7px 9px; background: var(--game-row); color: var(--game-white); font-size: 13px; }
 .contact-profile-info > .secondary { min-height: 44px; margin: 0 0 10px; }
-.contact-profile-info li { padding-block: 8px; border-top: 1px solid #d9d1c0; font-size: 13px; line-height: 1.6; }
+.contact-profile-info li { padding-block: 8px; border-top: 1px solid var(--game-line); font-size: 13px; line-height: 1.6; }
 .contact-thread {
   width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  margin: 14px 0 0; padding: 12px 15px; text-align: left; border-left: 3px solid #963f32;
-  background: #e5dec9; color: #263f35;
+  margin: 14px 0 0; padding: 12px 15px; text-align: left; border-left: 3px solid var(--game-yellow);
+  background: var(--game-row); color: var(--game-white);
 }
-.contact-thread:hover { background: #ded4b8; }
-.contact-thread small, .contact-last-meeting small { display: block; margin-bottom: 3px; color: #764735; font-size: 12px; }
+.contact-thread:hover { background: #3c303b; }
+.contact-thread small, .contact-last-meeting small { display: block; margin-bottom: 3px; color: var(--game-muted); font-size: 12px; }
 .contact-thread b { font: 700 17px/1.45 var(--serif); }
 .contact-thread svg { flex-shrink: 0; }
-.contact-last-meeting { padding: 12px 0 13px; border-top: 1px solid #c2bdac; }
+.contact-last-meeting { padding: 12px 0 13px; border-top: 1px solid var(--game-line); }
 .contact-last-meeting h3 { margin: 0; font: 700 17px/1.45 var(--serif); }
 .contact-last-meeting p { margin: 6px 0 0; font-size: 13px; line-height: 1.65; }
 @media (max-width: 650px) {

@@ -1,8 +1,10 @@
 import { dayworkLead } from './lifeStarts';
+import { heirStoryLead } from './heirStory';
+import { systemLead } from './systemStory';
 import { blossomsLead } from './blossoms';
 import { contactStory } from './contactStories';
 import { streetPhoto } from './art';
-import { firstNightLead } from './firstNight';
+import { firstNightLead, hasSharedWithMao } from './firstNight';
 import { pearlReceipt } from './pearl';
 import { parkVisit } from './matchmaking';
 import { rentalRenewal } from './rental';
@@ -22,10 +24,10 @@ const leads: StreetLead[] = [
     event: {
       id: 'street-lease', title: '这道印子是旧的', category: 'housing', district: 'xinzhuang',
       illustration: streetPhoto('keys'), tag: '租房',
-      text: '退租当天，房东拍了张墙面的照片，说要从押金里扣三百。毛小毛把手机递过来。搬进来那天他拍过视频，可那面墙刚好被纸箱挡住了。',
+      text: '你们以前合租那间房还有一笔押金没退。老房东发了张墙面的照片，说要扣三百。毛小毛翻出搬进去那天的视频，可那面墙刚好被纸箱挡住了。',
       choices: [
         { id: 'settle', label: '认这三百 · 今天把账结了', effect: { cash: -300, spirit: 5 },
-          reply: '你拿到剩下的押金，约的车正好到了。上车前，毛小毛拍了张空屋的照片发给你。' },
+          reply: '毛小毛把清单上最后一行划掉。你们把这笔扣款记在旧租约底下。' },
         { id: 'find', label: '翻搬家照片 · 把时间对一遍', effect: { skill: 5, spirit: -3 },
           reply: '照片是房东自己拍的，挂在最早那条招租里。你把链接发过去。他过了十分钟回，说三百一起退。' },
       ],
@@ -80,7 +82,8 @@ const leads: StreetLead[] = [
 
 function localLead(state: GameState, eventId?: string) {
   return leads.find(lead => (!eventId || lead.event.id === eventId)
-    && !state.seenEvents.includes(lead.event.id) && lead.available(state));
+    && !state.seenEvents.includes(lead.event.id) && lead.available(state)
+    && (eventId || lead.event.id !== 'street-lease' || hasSharedWithMao(state)));
 }
 
 export function replayLocalLead(state: GameState, eventId: string) {
@@ -90,7 +93,7 @@ export function replayLocalLead(state: GameState, eventId: string) {
 
 export function streetLead(state: GameState) {
   if (state.pendingYearEvent || state.ended) return null;
-  const first = firstNightLead(state) ?? dayworkLead(state);
+  const first = firstNightLead(state) ?? dayworkLead(state) ?? heirStoryLead(state) ?? systemLead(state);
   if (first) return first;
   const receipt = pearlReceipt(state);
   if (receipt) return { message: '江边有人叫你去对小票', event: receipt };

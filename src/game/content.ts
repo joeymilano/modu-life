@@ -1,6 +1,8 @@
 import { DAYWORK, FAMILY_HOME, FAMILY_PAY, HEIR } from './lifeStarts';
 import { HEIR_CAPITAL_TIER, HEIR_TERMS } from './heirCapital';
-import type { Career, CastMember, District, Goal, OriginCard, OriginSlot } from './types';
+import { hasSharedWithMao } from './firstNight';
+import { SYSTEM_CASH, SYSTEM_START } from './systemStory';
+import type { Career, CastMember, District, GameState, Goal, OriginCard, OriginSlot } from './types';
 
 export const HOUSING_NAMES = ['合租 / 亲友房', '普通租房', '改善租房', '自有住房'] as const;
 
@@ -74,12 +76,34 @@ export function castTitle(person: CastMember, age: number) {
  return person.id === 'tang' && age >= 32 ? '街坊活动室志愿者' : person.title;
 }
 
+export function castForGame(person: CastMember, state: GameState): CastMember {
+ if (state.flags.includes(HEIR)) {
+  if (person.id === 'father') return {
+   ...person, portraitId:'father-heir', district:'lujiazui', title:'仓配公司创办人',
+   description:'他现在在陆家嘴开会，仓库换了哪扇门，照样第一个知道。',
+  };
+  if (person.id === 'mother') return {
+   ...person, portraitId:'mother-heir', district:'lujiazui', title:'仓配公司联合创办人',
+   description:'她管过公司的第一本账。家里谁说了算，有时看谁先拿出原件。',
+  };
+ }
+ if (person.id==='wu'&&state.flags.includes(DAYWORK)) {
+  return {...person,title:'仓配老工友',description:'早市的摊收了，吴师傅就去仓里。谁做过哪一班，他比门禁记得清楚。'};
+ }
+ if (person.id === 'mao' && !hasSharedWithMao(state)) {
+  return {...person,title:'莘庄的毛小毛',description:'莘庄哪栋楼有房出租，问毛小毛比看群里快。'};
+ }
+ return person;
+}
+
 const card = (slot:OriginSlot,id:string,name:string,rarity:OriginCard['rarity'],subtitle:string,description:string,tag:string,accent:string,effect:OriginCard['effect']):OriginCard=>({slot,id,name,rarity,subtitle,description,tag,accent,effect});
 export const LIFE_START_CARDS = [
  card('出身','born-daywork','日结工','N','箱子先放门房','工钱是按班结的。过了点，床位也得再续。','做一班算一班','#726c54',{cash:-35220,setFlags:[DAYWORK]}),
  card('家底','fund-thin','零钱和床位','N','床位先交了一晚','要留出明天的车钱。零钱都在夹层。','手上 ¥780','#77786a',{}),
  card('出身','born-heir','顶级富二代','SSR','卡在自己手里','六千万在你个人账户。家里的房产和公司股权另有账本。','个人资金 ¥6,000 万','#9f8152',{setFlags:[HEIR,HEIR_CAPITAL_TIER]}),
  card('家底','fund-family','房租家里付','SSR','房卡跟银行卡分开放','陆家嘴那套江景服务公寓月租五万五，房租和指定账单由家里付。','每月代付上限 ¥'+HEIR_TERMS.familyCap.toLocaleString('zh-CN'),'#8a7a6d',{housing:2,setFlags:[FAMILY_HOME,FAMILY_PAY]}),
+ card('出身','born-system','系统流','SSR','第一单，今晚结','手机上多了一道关不掉的通知。地址在外滩，收款人写的是你。','接任务 · 领现金 · 换点数','#d09b53',{cash:SYSTEM_CASH-36000,setFlags:[SYSTEM_START]}),
+ card('家底','fund-system','首单未结','R','先做完，再看余额','手上还有一万八，任务奖励要当场交付才能领。','手上 ¥18,000','#947455',{}),
 ];
 
 export const ORIGIN_POOLS: Record<OriginSlot,OriginCard[]> = {

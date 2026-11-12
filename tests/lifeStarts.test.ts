@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { allOrigins, canAfford, createGame, monthlyBudget, nextYear, resolveChoice, selectEvent, validateSave } from '../src/game/engine';
-import { DAYWORK_TEMP, FAMILY_PAY, LIFE_STARTS, outstandingShiftPay } from '../src/game/lifeStarts';
+import { allOrigins, canAfford, createGame, eligibleEvent, monthlyBudget, nextYear, relationshipLabel, resolveChoice, selectEvent, validateSave } from '../src/game/engine';
+import { DAYWORK_TEMP, FAMILY_PAY, heirBoardVisit, LIFE_STARTS, outstandingShiftPay } from '../src/game/lifeStarts';
+import { heirAssets, heirShopVisits, HEIR_WEST_BUND } from '../src/game/heirStory';
+import { CAST, castForGame } from '../src/game/content';
+import { EVENTS } from '../src/game/events';
 import { holdsLogisticsShares, STAFF_BED } from '../src/game/classLives';
 import { HEIR_CAPITAL_TIER } from '../src/game/heirCapital';
 import { activeLine, decodeLife, encodeLife, forkLife, recordDecision, replayScene, startBook } from '../src/game/lifeLines';
@@ -76,11 +79,14 @@ describe('two Shanghai starting lives', () => {
   expect(first.familyPaid).toBe(804_000);
   expect(first.expense).toBe(804_000);
   expect(first.state.cash).toBe(60_000_000);
-  const approval = annual(first.state,'pilot');
+  const firstVisit = annual(first.state,'call');
+  const approval = resolveChoice(firstVisit,heirBoardVisit(firstVisit)!,'pilot').state;
   expect(approval.cash).toBe(60_000_000);
   const reviewed = nextYear(approval).state;
-  expect(selectEvent(reviewed,'year').text).toContain('留下两台');
-  const own = annual(reviewed,'own');
+  const ready = annual(reviewed,'1');
+  const review = heirBoardVisit(ready)!;
+  expect(review.text).toContain('留下两台');
+  const own = resolveChoice(ready,review,'own').state;
   expect(own.flags).not.toContain(FAMILY_PAY);
   expect(monthlyBudget(own)).toMatchObject({rent:55_000,familyPaid:0,net:-67_000});
   expect(nextYear(own).state.cash).toBe(59_196_000);
@@ -92,15 +98,81 @@ describe('two Shanghai starting lives', () => {
  it('makes the later salary change a consequence of taking the handover', () => {
   const start = create(LIFE_STARTS[1]);
   const second = nextYear(annual(start,'floor')).state;
-  const third = nextYear(annual(second,'order')).state;
-  const tracked = annual(third,'take');
+  const ready = annual(second,'call');
+  const ordered = resolveChoice(ready,heirBoardVisit(ready)!,'order').state;
+  const review = heirBoardVisit(ordered)!;
+  const tracked = resolveChoice(ordered,review,'take').state;
   const later = { ...tracked, age: 25, pendingYearEvent: true };
   expect(selectEvent(later,'year').id).toBe('life-start-heir-role');
   const manager = annual(later,'manager');
   expect(monthlyBudget(manager).salary).toBe(10000);
   expect(activeLine(decodeLife(encodeLife(startBook(manager)))).state.employment?.rate).toBe(1.25);
   expect(annual(later,'salary').cash).toBe(later.cash + 60000);
-  expect(selectEvent({...annual(third,'hand'),age:25,pendingYearEvent:true},'year').id).not.toBe('life-start-heir-role');
+  expect(selectEvent({...resolveChoice(ordered,review,'hand').state,age:25,pendingYearEvent:true},'year').id).not.toBe('life-start-heir-role');
+ });
+
+ it('pays for all four purchases once, remembers the party branch, and unlocks an owner scene', () => {
+  const start = annual(create(LIFE_STARTS[1]),'keys');
+  expect(heirAssets(start)).toEqual([]);
+  const mall = streetLead(start)!.event;
+  expect(mall.location).toBe('恒隆广场');
+  expect(canAfford({...start,cash:219_999},mall.choices.find(choice=>choice.id==='lv-hermes')!.effect)).toBe(false);
+  const bags = visit(start,'lv-hermes');
+  const cars = visit(bags,'cullinan-revuelto');
+  expect(cars.cash).toBe(44_100_000);
+  expect(cars.actions).toBe(1);
+  const party = streetLead(cars)!.event;
+  expect(party.text).toContain('两辆新车');
+  expect(party.text).toContain('Kelly');
+  const hosted = visit(cars,'take-seat');
+  expect(hosted.actions).toBe(0);
+  expect(heirAssets(activeLine(decodeLife(encodeLife(startBook(hosted)))).state)).toHaveLength(4);
+  const other = activeLine(forkLife(recordDecision(startBook(cars),hosted,party,'take-seat'),0));
+  expect(replayScene(other.state,other.replay!)).toEqual(party);
+  const ready = annual(nextYear(hosted).state,'call');
+  expect(heirShopVisits(ready)).toEqual([]);
+  const owner = visit(ready,'lounge');
+  expect(owner.cash).toBe(34_300_000);
+  expect(heirAssets(owner).map(asset=>asset.name)).toContain('西岸会客厅');
+  expect(streetLead(annual(nextYear(owner).state,'1'))?.event.title).toBe('今晚关门，只请自己人');
+ });
+
+ it('lets the player host without buying and buy an outstanding item later', () => {
+  const start = annual(create(LIFE_STARTS[1]),'keys');
+  const party = visit(visit(start,'pass'),'pass');
+  expect(streetLead(party)?.event.text).toContain('家里的车');
+  const hosted = visit(party,'new-table');
+  expect(hosted.cash).toBe(start.cash);
+  expect(heirAssets(hosted)).toEqual([]);
+  const ready = annual(nextYear(hosted).state,'call');
+  const shop = heirShopVisits(ready)[0];
+  const bought = resolveChoice(ready,shop,'lv').state;
+  expect(heirShopVisits(bought)[0].choices.map(choice=>choice.id)).toEqual(['hermes','pass']);
+  expect(heirAssets(bought).map(asset=>asset.id)).toEqual(['lv']);
+  const alternate = activeLine(forkLife(recordDecision(startBook(ready),bought,shop,'lv','mother'),0));
+  expect(replayScene(alternate.state,alternate.replay!)).toEqual(shop);
+ });
+
+ it('keeps parent identity and housing context consistent in both old and new saves', () => {
+  const start = create(LIFE_STARTS[1]);
+  const father = CAST.find(person=>person.id==='father')!;
+  const mother = CAST.find(person=>person.id==='mother')!;
+  const legacy = validateSave({...start,flags:start.flags.filter(flag=>flag!==HEIR_WEST_BUND),relationships:{
+   ...start.relationships,father:{...start.relationships.father,met:false},
+  }});
+  expect(relationshipLabel(legacy,'father')).toBe('家人');
+  expect(legacy.relationships.father.met).toBe(true);
+  expect(castForGame(father,legacy)).toMatchObject({portraitId:'father-heir',district:'lujiazui'});
+  expect(castForGame(mother,start).portraitId).toBe('mother-heir');
+  expect(castForGame(father,create(LIFE_STARTS[0])).portraitId).toBeUndefined();
+  expect(selectEvent({...legacy,age:19},'year').title).toBe('八十万签给谁');
+  const room = EVENTS.find(event=>event.title==='室友的凌晨一点')!;
+  const repairs = EVENTS.find(event=>event.title==='有房也有维修单')!;
+  expect(eligibleEvent(room,start,'housing')).toBe(false);
+  expect(eligibleEvent(repairs,start,'housing')).toBe(false);
+  const older = {...start,age:28,pendingYearEvent:false,seenEvents:['heir-shopping','heir-showroom','heir-opening-night','heir-west-bund-venue']};
+  expect(streetLead(older)?.event.id).not.toBe('street-lease');
+  expect(replayScene(older,{kind:'lead',eventId:'street-lease'})?.id).toBe('street-lease');
  });
 
  it('only gets the discounted staff bed on the branch that signs up for it', () => {

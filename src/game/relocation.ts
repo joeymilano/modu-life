@@ -1,5 +1,6 @@
 import type { EventChoice, GameState, LifeEvent } from './types';
 import { LONG_COMMUTE, NIGHT_WORK } from './workFlags';
+import { heirStoryPhoto } from './heirStory';
 
 export const RELOCATION_SHOTS = ['warehouse','worker-opening','worker-return','heir-opening','heir-return'] as const;
 type RelocationShot = (typeof RELOCATION_SHOTS)[number];
@@ -32,7 +33,7 @@ export function relocationBudget(state: Pick<GameState,'flags'>) {
 
 const event = (shot: RelocationShot, speakerId: string, title: string, text: string, choices: EventChoice[]): LifeEvent => ({
  id:'life-start-move-'+shot,speakerId,title,text,choices,category:'year',district:'xinzhuang',tag:'仓库搬迁',
- illustration:relocationPhoto(shot),
+ illustration:shot.startsWith('heir-')?heirStoryPhoto('relocation'):relocationPhoto(shot),
 });
 
 const workerOpening = event('worker-opening','gao','六点二十这班车',

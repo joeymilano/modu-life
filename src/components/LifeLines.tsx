@@ -75,8 +75,8 @@ export default function LifeLines({ book, onFork, onSwitch, onDrop }: {
         <img src={streetPhoto(state.district)} alt="" />
         <div><PlayerPortrait appearance={state.appearance} size={36} age={state.age}/>
          <div><b>{lineName(id)}</b><span>{state.age}岁 · {district.name}</span></div>
+         {id === line.id && <small>正在走</small>}
         </div>
-        {id === line.id && <small>正在走</small>}
        </div>
       </th>;
      })}</tr></thead>

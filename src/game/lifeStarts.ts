@@ -1,6 +1,8 @@
 import { openingPhoto } from './art';
 import { heirClassYear, staffBedRent, workerClassYear } from './classLives';
 import { HEIR_CAPITAL_TIER, HEIR_PERSONAL_CASH, heirTerms } from './heirCapital';
+import { HEIR_WEST_BUND, heirStoryPhoto, westBundSecondYear } from './heirStory';
+import { isSystemLife, SYSTEM_CASH, systemOpening, systemPhoto, systemSecondYear } from './systemStory';
 import { laterDaywork, laterHeir } from './lifeYears';
 import { warehouseHeirYear, warehouseWorkerYear } from './relocation';
 import type { Effect, EventChoice, GameState, LifeEvent } from './types';
@@ -21,16 +23,22 @@ export const PROJECT_BUDGET = 800000;
 
 export const LIFE_STARTS = [
  {
-  id: 'daywork', seed: 'SH-SHIFT', cash: 780, title: '日结工', line: '手上 ¥780，床位只续到明天',
+  id: 'daywork', seed: 'SH-SHIFT', cash: 780, place: '莘庄', title: '日结工', line: '手上 ¥780，床位只续到明天',
   text: '床位只付了一晚。仓库两张招工单，一张当天结，一张要做满三天。',
   cards: ['born-daywork', 'fund-thin', 'talent-code', 'tie-free', 'secret-kind'],
   photo: openingPhoto('daywork-gate'),
  },
  {
-  id: 'heir', seed: 'SH-HEIR', cash: HEIR_PERSONAL_CASH, title: '顶级富二代', line: '个人可动用 ¥6,000 万，家里的账另算',
-  text: '陆家嘴江景房月租五万五，账单送到家里。司机在楼下等，财务问你上不上去看采购单。',
+  id: 'heir', seed: 'SH-HEIR', cash: HEIR_PERSONAL_CASH, place: '陆家嘴', title: '顶级富二代', line: '个人可动用 ¥6,000 万，家里的账另算',
+  text: '六千万刚到账。表哥把你的酒会改成了他的。先去恒隆拿请帖，再去西岸提车。',
   cards: ['born-heir', 'fund-family', 'talent-count', 'tie-demand', 'secret-kind'],
-  photo: openingPhoto('heir-keys'),
+  photo: heirStoryPhoto('family'),
+ },
+ {
+  id:'system',seed:'SH-SYSTEM',cash:SYSTEM_CASH,place:'外滩',title:'系统流',line:'手上 ¥18,000，第一单今晚结',
+  text:'关机键按了三遍，任务还在。跑完第一单，系统给你现金和点数。上一任宿主也收到了消息。',
+  cards:['born-system','fund-system','talent-code','tie-free','secret-kind'],
+  photo:systemPhoto('phone'),
  },
 ] as const;
 
@@ -100,18 +108,37 @@ const firstKeys = year('heir-first', '钥匙和账户分开',
   option('leave','钥匙还回去，我自己租','搬家公司问旧房的车库怎么进，你说不用进了，两只箱子从大厅抬。老爸晚上还是问了新地址，说到家了打个字。',{cash:-6600,housing:1,spirit:10,skill:4,removeFlags:[FAMILY_HOME,FAMILY_PAY]},'押金及搬运 ¥6,600 · 以后自己付房租'),
  ], 'heir-keys');
 
+const westBundOpening: LifeEvent = {
+ ...firstKeys, title:'六千万到账', illustration:heirStoryPhoto('family'),
+ text:'手机跳出一条入账短信，六千万。老爸把陆家嘴公寓的房卡推过来，房租和日常账单家里另付。第二条消息是周骁发的。他把你订的西岸酒会写成了他做东。老妈已到恒隆，原请帖在她手里。',
+ choices:firstKeys.choices.map(choice => choice.id === 'keys' ? {
+  ...choice,label:'收下房卡，去恒隆找老妈',reply:'你把房卡塞进钱夹。老妈发了张照片，柜上两只包，底下压着一张写你名字的请帖。',hint:'家里代付公寓账单',
+ } : choice.id === 'floor' ? {
+  ...choice,label:'进公司照旧，酒会我自己做东',reply:'财务发来仓配公司的入职单。你签完名字，把手机翻过来，回老妈一句「我这就到恒隆」。',
+ } : {
+  ...choice,label:'退回房卡，自己租房去赴宴',
+ }),
+};
+
 const board = year('heir-board', '八十万签给谁',
- '家里公司的设备采购要八十万。供应商是你表哥介绍的，车间主管说有一条线今年用不上。财务把两本账放在桌上。就算你签了，这笔也只会按单付给供应商。', [
+ '老爸请你来看一份八十万的采购单。供应商是表哥介绍的，主管说有一条线今年用不上。老爸让你决定怎么推进，采购和财务走完会签才放款。', [
   option('pilot','先做小批试单，让车间验收','财务把大单撤下来，先给车间留一批样机。表哥只回了个「行」。晚上车间主管发来一段短视频，机器真的跑了起来。',{skill:10,trust:4,setFlags:[HEIR_TRIAL]},'公司先试单 · 个人账户 ¥0'),
   option('order','按原单推进，我去盯交付','供应商马上给你发了交货日期。车间主管把空出来的位置量了一遍，说第二批到了先放哪儿，你也给句话。',{job:'trade',network:9,health:-5,trust:5,setFlags:[HEIR_ORDER]},'公司采购 ¥'+PROJECT_BUDGET.toLocaleString('zh-CN')+' · 个人账户 ¥0'),
   option('outside','让采购走会签，我不替任何人拍板','财务把两本账留在桌上。你下楼时碰到表哥，他要你给个准话。你报了采购办公室的座机，他愣了一下才拿手机。',{spirit:7,skill:6,face:-3},'继续由公司采购负责'),
  ], 'heir-board');
 
+export function heirBoardVisit(state: GameState): LifeEvent | undefined {
+ if (!state.flags.includes(HEIR_WEST_BUND) || state.age<19 || state.age>=25 || state.pendingYearEvent || state.ended || state.actions<=0) return;
+ const scene = !state.seenEvents.includes(board.id) ? board : boardThird(state);
+ if (state.seenEvents.includes(scene.id)) return;
+ return {...scene,category:'business',illustration:heirStoryPhoto('boardroom')};
+}
+
 function boardThird(state: GameState) {
  const ordered = state.flags.includes(HEIR_ORDER);
  const trial = state.flags.includes(HEIR_TRIAL);
  const opening = ordered
-  ? '第二批设备到了，工位还没腾出来。仓库说再占一个月要加钱。你签过那张单，群里现在每条消息都带着你的名字。'
+  ? '第二批设备到了，工位还没腾出来。仓库说再占一个月要加钱。你当时答应盯交付，群里现在每条消息都带着你的名字。'
   : trial
    ? '小批样机测完了，车间留下两台。供应商把剩下那批的价格发过来，问能不能按原定数量走。财务等你说要买多少。'
    : '你没在采购单上签字。新来的经理把会签记录给你看，问你还愿不愿意跟着看下半年怎么排产。';
@@ -155,6 +182,10 @@ export function dayworkLead(state: GameState): {message: string; event: LifeEven
 }
 
 export function lifeStartYear(state: GameState) {
+ if (isSystemLife(state)) {
+  if (state.age===18) return systemOpening;
+  if (state.age===19) return systemSecondYear(state);
+ }
  if (state.flags.includes(DAYWORK)) {
   if (state.age === 18) return firstShift;
   if (state.age === 19) return state.flags.includes(DAYWORK_DUE) ? shiftPay : state.flags.includes(DAYWORK_REMAINDER) ? remainingPay :
@@ -163,12 +194,15 @@ export function lifeStartYear(state: GameState) {
   return workerClassYear(state) ?? warehouseWorkerYear(state) ?? laterDaywork(state);
  }
  if (state.flags.includes(HEIR)) {
+  const westBund = state.flags.includes(HEIR_WEST_BUND);
+  if (state.age === 18 && westBund) return westBundOpening;
   if (state.age === 18) return state.flags.includes(HEIR_CAPITAL_TIER) ? {
    ...firstKeys,
+   illustration:heirStoryPhoto('family'),
    text:'老爸把房卡推过来。陆家嘴那套江景服务公寓月租五万五，房租、物业和约定的账单每月最多代付八万。你查了眼自己的账户，六千万还在。桌上另一叠是公司采购单，老爸问你想不想跟着做。',
   } : firstKeys;
-  if (state.age === 19) return board;
-  if (state.age === 20) return boardThird(state);
+  if (state.age === 19) return westBund ? westBundSecondYear(state) : {...board,illustration:heirStoryPhoto('boardroom')};
+  if (!westBund && state.age === 20) return {...boardThird(state),illustration:heirStoryPhoto('boardroom')};
   if (state.age === 25 && state.flags.includes(HEIR_HANDOVER)) return heirReview;
   return heirClassYear(state) ?? warehouseHeirYear(state) ?? laterHeir(state);
  }

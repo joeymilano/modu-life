@@ -1,5 +1,6 @@
 import { dateScenePhoto } from './art';
 import { CAST } from './content';
+import { FAMILY_HOME, FAMILY_PAY, lifeStartRent } from './lifeStarts';
 import type { GameState, LifeEvent } from './types';
 
 type Plan = 'shared' | 'standing';
@@ -92,9 +93,11 @@ export function householdVisit(state: GameState, personId: string): LifeEvent | 
  const plan = householdPlan(state);
  const newHome = state.housing === 0;
  const moving = plan === 'shared' ? 0 : newHome ? 3500 : 1600;
- const rent = housingPayment(newHome ? 1 : state.housing, newHome ? undefined : state.leaseRent, true);
- const ownRent = housingPayment(state.housing, state.leaseRent, false);
- const rentHint = plan === 'shared' ? `你每月出 ¥${rent.toLocaleString('zh-CN')} 住房费`
+ const rent = newHome ? housingPayment(1,undefined,true) : lifeStartRent(state,housingPayment(state.housing,state.leaseRent,true),true);
+ const ownRent = lifeStartRent(state,housingPayment(state.housing,state.leaseRent,false),false);
+ const familyPays = state.housing===2 && state.flags.includes(FAMILY_HOME) && state.flags.includes(FAMILY_PAY);
+ const rentHint = familyPays ? `你的住房份额 ¥${rent.toLocaleString('zh-CN')}/月 · 家里代付`
+  : plan === 'shared' ? `你每月出 ¥${rent.toLocaleString('zh-CN')} 住房费`
   : `住房 ¥${ownRent.toLocaleString('zh-CN')} → ¥${rent.toLocaleString('zh-CN')}/月`;
  const text = plan === 'shared' ? '两把钥匙放一起已经有阵子了。你们把旧账翻出来，今天重新谈谈怎么住。'
   : plan === 'standing' ? '这周那顿饭照常吃完了。走到门口，你们又聊起房子和两把钥匙。'
@@ -109,7 +112,7 @@ export function householdVisit(state: GameState, personId: string): LifeEvent | 
     effect: { cash: -moving, ...(newHome&&{ housing: 1 }), trust: 7, commitment: 13,
      setFlags: [householdFlag(personId, 'shared')], removeFlags: [householdFlag(personId, 'standing')] } },
    { id: 'standing', label: '各住各的，每周留一顿饭',
-    hint: `${plan==='shared'?`你自己付 ¥${ownRent.toLocaleString('zh-CN')}/月住房费 · `:''}每月见面多花 ¥${STANDING_DATE_MONTHLY_COST} · 忙起来关系也没那么容易淡`,
+    hint: `${plan==='shared'?`住房 ¥${ownRent.toLocaleString('zh-CN')}/月${familyPays?' · 家里代付':''} · `:''}每月见面多花 ¥${STANDING_DATE_MONTHLY_COST}`,
     reply: scene.standing, effect: { trust: 8, commitment: 7, spirit: 4,
      setFlags: [householdFlag(personId, 'standing')], removeFlags: [householdFlag(personId, 'shared')] } },
    { id: 'wait', label: '先把今晚过好，过阵子再谈',

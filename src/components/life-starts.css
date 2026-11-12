@@ -4,7 +4,7 @@
 .life-start-modal .modal-close:hover { background: #526352; }
 .life-start-picker { padding: 24px clamp(14px,3vw,30px) 22px; }
 .life-start-picker h2 { margin: 0 36px 16px 0; font: 700 clamp(27px,4vw,41px)/1.12 var(--serif); }
-.life-start-options { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 13px; }
+.life-start-options { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 13px; }
 .life-start-options > button {
   display: flex;
   flex-direction: column;
@@ -37,8 +37,10 @@
 @media (max-width: 480px) {
   .life-start-picker { padding: 18px 11px 13px; }
   .life-start-picker h2 { margin-bottom: 12px; }
-  .life-start-options { gap: 6px; }
+  .life-start-options { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 6px; }
+  .life-start-options > button:last-child { grid-column: 1 / -1; }
   .life-start-options img { aspect-ratio: 1.1; }
+  .life-start-options > button:last-child img { aspect-ratio: 2.4; }
   .start-title { inset: auto 10px 10px; }
   .start-details { padding: 8px 9px 4px; }
   .life-start-options p { font-size: 12px; }

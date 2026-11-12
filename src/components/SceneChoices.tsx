@@ -4,21 +4,32 @@ import Icon from './Icon';
 import './paper-trace.css';
 
 export default function SceneChoices({clue, choices, render}: {
- clue?: {label: string; text: string; choiceId: string; photo?: {src: string; alt: string}; papers?: readonly {label:string; value:string}[]}; choices: EventChoice[];
+ clue?: {
+  label: string; text: string; choiceId: string; photo?: {src: string; alt: string}; papers?: readonly {label:string; value:string}[];
+  question?: {prompt:string; options:readonly string[]; answer:number};
+ }; choices: EventChoice[];
  render: (choice: EventChoice, index: number) => ReactNode;
 }) {
  const [inspected, setInspected] = useState(false);
  const [documentIndex,setDocumentIndex] = useState(0);
+ const [seenAltered,setSeenAltered] = useState(false);
+ const [wrongAnswer,setWrongAnswer] = useState(false);
  const paperShown = clue?.papers?.[documentIndex];
+ const question = clue?.question;
  const discovery = clue ? choices.find(choice => choice.id === clue.choiceId) : undefined;
  return <>
   {clue?.papers && paperShown ? <div className="paper-trace">
    <div className="paper-trace-tabs" role="group" aria-label={clue.label}>
     {clue.papers.map((paper,index)=><button key={paper.label} type="button" aria-pressed={index===documentIndex}
-     onClick={()=>{setDocumentIndex(index);if(index===1)setInspected(true);}}>{paper.label}</button>)}
+     onClick={()=>{setDocumentIndex(index);if(index===1){setSeenAltered(true);if(!question)setInspected(true);}}}>{paper.label}</button>)}
    </div>
    <blockquote data-forwarded={documentIndex===1}><span>{paperShown.label}</span><p>{paperShown.value}</p></blockquote>
-   <p className="paper-trace-note" aria-live="polite">{inspected?clue.text:'看一眼群里那张，哪一行变了？'}</p>
+   {question&&seenAltered&&!inspected&&<div className="paper-answers" role="group" aria-label={question.prompt}>
+    <b>{question.prompt}</b>
+    {question.options.map((option,index)=><button className="secondary" type="button" key={option}
+     onClick={()=>{setInspected(index===question.answer);setWrongAnswer(index!==question.answer);}}>{option}</button>)}
+   </div>}
+   <p className="paper-trace-note" aria-live="polite">{inspected?clue.text:wrongAnswer?'两张单子再对一遍。':question?'先看两份单子。':'看一眼群里那张，哪一行变了？'}</p>
   </div> : clue && <div className="night-clue">
    <button className="text-button" aria-expanded={inspected} aria-controls="night-clue-text"
     onClick={() => setInspected(open => !open)}>

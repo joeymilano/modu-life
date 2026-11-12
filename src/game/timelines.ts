@@ -12,6 +12,8 @@ import { HANDOVER_TICKET } from './workHandover';
 import { CONTACT_STILLS, FERRY_STILLS, FIRST_NIGHT_STILLS, LIFE_YEARS_STILLS, LOOKS, MATCH_STILLS, OPENING_STILLS, RENTAL_STILLS, TABLE_STILLS, arrivalPhoto, contactPhoto, datePhoto, dateScenePhoto, farewellPhoto, ferryPhoto, handoverPhoto, lifeYearsPhoto, matchPhoto, offerPhoto, openingPhoto, pearlPhoto, rentalPhoto, stallPhoto, streetPhoto, tablePhoto, workPhoto } from './art';
 import { CAREERS, CAST } from './content';
 import { PHOTO_SHOP_STILLS, PHOTO_SHOP_STORY, photoShopStill } from './photoShop';
+import { heirStoryPhoto, HEIR_SHOTS } from './heirStory';
+import { systemPhoto, SYSTEM_SHOTS } from './systemStory';
 
 export interface Turn {
   date: string;
@@ -66,6 +68,9 @@ const ticketShots = new Set([
   ...LOOKS.flatMap(({id: looks}) => (['female','male'] as const).map(gender => arrivalPhoto({gender, looks}))),
   ...MATCH_STILLS.map(matchPhoto),
   ...OPENING_STILLS.map(openingPhoto),
+  ...HEIR_SHOTS.map(heirStoryPhoto),
+  ...SYSTEM_SHOTS.map(systemPhoto),
+  ...(['anfu','lujiazui','xinzhuang','bund','zhangjiang'] as const).map(streetPhoto),
   ...LIFE_YEARS_STILLS.map(lifeYearsPhoto),
   ...CONTACT_STILLS.map(contactPhoto),
   ...CORNER_STILLS.map(cornerPhoto),
@@ -724,6 +729,6 @@ export function draftFromEvent(event: LifeEvent, selected: string, result: strin
   return {
     id: crypto.randomUUID(), kind: 'life', title: event.title.slice(0, 28), author: '',
     original: result.slice(0, 160),
-    turns: [{ date: age + '岁', place: district, scene: event.text.slice(0, 220), ...validShot(event.illustration), options }],
+    turns: [{ date: age + '岁', place: event.location ?? district, scene: event.text.slice(0, 220), ...validShot(event.illustration), options }],
   };
 }

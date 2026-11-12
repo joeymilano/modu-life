@@ -5,7 +5,7 @@ export function Portrait({ person, size = 64, full = false, age = 18, decorative
  person: CastMember; size?: number; full?: boolean; age?: number; decorative?: boolean;
 }) {
  return <div className={'portrait ' + (full ? 'portrait-full' : 'portrait-head')} style={full ? undefined : { width: size, height: size }}>
-  <img src={portraitArt(person.id, full, age)} alt={decorative ? '' : person.name} decoding="async" loading="lazy" />
+  <img src={portraitArt(person.portraitId ?? person.id, full, age)} alt={decorative ? '' : person.name} decoding="async" loading="lazy" />
  </div>;
 }
 

@@ -1,0 +1,65 @@
+.app .modal:has(>.heir-assets) {
+  width: min(720px, 100%);
+  background: var(--game-panel);
+  color: var(--game-white);
+  border: 1px solid var(--game-line);
+}
+.app .modal:has(>.heir-assets) .modal-close { background: var(--game-row); color: var(--game-white); }
+.app .heir-assets > header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 36px 19px 0; }
+.heir-assets h2 { margin: 0; font: 800 clamp(24px,4vw,37px)/1.15 sans-serif; }
+.heir-assets header > div { display: grid; gap: 2px; }
+.heir-assets header small, .heir-assets li small, .heir-assets > p { color: var(--game-muted); }
+.heir-assets header strong { color: var(--game-yellow); font-variant-numeric: tabular-nums; }
+.heir-collection { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; padding: 0; margin: 0; list-style: none; }
+.heir-collection li { min-width: 0; border: 1px solid var(--game-line); background: var(--game-row); }
+.heir-collection img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: contain; background: var(--game-black); }
+.heir-collection li > div { display: grid; gap: 3px; padding: 9px; }
+.heir-collection li span { color: var(--game-yellow); font-size: 13px; }
+.heir-visit-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.app .heir-visit-list > button { min-height: 44px; color: var(--game-white); background: var(--game-row); border-color: var(--game-line); }
+.app .heir-visit-list > button:hover { border-color: var(--game-yellow); }
+.play-screen .heir-assets-link { min-height: 41px; }
+.play-screen .heir-assets-link svg:last-child { margin-inline-start: auto; }
+.app .outcome-content .heir-next { margin-inline-end: 8px; }
+.app .modal.heir-scene .event-photo { background: var(--game-black); }
+.app .modal.heir-scene .event-photo img { object-fit: contain; }
+.app .modal.heir-scene .event-photo::after { content: none; }
+
+@media (max-width: 850px) {
+  .app .modal.heir-scene .event-photo { height: auto; min-height: 0; aspect-ratio: 3 / 2; }
+}
+@media (max-width: 480px) {
+  .heir-collection li b { font-size: 13px; }
+  .heir-collection li small { font-size: 11px; }
+  .app .outcome-content .heir-next { margin-inline-end: 0; margin-bottom: 7px; }
+}
+
+.app .modal:has(>.campaign-panel) {
+  background: var(--game-panel);
+  color: var(--game-white);
+  border: 1px solid var(--game-line);
+}
+.app .modal:has(>.campaign-panel) > .modal-close { background: var(--game-row); color: var(--game-white); }
+.campaign-panel > header { margin: 0 34px 13px 0; }
+.campaign-panel > header span, .campaign-panel li[aria-current] > span { color: var(--game-yellow); font-size: 12px; }
+.campaign-panel h2 { margin: 4px 0 0; font: 820 clamp(23px,4vw,35px)/1.18 sans-serif; }
+.campaign-panel ol { display: grid; gap: 4px; margin: 0 0 15px; padding: 0; list-style: none; }
+.campaign-panel li {
+  display: grid; grid-template-columns: 42px minmax(0,1fr) auto; align-items: center; gap: 8px;
+  min-height: 43px; padding: 6px 9px; border: 1px solid var(--game-line); background: var(--game-row);
+}
+.campaign-panel li[aria-current] { border-inline-start: 3px solid var(--game-yellow); }
+.campaign-panel li > span, .campaign-panel li small, .campaign-panel > p, .campaign-advance small { color: var(--game-muted); font-size: 12px; }
+.campaign-panel li > div { display: grid; gap: 2px; }
+.campaign-panel li b { font-size: 14px; }
+.campaign-panel li > svg { color: var(--game-yellow); }
+.campaign-panel .primary { width: 100%; justify-content: space-between; }
+.campaign-advance { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; margin-top: 10px; }
+.app .campaign-advance > button { min-height: 44px; color: var(--game-white); background: var(--game-row); border-color: var(--game-line); }
+.app .campaign-advance > button:hover { border-color: var(--game-yellow); }
+.play-screen .main-story-link { color: var(--game-yellow); min-height: 44px; white-space: nowrap; }
+.system-wallet {
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  margin: 10px 0 15px; padding: 11px 13px; background: var(--game-row); border: 1px solid var(--game-line);
+}
+.system-wallet strong { color: var(--game-yellow); font-size: 23px; }

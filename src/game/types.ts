@@ -21,12 +21,12 @@ export interface EventChoice {
 export type FirstDatePicks = readonly [number, number];
 export interface LifeEvent {
  id: string; title: string; text: string; speakerId?: string; illustration?: string; category: ActivityKind | 'year';
- district?: DistrictId; minAge?: number; maxAge?: number; requiredFlags?: string[]; forbiddenFlags?: string[];
+ district?: DistrictId; location?: string; minAge?: number; maxAge?: number; requiredFlags?: string[]; forbiddenFlags?: string[]; housingLevels?: number[]; needsRoommate?: boolean;
  once?: boolean; chainId?: string; chainStep?: number; choices: EventChoice[]; tag?: string; weight?: number;
  firstDate?: FirstDatePicks; rentalEvidence?: number;
 }
 export interface OriginCard { id: string; slot: OriginSlot; name: string; rarity: 'SSR'|'SR'|'R'|'N'; subtitle: string; description: string; tag: string; accent: string; effect: Effect; }
-export interface CastMember { id: string; name: string; ageOffset: number; title: string; district: DistrictId; role: 'romance'|'friend'|'family'|'rival'|'mentor'; description: string; trait: 'sincerity'|'ambition'|'freedom'|'security'|'humor'; color: string; gender: 'female'|'male'; }
+export interface CastMember { id: string; portraitId?: string; name: string; ageOffset: number; title: string; district: DistrictId; role: 'romance'|'friend'|'family'|'rival'|'mentor'; description: string; trait: 'sincerity'|'ambition'|'freedom'|'security'|'humor'; color: string; gender: 'female'|'male'; }
 export interface Hotspot { id: string; name: string; kind: ActivityKind; position: [number,number]; caption: string; }
 export interface District { id: DistrictId; name: string; en: string; subtitle: string; color: string; hotspots: Hotspot[]; }
 export interface Career { id: string; name: string; entry: string; salary: number; ranks: string[]; thresholds: number[]; color: string; description: string; }

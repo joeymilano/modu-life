@@ -13,6 +13,7 @@ export default function ContactProfile({person, game, onBack, onTalk, onVisit}: 
  const relation = game.relationships[person.id];
  const district = DISTRICTS.find(item => item.id === person.district)?.name;
  const plan = game.partnerId === person.id ? householdPlan(game) : undefined;
+ const budget = plan==='shared' ? monthlyBudget(game) : undefined;
  const visit = contactStory(game,person.id);
  const memory = contactStoryMemory(game,person.id);
  return <div className="contact-profile">
@@ -33,7 +34,7 @@ export default function ContactProfile({person, game, onBack, onTalk, onVisit}: 
     {relation.met && <span>信任 {relation.trust}</span>}
     {relation.met && person.role==='romance' && <span>好感 {relation.attraction} · 承诺 {relation.commitment}</span>}
    </div>
-   {plan==='shared'&&<p className="contact-profile-plan">一起住 · 你每月出 ¥{monthlyBudget(game).rent.toLocaleString('zh-CN')} 住房费</p>}
+   {budget&&<p className="contact-profile-plan">住房份额 ¥{budget.rent.toLocaleString('zh-CN')}/月{budget.familyPaid?' · 家里代付':''}</p>}
    {plan==='standing'&&<p className="contact-profile-plan">每周留一顿饭 · 每月多花 ¥{STANDING_DATE_MONTHLY_COST}</p>}
    {onTalk&&<button className="secondary" onClick={onTalk}>聊聊以后怎么住</button>}
    {memory&&<article className="contact-last-meeting">

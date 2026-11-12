@@ -1,6 +1,9 @@
 import { DAYWORK, DAYWORK_TEMP, FAMILY_HOME, FAMILY_PAY, HEIR, HEIR_PAY_RATE, lifeStartRent, lifeStartYear, validLifeStartHand } from './lifeStarts';
 import { CAREERS, CAST, GOALS, LIFE_START_CARDS, ORIGIN_POOLS } from './content';
-import { FIRST_NIGHT_FLAG, firstNightYear } from './firstNight';
+import { FIRST_NIGHT_FLAG, firstNightYear, hasSharedWithMao } from './firstNight';
+import { hasHeirStory, HEIR_WEST_BUND } from './heirStory';
+import { campaignEpilogue, campaignYear } from './lifeCampaign';
+import { isSystemLife } from './systemStory';
 import { lastDayEvent } from './lastDay';
 import { workYearEvent } from './workScenes';
 import { longTableBudget, longTableYear } from './longTable';
@@ -95,15 +98,16 @@ export function createGame(seed:string,name:string,goal:GoalId,cards:OriginCard[
   let state:GameState={version:1,seed:seed.slice(0,32),rng:hashSeed(seed),name:name.trim().slice(0,12)||'小申',age:18,actions:3,goal,appearance:selectedAppearance,district:'bund',cash:36000,stats:{health:80,spirit:75,skill:28,face:30+LOOKS_BONUS[selectedAppearance.looks].face,network:20},jobId:null,jobRank:0,housing:0,origins:cards.map(c=>c.id),flags:[FIRST_NIGHT_FLAG],seenEvents:[],relationships:Object.fromEntries(CAST.map(c=>[c.id,{attraction:10,trust:15,commitment:0,met:false,memories:[]}])),partnerId:null,journal:[],pendingYearEvent:true,ended:false,totalEarned:0,yearsEmployed:0,rescues:0};
   for(const card of cards)state=applyEffect(state,card.effect);
   if(state.flags.some(f=>/own.?home|有房|home_owner/i.test(f)))state.housing=3;
+  for (const person of CAST) if (person.role==='family') state.relationships[person.id].met=true;
   const daywork=state.flags.includes(DAYWORK), heir=state.flags.includes(HEIR);
   state.cash=Math.max(daywork?0:3000,state.cash);
-  if(heir)state.cash=HEIR_PERSONAL_CASH;
+  if(heir){state.cash=HEIR_PERSONAL_CASH;state.flags.push(HEIR_WEST_BUND);}
   if(daywork||heir)state.district=daywork?'xinzhuang':'lujiazui';
   if(state.flags.includes('family_rich')&&state.flags.includes('card_frozen')){
     state.cash=Math.min(state.cash,24000);
     state.journal.push({age:18,title:'副卡暂时不给刷',text:'刷卡失败。老爸回了四个字，自己想办法。你翻遍账户，还能凑出两万四。',tag:'开局牵绊'});
   }
-  state.journal.push({age:18,title:'到上海了',text:daywork?'床位只付了一晚。早班的地址存进了手机。':heir?'司机把箱子送到门厅。财务发来两份分开的账单。':'车门开了。手机刚切回信号，连着响了三声。',tag:'开局'});
+  state.journal.push({age:18,title:'到上海了',text:daywork?'床位只付了一晚。早班的地址存进了手机。':heir?'司机把箱子送到门厅。财务发来两份分开的账单。':isSystemLife(state)?'便利店借了根充电线。刚开机就收到一条任务。':'车门开了。手机刚切回信号，连着响了三声。',tag:'开局'});
   return state;
 }
 export function monthlyBudget(s:GameState){
@@ -118,15 +122,25 @@ export function monthlyBudget(s:GameState){
   const familyPaid=familyHome&&s.flags.includes(FAMILY_PAY)?Math.min(terms.familyCap,rent+fixedLiving):0;
   return {salary,rent,living,familyPaid,net:salary-rent-living+familyPaid};
 }
-export function eligibleEvent(e:LifeEvent,s:GameState,kind:ActivityKind|'year'):boolean {
+export function eligibleEvent(e:LifeEvent,s:GameState,kind:ActivityKind|'year',replay=false):boolean {
   if(e.chainId==='family_card'&&e.chainStep===0&&!s.flags.some(f=>f==='family_rich'||f==='card_frozen'))return false;
   if((e.chainId==='project_credit'||e.chainId==='layoff_story')&&e.chainStep===0&&!s.jobId)return false;
+  if(!replay){
+    if(e.chainId==='family_plan'&&e.chainStep===0&&hasHeirStory(s))return false;
+    if(e.chainId==='roommates'&&(e.chainStep??0)<2
+      &&(s.housing!==1||s.leaseRent!==undefined||householdPlan(s)==='shared'||!hasSharedWithMao(s)))return false;
+    if(e.housingLevels&&!e.housingLevels.includes(s.housing))return false;
+    if(e.needsRoommate&&s.housing!==0&&householdPlan(s)!=='shared'
+      &&(s.housing!==1||s.leaseRent!==undefined||!hasSharedWithMao(s)))return false;
+  }
   return e.category===kind&&(!e.district||e.district===s.district)&&(!e.minAge||s.age>=e.minAge)&&(!e.maxAge||s.age<=e.maxAge)&&(!e.once||!s.seenEvents.includes(e.id))&&!s.seenEvents.includes(e.id)&&(!e.requiredFlags||e.requiredFlags.every(f=>s.flags.includes(f)))&&(!e.forbiddenFlags||e.forbiddenFlags.every(f=>!s.flags.includes(f)));
 }
 function adaptYearLetter(picked:LifeEvent,s:GameState):LifeEvent {
   if(picked.id==='year-20'&&s.housing===3)return {...picked,title:'有房，也得看合同',text:'家里有房可住。物业送来一叠维修文件，老妈让你看看，哪些需要自己掏钱。'};
+  if(picked.id==='year-20'&&s.flags.includes(HEIR))return {...picked,title:'这次租约怎么续',text:'续约单到了。物业把房租和代收费用分开列了两页，附了个空白的报修清单。'};
   if(picked.id==='year-23'&&!s.jobId)return {...picked,title:'朋友第一笔像样工资',text:'朋友的工资到了，在群里发了个红包。你抢到两块三，顺手又点开了招聘软件。',choices:picked.choices.map((c,i)=>i===0?{...c,label:'接一份临时小项目',reply:'项目做完，四千块到账。你给那张收款截图点了收藏。'}:c)};
   if(picked.id==='year-28'&&s.housing===3)return {...picked,text:'朋友发来新房钥匙，你点了赞。旁边自家的维修清单还摊着，今天得先打电话找师傅。'};
+  if(picked.id==='year-28'&&s.flags.includes(FAMILY_HOME))return {...picked,title:'江边的租约快到期了',text:'公寓经理把续约单送到门口。楼下的房间腾出来一间，朝向一样，少一扇能看江的窗。',choices:picked.choices.map((choice,index)=>index===0?{...choice,label:'问清续约条件',reply:'经理把朝向和续约报价分开写。你拿着两份单子，绕楼走了一圈。'}:index===1?{...choice,label:'问问楼下的房间',reply:'站到窗前，那截江面刚好被另一栋楼挡住。你把钥匙还给经理。'}:choice)};
   if(picked.id==='year-32'&&!s.jobId)return {...picked,title:'本事还在手上',text:'旧同事打来电话，问上次那个问题怎么解决。你一边啃面包，一边给他画了张图。'};
   return picked;
 }
@@ -134,9 +148,17 @@ export function oldYearLetter(state:GameState):LifeEvent|undefined {
   const event=EVENTS.find(item=>item.id===`year-${state.age}`);
   return event&&adaptYearLetter(event,state);
 }
+export function replayCatalogEvent(state:GameState,id:string,kind:ActivityKind,npc?:string) {
+  const event=EVENTS.find(item=>item.id===id);
+  return event&&(!npc||!event.speakerId||event.speakerId===npc)&&eligibleEvent(event,state,kind,true)
+    ? adaptYearLetter(event,state) : null;
+}
+function authoredYear(s:GameState) {
+  return [lifeStartYear(s), firstNightYear(s), lastDayEvent(s), workYearEvent(s), campaignYear(s), longTableYear(s)]
+    .find(event=>event&&!s.seenEvents.includes(event.id));
+}
 export function selectEvent(s:GameState,kind:ActivityKind|'year',npcId?:string):LifeEvent {
-  const annual = kind === 'year' ? [lifeStartYear(s), firstNightYear(s), lastDayEvent(s), workYearEvent(s), longTableYear(s)]
-    .find(event=>event&&!s.seenEvents.includes(event.id)) : undefined;
+  const annual = kind === 'year' ? authoredYear(s) : undefined;
   if (annual) return annual;
   let candidates=EVENTS.filter(e=>eligibleEvent(e,s,kind));
   if(npcId){const personal=candidates.filter(e=>e.speakerId===npcId);if(personal.length)candidates=personal;else candidates=candidates.filter(e=>!e.speakerId);}
@@ -290,8 +312,16 @@ export function nextYear(state:GameState) {
   s.age++;s.actions=3;s.ended=s.age>=60;s.pendingYearEvent=!s.ended;
   return {state:s,income,familyPaid,uncovered,tableIncome:table.income,stallIncome,expense,rentExpense:state.leaseRent!==undefined||plan==='shared'?rentExpense:undefined,sharedHousing:plan==='shared',note,notice,payroll,repayment,receipt};
 }
+export function advanceToStory(state: GameState) {
+  let result=nextYear(state);
+  while(!result.state.ended&&!authoredYear(result.state)){
+    result=nextYear({...result.state,pendingYearEvent:false});
+  }
+  return result;
+}
 export function relationshipLabel(s:GameState,id:string){
   const relation=s.relationships[id];
+  if(CAST.some(person=>person.id===id&&person.role==='family'))return '家人';
   if(!relation?.met)return '未遇见';
   if(s.partnerId===id)return relation.trust>75?'彼此笃定':'正在一起';
   if(relation.trust>=70&&relation.attraction>=50)return '心照不宣';
@@ -315,7 +345,8 @@ export function ending(s:GameState){
     {id:'comeback',goal:'any',title:'还真让你混下来了',text:'几次交不起房租，也几次换了工作。现在翻出刚来时的照片，你先笑了，箱子那时候真破。',ok:s.rescues>=3},
     {id:'ordinary',goal:'any',title:'在上海过了四十二年',text:'以前换乘总走错，现在闭着眼都知道哪个出口近。今天不赶时间，你偏偏绕了远路。',ok:true},
   ];
-  return candidates.find(e=>e.ok&&e.goal===s.goal)||candidates.find(e=>e.ok)||candidates[candidates.length-1];
+  const result=candidates.find(e=>e.ok&&e.goal===s.goal)||candidates.find(e=>e.ok)||candidates[candidates.length-1];
+  return {...result,...campaignEpilogue(s)};
 }
 export function mergeEffect(a:Effect,b:Effect):Effect{return {...a,...b};}
 export function publicOriginNames(s:GameState){return s.origins.map(id=>allOrigins().find(c=>c.id===id)?.name||'未知');}
@@ -338,7 +369,9 @@ export function validateSave(value:unknown):GameState {
   if(s.partnerId!==null&&!CAST.some(c=>c.id===s.partnerId&&c.role==='romance'))throw new Error('关系对象不存在。');
   if(s.ended!==(s.age>=60))throw new Error('年龄与人生状态不匹配。');
   const appearance=Object.prototype.hasOwnProperty.call(s,'appearance')?validateAppearance(s.appearance):{...DEFAULT_APPEARANCE};
-  return {...structuredClone(s),appearance};
+  const state={...structuredClone(s),appearance};
+  for(const person of CAST)if(person.role==='family')state.relationships[person.id].met=true;
+  return state;
 }
 export function readAutoSave():GameState|null {try{const raw=localStorage.getItem(SAVE_KEY);return raw?validateSave(JSON.parse(raw)):null;}catch{return null;}}
 export function writeAutoSave(s:GameState):boolean {try{localStorage.setItem(SAVE_KEY,JSON.stringify(s));return true;}catch{return false;}}

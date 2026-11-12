@@ -81,7 +81,7 @@ describe('the same warehouse move from two livelihoods',()=>{
   const worker=walk(timeline,[{pick:0},{pick:0},{pick:1}]);
   const owner=walk(timeline,[{pick:1},{pick:0},{pick:0}]);
   expect(worker.steps.at(-1)?.option.shot).toBe('/art/relocation/worker-return.webp');
-  expect(owner.steps.at(-1)?.option.shot).toBe('/art/relocation/heir-return.webp');
+  expect(owner.steps.at(-1)?.option.shot).toBe('/art/heir-story/relocation.webp');
   expect(worker.next).toBeNull();
   expect(owner.next).toBeNull();
  });

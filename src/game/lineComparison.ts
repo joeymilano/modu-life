@@ -1,5 +1,5 @@
 import { eventPhoto, portraitArt } from './art';
-import { CAREERS, CAST, DISTRICTS, HOUSING_NAMES } from './content';
+import { CAREERS, CAST, castForGame, DISTRICTS, HOUSING_NAMES } from './content';
 import { holdsLogisticsShares, LOGISTICS_SHARE_PERCENT } from './classLives';
 import { dateAnswer } from './dates';
 import { monthlyBudget } from './engine';
@@ -33,11 +33,12 @@ export function describeDecision(line: LifeLine, point: Point) {
  const event = replayScene(before, point.scene);
  const district = event?.district ?? before.district;
  const speaker = event?.speakerId ?? point.scene.npc;
- const art = event?.illustration ?? (speaker ? portraitArt(speaker, true, before.age) : event && eventPhoto(event, district));
+ const member = CAST.find(person=>person.id===speaker);
+ const art = event?.illustration ?? (member ? portraitArt(castForGame(member,before).portraitId ?? member.id, true, before.age) : event && eventPhoto(event, district));
  const entry = line.state.journal[point.journalLength];
  return {
   art, speaker, canReplay: Boolean(event),
-  district: DISTRICTS.find(place => place.id === district)!.name,
+  district: event?.location ?? DISTRICTS.find(place => place.id === district)!.name,
   result: entry?.title === point.title ? entry.text : undefined,
  };
 }
