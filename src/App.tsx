@@ -52,7 +52,8 @@ import CampaignPanel from './components/CampaignPanel';
 import SystemPanel from './components/SystemPanel';
 import { isSystemLife, systemClue, systemLead, systemPoints } from './game/systemStory';
 import { campaignClue, campaignLead } from './game/lifeCampaign';
-import { lifeStartHousing, outstandingShiftPay, type LifeStart } from './game/lifeStarts';
+import { dayworkLead, lifeStartHousing, outstandingShiftPay, type LifeStart } from './game/lifeStarts';
+import { OPENING_DRAMA } from './game/openingStakes';
 import { firstNightClue, firstNightLead, firstNightThread } from './game/firstNight';
 import ContactProfile from './components/ContactProfile';
 import ContactRoster, { type ContactFilter } from './components/ContactRoster';
@@ -107,7 +108,8 @@ export default function App(){
  const [challenge]=useState(()=>readChallenge(new URLSearchParams(window.location.search)));
  const [seed,setSeed]=useState(newSeed),[cards,setCards]=useState<OriginCard[]>([]),[revealed,setRevealed]=useState<number[]>([]),[rerolls,setRerolls]=useState(0),[name,setName]=useState('小申'),[goal,setGoal]=useState<GoalId>('free');
  const [startProfile,setStartProfile]=useState<LifeStart>();
- const lockedHand=Boolean(startProfile||challenge);
+ const [sharedSetup,setSharedSetup]=useState(false);
+ const lockedHand=Boolean(startProfile||sharedSetup);
  const [setupStep,setSetupStep]=useState<'cards'|'cast'>('cards');
  const [activeCard,setActiveCard]=useState(0);
  const setupHeading=useRef<HTMLHeadingElement>(null);
@@ -203,19 +205,28 @@ export default function App(){
    window.scrollTo({top:0});
   });
  }
- function beginDraw(start?:LifeStart){
-  playSound('tap');
+ function openingHand(start?:LifeStart,shared=false){
   const params=new URLSearchParams(window.location.search);
   const nextSeed=start?.seed??(params.get('seed')||newSeed()).slice(0,32);
-  const initial=start?start.cards.map(id=>allOrigins().find(card=>card.id===id)!):challenge?.cards??drawOrigins(nextSeed);
+  const initial=start?start.cards.map(id=>allOrigins().find(card=>card.id===id)!):
+   (shared?challenge?.cards:undefined)??drawOrigins(nextSeed);
   const sharedGoal=params.get('goal');
   const gender=params.get('gender'), looks=params.get('looks');
-  if(!start&&GOALS.some(item=>item.id===sharedGoal))setGoal(sharedGoal as GoalId);
-  if(!start&&(gender==='female'||gender==='male')&&LOOKS.some(item=>item.id===looks))setAppearance({gender,looks:looks as PlayerAppearance['looks']});
+  const nextGoal=!start&&GOALS.some(item=>item.id===sharedGoal)?sharedGoal as GoalId:goal;
+  const nextAppearance:PlayerAppearance=!start&&(gender==='female'||gender==='male')&&LOOKS.some(item=>item.id===looks)
+   ?{gender,looks:looks as PlayerAppearance['looks']}:appearance;
+  return {nextSeed,initial,nextGoal,nextAppearance};
+ }
+ function beginDraw(start?:LifeStart,shared=false){
+  playSound('tap');
+  const {nextSeed,initial,nextGoal,nextAppearance}=openingHand(start,shared);
+  setGoal(nextGoal);
+  setAppearance(nextAppearance);
   setStartProfile(start);
+  setSharedSetup(shared);
   setSeed(nextSeed);
   setCards(initial);
-  setRevealed(start||challenge?.reveal?initial.map((_,index)=>index):[]);
+  setRevealed(start||(shared&&challenge?.reveal)?initial.map((_,index)=>index):[]);
   setRerolls(0);
   setActiveCard(0);
   setScreen('draw');
@@ -240,7 +251,15 @@ export default function App(){
   setRerolls(r=>r+1);
   setModal(null);
  }
- function startLife(){if(!allRevealed)return;const s=createGame(seed,name,goal,cards,appearance);setBook(startBook(s));setScreen('play');setSelected(null);setWalking(false);setDestination(null);playSound('year');}
+ function launchLife(state:GameState){
+  setBook(startBook(state));setScreen('play');setModal(null);setMini(null);setActiveEvent(null);setOutcome(null);
+  setMobilePanel(null);setSelected(null);setWalking(false);setDestination(null);playSound('year');
+ }
+ function quickStart(start?:LifeStart){
+  const {nextSeed,initial,nextGoal,nextAppearance}=openingHand(start);
+  launchLife(createGame(nextSeed,name,nextGoal,initial,nextAppearance));
+ }
+ function startLife(){if(allRevealed)launchLife(createGame(seed,name,goal,cards,appearance));}
  function openNightOwl(){if(!game||blocked||game.pendingYearEvent)return;if(game.actions<=0){notify('今天先收工，明年来看它。');return;}setWalking(false);setDestination(null);setSelected(null);setActiveEvent(nightOwlLetter(game));setEventNpc(undefined);setMobilePanel(null);}
  function openEvent(kind:ActivityKind,npc?:string){if(!game||game.actions<=0||game.pendingYearEvent||game.ended){notify('今年的时间用完了，去看看年度账本。');return;}const e=selectEvent(game,kind,npc);setActiveEvent(e);setEventNpc(npc||e.speakerId);setMobilePanel(null);}
  function startActivity(h:Hotspot){
@@ -427,7 +446,7 @@ export default function App(){
  const arrivalSource=outcome?.source?.event.id==='first-night-arrival'?outcome.source:undefined;
  const arrivalSender=arrivalSource?.event.choices.find(choice=>choice.id===arrivalSource.choiceId)?.senderId;
  const arrivalContact=arrivalSender&&CAST.find(person=>person.id===arrivalSender);
- const arrivalReply=arrivalContact&&firstNightThread(arrivalContact.id);
+ const arrivalReply=arrivalContact&&firstNightThread(arrivalContact.id,Boolean(game?.flags.includes(OPENING_DRAMA)));
  const arrivalLead=arrivalReply&&game?firstNightLead(game):null;
  const rentalEvidence=activeEvent?.rentalEvidence;
  const rentalScene=rentalEvidence!==undefined||!!activeEvent&&isRentalRenewal(activeEvent.id);
@@ -447,7 +466,9 @@ export default function App(){
  const systemScene=activeEvent?.id.startsWith('system-');
  const sourceId=outcome?.source?.event.id;
  const storyNext=game&&sourceId?(sourceId.startsWith('system-')?systemLead(game):
-  sourceId==='life-start-heir-first'||sourceId.startsWith('heir-')?heirStoryLead(game):undefined):undefined;
+  sourceId==='life-start-heir-first'||sourceId.startsWith('heir-')?heirStoryLead(game):
+  sourceId.startsWith('life-start-daywork-')&&game.age===18&&game.flags.includes(OPENING_DRAMA)?dayworkLead(game):
+  ['first-night-keys','first-night-till','first-night-box'].includes(sourceId)?firstNightLead(game):undefined):undefined;
  const blossomsScene=activeEvent?.id.startsWith('blossoms-');
  const classDocument=activeEvent&&game&&classPaper(activeEvent.id,game);
  const relocationScene=activeEvent?.id.startsWith('life-start-move-');
@@ -456,9 +477,9 @@ export default function App(){
  const datePortraitScene=(dateReturnScene||activeEvent?.firstDate||householdScene)&&scenePhoto?.startsWith('/art/portraits/');
  const contactScene=scenePhoto?.startsWith('/art/contacts/');
  const cornerScene=scenePhoto?.startsWith('/art/corners/');
- const focusScene=blossomsScene||forwardScene||cornerScene||contactScene||dateReturnScene||lifeStartScene||heirScene||campaignScene||systemScene||openingMessages||Boolean(activeEvent?.firstDate)||rentalScene||workScene||tableScene||offerScene||birthScene||stallScene||householdScene;
+ const focusScene=Boolean(activeEvent?.objective)||blossomsScene||forwardScene||cornerScene||contactScene||dateReturnScene||lifeStartScene||heirScene||campaignScene||systemScene||openingMessages||Boolean(activeEvent?.firstDate)||rentalScene||workScene||tableScene||offerScene||birthScene||stallScene||householdScene;
  const partingBill=activeEvent?.firstDate ? -(activeEvent.choices[0].effect.cash??0) : 0;
- const wideShot=heirScene||campaignScene||systemScene||openingMessages||datePortraitScene||blossomsScene||relocationScene||cornerScene||contactScene||scenePhoto?.startsWith('/art/shanghai-streets/first-night-')||scenePhoto?.startsWith('/art/dates/')||scenePhoto?.startsWith('/art/endings/farewell-')||scenePhoto?.startsWith('/art/endings/life-')||scenePhoto?.startsWith('/art/work/')||scenePhoto?.startsWith('/art/pearl/')||parkScene||scenePhoto?.startsWith('/art/opening/')||scenePhoto?.startsWith('/art/rental/')||scenePhoto?.startsWith('/art/night-ferry/')||tableScene||offerScene||stallScene;
+ const wideShot=Boolean(activeEvent?.objective)||heirScene||campaignScene||systemScene||openingMessages||datePortraitScene||blossomsScene||relocationScene||cornerScene||contactScene||scenePhoto?.startsWith('/art/shanghai-streets/first-night-')||scenePhoto?.startsWith('/art/dates/')||scenePhoto?.startsWith('/art/endings/farewell-')||scenePhoto?.startsWith('/art/endings/life-')||scenePhoto?.startsWith('/art/work/')||scenePhoto?.startsWith('/art/pearl/')||parkScene||scenePhoto?.startsWith('/art/opening/')||scenePhoto?.startsWith('/art/rental/')||scenePhoto?.startsWith('/art/night-ferry/')||tableScene||offerScene||stallScene;
  const leadButtons=game&&(lead||campaignTask||cardLead)?<div className="story-leads">{[lead,campaignTask,cardLead].map(item=>item&&<button
   key={item.event.id} className={'story-lead'+(item===campaignTask?' campaign-lead':item===cardLead?' opening-lead':'')}
   disabled={blocked||game.actions<=0} onClick={()=>openLead(item.event)}>
@@ -483,6 +504,7 @@ export default function App(){
  {screen==='home'&&<TitleScreen
   hand={challenge?.cards.slice(0,2).map(card=>card.name).join(' · ')}
   resume={game?{label:`${game.name}的${game.age}岁`,onSelect:()=>{setScreen(game.ended?'end':'play');setModal(null);}}:undefined}
+  onStart={()=>{if(challenge)beginDraw(undefined,true);else if(game)setModal('starts');else quickStart();}}
   onDraw={()=>beginDraw()} onParallel={()=>setParallel(true)} onSelectOrigin={()=>setModal('starts')}
   onPearl={()=>{window.location.hash=pearlHash(newSeed(),undefined,CURRENT_PEARL_RULES);}}
  />}
@@ -493,7 +515,7 @@ export default function App(){
   </nav>
   {setupStep==='cards'?<>
    <header className="setup-heading">
-    <h1 ref={setupHeading} tabIndex={-1}>{startProfile?.title??(challenge?'同手牌挑战':'你的五张牌')}</h1>
+    <h1 ref={setupHeading} tabIndex={-1}>{startProfile?.title??(sharedSetup?'同手牌挑战':'你的五张牌')}</h1>
     <div className="draw-tools">
      {!lockedHand&&<span>重抽 <b>{2-rerolls}</b> 次</span>}
      {!allRevealed&&<button className="secondary" onClick={revealAll}>全部揭晓 <Icon name="spark" size={17}/></button>}
@@ -568,7 +590,7 @@ export default function App(){
  {compact&&<nav className="mobile-tools"><button onClick={()=>setMobilePanel(v=>v==='stats'?null:'stats')}><Icon name="people" size={17}/>{game.age}岁 · {money(game.cash)}</button><button onClick={()=>setMobilePanel(v=>v==='places'?null:'places')}><Icon name={map3d?'map':'book'} size={17}/>{map3d?'地点':'手头的事'}</button><button onClick={advance} disabled={blocked||game.pendingYearEvent}>年度结算 <Icon name="arrow" size={16}/></button></nav>}
  </main>}
  {screen==='end'&&game&&<EndingScreen game={game} sharing={sharing} onShare={share}
-  onChallenge={copyChallenge} onDraw={()=>beginDraw()} onJournal={()=>setModal('journal')} onLines={()=>setModal('lines')}/>}
+  onChallenge={copyChallenge} onDraw={()=>setModal('starts')} onJournal={()=>setModal('journal')} onLines={()=>setModal('lines')}/>}
  {dialogOpen&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget&&!activeEvent&&!mini&&!outcome)setModal(null);}}><section className={'modal '+(activeEvent?'event-modal':'')+(wideShot?' wide-shot-modal':'')+(openingMessages?' arrival-modal':'')+(arrivalReply||dinnerResultPhoto?' arrival-reply-modal':'')+(dinnerClue?' blossoms-menu':'')+(nightClue?' first-night-meeting':'')+(lifeStartScene?' life-start-scene':'')+(heirScene||campaignScene||systemScene?' heir-scene':'')+(classDocument?' class-lives-scene':'')+(relocationScene?' relocation-scene':'')+(activeEvent?.firstDate?' date-parting-modal':'')+(dateReturnScene?' date-return-modal':'')+(rentalScene?' rental-negotiation':'')+(tableScene?' long-table-modal':'')+(parkScene?' match-scene':'')+(forwardScene?' forward-scene':'')+(workScene?' handover-scene':'')+(offerScene?' job-offer-modal':'')+(birthScene||stallScene||householdScene?' birth-scene-modal':'')+(mini?' minigame-modal':'')+(mini?.type==='rental'?' rental-modal':'')+(mini?.type==='stall'?' stall-modal':'')+(mini?.type==='dialogue'?(mini.person?' date-modal first-date-modal':' date-modal work-interview-modal'):'')+(modal==='romance'?' romance-modal':'')+(modal==='journal'?' journal-modal':'')+(modal==='swap'?' swap-modal':'')+(modal==='starts'?' life-start-modal':'')+(modal==='lines'?' lines-modal':'')} role="dialog" aria-modal="true" aria-label={activeEvent?.title||(arrivalContact?arrivalContact.name+'回你了':outcome?.title)||(mini?.type==='stall'?'晚风小吃街':mini?'人生现场':modal==='menu'?'菜单':modal==='help'?'操作':modal==='saves'?'存档':modal==='swap'?'换牌':modal==='starts'?'选择出身':modal==='romance'?'约会':modal==='system'?'系统':modal==='campaign'?'主线':modal==='assets'?'我的资产':modal==='journal'?'人生记事':modal==='lines'?'时间线':modal==='contacts'?(profile?.name??'认识的人'):'魔都人生')}>
  {!(activeEvent&&game?.pendingYearEvent)&&<button className="modal-close icon-button" aria-label="关闭" onClick={()=>{if(outcome)closeOutcome();else{setModal(null);setMini(null);dismissEvent();}}}><Icon name="close"/></button>}
  {modal==='menu'&&<div className="help-content">
@@ -600,7 +622,7 @@ export default function App(){
   <h2>把这手牌发给朋友</h2>
   <input aria-label="同手牌挑战链接" value={handLink} readOnly onFocus={event=>event.currentTarget.select()}/>
  </div>}
- {modal==='starts'&&<LifeStartPicker onPick={beginDraw}/>}
+ {modal==='starts'&&<LifeStartPicker hasSave={!!game} onPick={quickStart} onEdit={beginDraw}/>}
  {modal==='swap'&&swapIndex!==undefined&&<OpeningSwap cards={cards} index={swapIndex} seed={seed} round={rerolls+1}
   goal={goal} appearance={appearance} complete={allRevealed} onChoose={chooseSwap} onKeep={()=>setModal(null)}/>}
  {modal==='system'&&game&&<SystemPanel game={game} onVisit={openLead}/>}
@@ -640,7 +662,7 @@ export default function App(){
  {activeEvent&&game&&(openingMessages?<ArrivalInbox event={activeEvent} appearance={game.appearance} heading={sceneHeading} onReply={choose}/>:<><div className={'event-visual'+(scenePhoto?' event-photo':'')+(datePortraitScene?' date-portrait-photo':'')}>
   {scenePhoto?<img src={scenePhoto} alt=""/>:isOwl?<Suspense fallback={<LoadCity/>}><OwlPreview/></Suspense>:speaker&&<Portrait person={speaker} full age={game.age}/>}
  </div><div className="event-content"><div className="event-meta"><span>{activeEvent.location??(activeEvent.tag||ACTIVITY_NAMES[activeEvent.category as ActivityKind]||'这一年')}</span>{activeEvent.category!=='year'&&<small>1 行动</small>}</div>
- {speaker&&!activeEvent.firstDate&&!birthScene&&!stallScene&&!householdScene&&<div className="event-speaker"><Portrait person={speaker} size={54} age={game.age}/><div><b>{speaker.name}</b><small>{relocationScene?(speaker.id==='father'?'公司负责人':'仓库调度'):classDocument?(speaker.id==='father'?'公司负责人':'仓库老工友'):castTitle(speaker,game.age)}</small></div></div>}<h2 ref={focusScene?sceneHeading:undefined} tabIndex={focusScene?-1:undefined}>{activeEvent.title}</h2><p className="event-body">{activeEvent.text}</p>{relocationScene&&<RelocationPapers game={game} event={activeEvent}/>}
+ {speaker&&!activeEvent.firstDate&&!birthScene&&!stallScene&&!householdScene&&<div className="event-speaker"><Portrait person={speaker} size={54} age={game.age}/><div><b>{speaker.name}</b><small>{relocationScene?(speaker.id==='father'?'公司负责人':'仓库调度'):classDocument?(speaker.id==='father'?'公司负责人':'仓库老工友'):castTitle(speaker,game.age)}</small></div></div>}<h2 ref={focusScene?sceneHeading:undefined} tabIndex={focusScene?-1:undefined}>{activeEvent.title}</h2><p className="event-body">{activeEvent.text}</p>{activeEvent.objective&&<div className="scene-objective"><Icon name="map" size={15}/><b>{activeEvent.objective}</b></div>}{relocationScene&&<RelocationPapers game={game} event={activeEvent}/>}
  {classDocument&&<aside className="relocation-paper" aria-label={classDocument.title}><header><b>{classDocument.title}</b></header><dl>{classDocument.rows.map(([label,value])=><div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl></aside>}
  {partingBill>0&&<p className="date-bill">这顿你付 {money(partingBill)}</p>}<SceneChoices key={activeEvent.id} clue={clue} choices={activeEvent.choices} render={c=>{
   const discovered=c.id===clue?.choiceId;

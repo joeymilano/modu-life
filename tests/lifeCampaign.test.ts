@@ -17,15 +17,18 @@ describe('main story from Shanghai arrival to age 60',()=>{
  it.each([undefined,...LIFE_STARTS])('reaches every chapter and settles each year for %j', profile=>{
   let state = fresh(profile);
   const watched: number[] = [];
+  const retaliation: number[] = [];
   while (!state.ended) {
    const event = selectEvent(state,'year');
    const choice = event.choices.find(item=>item.id==='walk') ?? event.choices.find(item=>canAfford(state,item.effect))!;
-   if (event.id.startsWith('campaign-')) watched.push(state.age);
+   if (event.tag==='主线') watched.push(state.age);
+   if (event.tag==='对手反击') retaliation.push(state.age);
    state = resolveChoice(state,event,choice.id).state;
    state = advanceToStory(state).state;
   }
   expect(state.age).toBe(60);
   expect(watched).toEqual([...CHAPTER_AGES]);
+  expect(retaliation).toEqual([26,38]);
   expect(state.journal.filter(entry=>entry.tag==='账本')).toHaveLength(42);
   expect(campaignProgress(state).chapters.every(chapter=>chapter.decision)).toBe(true);
   expect(ending(state).text).toContain('六十岁');

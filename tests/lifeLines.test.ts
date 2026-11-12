@@ -49,7 +49,9 @@ describe('my life branches', () => {
     expect(selectEvent(nextYear(shift).state, 'year').id).toBe('first-night-missed');
     const lead = streetLead(shift)!.event;
     const worked = resolveChoice(shift, lead, '1').state;
-    expect(streetLead(worked)).toBeNull();
+    const finale = streetLead(worked)!.event;
+    expect(finale.id).toBe('first-night-stage');
+    expect(streetLead(resolveChoice(worked,finale,'people').state)).toBeNull();
     const next = nextYear(worked).state;
     const followup = selectEvent(next, 'year');
     expect(resolveChoice(next, followup, '1').state.jobId).toBe('service');

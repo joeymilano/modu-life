@@ -20,7 +20,7 @@ export interface EventChoice {
 }
 export type FirstDatePicks = readonly [number, number];
 export interface LifeEvent {
- id: string; title: string; text: string; speakerId?: string; illustration?: string; category: ActivityKind | 'year';
+ id: string; title: string; text: string; objective?: string; speakerId?: string; illustration?: string; category: ActivityKind | 'year';
  district?: DistrictId; location?: string; minAge?: number; maxAge?: number; requiredFlags?: string[]; forbiddenFlags?: string[]; housingLevels?: number[]; needsRoommate?: boolean;
  once?: boolean; chainId?: string; chainStep?: number; choices: EventChoice[]; tag?: string; weight?: number;
  firstDate?: FirstDatePicks; rentalEvidence?: number;

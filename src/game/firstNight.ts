@@ -1,6 +1,8 @@
 import type { DistrictId, EventChoice, GameState, LifeEvent } from './types';
 
 import { arrivalPhoto, streetPhoto, type StreetPhoto } from './art';
+import { arrivalDrama, arrivalDramaFinale, arrivalDramaThread, arrivalDramaVisit } from './arrivalDrama';
+import { OPENING_ALLIES, OPENING_DRAMA, OPENING_PROOF } from './openingStakes';
 
 function scene(id: string, art: StreetPhoto, title: string, text: string, choices: Omit<EventChoice, 'id'>[], district?: DistrictId, speakerId?: string): LifeEvent {
   return {
@@ -148,9 +150,10 @@ const routes = [
   },
 ];
 
-export function firstNightThread(senderId: string) {
+export function firstNightThread(senderId: string, dramatic = false) {
   const route = routes.find(item => item.event.speakerId === senderId);
-  return route && { ...route.inbox, district: route.event.district };
+  const update = dramatic ? arrivalDramaThread(senderId) : undefined;
+  return route && { ...route.inbox, ...(update&&{note:update.note,go:update.go}), district: route.event.district };
 }
 
 export function firstNightClue(eventId: string) {
@@ -164,18 +167,27 @@ export function hasSharedWithMao(state: GameState) {
 }
 
 export function firstNightLead(state: GameState) {
-  if (state.age !== 18 || state.pendingYearEvent || !state.flags.includes(FIRST_NIGHT_FLAG)) return null;
-  return routes.find(route => state.flags.includes(route.flag) && !state.seenEvents.includes(route.event.id)) ?? null;
+  if (state.age !== 18 || state.pendingYearEvent || state.ended || state.actions<=0 || !state.flags.includes(FIRST_NIGHT_FLAG)) return null;
+  const route = routes.find(item => state.flags.includes(item.flag));
+  if (!route) return null;
+  const dramatic = state.flags.includes(OPENING_DRAMA);
+  if (!state.seenEvents.includes(route.event.id)) {
+    return dramatic ? {message:arrivalDramaThread(route.event.speakerId!).message,event:arrivalDramaVisit(route.event)} : route;
+  }
+  return dramatic ? arrivalDramaFinale(state,route.flag==='night-room'?'毛小毛':route.flag==='night-shift'?'何亮':'陆嘉') ?? null : null;
 }
 
 export function firstNightYear(state: GameState): LifeEvent | undefined {
   if (!state.flags.includes(FIRST_NIGHT_FLAG)) return undefined;
-  if (state.age === 18) return { ...arrival, illustration: arrivalPhoto(state.appearance) };
+  const dramatic = state.flags.includes(OPENING_DRAMA);
+  if (state.age === 18) return { ...(dramatic?arrivalDrama(arrival):arrival), illustration: arrivalPhoto(state.appearance) };
   if (state.age !== 19) return undefined;
   const route = routes.find(route => state.flags.includes(route.flag));
   if (!route) return undefined;
   if (!state.seenEvents.includes(route.event.id)) return { ...missed, tag: '隔年再见', speakerId: route.event.speakerId };
   const followup = state.flags.includes(route.alternate.flag) ? route.alternate.event : route.followup;
   const district = followup === ferryGig ? 'anfu' : route.event.district;
-  return { ...followup, district, tag: '隔年再见' };
+  const carry = !dramatic?'':state.flags.includes(OPENING_PROOF)?'你从包里摸到那晚退回来的预约单。费启又在群里问，下一场谁来签。'
+    :state.flags.includes(OPENING_ALLIES)?'那晚来过的人又在问下次什么时候开门。费启也在群里，这回没人先问他。':'';
+  return { ...followup, district, tag: '隔年再见',text:carry?followup.text+carry:followup.text };
 }

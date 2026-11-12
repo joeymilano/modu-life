@@ -12,7 +12,7 @@ with sync_playwright() as p:
  page.goto(os.environ.get('GAME_URL','http://localhost:4173').rstrip('/')+'/?seed=FINAL');page.wait_for_load_state('networkidle')
  page.evaluate('navigator.serviceWorker.ready')
  page.wait_for_function('navigator.serviceWorker.controller!==null')
- page.get_by_role('button',name='开始新游戏').click();page.get_by_role('button',name='全部揭晓').click();page.wait_for_timeout(700)
+ page.get_by_role('button',name='手牌与角色').click();page.get_by_role('button',name='全部揭晓').click();page.wait_for_timeout(700)
  page.locator('.setup-forward').click()
  page.get_by_role('button',name='进入上海').click();page.get_by_role('button',name='看毛小毛的消息').click();page.locator('.event-choices button').first.click();page.locator('.outcome-content .primary').click();page.wait_for_timeout(600)
  with page.expect_download(timeout=20000) as download:

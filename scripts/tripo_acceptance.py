@@ -9,7 +9,7 @@ with sync_playwright() as w:
  p.on('pageerror',lambda e:errors.append(str(e)))
  p.on('response',lambda r:responses.append({'url':r.url,'status':r.status}) if 'night-owl-v1.glb' in r.url else None)
  p.goto(BASE+'?seed=NIGHTOWL');p.wait_for_load_state('networkidle')
- p.get_by_role('button',name='开始新游戏').click();p.get_by_role('button',name='全部揭晓').click();p.locator('.setup-forward').click();p.get_by_role('button',name='进入上海').click();p.get_by_role('button',name='看毛小毛的消息').click();p.locator('.event-choices button').first.click();p.locator('.outcome-content .primary').click()
+ p.get_by_role('button',name='手牌与角色').click();p.get_by_role('button',name='全部揭晓').click();p.locator('.setup-forward').click();p.get_by_role('button',name='进入上海').click();p.get_by_role('button',name='看毛小毛的消息').click();p.locator('.event-choices button').first.click();p.locator('.outcome-content .primary').click()
  p.get_by_role('button',name='3D 地图').click();p.wait_for_selector('[data-loaded-models*="night-owl"]');p.wait_for_timeout(800);p.screenshot(path=str(OUT/'owl-final-desktop.png'),full_page=True)
  p.get_by_role('button',name='打开夜猫子邮筒').click();p.locator('[data-model-preview=night-owl] canvas').wait_for();p.wait_for_timeout(700);p.screenshot(path=str(OUT/'owl-dialogue-desktop.png'),full_page=True)
  # Inspect rotation in the real GLB preview, then choose a story action.

@@ -2,11 +2,19 @@ import { openingPhoto, streetPhoto, tablePhoto, workPhoto } from './art';
 import { heirStoryPhoto } from './heirStory';
 import { systemPhoto } from './systemStory';
 import { CAMPAIGN_NAMES, CAMPAIGN_SCRIPT, CHAPTER_AGES, type CampaignBeat, type CampaignMove, type CampaignRoute } from './campaignScript';
+import { campaignPressure, PRESSURE_YEARS } from './campaignPressure';
+import { OPENING_ALLIES, OPENING_PROOF } from './openingStakes';
 import type { EventChoice, GameState, LifeEvent } from './types';
 
 const skillTargets = [55, 64, 72, 79, 85, 90];
 const networkTargets = [50, 60, 70, 77, 84, 90];
 const moves = ['proof','people','bid','walk'] as const;
+const openingCallbacks: Record<CampaignRoute,readonly [string,string]> = {
+ arrival:['{ally}翻出首演那晚留的签字单。费启这次拿来的海报，连日期都没换。','首演那晚跟着进场的几个人又来了。有人问，这回还是{ally}给留座吗。'],
+ worker:['第一年拿走的复写联还在。吴师傅把它和赵正今天填的名单摆到一起。','当年肯来认班次的司机刚下车。吴师傅把领班的号码递给他们。'],
+ heir:['老妈把第一次酒会的签约原件又给你拿了过来。周骁看到纸角的签名，把手从名单上移开了。','第一场被你请到临江那桌的人，今天比周骁更早到。经理替你留着他们的名字。'],
+ system:['第一批任务最后那张结算凭证还在。你把旧权限和顾桥递来的共同账户摆在一起。','当年和顾桥分账的人还认得那张凭证。你把他们都叫到了同一层。'],
+};
 const firstDocuments: Record<CampaignRoute,readonly [string,string,string]> = {
  arrival:['预约人：你和搭档。周五 20:00。房东签字。','宣传名单：费启独家主办。周五 20:00。','时间没变，主办人被换了。带上有房东签字的那张。'],
  worker:['门禁原件：18:02 入仓，01:14 出仓。三天齐。','待发工时：最后一晚留空。','少算的是过了零点的那一晚，原始时间能对上。'],
@@ -40,13 +48,16 @@ const replaceAlly = (text: string, state: GameState) => text.replaceAll('{ally}'
 const sceneId = (route: CampaignRoute, age: number) => `campaign-${route}-${age}`;
 const moveFlag = (id: string, move: CampaignMove) => id+'-'+move;
 const prepFlag = (id: string, prep: 'proof'|'people') => id+'-prep-'+prep;
+const chosenMove = (state: GameState, id: string) => moves.find(move=>state.flags.includes(moveFlag(id,move)));
 
 function ready(state: GameState, id: string, index: number) {
  return {
   proof: state.flags.includes(prepFlag(id,'proof')) || state.stats.skill >= skillTargets[index]
+   || (index===0&&state.flags.includes(OPENING_PROOF))
    || (routeOf(state)==='system'&&state.flags.includes('system-proof-'+CHAPTER_AGES[index]))
    || (index===0&&routeOf(state)==='worker'&&state.seenEvents.includes('life-start-daywork-pay')),
   people: state.flags.includes(prepFlag(id,'people')) || state.stats.network >= networkTargets[index]
+   || (index===0&&state.flags.includes(OPENING_ALLIES))
    || (index===0&&routeOf(state)==='arrival'&&state.flags.includes('laser_master')),
  };
 }
@@ -65,19 +76,29 @@ export function campaignYear(state: GameState): LifeEvent | undefined {
  const route = routeOf(state);
  const beat = CAMPAIGN_SCRIPT[route][index];
  const id = sceneId(route,state.age);
- const priorId = sceneId(route,CHAPTER_AGES[index-1]);
- const prior = moves.find(move=>state.flags.includes(moveFlag(priorId,move)));
+ const prior = index>0 ? chosenMove(state,sceneId(route,CHAPTER_AGES[index-1])) : undefined;
  const context = prior && beat.carry?.[prior];
  const status = ready(state,id,index);
  const lounge = index===0 && route==='heir' && state.flags.includes('heir-owned-lounge')
   ? '楼下两席车位和会客厅的合同都在你名下。周骁拿走的是活动排期。' : '';
  const split = index===0 && route==='system' && state.flags.includes('system-split-first')
   ? '他把上回平分的付款单翻过来，指着两个人的名字说，照这次来。' : '';
+ const opening = index===0 ? (state.flags.includes(OPENING_PROOF)?openingCallbacks[route][0]
+  :state.flags.includes(OPENING_ALLIES)?openingCallbacks[route][1]:'') : '';
  return {
-  id,category:'year',tag:'主线',title:beat.title,district:beat.district,illustration:campaignStills[route][index],
-  text:replaceAlly([context,beat.scene,lounge,split].filter(Boolean).join(''),state),
+  id,category:'year',tag:'主线',title:beat.title,objective:beat.objective,district:beat.district,illustration:campaignStills[route][index],
+  text:replaceAlly([context,beat.scene,opening,lounge,split].filter(Boolean).join(''),state),
   choices:moves.filter(move=>move==='bid'||move==='walk'||status[move]).map(move=>makeChoice(state,id,beat,move)),
  };
+}
+
+export function campaignPressureYear(state:GameState) {
+ const age=state.age;
+ if(age!==26&&age!==38)return;
+ const route=routeOf(state);
+ const timing=PRESSURE_YEARS[age];
+ const prior=chosenMove(state,sceneId(route,timing.after));
+ if(prior)return campaignPressure(route,age,prior,kind=>prepFlag(sceneId(route,timing.before),kind));
 }
 
 export function campaignProgress(state: GameState) {
@@ -91,7 +112,14 @@ export function campaignProgress(state: GameState) {
  const index = chapters.findIndex(chapter=>chapter.age>=state.age&&!state.seenEvents.includes(chapter.id));
  const next = chapters[index];
  const status = next ? ready(state,next.id,index) : undefined;
- return { name:CAMPAIGN_NAMES[route], chapters, next, status };
+ const responses = ([26,38] as const).flatMap(age=>{
+  const event=campaignPressureYear({...state,age});
+  return event?[{age,id:event.id,title:event.title,district:event.district,
+   decision:state.seenEvents.includes(event.id)?'已处理':undefined}]:[];
+ });
+ const timeline=[...chapters,...responses].sort((a,b)=>a.age-b.age);
+ const current=timeline.find(beat=>beat.age>=state.age&&!state.seenEvents.includes(beat.id));
+ return { name:CAMPAIGN_NAMES[route], chapters, next, status, timeline, current };
 }
 
 export function campaignLead(state: GameState) {

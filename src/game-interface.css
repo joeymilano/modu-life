@@ -146,6 +146,18 @@
 .app .event-modal .event-body,
 .app .event-modal .event-speaker small,
 .app .event-modal .event-meta small { color: var(--game-muted); }
+.app .scene-objective {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 11px;
+  padding: 7px 10px;
+  border-inline-start: 2px solid var(--game-yellow);
+  background: var(--game-row);
+  color: var(--game-yellow);
+  font-size: 13px;
+}
+.app .scene-objective > svg { flex: none; }
 .app .event-modal .event-speaker b { color: var(--game-white); }
 .app .event-modal .event-meta > span { background: transparent; color: var(--game-yellow); padding-inline: 0; }
 .app .event-modal .event-choices { gap: 5px; margin-top: 17px; }

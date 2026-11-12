@@ -2,8 +2,9 @@ import { DAYWORK, DAYWORK_TEMP, FAMILY_HOME, FAMILY_PAY, HEIR, HEIR_PAY_RATE, li
 import { CAREERS, CAST, GOALS, LIFE_START_CARDS, ORIGIN_POOLS } from './content';
 import { FIRST_NIGHT_FLAG, firstNightYear, hasSharedWithMao } from './firstNight';
 import { hasHeirStory, HEIR_WEST_BUND } from './heirStory';
-import { campaignEpilogue, campaignYear } from './lifeCampaign';
+import { campaignEpilogue, campaignPressureYear, campaignYear } from './lifeCampaign';
 import { isSystemLife } from './systemStory';
+import { OPENING_DRAMA } from './openingStakes';
 import { lastDayEvent } from './lastDay';
 import { workYearEvent } from './workScenes';
 import { longTableBudget, longTableYear } from './longTable';
@@ -95,7 +96,7 @@ function applyEffect(state:GameState,effect:Effect,npcId?:string):GameState {
 }
 export function createGame(seed:string,name:string,goal:GoalId,cards:OriginCard[],appearance:PlayerAppearance=DEFAULT_APPEARANCE):GameState {
   const selectedAppearance=validateAppearance(appearance);
-  let state:GameState={version:1,seed:seed.slice(0,32),rng:hashSeed(seed),name:name.trim().slice(0,12)||'小申',age:18,actions:3,goal,appearance:selectedAppearance,district:'bund',cash:36000,stats:{health:80,spirit:75,skill:28,face:30+LOOKS_BONUS[selectedAppearance.looks].face,network:20},jobId:null,jobRank:0,housing:0,origins:cards.map(c=>c.id),flags:[FIRST_NIGHT_FLAG],seenEvents:[],relationships:Object.fromEntries(CAST.map(c=>[c.id,{attraction:10,trust:15,commitment:0,met:false,memories:[]}])),partnerId:null,journal:[],pendingYearEvent:true,ended:false,totalEarned:0,yearsEmployed:0,rescues:0};
+  let state:GameState={version:1,seed:seed.slice(0,32),rng:hashSeed(seed),name:name.trim().slice(0,12)||'小申',age:18,actions:3,goal,appearance:selectedAppearance,district:'bund',cash:36000,stats:{health:80,spirit:75,skill:28,face:30+LOOKS_BONUS[selectedAppearance.looks].face,network:20},jobId:null,jobRank:0,housing:0,origins:cards.map(c=>c.id),flags:[FIRST_NIGHT_FLAG,OPENING_DRAMA],seenEvents:[],relationships:Object.fromEntries(CAST.map(c=>[c.id,{attraction:10,trust:15,commitment:0,met:false,memories:[]}])),partnerId:null,journal:[],pendingYearEvent:true,ended:false,totalEarned:0,yearsEmployed:0,rescues:0};
   for(const card of cards)state=applyEffect(state,card.effect);
   if(state.flags.some(f=>/own.?home|有房|home_owner/i.test(f)))state.housing=3;
   for (const person of CAST) if (person.role==='family') state.relationships[person.id].met=true;
@@ -154,7 +155,7 @@ export function replayCatalogEvent(state:GameState,id:string,kind:ActivityKind,n
     ? adaptYearLetter(event,state) : null;
 }
 function authoredYear(s:GameState) {
-  return [lifeStartYear(s), firstNightYear(s), lastDayEvent(s), workYearEvent(s), campaignYear(s), longTableYear(s)]
+  return [lifeStartYear(s), firstNightYear(s), lastDayEvent(s), workYearEvent(s), campaignYear(s), campaignPressureYear(s), longTableYear(s)]
     .find(event=>event&&!s.seenEvents.includes(event.id));
 }
 export function selectEvent(s:GameState,kind:ActivityKind|'year',npcId?:string):LifeEvent {

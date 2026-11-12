@@ -21,14 +21,14 @@ with sync_playwright() as pw:
     p=ctx.new_page();p.on('pageerror',lambda e:errors.append(str(e)))
     p.goto(BASE+'?seed=ARTLOOKS');p.wait_for_load_state('networkidle')
     art_dir=Path('public/art')
-    assets=[file.relative_to(art_dir).as_posix() for folder in ('portraits','origins','encounters','dates','endings','work','pearl','matchmaking','opening','rental','timelines','long-table') for file in (art_dir/folder).rglob('*.webp')]
+    assets=[file.relative_to(art_dir).as_posix() for folder in ('portraits','origins','encounters','dates','endings','work','pearl','matchmaking','opening','rental','timelines','long-table','cold-open') for file in (art_dir/folder).rglob('*.webp')]
     assets.extend(file.relative_to(art_dir).as_posix() for file in (art_dir/'shanghai-streets').glob('*.webp'))
     for asset in assets:
         r=p.request.get(BASE+'art/'+asset);assert r.status==200,(asset,r.status)
         assert r.headers.get('content-type','').startswith('image/'),(asset,r.headers)
     for gender in ['female','male']:
         for looks,name in [('everyday','普通耐看'),('charming','颇有姿色'),('stunning','惊艳全场')]:
-            p.get_by_role('button',name='开始新游戏').click()
+            p.get_by_role('button',name='手牌与角色').click()
             p.get_by_role('button',name='全部揭晓').click()
             p.locator('.setup-forward').click()
             p.locator('.gender-picker button').nth(0 if gender=='female' else 1).click()

@@ -10,12 +10,13 @@ import './first-night.css';
 export default function ArrivalInbox({event, appearance, heading, onReply}: {
  event: LifeEvent; appearance: PlayerAppearance; heading: Ref<HTMLHeadingElement>; onReply: (id: string) => void;
 }) {
- const [current, setCurrent] = useState<string>();
- const [read, setRead] = useState<string[]>([]);
+ const firstReply = event.objective ? event.choices[0]?.id : undefined;
+ const [current, setCurrent] = useState(firstReply);
+ const [read, setRead] = useState<string[]>(firstReply?[firstReply]:[]);
  const [stationView, setStationView] = useState(true);
  const messages = event.choices.flatMap(choice => {
   const sender = CAST.find(person => person.id === choice.senderId);
-  const thread = sender && firstNightThread(sender.id);
+  const thread = sender && firstNightThread(sender.id,Boolean(event.objective));
   return sender && thread ? [{ choice, sender, thread }] : [];
  });
  const active = messages.find(item => item.choice.id === current);
@@ -44,6 +45,7 @@ export default function ArrivalInbox({event, appearance, heading, onReply}: {
     <div className="arrival-kicker"><span aria-live="polite">{messages.length - read.length} 条未读</span></div>
     <h2 ref={heading} tabIndex={-1}>{event.title}</h2>
     <p>{event.text}</p>
+    {event.objective&&<div className="scene-objective"><Icon name="map" size={15}/><b>{event.objective}</b></div>}
    </header>
    <div className="arrival-inbox" role="group" aria-label="收到的消息">
     {messages.map(({choice, sender, thread}) => {

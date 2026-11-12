@@ -5,6 +5,7 @@ import './title-screen.css';
 type TitleScreenProps = {
   hand?: string;
   resume?: { label: string; onSelect: () => void };
+  onStart: () => void;
   onDraw: () => void;
   onParallel: () => void;
   onSelectOrigin: () => void;
@@ -23,7 +24,7 @@ function MenuEntry({ label, detail, primary, onSelect }: {
   </button>;
 }
 
-export default function TitleScreen({ hand, resume, onDraw, onParallel, onSelectOrigin, onPearl }: TitleScreenProps) {
+export default function TitleScreen({ hand, resume, onStart, onDraw, onParallel, onSelectOrigin, onPearl }: TitleScreenProps) {
   const showResume = Boolean(resume && hand === undefined);
   return <main className="title-screen">
     <div className="title-stage">
@@ -42,8 +43,9 @@ export default function TitleScreen({ hand, resume, onDraw, onParallel, onSelect
 
         <nav className="title-menu" aria-label="选择游戏模式">
           {showResume && resume && <MenuEntry label="继续游戏" detail={resume.label} primary onSelect={resume.onSelect}/>}
-          <MenuEntry label={hand === undefined ? '开始新游戏' : '接这手牌'} detail={hand} primary={!showResume} onSelect={onDraw}/>
+          <MenuEntry label={hand === undefined ? '开始新游戏' : '接这手牌'} detail={hand} primary={!showResume} onSelect={onStart}/>
           <MenuEntry label="选择出身" onSelect={onSelectOrigin}/>
+          {hand===undefined&&<MenuEntry label="手牌与角色" onSelect={onDraw}/>}
           <MenuEntry label="平行上海" onSelect={onParallel}/>
           {!showResume && resume && <MenuEntry label="继续游戏" detail={resume.label} onSelect={resume.onSelect}/>}
         </nav>

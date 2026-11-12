@@ -14,6 +14,7 @@ import { CAREERS, CAST } from './content';
 import { PHOTO_SHOP_STILLS, PHOTO_SHOP_STORY, photoShopStill } from './photoShop';
 import { heirStoryPhoto, HEIR_SHOTS } from './heirStory';
 import { systemPhoto, SYSTEM_SHOTS } from './systemStory';
+import { dramaPhoto, OPENING_STILLS as DRAMA_STILLS } from './openingStakes';
 
 export interface Turn {
   date: string;
@@ -65,6 +66,7 @@ const ticketShots = new Set([
   ...Object.values(archiveShots),
   ...PHOTO_SHOP_STILLS.map(photoShopStill),
   ...FIRST_NIGHT_STILLS.map(streetPhoto),
+  ...DRAMA_STILLS.map(dramaPhoto),
   ...LOOKS.flatMap(({id: looks}) => (['female','male'] as const).map(gender => arrivalPhoto({gender, looks}))),
   ...MATCH_STILLS.map(matchPhoto),
   ...OPENING_STILLS.map(openingPhoto),

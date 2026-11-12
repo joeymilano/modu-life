@@ -7,6 +7,7 @@ export type CampaignMove = 'proof' | 'people' | 'bid' | 'walk';
 type BeatChoice = [label: string, reply: string, effect: Effect];
 export interface CampaignBeat {
  title: string;
+ objective: string;
  district: DistrictId;
  scene: string;
  prep: [title: string, text: string, proof: string, people: string];
@@ -21,7 +22,7 @@ export const CAMPAIGN_NAMES: Record<CampaignRoute,string> = {
 export const CAMPAIGN_SCRIPT: Record<CampaignRoute, readonly CampaignBeat[]> = {
  arrival: [
   {
-   title:'门口贴了新名字', district:'bund',
+   title:'门口贴了新名字',objective:'保住第一晚的演出', district:'bund',
    scene:'江边有间空门面。你和{ally}谈了一个月，打算拿它做夜场。开门那天，费启让人先把自己的海报贴上去。「钥匙我借到了。你俩要来，能留两张票。」',
    prep:['去翻门面的预约单','原房东这几天在江边收租。{ally}也认识第一批来试场的人。下一回费启说谁都能做东，手上至少得有一样东西。','找房东拿签过的预约单','把试场的客人拉进群'],
    choices:{
@@ -31,7 +32,7 @@ export const CAMPAIGN_SCRIPT: Record<CampaignRoute, readonly CampaignBeat[]> = {
     walk:['另借一扇卷帘门，今晚照开','你和{ally}把开场搬到隔壁。没有舞台，客人从窗里递进来两把椅子。',{spirit:8,network:4}],
    },
   },{
-   title:'名单上没有你', district:'anfu',
+   title:'名单上没有你',objective:'拿回赞助合同上的署名', district:'anfu',
    scene:'安福路的赞助方要投第一笔钱。费启把合同送到你面前，原来的两个人只剩他一个署名。{ally}手机里还有那晚的订位。有人在等你说散场还是照开。',
    prep:['回去对第一晚的名单','打印店还存着第一版名单。{ally}说，也可以把那晚真的来过的人叫出来。','拿回带时间的第一版名单','请最早来的几个人作证'],
    carry:{walk:'当年临时借的卷帘门还开着。老板把第一张合照给你找了出来。',bid:'当年你租整月的收据，房东一直夹在租约里。'},
@@ -42,7 +43,7 @@ export const CAMPAIGN_SCRIPT: Record<CampaignRoute, readonly CampaignBeat[]> = {
     walk:['退回合同，把原班人带走','{ally}把旧订位表重开。头两排都在，谁也没问为什么换地方。',{spirit:8,network:6}],
    },
   },{
-   title:'给老店七天', district:'people',
+   title:'给老店七天',objective:'拿出能留住夜场的方案', district:'people',
    scene:'街道拿来一张清退名单。你那间夜场排在第一行。费启的方案是做快闪，一个月就撤。你有七天交一份能让这里继续开的方案。',
    prep:['去现场数座位','晚场的座位挤得下多少人，签约名单上写的是另一回事。门外还来了几位附近住户。','整理每场真实到座人数','约住户谈进出和收场时间'],
    carry:{proof:'上回投钱的那个人也来听。她让你把该争的条件写在同一页上。'},
@@ -53,7 +54,7 @@ export const CAMPAIGN_SCRIPT: Record<CampaignRoute, readonly CampaignBeat[]> = {
     walk:['退这间门面，带走夜场的招牌','招牌挂到新门上那天，{ally}认出第一年就跟过来的三张脸。',{spirit:10,skill:7}],
    },
   },{
-   title:'买家只要招牌', district:'bund',
+   title:'买家只要招牌',objective:'给原班人争一份留任条款', district:'bund',
    scene:'有人愿意出十八万接夜场，条件是原班人全撤。费启已经带买家参观过一圈。门外，{ally}问了句，你是来卖店，还是来给咱们谈条件？',
    prep:['问清转让书缺了哪一页','买家交了意向书。正式合同和以前的演出约都能在今晚对一遍。','标出原有签约方保留条款','问演员和店员谁愿意留下'],
    choices:{
@@ -63,7 +64,7 @@ export const CAMPAIGN_SCRIPT: Record<CampaignRoute, readonly CampaignBeat[]> = {
     walk:['关这间店，跟原班人做巡演','你把最后一晚改成免费场。收台后，第一张外地的邀请已经在群里。',{spirit:12,network:6}],
    },
   },{
-   title:'那一晚，你来定', district:'zhangjiang',
+   title:'那一晚，你来定',objective:'决定首映台上谁来讲', district:'zhangjiang',
    scene:'有人要拍夜场的故事，剧组把费启写成了创办人。{ally}拿着老照片来找你。首映那晚台上留一把椅子，合同里写着谁坐，就由谁讲。',
    prep:['把老照片找齐','盒子里有旧票根和一张没洗过的底片。第一年的人也还在这座城。','找齐原始底片和票根','把旧搭档叫到看片会'],
    choices:{
@@ -73,7 +74,7 @@ export const CAMPAIGN_SCRIPT: Record<CampaignRoute, readonly CampaignBeat[]> = {
     walk:['留一把椅子在台下，和老搭档一起看','{ally}递来一袋跟第一晚一样的零食。银幕亮起来，你们都没回头看记者。',{spirit:16}],
    },
   },{
-   title:'门牌留给谁', district:'bund',
+   title:'门牌留给谁',objective:'选出下一位开门的人', district:'bund',
    scene:'最后一次换门牌。费启来了，说想把这段写成自己的回忆录。{ally}把一把旧钥匙放在桌上。「你定。牌子写谁，明晚谁开门。」',
    prep:['把第一扇门的钥匙取回来','房东留着老钥匙。还有几个人来问，下一季谁说了算。','把一路的预约与合约存档','把做过这间店的人请回来'],
    choices:{
@@ -86,7 +87,7 @@ export const CAMPAIGN_SCRIPT: Record<CampaignRoute, readonly CampaignBeat[]> = {
  ],
  worker: [
   {
-   title:'两张工时表', district:'xinzhuang',
+   title:'两张工时表',objective:'结清工时，争取领班名额', district:'xinzhuang',
    scene:'新仓招领班，现场这张工时表有你的名字。办公室那张换成了赵正。吴师傅说今天还有半小时能更正，原件留在门房。',
    prep:['去仓门找原始签到','门禁能打时间，门房也记得谁每次最后出来。吴师傅把值班电话留给你。','拿到能对上时分的门禁记录','找同班的人一起签字'],
    choices:{
@@ -96,7 +97,7 @@ export const CAMPAIGN_SCRIPT: Record<CampaignRoute, readonly CampaignBeat[]> = {
     walk:['先结今天的班，另找一份排班','你拿着真实的出勤去问隔壁仓。对方正缺白班，直接把周一的进门码发了来。',{job:'service',spirit:8}],
    },
   },{
-   title:'签字那行被换了', district:'xinzhuang',
+   title:'签字那行被换了',objective:'拿回排班方案的奖金', district:'xinzhuang',
    scene:'你做的排班少了一趟空车。赵正拿去报奖，封面换成了他。吴师傅发来车次，你可以赶在颁奖之前进去。',
    prep:['把司机那一联收回来','打印出来的班次还有你写的改单时间。司机们知道谁让他们少跑了一趟。','找齐三张带签字的车次单','约上知道改班经过的司机'],
    carry:{proof:'上回核过工时的财务在评委席。她先问这回有没有原件。',people:'跟你一起签工时的人，正好开今天第一趟车。'},
@@ -107,7 +108,7 @@ export const CAMPAIGN_SCRIPT: Record<CampaignRoute, readonly CampaignBeat[]> = {
     walk:['拿成果去接另一家的单','新仓经理把你那一版直接挂到白板上，喊了组里所有人进来。',{job:'service',skill:8,spirit:7}],
    },
   },{
-   title:'仓库门口开标', district:'xinzhuang',
+   title:'仓库门口开标',objective:'让司机的晚班钱算进报价', district:'xinzhuang',
    scene:'仓配公司要外包一条线。赵正压价拿了第一，司机说他漏算了晚班。吴师傅问你敢不敢把算好的钱当众念一遍。',
    prep:['把这条线实际走一遍','要赶装卸、夜班和回车，报价少算哪一项都会有人白干。你有旧记录，也能请这条线的人一起坐下来。','把回车和夜班补进成本单','让司机选出上台的代表'],
    choices:{
@@ -117,7 +118,7 @@ export const CAMPAIGN_SCRIPT: Record<CampaignRoute, readonly CampaignBeat[]> = {
     walk:['带走自己的数据，给另一家做调度','对方把你的报价复印了六份。你说第一份给司机看，最后再给办公室。',{job:'trade',skill:10}],
    },
   },{
-   title:'没人肯接夜班', district:'xinzhuang',
+   title:'没人肯接夜班',objective:'让货发出去，保住夜班', district:'xinzhuang',
    scene:'公司要把夜班人数砍一半，赵正发来一份待签表。你到了仓门才知道，今天那批货已经等在闸机外。',
    prep:['趁货没到，看看哪条线卡着','扫码数据还没被覆盖。两个班的人也愿意把排班拿出来对。','核对扫码量和安全工位','让两班一起签换班条件'],
    choices:{
@@ -127,7 +128,7 @@ export const CAMPAIGN_SCRIPT: Record<CampaignRoute, readonly CampaignBeat[]> = {
     walk:['把工时记录发给每个人，按原表下班','下一周新表贴出去了，有三行还是你们写的。吴师傅给你留了一碗热的。',{spirit:11,network:7}],
    },
   },{
-   title:'旧仓门口有人等', district:'xinzhuang',
+   title:'旧仓门口有人等',objective:'给新人找一处实训场地', district:'xinzhuang',
    scene:'搬走的旧仓打算拆。赵正想把剩下的机器转卖，几位新工还来问有没有地方学上岗。你在门口看见那张十几年前贴歪的班表。',
    prep:['去仓里把能留下的东西盘一遍','有些设备可以做实训，有些当年就不该再上电。愿意来教人的工友也在等消息。','带出可用设备清单和估价','把肯来带班的人约在门口'],
    choices:{
@@ -137,7 +138,7 @@ export const CAMPAIGN_SCRIPT: Record<CampaignRoute, readonly CampaignBeat[]> = {
     walk:['把能用的工具送到新仓，先带一班','工具箱里有把没贴名的钳子。新来的人拿起来用，你说那把就归你。',{skill:10,spirit:12}],
    },
   },{
-   title:'最后一张工时表', district:'xinzhuang',
+   title:'最后一张工时表',objective:'交接班组，定下结钱时间', district:'xinzhuang',
    scene:'仓门要换最后一套门禁。赵正把新工时表送过来，上头请你签字。外面有个刚来的小孩，问头一晚做完，钱几点能到。',
    prep:['翻出那本第一年就用过的簿子','还在带班的人都认得本子。以前漏过哪一笔，谁后来补上，都还能找。','把第一次漏算的工时原件夹进去','约当年夜班的人一起交接'],
    choices:{
@@ -150,7 +151,7 @@ export const CAMPAIGN_SCRIPT: Record<CampaignRoute, readonly CampaignBeat[]> = {
  ],
  heir: [
   {
-   title:'请帖又被换了', district:'lujiazui',
+   title:'请帖又被换了',objective:'在名单发布前抢回档期', district:'lujiazui',
    scene:'周骁拿了西岸下一季的活动名单，说以后由他排期。老妈把你的原始订场单压在桌上。今天就要对外发名单。',
    prep:['去找最早签的场地单','你可以找财务调原件，也可以先叫上那晚真正到过的人。周骁的新请帖已在群里。','调出财务存的签约原件','约老客回来先定档'],
    choices:{
@@ -160,7 +161,7 @@ export const CAMPAIGN_SCRIPT: Record<CampaignRoute, readonly CampaignBeat[]> = {
     walk:['把这晚留给他，改在船上开场','灯开的时候，船还没离岸。第一杯酒刚递出去，周骁发来的语音已经找不到人听。',{spirit:11,network:6}],
    },
   },{
-   title:'谁签的这份赞助', district:'bund',
+   title:'谁签的这份赞助',objective:'拿回这一季的冠名合同', district:'bund',
    scene:'冠名方的人到了。周骁递出一份协议，落款写着他的公司，附件却用了你那晚的数据。对方等你把同一份数字讲一遍。',
    prep:['去看那晚的底账','门禁名单、赞助到账和来客记录都在，能对上哪一样，你就有哪一样的话语权。','导出签过字的底账','请第一季的赞助方到场'],
    carry:{bid:'你付过下一季的订金，经理把原件放在你手边。',walk:'船上那晚有三张名片没丢。有人从对面绕过来，坐到你这一侧。'},
@@ -171,7 +172,7 @@ export const CAMPAIGN_SCRIPT: Record<CampaignRoute, readonly CampaignBeat[]> = {
     walk:['还给他这份合同，我去谈下一场','你没接那只递过来的笔。下楼前，另一个客户把车钥匙放在手里，问能不能一起去看场地。',{spirit:12,network:7}],
    },
   },{
-   title:'他把西岸拿去谈了', district:'lujiazui',
+   title:'他把西岸拿去谈了',objective:'拆掉被冒签的场次', district:'lujiazui',
    scene:'周骁谈新场地，把你的西岸活动也塞进了合同。新买家问你要不要一块签。墙上的平面图已经把你的标记换掉了。',
    prep:['把合同里的场次逐条圈出来','新买家以为全是周骁在做。场地现有的排期和几个一起办过活动的人都可以到。','找到被挪用的排期页','把做过活动的合伙人请到桌上'],
    carry:{proof:'上次直接签给你的那家冠名方，也把旧凭证发了过来。'},
@@ -182,7 +183,7 @@ export const CAMPAIGN_SCRIPT: Record<CampaignRoute, readonly CampaignBeat[]> = {
     walk:['把原来那几场收回来，单独办','隔着一条路两边都开场。最早散出来的人，手里拎的还是你这边的节目单。',{spirit:13,network:6}],
    },
   },{
-   title:'买家想要你的名字', district:'anfu',
+   title:'买家想要你的名字',objective:'亲自决定牌子卖给谁', district:'anfu',
    scene:'买方愿意为活动品牌出四百八十万。周骁替你接了个口头报价，想借你的名字把他的场也打包卖掉。合同还没签，他已经带人来开香槟。',
    prep:['去看买方到底要收什么','转让清单和联系人名单都没封存。老妈说，先把他能卖的和你能卖的圈出来。','逐条核对转让范围','找真正能把场子做下去的人'],
    choices:{
@@ -192,7 +193,7 @@ export const CAMPAIGN_SCRIPT: Record<CampaignRoute, readonly CampaignBeat[]> = {
     walk:['收起合同，我还打算自己办','你先给下一场定了酒单，再给周骁回消息。那瓶已经开了的香槟，让他自己带走。',{spirit:15,face:6}],
    },
   },{
-   title:'这回换他来敲门', district:'lujiazui',
+   title:'这回换他来敲门',objective:'给周骁一个明确条件', district:'lujiazui',
    scene:'周骁的项目缺一笔周转，要来用你排好的周五。老爸问你要不要给他一次机会。老妈把一份条件没填的合同放在两个人中间。',
    prep:['去找这些年留下的凭证','你可以先问财务旧账结清没有，也可以先去见那些答应过来帮忙的人。','把旧合同和已付款逐笔对齐','约执行团队亲自谈条件'],
    choices:{
@@ -202,7 +203,7 @@ export const CAMPAIGN_SCRIPT: Record<CampaignRoute, readonly CampaignBeat[]> = {
     walk:['周五我留着，下个月我给他一晚','周骁没再发长语音，只回了一个日期。老妈合上合同，说现在总算能点菜。',{spirit:14,network:8}],
    },
   },{
-   title:'最后一张西岸请帖', district:'bund',
+   title:'最后一张西岸请帖',objective:'决定最后一晚谁做东', district:'bund',
    scene:'老妈把当年印错名字的那张请帖拿了出来。周骁这回把新名单直接递给你。江边从楼下往上亮了灯，主位还空着。',
    prep:['去挑最后一晚的名单','原件都还在。那晚在门口站着的人，如今有几个也开始做东了。','把旧请帖和新合同摆在一起','请这一桌上的人各带一位新人'],
    choices:{
@@ -215,7 +216,7 @@ export const CAMPAIGN_SCRIPT: Record<CampaignRoute, readonly CampaignBeat[]> = {
  ],
  system: [
   {
-   title:'顾桥带了另一份签名',district:'lujiazui',
+   title:'顾桥带了另一份签名',objective:'把长期收款权留在手里',district:'lujiazui',
    scene:'系统叫你去陆家嘴签长期权限。顾桥比你早到一步，桌上有他填好的共同账户。系统提示，今天盖章，以后每一单都按这张单分钱。',
    prep:['对一对后台的签字','旧系统导出的原件只剩一份。第一单那位出票员还记得现场发生了什么。','取出带时间的原始签字','请出票员带原存根来'],
    choices:{
@@ -225,7 +226,7 @@ export const CAMPAIGN_SCRIPT: Record<CampaignRoute, readonly CampaignBeat[]> = {
     walk:['这份不签，保留原来的单子','你带着前几张凭证下楼。系统在旧入口给你留了一把临时钥匙，先接能自己做完的活。',{spirit:12,skill:5}],
    },
   },{
-   title:'收到两条相反的任务',district:'anfu',
+   title:'收到两条相反的任务',objective:'查到最早派出的那张单',district:'anfu',
    scene:'同一分钟，系统给了你两个互斥的地址。顾桥说去右边，奖励加倍。左边的人却发来了最早的派单记录。你只有一次提交。',
    prep:['查哪条派单先发出','便利店老板还能查纸条出机时间，仓里也有人见过送单的。','把出机和服务器时间对齐','叫两边接单的人来对话'],
    carry:{proof:'独立权限的印章还能查，系统给了你一次调后台的机会。',people:'上次领过分成的人，今天都愿意接你的电话。'},
@@ -236,7 +237,7 @@ export const CAMPAIGN_SCRIPT: Record<CampaignRoute, readonly CampaignBeat[]> = {
     walk:['两条都拒，留一份派单记录','顾桥等到半夜。你把两条通知截下来，标了日期，第二天交给同样收过消息的人。',{spirit:13,network:7}],
    },
   },{
-   title:'奖励上写了别人的名字',district:'zhangjiang',
+   title:'奖励上写了别人的名字',objective:'在关账前拦下错发款',district:'zhangjiang',
    scene:'顾桥找到旧后台，刚做完那单的奖励开始向他转。你到研发楼时，屏幕还停在三笔未确认的转账。工程师问，谁能把真实交付单拿出来。',
    prep:['抢在关账前做核对','原交付单还有一份在仓。名单上另外两个人也没有收到款。','核对三个收款账户与交付记录','约没收到款的人一起去研发楼'],
    choices:{
@@ -246,7 +247,7 @@ export const CAMPAIGN_SCRIPT: Record<CampaignRoute, readonly CampaignBeat[]> = {
     walk:['把交付照片留档，退出这张单','你先把另外两个人的证据发回去。桌上那部手机关机了，这次真的安静。',{spirit:15,network:7}],
    },
   },{
-   title:'系统要关旧入口',district:'lujiazui',
+   title:'系统要关旧入口',objective:'在停用前留下收单渠道',district:'lujiazui',
    scene:'系统更新到最后一步，旧入口关停。顾桥手里有一枚转接码，开价两百万。他说没这枚码，明天连第一单都接不了。',
    prep:['找还没过期的备份','有几份老任务记录从没上云。线下跟你做过活的人也不只认这条入口。','整理足以恢复入口的旧备份','问现有合作方愿不愿意转线下'],
    carry:{proof:'研发楼那份申诉记录还在。工程师把保存地址发给了你。',bid:'你买过自己的交付通道。顾桥嘴里的「唯一入口」，楼下就有人在用另一个。'},
@@ -257,7 +258,7 @@ export const CAMPAIGN_SCRIPT: Record<CampaignRoute, readonly CampaignBeat[]> = {
     walk:['停用入口，按原来的联系方式接活','楼下店主从玻璃上撕下你的旧名片。电话打通，他问周五还有没有空。',{spirit:16,network:7}],
    },
   },{
-   title:'顾桥发来一张空白单',district:'bund',
+   title:'顾桥发来一张空白单',objective:'决定谁来结顾桥的最后一单',district:'bund',
    scene:'顾桥的账号被停。他带着一部不会亮的手机坐在轮渡口，问你能不能帮他补做最后一单。备注没有填，谁拿钱也没填。',
    prep:['把最后一单问清楚','系统只记得他停在哪天。你还可以问那天确实拿过货的人。','拿回账号停用前的任务清单','请最后那位收货人来见他'],
    choices:{
@@ -267,7 +268,7 @@ export const CAMPAIGN_SCRIPT: Record<CampaignRoute, readonly CampaignBeat[]> = {
     walk:['把单还给他，答应到场看他自己签','你俩在轮渡口多等了一班。通知亮起时，是顾桥先按了确认。',{spirit:16}],
    },
   },{
-   title:'最后一次上线',district:'lujiazui',
+   title:'最后一次上线',objective:'选定系统的下一任',district:'lujiazui',
    scene:'系统给了你一份交接单。顾桥在楼下等，老板把便利店的灯开到天亮。你可以继续用自己的名字，也可以换一个收单人。',
    prep:['决定留下哪几条规则','后台只收一页交接说明。以前因为规则少写一句吃过亏的人，也能来提一条。','核好所有账户再提交交接','请走过这条线的人写进新规则'],
    choices:{

@@ -1,20 +1,38 @@
+import { useState } from 'react';
 import { LIFE_STARTS, type LifeStart } from '../game/lifeStarts';
+import { dramaPhoto } from '../game/openingStakes';
 import Icon from './Icon';
 import './life-starts.css';
 
-export default function LifeStartPicker({onPick}: {onPick: (start: LifeStart) => void}) {
+const starts = [{
+ id:'arrival' as const,place:'上海南站',title:'随机出身',photo:dramaPhoto('stage'),
+ text:'刚出站，费启就拿走你的试场。十点开门，先把名字抢回来。',
+},...LIFE_STARTS];
+
+export default function LifeStartPicker({hasSave,onPick,onEdit}: {
+ hasSave:boolean; onPick:(start?:LifeStart)=>void; onEdit:(start?:LifeStart)=>void;
+}) {
+ const [edit,setEdit]=useState(false);
  return <section className="life-start-picker">
-  <h2>选择出身</h2>
+  <header>
+   <h2>选择出身</h2>
+   <button type="button" className="text-button" aria-pressed={edit} onClick={()=>setEdit(current=>!current)}>
+    <Icon name={edit?'check':'dice'} size={16}/>先看手牌
+   </button>
+  </header>
+  {hasSave&&!edit&&<p className="start-save-note">开局会替换自动存档</p>}
   <div className="life-start-options">
-   {LIFE_STARTS.map(start => <button type="button" key={start.id} onClick={() => onPick(start)}>
+   {starts.map(start => <button type="button" key={start.id} onClick={() => {
+    const profile = start.id==='arrival'?undefined:start;
+    (edit?onEdit:onPick)(profile);
+   }}>
     <div className="start-portrait">
      <img src={start.photo} alt="" width={1320} height={880} decoding="async"/>
      <div className="start-title"><span>{start.place}</span><h3>{start.title}</h3></div>
     </div>
     <div className="start-details">
-     <div className="start-balance"><span>初始资金</span><b>¥{start.id==='heir'?(start.cash/10000).toLocaleString('zh-CN')+' 万':start.cash.toLocaleString('zh-CN')}</b></div>
      <p>{start.text}</p>
-     <span className="start-action">选择 <Icon name="arrow" size={17}/></span>
+     <span className="start-action">{edit?'看手牌':'开局'} <Icon name="arrow" size={17}/></span>
     </div>
    </button>)}
   </div>

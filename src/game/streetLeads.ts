@@ -93,10 +93,12 @@ export function replayLocalLead(state: GameState, eventId: string) {
 
 export function streetLead(state: GameState) {
   if (state.pendingYearEvent || state.ended) return null;
-  const first = firstNightLead(state) ?? dayworkLead(state) ?? heirStoryLead(state) ?? systemLead(state);
+  const night = firstNightLead(state);
+  const first = (night?.event.id==='first-night-stage'?undefined:night) ?? dayworkLead(state) ?? heirStoryLead(state) ?? systemLead(state);
   if (first) return first;
   const receipt = pearlReceipt(state);
   if (receipt) return { message: '江边有人叫你去对小票', event: receipt };
+  if (night) return night;
   const match = state.district === 'people' ? parkVisit(state) : null;
   if (match?.message) return { message: match.message, event: match.event };
   const renewal = rentalRenewal(state);

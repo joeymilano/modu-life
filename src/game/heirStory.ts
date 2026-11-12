@@ -1,4 +1,5 @@
 import { HEIR_CAPITAL_TIER } from './heirCapital';
+import { OPENING_ALLIES, OPENING_DRAMA, OPENING_PROOF, withOpeningRecord } from './openingStakes';
 import type { EventChoice, GameState, LifeEvent } from './types';
 
 export const HEIR_WEST_BUND = 'heir-west-bund';
@@ -44,6 +45,7 @@ function mall(state: GameState, revisit: boolean): LifeEvent {
  ].filter((choice): choice is EventChoice => Boolean(choice));
  return {
   id:shopId(MALL,state,'lv','hermes',revisit), category:'explore', location:'恒隆广场', speakerId:'mother', tag:'西岸开场',
+  ...(!revisit&&{objective:'带走酒会的签约原件'}),
   title: revisit ? '柜上还有货' : '请帖拿来，包也留下', illustration:heirStoryPhoto('shopping'),
   text: revisit ? '店里给你发了张柜台照片。上回没带走的那只还在。'
    : '老妈在恒隆等你。LV 的旅行袋和爱马仕的 Kelly 都摆在柜上。她从包里抽出一张请帖。周骁把今晚的主人印成了自己。她问你，原件要不要留着？',
@@ -59,6 +61,7 @@ function showroom(state: GameState, revisit: boolean): LifeEvent {
  ].filter((choice): choice is EventChoice => Boolean(choice));
  return {
   id:shopId(CARS,state,'cullinan','revuelto',revisit), category:'explore', location:'徐汇滨江', tag:'西岸开场',
+  ...(!revisit&&{objective:'挑好车，从会客厅正门入场'}),
   title:revisit?'钥匙还在':'两把车钥匙', illustration:heirStoryPhoto('garage'),
   text:revisit?'销售把你上回试过的车挪到了玻璃门口。':'西岸两家展厅都给你留了现车。黑色库里南，橙色 Revuelto。周骁刚发了一条语音，说门口只留给自己人。你让门童在车位上写哪个名字？',
   choices:[...choices,{id:'pass',label:revisit?'改天再提':'先坐家里的车赴宴',reply:revisit?'你把钥匙放回托盘。':'你把请帖递给司机，让他走正门。',effect:{}}],
@@ -70,15 +73,18 @@ function openingNight(state: GameState): LifeEvent {
  const bag = owns(state,'hermes') ? 'Kelly' : owns(state,'lv') ? 'LV 旅行袋' : '';
  const arrival = lambo && rolls ? '两辆新车先后停在正门。' : lambo ? 'Revuelto 的橙色车门一抬，门口的人都回了头。'
   : rolls ? '库里南停在红毯前，经理亲自替你开的门。' : '家里的车停在正门。迎宾翻了两遍名单，周骁就在玻璃门后。';
+ const choices: EventChoice[] = [
+  {id:'take-seat',label:'换座牌，我亲自开场',hint:'拿回主位 · 解锁会客厅',reply:'经理当着全桌的面撤走周骁的座牌。你把酒杯抬起来。「今天我请。周骁坐我旁边，等下有事问他。」',effect:{face:16,network:9,setFlags:['heir-hosted-direct']}},
+  {id:'new-table',label:'把位子留给帮你拿原件的人',hint:'另开一桌 · 解锁会客厅',reply:'你在临江那张桌子坐下，给把原件送来的经理留了把椅子。周骁还在台上敬酒，刚敬的那几位已经端着杯子过来了。',effect:{network:15,spirit:6,setFlags:['heir-hosted-new-table']}},
+  {id:'pass-mic',label:'让他说完，最后把原件投上屏',hint:'公开签约原件 · 解锁会客厅',reply:'周骁刚说完「我来签」，大屏就切到了预订原件。你的签名亮在他身后。他把话筒递过来，问能不能先下台。',effect:{face:12,skill:6}},
+ ];
  return {
-  id:PARTY, category:'social', location:'西岸会客厅', tag:'西岸开场', title:'今晚谁做东', illustration:heirStoryPhoto('club'),
+  id:PARTY, category:'social', location:'西岸会客厅', tag:'西岸开场', title:'今晚谁做东',objective:'当着宾客拿回主办权',illustration:heirStoryPhoto('club'),
   text:arrival + (bag ? '你从'+bag+'里拿出原件。' : '你从外套里拿出原件。')
    + '周骁已经端着杯子在谢来宾。经理把签约原件和新座牌一起送到你手上，问主位怎么写。',
-  choices:[
-   {id:'take-seat',label:'换座牌，我亲自开场',hint:'拿回主位 · 解锁会客厅',reply:'经理当着全桌的面撤走周骁的座牌。你把酒杯抬起来。「今天我请。周骁坐我旁边，等下有事问他。」',effect:{face:16,network:9,setFlags:['heir-hosted-direct']}},
-   {id:'new-table',label:'把位子留给帮你拿原件的人',hint:'另开一桌 · 解锁会客厅',reply:'你在临江那张桌子坐下，给把原件送来的经理留了把椅子。周骁还在台上敬酒，刚敬的那几位已经端着杯子过来了。',effect:{network:15,spirit:6,setFlags:['heir-hosted-new-table']}},
-   {id:'pass-mic',label:'让他说完，最后把原件投上屏',hint:'公开签约原件 · 解锁会客厅',reply:'周骁刚说完「我来签」，大屏就切到了预订原件。你的签名亮在他身后。他把话筒递过来，问能不能先下台。',effect:{face:12,skill:6}},
-  ],
+  choices:state.flags.includes(OPENING_DRAMA)?choices.map(choice=>({
+   ...choice,effect:withOpeningRecord(choice.effect,choice.id==='new-table'?OPENING_ALLIES:OPENING_PROOF),
+  })):choices,
  };
 }
 

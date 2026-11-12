@@ -3,6 +3,7 @@ import { heirClassYear, staffBedRent, workerClassYear } from './classLives';
 import { HEIR_CAPITAL_TIER, HEIR_PERSONAL_CASH, heirTerms } from './heirCapital';
 import { HEIR_WEST_BUND, heirStoryPhoto, westBundSecondYear } from './heirStory';
 import { isSystemLife, SYSTEM_CASH, systemOpening, systemPhoto, systemSecondYear } from './systemStory';
+import { dramaPhoto, OPENING_ALLIES, OPENING_DRAMA, OPENING_PROOF, withOpeningRecord } from './openingStakes';
 import { laterDaywork, laterHeir } from './lifeYears';
 import { warehouseHeirYear, warehouseWorkerYear } from './relocation';
 import type { Effect, EventChoice, GameState, LifeEvent } from './types';
@@ -17,6 +18,8 @@ export const FAMILY_PAY = 'heir-family-pay';
 const HEIR_TRIAL = 'heir-pilot';
 const HEIR_ORDER = 'heir-order';
 const HEIR_HANDOVER = 'heir-handover';
+const DAYWORK_KITCHEN = 'daywork-first-kitchen';
+const DAYWORK_WEST = 'daywork-first-west';
 export const DAYWORK_PAY = 780;
 export const HEIR_PAY_RATE = 1.25;
 export const PROJECT_BUDGET = 800000;
@@ -24,19 +27,19 @@ export const PROJECT_BUDGET = 800000;
 export const LIFE_STARTS = [
  {
   id: 'daywork', seed: 'SH-SHIFT', cash: 780, place: '莘庄', title: '日结工', line: '手上 ¥780，床位只续到明天',
-  text: '床位只付了一晚。仓库两张招工单，一张当天结，一张要做满三天。',
+  text: '赵正划掉了你的名字。手上只剩七百八，今晚得先把工钱拿到。',
   cards: ['born-daywork', 'fund-thin', 'talent-code', 'tie-free', 'secret-kind'],
   photo: openingPhoto('daywork-gate'),
  },
  {
   id: 'heir', seed: 'SH-HEIR', cash: HEIR_PERSONAL_CASH, place: '陆家嘴', title: '顶级富二代', line: '个人可动用 ¥6,000 万，家里的账另算',
-  text: '六千万刚到账。表哥把你的酒会改成了他的。先去恒隆拿请帖，再去西岸提车。',
+  text: '六千万刚到账。表哥敢坐你的主位，你就从正门开车过去。',
   cards: ['born-heir', 'fund-family', 'talent-count', 'tie-demand', 'secret-kind'],
   photo: heirStoryPhoto('family'),
  },
  {
   id:'system',seed:'SH-SYSTEM',cash:SYSTEM_CASH,place:'外滩',title:'系统流',line:'手上 ¥18,000，第一单今晚结',
-  text:'关机键按了三遍，任务还在。跑完第一单，系统给你现金和点数。上一任宿主也收到了消息。',
+  text:'顾桥抢先领了你的第一单。跑到外滩核对原件，最高当场拿八万。',
   cards:['born-system','fund-system','talent-code','tie-free','secret-kind'],
   photo:systemPhoto('phone'),
  },
@@ -72,6 +75,51 @@ const firstShift = year('daywork-first', '床位只续到明天',
   option('later','接冷库三天，留好班次记录','最后一天手套脱下来还是湿的。群里先发了张考勤表，说结算要再核一遍。你截了图，把三天进门的时间写在截图上。',{health:-8,skill:5,setFlags:[DAYWORK_DUE]},'今天 ¥0 · 待结班费 ¥780'),
   option('kitchen','先去厨房，试着做满一个月','店里给你匀了一顿晚饭。收工后你把工资日存进日历，再算还要续几次床。下个月排班表上，终于有了你的名字。',{job:'service',cash:-180,health:-4,skill:5},'添鞋和工装 ¥180 · 门店岗位 ¥6,500/月'),
  ], 'daywork-gate');
+
+const shiftOpening: LifeEvent = {
+ ...firstShift,title:'你的名字被划掉了',objective:'今晚拿到工钱，保住床位',illustration:dramaPhoto('shift'),
+ text:'赵正当着你的面，把装卸名单最后一格划掉。「床位明天到期？那你就接冷库，三天后再拿钱。」吴师傅把另一张单递到你手边。西门缺个替班，二百二当晚结，厨房也还收人。',
+ choices:firstShift.choices.map(choice=>choice.id==='today'?{
+  ...choice,reply:'西门领班当面把二百二结了。赵正看到出库单上的签名，把你叫回门房。他想知道，谁给你开的门。',
+  effect:{...choice.effect,setFlags:[DAYWORK_WEST]},
+ }:choice.id==='later'?{
+  ...choice,reply:'冷库三天做完。赵正在群里只报了两天。吴师傅把三次进门的原件拍给你，说财务还没关灯。',
+ }:{...choice,effect:{...choice.effect,setFlags:[DAYWORK_KITCHEN]}}),
+};
+
+const shiftShowdown: LifeEvent = {
+ ...year('daywork-showdown','西门还差一个签字',
+  '赵正把西门的实结单拿在手里，说最后一车算在他那组。吴师傅指了指闸机。出库时间和司机都对得上，领班正要把明天的排班贴出去。',[
+   option('receipt','把出库联给领班看','领班照着存根念了一遍，你的名字没错。赵正把纸还了，门房把这次实结的复写联也给了你。',withOpeningRecord({skill:7,face:7},OPENING_PROOF),'留下出库原件'),
+   option('crew','把司机和同班的人请过来','司机把对讲机放下，说那车是你装的。第二天排班一贴，原班的人直接在门口等你。',withOpeningRecord({network:9,spirit:6},OPENING_ALLIES),'有工友愿意作证'),
+   option('paid','只签实做的工时，回去续床','你把实结单收好，绕过门口的白板去续床。临走吴师傅给你发来一个号码，说以后不用等赵正安排。',{spirit:8,trust:5}),
+  ],'daywork-pay'),
+ category:'explore',objective:'把自己的工时留在实结单上',illustration:dramaPhoto('shift'),
+};
+
+function shiftReckoning(state: GameState): LifeEvent {
+ if (state.flags.includes(DAYWORK_WEST)) return shiftShowdown;
+ const kitchen = state.flags.includes(DAYWORK_KITCHEN);
+ return {
+  ...shiftShowdown,title:kitchen?'送餐单上写的是谁':'赵正要收走考勤原件',
+  objective:kitchen?'保住下月排班':'留下这三班的凭证',
+  text:kitchen?'厨房刚贴了下月的班表。赵正把你的名字圈出来，说这几天往西门送餐的人全算他那组的。他让领班照着改，领班问你手上有几张送餐回执。'
+   :'冷库的账暂时对过。赵正来收纸上的原件，说名单留一份就够。吴师傅把当班司机叫过来，问你要把哪一份留在自己手里。',
+  choices:shiftShowdown.choices.map((choice,index)=>({
+   ...choice,label:(kitchen?['把送餐回执贴在排班旁','叫取餐的人来认签名','只接我那几班，别替我填名字']:
+    ['拿走有签名的那份考勤','请同班的人各留一份','先去续床，考勤拍下来'])[index],
+   reply:(kitchen?[
+    '领班从第一张对到最后一张，把赵正画的圈擦了。你拿走回执，排班还是你签过的那份。',
+    '取餐的人在门口认了回执。领班让赵正把改过的表收走，留人自己填班。',
+    '你把能到的日期逐个勾掉。第二天去看，新表上没有一个班是别人替你签的。',
+   ]:[
+    '赵正来拿时，吴师傅指了指墙边的复写纸。你带走那份有签名的，财务说留着，下回还能对。',
+    '三个人各拍了一份。赵正问谁传出去的，门口没人再抢着回答。',
+    '你先把床位续上，回去把截图放到最上面。吴师傅又发来门房的号码，让你别删。',
+   ])[index],
+  })),
+ };
+}
 
 const shiftPay = year('daywork-pay', '三天都在，表上只有两天',
  '考勤表漏了最后一晚。吴师傅把纸和手机并排放着，门禁群的截图上有你第三次进门的时间。对方说，先签两天的收款单，钱今天就能转。', [
@@ -110,7 +158,8 @@ const firstKeys = year('heir-first', '钥匙和账户分开',
 
 const westBundOpening: LifeEvent = {
  ...firstKeys, title:'六千万到账', illustration:heirStoryPhoto('family'),
- text:'手机跳出一条入账短信，六千万。老爸把陆家嘴公寓的房卡推过来，房租和日常账单家里另付。第二条消息是周骁发的。他把你订的西岸酒会写成了他做东。老妈已到恒隆，原请帖在她手里。',
+ objective:'去恒隆拿原件，酒会开始前抢回主位',
+ text:'六千万刚到账，周骁的视频就发过来。他坐在你订的主位上。「九点开席，你坐我旁边就好。」老爸把公寓房卡推过来。老妈在恒隆等你，酒会的签约原件在她手里。',
  choices:firstKeys.choices.map(choice => choice.id === 'keys' ? {
   ...choice,label:'收下房卡，去恒隆找老妈',reply:'你把房卡塞进钱夹。老妈发了张照片，柜上两只包，底下压着一张写你名字的请帖。',hint:'家里代付公寓账单',
  } : choice.id === 'floor' ? {
@@ -165,6 +214,10 @@ export function dayworkLead(state: GameState): {message: string; event: LifeEven
   message: pending === shiftPay ? '最后一天的考勤没算进去' : '吴师傅找到了第三天的交接记录',
   event: { ...pending, category: 'career' },
  };
+ if (state.age===18 && state.actions>0 && state.flags.includes(OPENING_DRAMA) &&
+     state.seenEvents.includes(firstShift.id) && !state.seenEvents.includes(shiftShowdown.id)) {
+  return {message:'跟赵正当面把账对清',event:shiftReckoning(state)};
+ }
  if (state.age < 21 || state.jobId || state.cash >= 4200) return undefined;
  const id = 'life-start-extra-' + state.age;
  if (state.seenEvents.includes(id)) return undefined;
@@ -187,7 +240,7 @@ export function lifeStartYear(state: GameState) {
   if (state.age===19) return systemSecondYear(state);
  }
  if (state.flags.includes(DAYWORK)) {
-  if (state.age === 18) return firstShift;
+  if (state.age === 18) return state.flags.includes(OPENING_DRAMA)?shiftOpening:firstShift;
   if (state.age === 19) return state.flags.includes(DAYWORK_DUE) ? shiftPay : state.flags.includes(DAYWORK_REMAINDER) ? remainingPay :
    state.flags.includes(DAYWORK_TEMP) ? {...shiftBed,text:'去年的床位没能续上。吴师傅把你的行李先寄在门房，问你今天想先见收货岗的人，还是先接一班日结。'} : shiftBed;
   if (state.age === 20) return state.flags.includes(DAYWORK_REMAINDER) ? remainingPay : workerThird;

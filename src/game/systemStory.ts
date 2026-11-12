@@ -1,5 +1,6 @@
 import { streetPhoto } from './art';
 import { CHAPTER_AGES } from './campaignScript';
+import { OPENING_ALLIES, OPENING_DRAMA, OPENING_PROOF, withOpeningRecord } from './openingStakes';
 import type { Effect, EventChoice, GameState, LifeEvent } from './types';
 
 export const SYSTEM_START = 'system-start';
@@ -28,7 +29,8 @@ function choice(id: string,label: string,reply: string,effect: Effect,hint?: str
 }
 
 export const systemOpening: LifeEvent = {
- id:'system-opening',title:'第一单，今晚结',text:'关机键按了三遍，屏幕上的通知还在。第一单地址就在外滩。做完，收款人是你。通知末尾还有一行字，上一任接单的人叫顾桥。',tag:'系统流',
+ id:'system-opening',title:'有人在替你领奖',text:'屏幕亮了。首单八万，收款人一栏正在被改成顾桥。他的电话紧跟着进来。「新人可以旁观。柜台那张单，我先签。」地址就在外滩，你现在过去还赶得上。',tag:'系统流',
+ objective:'去外滩核对取票单，最高当场拿 ¥80,000',
  category:'year',district:'bund',illustration:systemPhoto('phone'),
  choices:[
   choice('accept','接第一单','手机跳出路线。便利店老板问你充电线还借不借，你说回来就还。',{spirit:6},'接单 · 去外滩'),
@@ -54,6 +56,7 @@ export function systemSecondYear(state: GameState): LifeEvent {
 
 const firstTask: LifeEvent = {
  id:'system-first',title:'一张票卖了两遍',tag:'系统任务',category:'explore',district:'bund',illustration:systemPhoto('phone'),
+ objective:'当场确认真正的取票人',
  text:'外滩渡口两个人抢着拿同一张演出取票单。店主已经准备把票给先开口的人。系统只给你一次确认机会，去看看柜台上的两联。',
  choices:[
   choice('proof','按存根末四位核对原主','号码对上，顾桥把伪造的截屏按灭了。原主接过票，系统在你手机上连响两声。',{cash:80000,skill:6,setFlags:[received[0]]},'个人账户 +¥80,000 · 1 点'),
@@ -63,6 +66,7 @@ const firstTask: LifeEvent = {
 
 const secondTask: LifeEvent = {
  id:'system-second',title:'别接他发来的那张单',tag:'系统任务',category:'explore',district:'anfu',illustration:streetPhoto('anfu'),
+ objective:'找出多收的那笔钱',
  text:'顾桥拿两份夜场账单来谈合作，说系统也给他发过这道题。两份单子都是九万八。你扫了一眼，只有其中一份在撤场后又被人改过。',
  choices:[
   choice('proof','拆开收款和撤场时间','你把修改时间和撤场单并排放上屏。顾桥伸手来合电脑，店里的人先把屏幕转到了正中。',{cash:220000,skill:8,setFlags:[received[1],'system-compared-ledger']},'个人账户 +¥220,000 · 1 点'),
@@ -72,6 +76,7 @@ const secondTask: LifeEvent = {
 
 const thirdTask: LifeEvent = {
  id:'system-third',title:'顾桥等你上楼',tag:'系统任务',category:'social',district:'lujiazui',illustration:systemPhoto('roof'),
+ objective:'拿到长期任务的结算凭证',
  text:'天快亮，顾桥在楼顶等你。他手机上的系统早就停了，最后一单写的是「转交」。他给你两个办法，留名，或者跟他平分。你还可以带着原始记录自己去结。',
  choices:[
   choice('file','拿原件自己提交','提交成功那一刻，顾桥手机上的倒计时终于走完了。你手机收到账通知，他问以后能不能还用原来的号码找你。',{cash:888000,face:10,setFlags:[received[2],'system-kept-control']},'个人账户 +¥888,000 · 1 点'),
@@ -87,7 +92,11 @@ const tasks = [
 
 export function systemLead(state: GameState) {
  if (!isSystemLife(state)||state.pendingYearEvent||state.ended||state.actions<=0||!state.seenEvents.includes(systemOpening.id)) return;
- return tasks.find(task=>!state.seenEvents.includes(task.event.id));
+ const task = tasks.find(item=>!state.seenEvents.includes(item.event.id));
+ if (task?.event!==thirdTask||!state.flags.includes(OPENING_DRAMA)) return task;
+ return {...task,event:{...thirdTask,choices:thirdTask.choices.map(choice=>({
+  ...choice,effect:withOpeningRecord(choice.effect,choice.id==='file'?OPENING_PROOF:OPENING_ALLIES),
+ }))}};
 }
 
 export function systemClue(eventId: string) {

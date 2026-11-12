@@ -3,44 +3,42 @@
 .life-start-modal .modal-close { color: #ffedc7; background: #384940; }
 .life-start-modal .modal-close:hover { background: #526352; }
 .life-start-picker { padding: 24px clamp(14px,3vw,30px) 22px; }
-.life-start-picker h2 { margin: 0 36px 16px 0; font: 700 clamp(27px,4vw,41px)/1.12 var(--serif); }
-.life-start-options { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 13px; }
+.life-start-picker > header { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; margin: 0 36px 12px 0; }
+.life-start-picker h2 { margin: 0; font: 820 clamp(25px,4vw,36px)/1.1 sans-serif; }
+.life-start-picker header > button { min-height: 44px; color: var(--game-muted); }
+.life-start-picker header > button[aria-pressed="true"] { color: var(--game-yellow); }
+.start-save-note { margin: 0 0 10px; font-size: 12px; color: var(--game-muted); }
+.life-start-options { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
 .life-start-options > button {
   display: flex;
   flex-direction: column;
   min-width: 0;
   padding: 0;
   overflow: hidden;
-  border: 1px solid #827356;
-  border-radius: 4px;
-  background: #303e37;
-  color: #f9ecd0;
+  border: 1px solid var(--game-line);
+  border-radius: 2px;
+  background: var(--game-row);
+  color: var(--game-white);
   text-align: left;
 }
-.life-start-options > button:hover, .life-start-options > button:focus-visible { background: #3e5046; border-color: #e0bb7d; }
+.life-start-options > button:hover, .life-start-options > button:focus-visible { border-color: var(--game-yellow); }
 .start-portrait { position: relative; width: 100%; overflow: hidden; }
 .start-portrait::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg,transparent 23%,#11191430 42%,#101713f5 100%); }
-.life-start-options img { display: block; width: 100%; height: auto; aspect-ratio: 1.65; object-fit: cover; }
+.life-start-options img { display: block; width: 100%; height: auto; aspect-ratio: 2.3; object-fit: cover; }
 .start-title { position: absolute; z-index: 1; inset: auto 16px 14px; }
 .start-title > span { color: #f4d6a5; font-size: 11px; letter-spacing: .15em; }
-.life-start-options h3 { margin: 4px 0 0; font: 700 clamp(23px,4vw,42px)/1.04 var(--serif); }
-.start-details { display: flex; flex-direction: column; gap: 7px; width: 100%; flex: 1; padding: 12px 16px 6px; border-top: 1px solid #b89a65; }
-.start-balance { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
-.start-balance span { color: #e2cda7; font-size: 11px; }
-.start-balance b { color: #f4d7a4; font: 700 clamp(18px,3vw,29px)/1.15 var(--serif); font-variant-numeric: tabular-nums; }
+.life-start-options h3 { margin: 4px 0 0; font: 800 clamp(21px,3vw,31px)/1.07 sans-serif; }
+.start-details { display: flex; flex-direction: column; gap: 7px; width: 100%; flex: 1; padding: 8px 12px 2px; }
 .life-start-options p { margin: 0; color: #ebe4d2; font-size: 13px; line-height: 1.55; }
-.start-action { display: flex; justify-content: space-between; align-items: center; gap: 4px; min-height: 38px; margin-top: auto; border-top: 1px solid #9d8a646f; font-size: 12px; }
+.start-action { display: flex; justify-content: space-between; align-items: center; gap: 4px; min-height: 31px; margin-top: auto; border-top: 1px solid var(--game-line); font-size: 12px; color: var(--game-yellow); }
 .life-cash-detail { display: flex; justify-content: space-between; gap: 8px; margin-block: 8px; padding: 7px 8px; border: 1px solid #c9c4ad; color: #435349; font-size: 12px; }
 .life-cash-detail strong { white-space: nowrap; }
 .annual-ledger .year-shortfall { color: #813d2d; }
 
 @media (max-width: 480px) {
   .life-start-picker { padding: 18px 11px 13px; }
-  .life-start-picker h2 { margin-bottom: 12px; }
-  .life-start-options { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 6px; }
-  .life-start-options > button:last-child { grid-column: 1 / -1; }
-  .life-start-options img { aspect-ratio: 1.1; }
-  .life-start-options > button:last-child img { aspect-ratio: 2.4; }
+  .life-start-options { gap: 6px; }
+  .life-start-options img { aspect-ratio: 1.4; }
   .start-title { inset: auto 10px 10px; }
   .start-details { padding: 8px 9px 4px; }
   .life-start-options p { font-size: 12px; }
