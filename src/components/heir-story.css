@@ -1,12 +1,12 @@
 .app .modal:has(>.heir-assets) {
-  width: min(720px, 100%);
+  width: min(840px, 100%);
   background: var(--game-panel);
   color: var(--game-white);
   border: 1px solid var(--game-line);
 }
 .app .modal:has(>.heir-assets) .modal-close { background: var(--game-row); color: var(--game-white); }
-.app .heir-assets > header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 36px 19px 0; }
-.heir-assets h2 { margin: 0; font: 800 clamp(24px,4vw,37px)/1.15 sans-serif; }
+.app .heir-assets > header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; margin: 0 36px 16px 0; }
+.heir-assets h2 { margin: 0; font: 800 clamp(24px,4vw,37px)/1.15 var(--serif); letter-spacing: .025em; }
 .heir-assets header > div { display: grid; gap: 2px; }
 .heir-assets header small, .heir-assets li small, .heir-assets > p { color: var(--game-muted); }
 .heir-assets header strong { color: var(--game-yellow); font-variant-numeric: tabular-nums; }
@@ -63,3 +63,59 @@
   margin: 10px 0 15px; padding: 11px 13px; background: var(--game-row); border: 1px solid var(--game-line);
 }
 .system-wallet strong { color: var(--game-yellow); font-size: 23px; }
+
+.play-screen .street-scene.has-concierge { grid-template-rows: minmax(196px,1fr) auto auto; }
+.concierge-access {
+  display: flex; align-items: center; gap: 11px; width: 100%; min-height: 51px;
+  padding: 8px 14px; border: 1px solid #8e7252;
+  color: #ffe2ab; background: #392832; text-align: left;
+}
+.concierge-access > span { display: flex; align-items: baseline; flex-wrap: wrap; gap: 3px 14px; }
+.concierge-access b { font-size: 15px; }
+.concierge-access small { color: #e3cbb7; font-size: 12px; }
+.concierge-access svg:last-child { margin-inline-start: auto; }
+.concierge-access:hover:not(:disabled) { background: #513641; }
+.city-map-mode > .concierge-access {
+  position: absolute; z-index: 3; top: 12px; right: 12px; width: auto;
+}
+.city-map-mode > .concierge-access small { display: none; }
+
+.heir-assets header .concierge-wallet { text-align: right; gap: 1px; }
+.concierge-wallet strong { font-size: clamp(19px,3vw,28px); }
+.concierge-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--game-line); margin-bottom: 15px; }
+.concierge-tabs button {
+  min-height: 44px; padding: 7px 12px; color: var(--game-muted);
+  border-bottom: 2px solid transparent; background: transparent; font-size: 14px; font-weight: 700;
+}
+.concierge-tabs button[aria-pressed="true"] { color: var(--game-yellow); border-bottom-color: var(--game-yellow); }
+.concierge-tabs button:hover { color: var(--game-white); background: var(--game-row); }
+.concierge-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 9px; }
+.heir-collection + .concierge-grid { margin-top: 12px; }
+.concierge-card {
+  position: relative; display: grid; grid-template-rows: auto 1fr; min-width: 0; padding: 0;
+  border: 1px solid var(--game-line); color: var(--game-white); background: var(--game-row); text-align: left;
+}
+.concierge-card:disabled { opacity: .65; }
+.concierge-card:hover:not(:disabled) { border-color: #bd9565; background: #372c35; }
+.concierge-card > img { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; background: var(--game-black); }
+.concierge-card-details { display: grid; align-content: start; gap: 4px; padding: 10px 24px 12px 11px; }
+.concierge-card-details small { color: var(--game-muted); font-size: 11px; }
+.concierge-card-details b { font-size: clamp(14px,1.7vw,19px); line-height: 1.25; }
+.concierge-card-details > span { color: #ffe2ab; font-size: 12px; font-variant-numeric: tabular-nums; }
+.concierge-card > svg { position: absolute; right: 9px; bottom: 12px; color: #ffe2ab; }
+.heir-assets > p .text-button { display: inline-flex; margin-inline-start: 6px; color: var(--game-yellow); }
+.app .event-content .concierge-back { color: var(--game-muted); min-height: 44px; margin-top: 5px; }
+.app .outcome-content .concierge-balance { color: #ffe2ab; background: #392832; }
+@media (max-width: 850px) {
+  .play-screen .street-scene.has-concierge { grid-template-rows: minmax(165px,1fr) auto auto; }
+  .concierge-access { padding: 6px 10px; gap: 7px; min-height: 44px; }
+}
+@media (max-width: 540px) {
+  .app .heir-assets > header { gap: 6px 8px; margin-inline-end: 30px; }
+  .concierge-wallet strong { font-size: 17px; }
+  .concierge-grid { grid-template-columns: 1fr; gap: 7px; }
+  .concierge-card { grid-template: auto / minmax(88px,34%) minmax(0,1fr); align-items: center; }
+  .concierge-card > img { height: 100%; min-height: 75px; object-fit: cover; }
+  .concierge-card-details { gap: 3px; padding-block: 7px; }
+  .concierge-card > svg { bottom: calc(50% - 8px); }
+}

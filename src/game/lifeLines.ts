@@ -1,6 +1,7 @@
 import { CAST } from './content';
 import { replayContactStory } from './contactStories';
 import { ACTIVITY_NAMES, oldYearLetter, replayCatalogEvent, SAVE_KEY, selectEvent, validateSave } from './engine';
+import { replayConcierge } from './heirConcierge';
 import { replayHeirVisit } from './heirStory';
 import { heirBoardVisit } from './lifeStarts';
 import { campaignLead } from './lifeCampaign';
@@ -82,7 +83,7 @@ export function replayScene(state: GameState, scene: SceneRef): LifeEvent | null
   if (scene.eventId.startsWith('street-corner-')) return replayCorner(state,scene.eventId);
   if (scene.kind === 'lead' && scene.eventId.startsWith('street-')) return replayLocalLead(state,scene.eventId);
   if (scene.kind === 'lead') {
-    const visits = [firstNightLead(state)?.event, replayHeirVisit(state,scene.eventId), heirBoardVisit(state), campaignLead(state)?.event, systemRedemption(state)];
+    const visits = [replayConcierge(state,scene.eventId), firstNightLead(state)?.event, replayHeirVisit(state,scene.eventId), heirBoardVisit(state), campaignLead(state)?.event, systemRedemption(state)];
     const event = visits.find(visit=>visit?.id===scene.eventId);
     if (event) return event;
   }
@@ -132,7 +133,7 @@ export function recordDecision(book: LifeBook, state: GameState, event: LifeEven
   const { journal, ...before } = line.state;
   const isRental = event.rentalEvidence !== undefined;
   const kind = isRental ? 'rental' : event.firstDate ? 'date' : event.tag === '开局插曲' ? 'origin' : event.id.startsWith('matchmaking-') ? 'match' : event.tag === '夜猫子来信' ? 'owl' :
-    (firstNightLead(line.state)?.event.id===event.id || replayHeirVisit(line.state,event.id) || heirBoardVisit(line.state)?.id === event.id || campaignLead(line.state)?.event.id===event.id
+    (event.actionCost===0 || firstNightLead(line.state)?.event.id===event.id || replayHeirVisit(line.state,event.id) || heirBoardVisit(line.state)?.id === event.id || campaignLead(line.state)?.event.id===event.id
       || systemRedemption(line.state)?.id===event.id || streetLead(line.state)?.event.id === event.id) ? 'lead' : event.category;
   const defaultEvent = replayScene(line.state, { kind, eventId: event.id });
   const scene: SceneRef = {

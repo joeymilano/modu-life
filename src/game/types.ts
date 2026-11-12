@@ -23,7 +23,7 @@ export interface LifeEvent {
  id: string; title: string; text: string; objective?: string; speakerId?: string; illustration?: string; category: ActivityKind | 'year';
  district?: DistrictId; location?: string; minAge?: number; maxAge?: number; requiredFlags?: string[]; forbiddenFlags?: string[]; housingLevels?: number[]; needsRoommate?: boolean;
  once?: boolean; chainId?: string; chainStep?: number; choices: EventChoice[]; tag?: string; weight?: number;
- firstDate?: FirstDatePicks; rentalEvidence?: number;
+ firstDate?: FirstDatePicks; rentalEvidence?: number; actionCost?: 0;
 }
 export interface OriginCard { id: string; slot: OriginSlot; name: string; rarity: 'SSR'|'SR'|'R'|'N'; subtitle: string; description: string; tag: string; accent: string; effect: Effect; }
 export interface CastMember { id: string; portraitId?: string; name: string; ageOffset: number; title: string; district: DistrictId; role: 'romance'|'friend'|'family'|'rival'|'mentor'; description: string; trait: 'sincerity'|'ambition'|'freedom'|'security'|'humor'; color: string; gender: 'female'|'male'; }

@@ -1,4 +1,4 @@
-export const YEAR_MOMENTS = ['bed','move','care','family','late','saved','ordinary'] as const;
+export const YEAR_MOMENTS = ['bed','move','care','family','late','saved','ordinary','penthouse'] as const;
 export type YearMoment = (typeof YEAR_MOMENTS)[number];
 
 export interface YearReceipt {
@@ -29,17 +29,19 @@ const moments: Record<YearMoment, {title: string; line: string; alt: string}> = 
  family: {title:'两本账分开记',line:'家里代付了一部分。手上有多少，还是查自己的卡。',alt:'江边公寓的桌上分开放着房卡、账单和存折'},
  late: {title:'坐最后一班回家',line:'晚上回来的路，你已经走熟了。',alt:'一位下班的人坐在夜班公交车窗边'},
  saved: {title:'这回手上宽一点',line:'账都付了，卡里还多留了一点。',alt:'旧公房的厨房里，有人把刚买的菜放到桌上'},
+ penthouse: {title:'最后一班船过去了',line:'窗边那盏灯还亮着，物业把今年的账送了上来。',alt:'从陆家嘴江景顶层望向入夜的外滩'},
  ordinary: {title:'把今年的账结了',line:'回家那段路，顺便去买明天的早饭。',alt:'傍晚的小店外，有人拎着布袋往弄堂走'},
 };
 
 export function yearMoment(moment: YearMoment) {
- return {...moments[moment], photo:'/art/yearbook/'+moment+'.webp'};
+ return {...moments[moment], photo:moment==='penthouse'?'/art/heir-story/penthouse.webp':'/art/yearbook/'+moment+'.webp'};
 }
 
-export function receiptMoment(receipt: Pick<YearReceipt,'uncovered'|'friendAdvance'|'familyPaid'|'after'|'before'>, recovered: boolean, late: boolean): YearMoment {
+export function receiptMoment(receipt: Pick<YearReceipt,'uncovered'|'friendAdvance'|'familyPaid'|'after'|'before'>, recovered: boolean, late: boolean, penthouse = false): YearMoment {
  if (receipt.uncovered) return 'bed';
  if (receipt.friendAdvance) return 'move';
  if (recovered) return 'care';
+ if (penthouse) return 'penthouse';
  if (receipt.familyPaid) return 'family';
  if (late) return 'late';
  return receipt.after > receipt.before ? 'saved' : 'ordinary';

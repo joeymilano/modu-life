@@ -1,16 +1,16 @@
-import type { CSSProperties } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { ACTIVITY_NAMES } from '../game/engine';
 import { CORNER_OBJECTS, cornerPhoto } from '../game/streetCorners';
 import type { District, Hotspot } from '../game/types';
 import Icon from './Icon';
 
-export default function StreetScene({ district, disabled, onVisit, onNightOwl, onCorner, returning }: {
+export default function StreetScene({ district, disabled, onVisit, onNightOwl, onCorner, returning, concierge }: {
   district: District; disabled: boolean; onVisit: (place: Hotspot) => void; onNightOwl: () => void;
-  onCorner?: () => void; returning: boolean;
+  onCorner?: () => void; returning: boolean; concierge?: ReactNode;
 }) {
   const object = CORNER_OBJECTS[district.id];
   const [x,y] = object.point;
-  return <div className="street-scene">
+  return <div className={'street-scene'+(concierge?' has-concierge':'')}>
     <div className="street-frame" data-district={district.id} key={district.id}>
       <img src={cornerPhoto(district.id)} alt="" width={1320} height={880} decoding="async" />
       {onCorner&&<button className="corner-pin"
@@ -24,6 +24,7 @@ export default function StreetScene({ district, disabled, onVisit, onNightOwl, o
         <Icon name="moon" size={16} /> 夜猫子邮筒
       </button>}
     </div>
+    {concierge}
     <div className="street-places">
       {district.hotspots.map(place => <button key={place.id} className="place-card street-place" disabled={disabled} onClick={() => onVisit(place)}>
         <span><b>{place.name}</b><small>{ACTIVITY_NAMES[place.kind]}</small></span>

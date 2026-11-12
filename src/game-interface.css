@@ -60,7 +60,13 @@
 .play-screen .age-row > strong { color: var(--game-white); font: 800 clamp(43px,4vw,69px)/1 sans-serif; }
 .play-screen .age-row > span,
 .play-screen .age-row b { color: var(--game-muted); }
-.play-screen .cash-block > strong { color: var(--game-yellow); font: 800 clamp(24px,2.6vw,37px)/1.12 sans-serif; overflow-wrap: anywhere; }
+.play-screen .cash-block { container-type: inline-size; }
+.play-screen .life-sidebar .cash-block > strong {
+  color: var(--game-yellow);
+  font: 800 clamp(15px, calc(175cqi / var(--cash-length, 8)), 37px)/1.12 sans-serif;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
 .play-screen .cash-block .positive { color: #b4deb8; }
 .play-screen .cash-block .negative { color: #f4aa9c; }
 .play-screen :is(.cash-block>span,.cash-block>div,.stat-row,.life-small-row,.life-cash-detail,.career-summary small,.contact-access small,.time-budget span) { color: var(--game-muted); }

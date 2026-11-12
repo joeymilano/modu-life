@@ -1,5 +1,6 @@
 import { openingPhoto } from './art';
 import { heirClassYear, staffBedRent, workerClassYear } from './classLives';
+import { livesInPenthouse, PENTHOUSE_FEE } from './heirConcierge';
 import { HEIR_CAPITAL_TIER, HEIR_PERSONAL_CASH, heirTerms } from './heirCapital';
 import { HEIR_WEST_BUND, heirStoryPhoto, westBundSecondYear } from './heirStory';
 import { isSystemLife, SYSTEM_CASH, systemOpening, systemPhoto, systemSecondYear } from './systemStory';
@@ -267,6 +268,7 @@ export function outstandingShiftPay(state: GameState) {
 }
 
 export function lifeStartRent(state: GameState, ordinaryRent: number, shared: boolean) {
+ if (livesInPenthouse(state)) return shared ? Math.round(PENTHOUSE_FEE * .6) : PENTHOUSE_FEE;
  if (state.flags.includes(FAMILY_HOME) && state.housing === 2) {
   const rent=heirTerms(state).rent;
   return shared ? Math.round(rent * .6) : rent;
@@ -276,6 +278,7 @@ export function lifeStartRent(state: GameState, ordinaryRent: number, shared: bo
 }
 
 export function lifeStartHousing(state: GameState): string | undefined {
+ if (livesInPenthouse(state)) return '陆家嘴江景顶层 · 自有';
  if (state.flags.includes(FAMILY_HOME) && state.housing === 2) return state.flags.includes(FAMILY_PAY) ? '家里租的江景房' : '江景房 · 自付';
  if (state.flags.includes(DAYWORK) && state.housing === 0) return state.flags.includes(DAYWORK_TEMP) ? '临时落脚' : staffBedRent(state) !== undefined ? '仓配宿舍' : '短租床位';
 }

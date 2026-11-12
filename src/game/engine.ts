@@ -2,6 +2,7 @@ import { DAYWORK, DAYWORK_TEMP, FAMILY_HOME, FAMILY_PAY, HEIR, HEIR_PAY_RATE, li
 import { CAREERS, CAST, GOALS, LIFE_START_CARDS, ORIGIN_POOLS } from './content';
 import { FIRST_NIGHT_FLAG, firstNightYear, hasSharedWithMao } from './firstNight';
 import { hasHeirStory, HEIR_WEST_BUND } from './heirStory';
+import { livesInPenthouse, replayConcierge } from './heirConcierge';
 import { campaignEpilogue, campaignPressureYear, campaignYear } from './lifeCampaign';
 import { isSystemLife } from './systemStory';
 import { OPENING_DRAMA } from './openingStakes';
@@ -221,13 +222,19 @@ export function routineEvent(s:GameState,kind:ActivityKind|'year',npcId?:string)
 export function canAfford(s:GameState,effect:Effect){return (effect.cash||0)>=0||s.cash>=-(effect.cash||0);}
 export function checkChance(s:GameState,choice:EventChoice){if(!choice.check)return 100;return Math.round(clamp(50+s.stats[choice.check.stat]-choice.check.threshold,15,95));}
 export function resolveChoice(state:GameState,event:LifeEvent,choiceId:string,npcId?:string):ChoiceResult {
-  if(state.ended||(!state.pendingYearEvent&&state.actions<=0))throw new Error('今年的时间用完了，先去年度结算。');
+  const actionCost=event.actionCost??1;
+  if(state.ended||(!state.pendingYearEvent&&state.actions<actionCost))throw new Error('今年的时间用完了，先去年度结算。');
+  if(actionCost===0){
+    const available=replayConcierge(state,event.id);
+    if(!available)throw new Error('这项安排现在无法办理。');
+    event=available;
+  }
   const choice=event.choices.find(c=>c.id===choiceId);if(!choice)throw new Error('这个选择不存在。');
   if(!canAfford(state,choice.effect))throw new Error('这笔钱现在拿不出来。换一个办法。');
   let s=applyEffect(state,choice.effect,npcId||event.speakerId);let text=choice.reply;let effect={...choice.effect};let success:boolean|undefined;
   const [roll,rng]=randomStep(s.rng);s.rng=rng;
   if(choice.check){success=roll*100<checkChance(state,choice);const extra=success?choice.check.success:choice.check.failure;s=applyEffect(s,extra,npcId||event.speakerId);text+=' '+(success?choice.check.successText:choice.check.failureText);effect={...effect};for(const [key,value] of Object.entries(extra)){if(typeof value==='number')(effect as Record<string,unknown>)[key]=Number((effect as Record<string,unknown>)[key]||0)+value;}}
-  if(state.pendingYearEvent)s.pendingYearEvent=false;else s.actions=Math.max(0,s.actions-1);
+  if(state.pendingYearEvent)s.pendingYearEvent=false;else s.actions-=actionCost;
   if(!event.id.startsWith('routine-'))s.seenEvents=[...new Set([...s.seenEvents,event.id])];
   if(event.category==='career'&&!event.id.startsWith('mini-')&&s.jobId===state.jobId){
     const rank=registerReview(s);
@@ -306,7 +313,7 @@ export function nextYear(state:GameState) {
     body:s.stats.health-state.stats.health, spirit:s.stats.spirit-state.stats.spirit,
     payroll, rentKind:plan==='shared'?'shared':state.leaseRent!==undefined?'lease':'plain', notice,
     moment:receiptMoment({uncovered,friendAdvance,familyPaid,after:s.cash,before:state.cash},recovered,
-      activeMonths>0&&(commute||state.flags.includes(NIGHT_WORK))),
+      activeMonths>0&&(commute||state.flags.includes(NIGHT_WORK)),livesInPenthouse(s)),
   };
   s.journal.push({age:s.age,title:`${s.age}岁年度账本`,text:note,tag:'账本',receipt});
   if(s.employment)s.employment={...employment,closedMonths:0,earned:0};
