@@ -28,7 +28,7 @@ export default function AppearancePicker({value, onChange, children}: {
    <div className="casting-strip">
     <div className="casting-plate" aria-live="polite">
      <strong>{selected.name}</strong>
-     <span>{selected.face ? `腔势 +${selected.face} · 初见好感 +${selected.attraction}` : '无外貌加成'}</span>
+     {selected.face > 0 && <span>腔势 +{selected.face} · 初见好感 +{selected.attraction}</span>}
     </div>
     <div className="casting-ages" role="group" aria-label="照片年龄">
      {LIFE_ALBUM_AGES.map(year => <button type="button" key={year} aria-pressed={age === year}
@@ -36,7 +36,7 @@ export default function AppearancePicker({value, onChange, children}: {
     </div>
    </div>
    {canPreview && <button className="casting-model" aria-expanded={preview} onClick={() => setPreview(open => !open)}>
-    <Icon name="eye" size={16}/>{preview ? '收起 3D' : '看看 3D 形象'}
+    <Icon name="eye" size={16}/>{preview ? '关闭 3D' : '3D 预览'}
    </button>}
   </div>
   <div className="casting-panel">

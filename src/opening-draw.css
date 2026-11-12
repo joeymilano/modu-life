@@ -1,4 +1,4 @@
-.app.screen-draw { background: #efebe1; }
+.app.screen-draw { background: var(--game-black); color: var(--game-white); }
 .draw-screen.setup-screen { width: min(100% - 48px, 1304px); padding: 18px 0 36px; margin: 0 auto; }
 .setup-steps {
   display: flex; gap: 28px; margin-bottom: 18px; border-bottom: 1px solid #bfb9a8;

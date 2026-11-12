@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNod
 import { downloadBlob, makeStoryComparison, makeStoryPhoto } from '../game/share';
 import { playSound } from '../game/audio';
 import { storyComparisons, type StoryComparison } from '../game/timelineComparison';
-import MusicCredit from './MusicCredit';
+import GameCredits from './GameCredits';
 import {
   CITY_TIMELINES, isTicketHash, readTickets, removeTicket, saveTicket, ticketFromHash, ticketLink, timelineShot, validateTicket, walk,
   type Move, type Ticket, type Timeline, type Turn,
@@ -13,10 +13,10 @@ import Icon from './Icon';
 import './parallel.css';
 
 const featuredStories = [
- { id:'last-photo', tab:'照相馆', hook:'房东七点来收钥匙。拍条告别短片，能拿四千。', action:'替阿宝做个决定' },
- { id:'pearl-signal', tab:'江边来信', hook:'四块钱的柠檬水还没喝，五年后的你先发来了语音。', action:'去轮渡口' },
- { id:'last-train', tab:'末班车', hook:'明早要去张江报到，爸的手被缝鞋机压了。闸机三分钟后关。', action:'走到闸机前' },
- { id:'staff-bed', tab:'那张门卡', hook:'莘庄空出一张床。补贴要不要续，表决单送到了外滩。', action:'看看那张门卡' },
+ { id:'last-photo', tab:'照相馆', hook:'房东七点来收钥匙。拍条告别短片，能拿四千。' },
+ { id:'pearl-signal', tab:'江边来信', hook:'四块钱的柠檬水还没喝，五年后的你先发来了语音。' },
+ { id:'last-train', tab:'末班车', hook:'明早要去张江报到，爸的手被缝鞋机压了。闸机三分钟后关。' },
+ { id:'staff-bed', tab:'那张门卡', hook:'莘庄空出一张床。补贴要不要续，表决单送到了外滩。' },
 ].map(story => ({ ...story, timeline: CITY_TIMELINES.find(timeline => timeline.id === story.id)! }));
 
 const blankTurn = (): Turn => ({
@@ -64,19 +64,18 @@ function Editor({ kind, preset, onSave }: { kind: Timeline['kind']; preset?: Tim
     }
   }
   return <form className="parallel-editor" onSubmit={submit}>
-    <span className="parallel-kicker">{kind === 'life' ? '写一段人生' : '空降现实题'}</span>
-    <h1>{kind === 'life' ? '从哪天开始重来' : '换个人来出主意'}</h1>
+    <h1>{kind === 'life' ? '新故事' : '新问题'}</h1>
     <div className="parallel-fields">
-      <Field label="这段故事叫什么" value={draft.title} limit={28} change={title => update({ title })} placeholder="比如 · 房东说周五要答复" />
-      <Field label="怎么称呼你" value={draft.author} limit={16} change={author => update({ author })} placeholder="用个化名就好" />
+      <Field label="标题" value={draft.title} limit={28} change={title => update({ title })} placeholder="比如 · 房东说周五要答复" />
+      <Field label="作者" value={draft.author} limit={16} change={author => update({ author })} placeholder="用个化名就好" />
     </div>
     {draft.turns.map((turn, index) => <fieldset key={index} className="parallel-fieldset">
       <legend>第 {index + 1} 幕</legend>
       <div className="parallel-fields">
-        <Field label="什么时候" value={turn.date} limit={28} change={date => updateTurn(index, { date })} placeholder="2024年 · 28岁" />
-        <Field label="在哪儿" value={turn.place} limit={24} change={place => updateTurn(index, { place })} placeholder="比如 · 虹口合租房" />
+        <Field label="时间" value={turn.date} limit={28} change={date => updateTurn(index, { date })} placeholder="2024年 · 28岁" />
+        <Field label="地点" value={turn.place} limit={24} change={place => updateTurn(index, { place })} placeholder="比如 · 虹口合租房" />
       </div>
-      <Field label="当时出了什么事" value={turn.scene} limit={220} change={scene => updateTurn(index, { scene })} multiline />
+      <Field label="场景" value={turn.scene} limit={220} change={scene => updateTurn(index, { scene })} multiline />
       {kind === 'question' && <button type="button" className="parallel-quiet" onClick={() => updateTurn(index, {
         options: turn.options.length ? [] : blankTurn().options,
       })}>{turn.options.length ? '只收对方自己的解法' : '给两种走法（选填）'}</button>}
@@ -105,7 +104,7 @@ function Editor({ kind, preset, onSave }: { kind: Timeline['kind']; preset?: Tim
     </div>
     <Field label="原来那条线后来怎样了（选填）" value={draft.original} limit={160} change={original => update({ original })} multiline placeholder="还在犹豫的话，可以留空" optional />
     {error && <p role="alert">{error}</p>}
-    <button className="parallel-primary">存到票夹 <Icon name="arrow" size={18} /></button>
+    <button className="parallel-primary">保存 <Icon name="arrow" size={18} /></button>
   </form>;
 }
 
@@ -120,13 +119,11 @@ function TicketCard({ ticket, index, onClick, illustrated = false }: { ticket: T
     {cover && <img className="parallel-ticket-cover" src={cover} alt="" loading={index < 3 ? 'eager' : 'lazy'} decoding="async" />}
     <span className="parallel-ticket-copy">
     <span className="parallel-ticket-meta">
-      <b>{String(index + 1).padStart(2, '0')}</b>
       {label}
       <Icon name="arrow" size={21} />
     </span>
     <strong>{timeline.title}</strong>
     <span>{first.date} · {first.place}</span>
-    {illustrated && <span className="parallel-ticket-preview">{first.scene}</span>}
     {!illustrated && <small>{timeline.author}</small>}
     </span>
   </button>;
@@ -188,7 +185,7 @@ export default function ParallelShanghai({ onClose, hash, preset, audio, onAudio
       setEntries(saveTicket(next));
       if (announce) setStatus('收到票夹里了');
     } catch {
-      setStatus('这台设备存不下了，先下载这张票吧');
+      setStatus('这台设备存不下了，先导出档案吧');
     }
   }
 
@@ -301,7 +298,7 @@ export default function ParallelShanghai({ onClose, hash, preset, audio, onAudio
           </div>
           <div className="parallel-choices">
             {current.options.map((option, index) => <button key={index} onClick={() => pick({ pick: index })}>
-              <b>{'AB'[index]}</b><span>{option.move}</span><Icon name="arrow" size={18} />
+              <span>{option.move}</span><Icon name="arrow" size={18} />
             </button>)}
           </div>
           {(answering || !current.options.length) ? <form className="parallel-answer" onSubmit={event => {
@@ -309,13 +306,13 @@ export default function ParallelShanghai({ onClose, hash, preset, audio, onAudio
             if (answer.trim()) pick({ pick: 2, note: answer.trim() });
           }}>
             <Field label="换你会怎么做" value={answer} limit={160} change={setAnswer} multiline />
-            <button className="parallel-primary" disabled={!answer.trim()}>写进回执 <Icon name="arrow" size={18} /></button>
-          </form> : <button className="parallel-quiet" onClick={() => setAnswering(true)}>我有个别的办法</button>}
+            <button className="parallel-primary" disabled={!answer.trim()}>确认 <Icon name="arrow" size={18} /></button>
+          </form> : <button className="parallel-quiet" onClick={() => setAnswering(true)}>自选走法</button>}
         </> : <>
           <div className="parallel-ending-head">
-            <h1 ref={titleRef} tabIndex={-1}>{last?.option.shot ? '照片洗出来了' : '这条线走到了这儿'}</h1>
+            <h1 ref={titleRef} tabIndex={-1}>{last?.option.shot ? '结局' : '结局'}</h1>
             {last?.option.shot && <button className="parallel-quiet" disabled={printing} onClick={() => void printPhoto(timeline, last.option, movePath)}>
-              {printing ? '正在洗照片' : '洗一张带走'} <Icon name="download" size={17} />
+              {printing ? '生成中' : '下载照片'} <Icon name="download" size={17} />
             </button>}
           </div>
           {comparisons.length ? <StoryReceiptCompare key={titleKey} options={comparisons} printing={printing} endingPhoto={last?.option.shot}
@@ -333,17 +330,17 @@ export default function ParallelShanghai({ onClose, hash, preset, audio, onAudio
           </div>
           <div className="parallel-actions">
             <button className="parallel-primary" onClick={() => copy(ticket)}>复制回执链接 <Icon name="share" size={17} /></button>
-            <button className="parallel-quiet" onClick={() => rewind(0)}>从头再走一次</button>
+            <button className="parallel-quiet" onClick={() => rewind(0)}>重玩</button>
           </div>
         </>}
         <div className="parallel-tools">
           {current && <button className="parallel-quiet" onClick={() => copy({ version: 1, timeline })}>复制邀请链接</button>}
-          <button className="parallel-quiet" onClick={() => downloadBlob(new Blob([JSON.stringify(ticket)], { type: 'application/json' }), '平行上海.json')}>下载这张票</button>
-          {!saved && <button className="parallel-quiet" onClick={() => keep(ticket)}>收进票夹</button>}
+          <button className="parallel-quiet" onClick={() => downloadBlob(new Blob([JSON.stringify(ticket)], { type: 'application/json' }), '平行上海.json')}>导出档案</button>
+          {!saved && <button className="parallel-quiet" onClick={() => keep(ticket)}>保存</button>}
           {saved && <button className="parallel-quiet" onClick={() => {
-            try { setEntries(removeTicket(ticket)); setStatus('已从票夹取出'); }
+            try { setEntries(removeTicket(ticket)); setStatus('已移出档案'); }
             catch { setStatus('这台设备的票夹暂时改不了'); }
-          }}>从票夹取出</button>}
+          }}>移出档案</button>}
         </div>
         {current && number > 1 && <button className="parallel-quiet" onClick={() => rewind(route.length - 1)}>← 从上一幕开分支</button>}
       </div>
@@ -357,25 +354,25 @@ export default function ParallelShanghai({ onClose, hash, preset, audio, onAudio
       <div className="parallel-hero" data-feature={selection.id}>
         <img key={selection.id} src={timelineShot(selection.timeline, 0)} alt="" fetchPriority="high" />
         <div className="parallel-hero-copy">
-          <h1 ref={titleRef} tabIndex={-1}>重走别人的人生</h1>
+          <h1 ref={titleRef} tabIndex={-1}>平行上海</h1>
           <h2>{selection.timeline.title}</h2>
           <p>{selection.hook}</p>
-          <button className="parallel-primary" onClick={() => open({ version: 1, timeline: selection.timeline })}>{selection.action} <Icon name="arrow" size={18} /></button>
+          <button className="parallel-primary" onClick={() => open({ version: 1, timeline: selection.timeline })}>开始故事 <Icon name="arrow" size={18} /></button>
         </div>
       </div>
       <div className="parallel-reel" role="group" aria-label="精选故事">
         {featuredStories.map((story, index) => <button key={story.id} type="button" aria-pressed={index === featured}
           onClick={() => { setFeatured(index); playSound('tap'); }}>
           <img src={timelineShot(story.timeline, 0)} alt="" width={1320} height={880} decoding="async"/>
-          <span><small>{String(index + 1).padStart(2, '0')}</small>{story.tab}</span>
+          <span>{story.tab}</span>
         </button>)}
       </div>
       <section className="parallel-shelf">
         <div className="parallel-shelf-head">
-          <h2 id="guest-stories" tabIndex={-1}>今晚的车次</h2>
+          <h2 id="guest-stories" tabIndex={-1}>故事</h2>
           <div className="parallel-actions">
-            <button className="parallel-quiet" onClick={() => setEditing('life')}>写一段人生 <Icon name="arrow" size={18} /></button>
-            <button className="parallel-quiet" onClick={() => setEditing('question')}>空降现实题 <Icon name="bolt" size={17} /></button>
+            <button className="parallel-quiet" onClick={() => setEditing('life')}>新故事 <Icon name="arrow" size={18} /></button>
+            <button className="parallel-quiet" onClick={() => setEditing('question')}>新问题 <Icon name="bolt" size={17} /></button>
           </div>
         </div>
         <div className="parallel-grid parallel-catalog">{CITY_TIMELINES.filter(timeline => timeline !== PHOTO_SHOP_STORY).map((timeline, index) =>
@@ -383,28 +380,28 @@ export default function ParallelShanghai({ onClose, hash, preset, audio, onAudio
         )}</div>
       </section>
       <section className="parallel-shelf">
-        <div className="parallel-shelf-head"><h2>我的票夹</h2><button className="parallel-quiet" onClick={() => fileRef.current?.click()}>导入车票 <Icon name="download" size={16} /></button></div>
+        <div className="parallel-shelf-head"><h2>故事档案</h2><button className="parallel-quiet" onClick={() => fileRef.current?.click()}>导入档案 <Icon name="download" size={16} /></button></div>
         {entries.length > 0 ? <div className="parallel-grid">{entries.map((entry, index) =>
           <TicketCard key={index} ticket={entry} index={index} onClick={() => open(entry)} />
-        )}</div> : <p className="parallel-empty">写过的故事和走完的路线会留在这里</p>}
+        )}</div> : <p className="parallel-empty">暂无存档</p>}
       </section>
     </>;
   }
 
   return <main className="parallel">
     <div className="parallel-bar">
-      <button className="parallel-quiet" onClick={onClose}>← 回魔都</button>
+      <button className="parallel-quiet" onClick={onClose}>返回</button>
       <div className="parallel-actions">{screen !== 'hub' && <button className="parallel-quiet" onClick={() => {
         showHub();
         playSound('tap');
         if (isTicketHash(window.location.hash)) window.location.hash = 'parallel';
-      }}>回故事列表</button>}
+      }}>故事列表</button>}
+      <GameCredits/>
       <button className="parallel-quiet" onClick={onAudio} aria-label={audio?'关闭声音':'打开声音'}><Icon name={audio?'sound':'mute'} size={17}/></button></div>
     </div>
     <input ref={fileRef} type="file" accept=".json,application/json" hidden onChange={event => importTicket(event.target.files?.[0])} />
     {content}
     {status && <div className="parallel-status" role="status">{status}</div>}
     {shareValue && <input className="parallel-link" aria-label="分享链接" value={shareValue} readOnly onFocus={event => event.target.select()} />}
-    <footer className="parallel-music"><MusicCredit/></footer>
   </main>;
 }

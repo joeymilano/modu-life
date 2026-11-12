@@ -41,7 +41,7 @@ export default function ArrivalInbox({event, appearance, heading, onReply}: {
   </div>
   <div className="event-content arrival-desk">
    <header>
-    <div className="arrival-kicker"><Icon name="clock" size={15}/><span>刚到上海</span><span aria-live="polite">{messages.length - read.length} 条未读</span></div>
+    <div className="arrival-kicker"><span aria-live="polite">{messages.length - read.length} 条未读</span></div>
     <h2 ref={heading} tabIndex={-1}>{event.title}</h2>
     <p>{event.text}</p>
    </header>
@@ -65,7 +65,7 @@ export default function ArrivalInbox({event, appearance, heading, onReply}: {
    {active ? <div className="arrival-thread" key={active.choice.id} role="region" aria-label={active.sender.name + '的消息'}>
     <p>{active.choice.hint}</p><p>{active.thread.note}</p>
     <div className="event-choices">
-     <button className="primary arrival-send" onClick={() => onReply(active.choice.id)}>
+     <button type="button" className="primary arrival-send" onClick={() => onReply(active.choice.id)}>
       {active.choice.label} <Icon name="arrow" size={17}/>
      </button>
     </div>

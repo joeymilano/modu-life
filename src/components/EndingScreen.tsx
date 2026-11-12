@@ -28,7 +28,6 @@ export default function EndingScreen({ game, sharing, onShare, onChallenge, onDr
 
  return <main className="ending-screen">
   <header className="ending-copy">
-   <p className="eyebrow">在上海过了 42 年</p>
    <h1>{result.title}</h1>
    <p className="ending-description">{result.text}</p>
   </header>
@@ -40,8 +39,8 @@ export default function EndingScreen({ game, sharing, onShare, onChallenge, onDr
 
   <section className="ending-details">
    <dl className="ending-stats">
-    {start&&<div><dt>刚到上海手上</dt><dd>¥{start.cash.toLocaleString('zh-CN')}</dd></div>}
-    <div><dt>手上剩下</dt><dd>¥{Math.round(game.cash).toLocaleString('zh-CN')}</dd></div>
+    {start&&<div><dt>初始余额</dt><dd>¥{start.cash.toLocaleString('zh-CN')}</dd></div>}
+    <div><dt>最终余额</dt><dd>¥{Math.round(game.cash).toLocaleString('zh-CN')}</dd></div>
     {!!owed&&<div><dt>公司尚欠你的款</dt><dd>¥{owed.toLocaleString('zh-CN')}</dd></div>}
     <div><dt>认识的人</dt><dd>{contacts} 位</dd></div>
     <div><dt>遇到的故事</dt><dd>{game.seenEvents.length} 段</dd></div>
@@ -57,17 +56,17 @@ export default function EndingScreen({ game, sharing, onShare, onChallenge, onDr
      <h2>{table.title}</h2><p>{table.text}</p></div>
    </article>}
    <div className="ending-origin">
-    <p>当年的这手牌</p>
+    <p>开局手牌</p>
     <ul>{publicOriginNames(game).map((name,index)=><li key={index}>{name}</li>)}</ul>
    </div>
    <div className="ending-actions">
-    <button className="primary" onClick={onShare} disabled={sharing}><Icon name="share" size={18}/>{sharing?'正在洗照片…':'带走我的人生卡'}</button>
-    <button className="secondary" onClick={onDraw}>再活一次 <Icon name="dice" size={17}/></button>
+    <button className="primary" onClick={onShare} disabled={sharing}><Icon name="share" size={18}/>{sharing?'生成中':'下载人生卡'}</button>
+    <button className="secondary" onClick={onDraw}>开始新游戏 <Icon name="dice" size={17}/></button>
    </div>
    <div className="ending-links">
-    <button className="text-button" onClick={onChallenge}>把同一手牌发给朋友 <Icon name="share" size={16}/></button>
-    <button className="text-button" onClick={onLines}>回到一处岔路 <Icon name="map" size={16}/></button>
-    <button className="text-button" onClick={onJournal}>翻记事本 <Icon name="book" size={16}/></button>
+    <button className="text-button" onClick={onChallenge}>分享手牌 <Icon name="share" size={16}/></button>
+    <button className="text-button" onClick={onLines}>时间线 <Icon name="map" size={16}/></button>
+    <button className="text-button" onClick={onJournal}>记事本 <Icon name="book" size={16}/></button>
    </div>
   </section>
  </main>;

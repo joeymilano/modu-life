@@ -1,11 +1,11 @@
 .parallel {
-  --paper: #f1ead8;
-  --ink: #153a31;
-  --muted: #55665b;
-  --rule: #b7b9a6;
-  --red: #a13429;
+  --paper: var(--game-black);
+  --ink: var(--game-white);
+  --muted: var(--game-muted);
+  --rule: var(--game-line);
+  --red: var(--game-yellow);
   min-height: 100svh;
-  padding: 0 clamp(20px, 6vw, 100px) 68px;
+  padding: 0 clamp(16px, 5vw, 76px) 46px;
   color: var(--ink);
   background: var(--paper);
 }
@@ -29,8 +29,8 @@
   display: inline-flex; align-items: center; justify-content: space-between; gap: 14px;
   min-height: 48px; padding: 10px 16px; border: 1px solid transparent; border-radius: 4px;
 }
-.parallel-primary { color: #fff3dd; background: var(--red); }
-.parallel-primary:hover { background: #852d23; }
+.parallel-primary { color: #211721; background: var(--red); border-radius: 0; }
+.parallel-primary:hover { background: #fff0a0; }
 .parallel-outline { color: inherit; border-color: currentColor; background: #153a31b0; }
 .parallel-kicker, .parallel-stamp { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: .13em; }
 .parallel-kicker { margin-bottom: 14px; }
@@ -54,15 +54,15 @@
 .parallel-hero-copy > p { max-width: 520px; }
 .parallel-reel {
   display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 5px;
-  padding: 5px; margin-top: 5px; border-radius: 2px; background: #25352f; color: #f1e6d2;
+  padding: 5px; margin-top: 5px; border-radius: 2px; background: var(--game-black); color: #f1e6d2;
 }
 .parallel-reel button {
   display: grid; grid-template-columns: minmax(50px,32%) minmax(0,1fr); align-items: center;
-  min-height: 62px; text-align: left; padding: 2px; border: 1px solid #5a6b60;
-  border-radius: 2px; color: inherit; background: #31423a;
+  min-height: 62px; text-align: left; padding: 2px; border: 1px solid var(--game-line);
+  border-radius: 2px; color: inherit; background: var(--game-row);
 }
-.parallel-reel button:hover { background: #40564b; }
-.parallel-reel button[aria-pressed="true"] { border-color: #e0ba84; background: #e4c596; color: #21372e; }
+.parallel-reel button:hover { background: #3c303b; }
+.parallel-reel button[aria-pressed="true"] { border-color: var(--red); background: var(--red); color: #211721; }
 .parallel-reel img { display: block; width: 100%; height: 100%; min-height: 54px; object-fit: cover; }
 .parallel-reel button > span { padding: 6px 9px; font-size: 14px; line-height: 1.25; }
 .parallel-reel small { margin-right: 7px; font: 600 11px/1 ui-monospace,monospace; }
@@ -71,10 +71,10 @@
 .parallel-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 16px; }
 .parallel-ticket {
   display: block; text-align: left; padding: 0;
-  background: #faf4e5; color: var(--ink); border: 1px solid #bab7a4;
-  border-left: 4px solid #b23f30; border-radius: 4px; overflow-wrap: anywhere;
+  background: var(--game-panel); color: var(--ink); border: 1px solid var(--game-line);
+  border-left: 4px solid var(--game-line); border-radius: 4px; overflow-wrap: anywhere;
 }
-.parallel-ticket:hover { background: #fffaf0; border-color: var(--red); }
+.parallel-ticket:hover { background: var(--game-row); border-color: var(--red); }
 .parallel-ticket-copy { display: grid; gap: 8px; padding: clamp(16px,3vw,27px); }
 .parallel-ticket strong { font: 700 clamp(21px, 3vw, 31px) / 1.25 var(--serif); }
 .parallel-ticket small, .parallel-ticket-copy > span { color: var(--muted); font-size: 13px; }
@@ -139,15 +139,14 @@
 .story-compare-copy .story-compare-last { color: #4c6354; font-size: 12px; font-weight: 700; }
 .story-compare-save { width: max-content; min-height: 44px; margin-top: 12px; color: #ffe8be; border-color: #bca57b; background: transparent; }
 .story-compare-save:hover { background: #3b5144; }
-.parallel-previous { padding: 12px 16px; background: #e5e5d5; border-left: 3px solid #6e806c; margin: 0 0 20px; }
+.parallel-previous { padding: 12px 16px; background: var(--game-row); border-left: 3px solid #6e806c; margin: 0 0 20px; }
 .parallel-choices { display: grid; gap: 10px; margin: 22px 0 6px; }
-.parallel-choices button { display: grid; grid-template-columns: 28px 1fr auto; align-items: center; gap: 12px; min-height: 54px; padding: 10px 16px; background: #fcf7ea; border: 1px solid var(--rule); border-radius: 3px; color: var(--ink); text-align: left; }
-.parallel-choices button b { color: var(--red); font-family: ui-monospace, monospace; }
-.parallel-choices button:hover { border-color: var(--red); background: #fffcf5; }
+.parallel-choices button { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 12px; min-height: 54px; padding: 10px 16px; background: var(--game-row); border: 1px solid var(--rule); border-radius: 0; color: var(--ink); text-align: left; }
+.parallel-choices button:hover { border-color: var(--red); background: #3c303b; }
 .parallel-answer, .parallel-editor { display: grid; gap: 16px; justify-items: start; }
 .parallel-answer { margin: 10px 0 20px; }
 .parallel-results { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 24px 0; }
-.parallel-results article { padding: clamp(14px, 2vw, 24px); background: #faf4e5; border-top: 2px solid var(--ink); }
+.parallel-results article { padding: clamp(14px, 2vw, 24px); background: var(--game-panel); border-top: 2px solid var(--ink); }
 .parallel-results article:first-child { border-color: var(--red); }
 .parallel-results section { margin-top: 16px; }
 .parallel-tools { margin-top: 15px; border-top: 1px solid var(--rule); font-size: 13px; }
@@ -156,14 +155,14 @@
 .parallel-fieldset { width: 100%; min-width: 0; display: grid; gap: 12px; padding: 16px; border: 1px solid var(--rule); }
 .parallel-fieldset legend { color: var(--red); padding: 0 8px; font-weight: 700; }
 .parallel-fields { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-.parallel-option-fields { display: grid; gap: 10px; padding: 12px; background: #e8e5d7; }
+.parallel-option-fields { display: grid; gap: 10px; padding: 12px; background: var(--game-panel); }
 .parallel-field { display: grid; gap: 6px; width: 100%; font-size: 14px; font-weight: 600; }
 .parallel-field input, .parallel-field textarea, .parallel-field select, .parallel-link {
   width: 100%; min-width: 0; padding: 10px; border: 1px solid #9ba492; border-radius: 3px;
-  color: var(--ink); background: #fffaee; font-family: inherit; font-size: 16px; line-height: 1.45; font-weight: 400;
+  color: var(--ink); background: var(--game-row); font-family: inherit; font-size: 16px; line-height: 1.45; font-weight: 400;
 }
 .parallel-field textarea { resize: vertical; }
-.parallel-status { position: sticky; bottom: 12px; width: fit-content; padding: 9px 14px; margin-top: 12px; background: var(--ink); color: #fff3dd; border-radius: 4px; }
+.parallel-status { position: sticky; bottom: 12px; width: fit-content; padding: 9px 14px; margin-top: 12px; background: var(--game-row); color: var(--ink); border: 1px solid var(--rule); }
 .parallel-link { max-width: 850px; margin-top: 8px; }
 @media (min-width: 681px) and (max-width: 1000px) { .parallel-catalog { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 @media (max-width: 680px) {
@@ -193,5 +192,3 @@
   .parallel-hero .parallel-primary, .parallel-hero .parallel-outline { padding-inline: 10px; font-size: 13px; }
 }
 .parallel-map .parallel-fork-link{display:block;color:var(--red);font-size:12px;}
-
-.parallel-music { margin-top: 18px; text-align: right; }

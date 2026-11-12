@@ -27,15 +27,13 @@ export default function StallGame({ seed, age, schedule, onCloseBooks, target, a
  if (!shift) return <div className={'stall-intro'+(onCloseBooks?'':' stall-arcade-intro')}>
   <img src={stallPhoto('counter')} alt="吴师傅举起两张单子，身前是开着的两口锅"/>
   <div className="stall-intro-copy">
-   <span className="stall-location">莘庄 · 晚风小吃街</span>
-   <h2>{onCloseBooks ? '两口锅，八张单' : '吴师傅把围裙递给你'}</h2>
-   <p>{onCloseBooks?'吴师傅把围裙往你手里一塞。':''}「生煎慢，锅贴快。哪张单子快跑了，侬先管哪张。」</p>
+   <h2>吴师傅的摊位</h2>
    <ul>
-    <li>每口锅下两份。生煎下锅后等两步，锅贴等一步。</li>
-    <li>出锅、下锅、撤锅和干等都走一步。熟了四步还没卖完，就会糊。</li>
-    <li>{onCloseBooks ? '看好哪张单先到期。收摊结工钱，占一格行动。' : '先比出了几单，单数相同再比谁损耗少。'}</li>
+    <li>每锅两份。生煎两步，锅贴一步。</li>
+    <li>每次操作耗一步。熟后四步内出单。</li>
+    {onCloseBooks&&<li>收摊结工钱，消耗一次行动。</li>}
    </ul>
-   <button className="primary" onClick={() => {setShift(startStall(schedule));onStart?.();}}>系围裙，开锅 <Icon name="arrow" size={18}/></button>
+   <button className="primary" onClick={() => {setShift(startStall(schedule));onStart?.();}}>开锅 <Icon name="arrow" size={18}/></button>
    {!onCloseBooks&&<div className="stall-menu" aria-hidden="true">
     {dishes.map(dish=><div key={dish}><img src={stallPhoto(dish)} alt=""/><b>{STALL_DISHES[dish].name}</b></div>)}
    </div>}
@@ -48,7 +46,6 @@ export default function StallGame({ seed, age, schedule, onCloseBooks, target, a
  if (done) return <div className={'stall-intro'+(onCloseBooks?'':' stall-arcade-result')}>
   <img src={stallPhoto(finishedPhoto)} alt="晚市收摊后的柜台"/>
   <div className="stall-intro-copy">
-   <span className="stall-location">莘庄 · 收摊</span>
    <h2 ref={result} tabIndex={-1}>{stallRank(score)}</h2>
    <div className="stall-result">
     <div><b>{score.served}/{shift.orders.length}</b><span>出的单</span></div>
@@ -74,7 +71,7 @@ export default function StallGame({ seed, age, schedule, onCloseBooks, target, a
  return <div className="stall-workbench">
   <header className="stall-work-head">
    <img src={stallPhoto('rush')} alt=""/>
-   <div><span className="stall-location">莘庄 · 晚市</span><h2>吴师傅的两口锅</h2></div>
+   <h2>灶台</h2>
    <div className="stall-counter"><b>{shift.step + 1} / {STALL_STEPS}</b><span>{score.served} 单已出 · {score.waste} 份损耗</span></div>
   </header>
   <p className="stall-update" role="status">{shift.message}</p>
@@ -99,7 +96,7 @@ export default function StallGame({ seed, age, schedule, onCloseBooks, target, a
    </section>
    <section className="stall-orders" aria-label="手上的单">
     <div className="stall-order-head"><h3>手上的单</h3>{upcoming&&<span>{upcoming.arrives - shift.step} 步后还有人来</span>}</div>
-    {!queue.length && <p className="stall-empty">手上没单了。看看两口锅，或等下一单。</p>}
+    {!queue.length && <p className="stall-empty">暂无订单</p>}
     {queue.map(order => {
      const person = CAST.find(item => item.id === order.person)!;
      const ready = servingPan(shift, order.dish) !== undefined;

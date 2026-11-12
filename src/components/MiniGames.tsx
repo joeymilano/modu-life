@@ -157,12 +157,10 @@ export function DialogueGame({person,career,skill,cash,flags,age=18,onFinish,onP
  return <div className="dialogue-game">
   <div className="date-visual" data-portrait={person&&age>=32||undefined}>
    <DialogueShot key={shot} src={shot} person={person} age={age} previous={person&&round>0?dateScenePhoto(person.id,'meeting',age):undefined}/>
-   <div className="date-visual-caption"><b>{person?.name??career?.name}</b>{person&&<small>{person.title}</small>}</div>
   </div>
   <div className="dialogue-content">
-   {!person&&<div className="mini-eyebrow">{career?.name}</div>}
    <div className="dialogue-head">
-    <div><h2>{person?person.name:'面试'}</h2>{person&&<p>{person.title}</p>}</div>
+    <div><h2>{person?.name??career?.name+'面试'}</h2>{person&&<p>{person.title}</p>}</div>
    </div>
    <div className="round-dots">{questions.map((_,i)=><span key={i} className={i<=round?'done':''}/>)}
     <small>{person?['碰面','聊到一半','临走前'][round]:'第 '+(round+1)+' / 3 轮'}</small>
@@ -170,10 +168,10 @@ export function DialogueGame({person,career,skill,cash,flags,age=18,onFinish,onP
    <div className="dialogue-question" ref={questionRef} tabIndex={person?-1:undefined} aria-live="polite">{question.text}</div>
    <div className="dialogue-answers">{question.answers.map((ans,i)=>
     <button key={i} disabled={selected!==null||cash<spent+(ans.cost||0)} className={selected===i?'picked':''}
-     onClick={()=>selectAnswer(i)}><span>{String.fromCharCode(65+i)}</span>{ans.label}{ans.cost?' · ¥'+ans.cost:''}<Icon name="chevron" size={16}/></button>)}
+     onClick={()=>selectAnswer(i)}><b>{ans.label}</b>{ans.cost?' · ¥'+ans.cost:''}<Icon name="chevron" size={16}/></button>)}
    </div>
    {answer&&<div className="dialogue-reply" ref={replyRef}><p>{answer.reply}</p>
-    <button className="primary" onClick={next}>{person&&round===1?'要走了':round===2?'听听对方怎么说':'接着聊'}<Icon name="arrow" size={17}/></button>
+    <button className="primary" onClick={next}>{round===2?'查看结果':'继续'}<Icon name="arrow" size={17}/></button>
    </div>}
   </div>
  </div>;

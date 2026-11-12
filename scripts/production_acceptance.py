@@ -1,6 +1,7 @@
 from playwright.sync_api import sync_playwright
 from pathlib import Path
 import json
+import os
 from PIL import Image
 OUT=Path('outputs')
 OUT.mkdir(exist_ok=True)
@@ -8,19 +9,19 @@ with sync_playwright() as p:
  b=p.chromium.launch(headless=True,channel='chrome',args=['--use-angle=swiftshader','--enable-webgl','--ignore-gpu-blocklist'])
  ctx=b.new_context(viewport={'width':1440,'height':1000},accept_downloads=True)
  page=ctx.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
- page.goto('http://localhost:4173/?seed=FINAL');page.wait_for_load_state('networkidle')
+ page.goto(os.environ.get('GAME_URL','http://localhost:4173').rstrip('/')+'/?seed=FINAL');page.wait_for_load_state('networkidle')
  page.evaluate('navigator.serviceWorker.ready')
  page.wait_for_function('navigator.serviceWorker.controller!==null')
- page.get_by_role('button',name='开局抽卡').click();page.get_by_role('button',name='全部揭晓').click();page.wait_for_timeout(700)
+ page.get_by_role('button',name='开始新游戏').click();page.get_by_role('button',name='全部揭晓').click();page.wait_for_timeout(700)
  page.locator('.setup-forward').click()
- page.get_by_role('button',name='就这手牌，进上海').click();page.get_by_role('button',name='看毛小毛的消息').click();page.locator('.event-choices button').first.click();page.locator('.outcome-content .primary').click();page.wait_for_timeout(600)
+ page.get_by_role('button',name='进入上海').click();page.get_by_role('button',name='看毛小毛的消息').click();page.locator('.event-choices button').first.click();page.locator('.outcome-content .primary').click();page.wait_for_timeout(600)
  with page.expect_download(timeout=20000) as download:
   page.get_by_role('button',name='生成人生卡').click()
  download.value.save_as(str(OUT/'人生分享卡.png'))
  assert Image.open(OUT/'人生分享卡.png').size==(1080,1440)
  # Reload after disconnecting: HTML, application, scene and manifest remain available.
  ctx.set_offline(True);page.reload();page.wait_for_load_state('networkidle')
- page.get_by_role('button',name='继续上回').click();page.wait_for_timeout(700)
+ page.get_by_role('button',name='继续游戏').click();page.wait_for_timeout(700)
  assert page.locator('.street-frame img').evaluate('(img)=>img.complete && img.naturalWidth>0')
  assert '18' in page.locator('.age-row').inner_text()
  page.screenshot(path=str(OUT/'offline-play.png'),full_page=True)
@@ -36,7 +37,7 @@ with sync_playwright() as p:
  # The actual rendered app supplies a dedicated social preview, without remote images.
  page.get_by_role('button',name='魔都人生首页').click();page.set_viewport_size({'width':1200,'height':630})
  page.add_style_tag(content='''
-    .toast,.screen-home .topbar,.title-stories,.title-menu,.title-arcades,.title-location { display:none }
+    .toast,.screen-home .topbar,.title-menu,.title-arcades { display:none }
     .title-stage { min-height:630px }
  ''')
  page.locator('.home-key-art').evaluate('img=>img.decode()')

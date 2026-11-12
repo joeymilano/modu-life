@@ -140,4 +140,3 @@
 
 .stall-page-sound { display: flex; align-items: center; gap: 8px; }
 .stall-page-sound .icon-button { width: 34px; height: 34px; background: transparent; color: inherit; }
-.stall-music { max-width: 1340px; margin-inline: auto; padding: 0 16px 18px; text-align: right; }

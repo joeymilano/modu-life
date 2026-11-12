@@ -1,10 +1,10 @@
 .event-modal.wide-shot-modal.arrival-modal {
   max-width: 1130px;
   padding: 0;
-  border: 1px solid #4b5147;
-  border-radius: 7px;
-  background: #252f2b;
-  color: #faf0de;
+  border: 1px solid var(--game-line);
+  border-radius: 3px;
+  background: var(--game-panel);
+  color: var(--game-white);
 }
 
 .arrival-modal .event-visual.arrival-snapshot {
@@ -12,7 +12,7 @@
   width: 100%;
   height: auto;
   margin: 0;
-  background: #202924;
+  background: var(--game-panel);
 }
 
 .event-modal.arrival-modal .arrival-snapshot > img { object-position: 54% center; }

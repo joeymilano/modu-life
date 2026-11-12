@@ -185,9 +185,7 @@ export default function LaserGame({ seed, cash = 0, appearance = { gender: 'fema
 
  return <div className="laser-game">
   {!standalone && <>
-   <div className="mini-eyebrow">魔都怪谈 · 外滩</div>
    <h2>四元柠檬水保卫战</h2>
-   <p className="mini-lead">雪王刚递来四块钱那杯，对岸的灯就红了。</p>
   </>}
   <div className={'laser-arena phase-' + phase} data-cue={cue.kind} data-rules={rules}
    data-wave={wave + 1} data-mask={active && !aiming ? mask : 0} data-echo-mask={echoMask}
@@ -260,7 +258,7 @@ export default function LaserGame({ seed, cash = 0, appearance = { gender: 'fema
     <button className="secondary" disabled={cash < 80} onClick={() => finish({ method: 'sleeve' })}>借个咖啡杯套伪装 · ¥80</button>
     <button className="text-button" onClick={() => finish({ method: 'neighbor' })}>喊路人搭把手</button>
    </>}
-   <small>点步道或按 1 2 3 换位，按 U 撑伞。{rules === 4 ? ' 躲斜纹，虚线是倒影。' : rules === 3 && ' 等红光扫过，再跨回去。'}</small>
+   <small>点击换道 · 1 / 2 / 3 换道 · U 撑伞。{rules === 4 ? ' 躲斜纹，虚线是倒影。' : rules === 3 && ' 等红光扫过，再跨回去。'}</small>
   </div>}
   {phase === 'done' && <div className="mini-options">
    <button className="primary" onClick={() => finish({ method: 'run', score })}>{standalone ? '拿走这张小票' : '喝完再走'} <Icon name="arrow" /></button>

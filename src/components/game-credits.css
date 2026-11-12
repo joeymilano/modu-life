@@ -1,0 +1,34 @@
+.game-credits { position: relative; color: inherit; }
+.game-credits summary {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  padding-inline: 7px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 650;
+  white-space: nowrap;
+  list-style: none;
+}
+.game-credits summary::-webkit-details-marker { display: none; }
+.game-credits summary::after { content: '+'; color: #ffd365; }
+.game-credits[open] summary::after { content: '−'; }
+.game-credit-list {
+  position: absolute;
+  z-index: 8;
+  inset: 100% 0 auto auto;
+  width: 215px;
+  padding: 15px;
+  border: 1px solid #51454d;
+  background: #1c171e;
+  color: #fff3df;
+  box-shadow: 0 8px 20px #0005;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.game-credit-list > span { display: block; color: #cbbcc4; font-size: 11px; }
+.game-credit-list > a { display: inline-block; margin-top: 3px; font-weight: 700; }
+.game-credit-list a { color: inherit; text-underline-offset: 3px; }
+.game-credit-list > p:last-child { margin-top: 7px; color: #cbbcc4; font-size: 11px; }
+.help-content .game-credit-list { position: static; box-shadow: none; }

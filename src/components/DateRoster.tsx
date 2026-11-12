@@ -20,7 +20,7 @@ export default function DateRoster({game,onPick,onOther}: {
 
  return <div className="date-roster">
   <header className="date-roster-head">
-   <div><h2>约谁出来</h2><p>你在{district.name} <span>·</span> 还剩 {game.actions} 格行动</p></div>
+   <div><h2>约会</h2><p>行动 {game.actions} / 3</p></div>
    <div className="date-roster-filter" role="group" aria-label="见面范围">
     <button type="button" onClick={()=>setNearby(false)} aria-pressed={!nearby}>全城 <span>{people.length}</span></button>
     <button type="button" onClick={()=>setNearby(true)} aria-pressed={nearby}>{district.name} <span>{local.length}</span></button>
@@ -40,12 +40,11 @@ export default function DateRoster({game,onPick,onOther}: {
      <div className="date-roster-details">
       <div className="date-roster-name"><h3>{person.name}</h3><span>{person.ageOffset+game.age}岁</span></div>
       <small>{place.name} <span>·</span> {person.title}</small>
-      <p>{person.description}</p>
       <b>{action} {answer!=='left'&&<Icon name="arrow" size={15}/>}</b>
      </div>
     </button>;
    })}
   </div>
-  <button type="button" className="text-button date-roster-other" onClick={onOther}>看看最近的感情状况 <Icon name="chevron" size={16}/></button>
+  <button type="button" className="text-button date-roster-other" onClick={onOther}>感情近况 <Icon name="chevron" size={16}/></button>
  </div>;
 }

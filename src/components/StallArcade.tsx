@@ -6,7 +6,7 @@ import { STALL_ORDER_COUNT, STALL_STEPS, stallSchedule } from '../game/stall';
 import { readStallChallenge, stallChallengeHash, type StallChallenge } from '../game/stallChallenge';
 import StallGame from './StallGame';
 import Icon from './Icon';
-import MusicCredit from './MusicCredit';
+import GameCredits from './GameCredits';
 
 function firstChallenge(): StallChallenge {
  const saved = readStallChallenge(window.location.hash);
@@ -47,8 +47,8 @@ export default function StallArcade() {
 
  return <main className="stall-page" data-started={started}>
   <header className="stall-page-top">
-   <a href="/">← 回魔都人生</a>
-   <div className="stall-page-sound"><span>莘庄晚市 · #{challenge.seed}</span>
+   <a href="/">返回</a>
+   <div className="stall-page-sound"><GameCredits/>
     <button className="icon-button" aria-label={audio?'关闭声音':'打开声音'} onClick={()=>{
      setAudioEnabled(!audio);
      setAudio(!audio);
@@ -59,21 +59,18 @@ export default function StallArcade() {
    <section className="stall-hero">
     <img src={stallPhoto('hero')} alt="傍晚的莘庄小吃摊，吴师傅手搭着锅盖" width={850} height={1275} fetchPriority="high"/>
     <div>
-     <span>晚风小吃街</span>
      <h1 aria-label="两口锅，八张单">两口锅<br/>八张单</h1>
-     <p>生煎刚下锅，催单的已经站到门口。</p>
     </div>
    </section>
    <section className="stall-arcade-board" aria-label="晚市挑战">
     <div className="stall-challenge-banner">
      {challenge.target
       ? <><b>朋友出了 {challenge.target.served}/{STALL_ORDER_COUNT} 单</b><span>损耗 {challenge.target.waste} 份 · 同一批单</span></>
-      : <><b>今晚的单子</b><span>{STALL_STEPS} 步 · {STALL_ORDER_COUNT} 单</span></>}
+      : <b>{STALL_ORDER_COUNT} 单 · {STALL_STEPS} 步</b>}
     </div>
     <StallGame key={round} seed={challenge.seed} schedule={challenge.schedule} age={18} target={challenge.target}
      autoStart={round > 0} onStart={() => {setStarted(true);window.scrollTo(0, 0);}} onReplay={replay}/>
    </section>
   </div>
-  <footer className="stall-music"><MusicCredit/></footer>
  </main>;
 }

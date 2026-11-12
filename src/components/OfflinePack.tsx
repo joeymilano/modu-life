@@ -53,12 +53,12 @@ export default function OfflinePack() {
 
  const percent = pack.total ? Math.floor(pack.done / pack.total * 100) : 0;
  const message = {
-  checking: '正在检查已下载内容',
-  idle: pack.bytes ? `完整包约 ${Math.ceil(pack.bytes / 1_000_000)} MB，含剧照、3D 地图和音乐` : '含剧照、3D 地图和音乐',
-  downloading: `正在备好离线包 · ${percent}%`,
-  ready: '已下载，可以断网继续玩',
-  retry: '下载中断，已下载的内容留着',
-  unavailable: '离线缓存暂未就绪',
+  checking: '检查中',
+  idle: pack.bytes ? `约 ${Math.ceil(pack.bytes / 1_000_000)} MB` : '可下载',
+  downloading: `下载中 · ${percent}%`,
+  ready: '已下载',
+  retry: '下载中断',
+  unavailable: '离线包暂不可用',
  }[pack.phase];
 
  return <section className="offline-pack" aria-label="离线包">

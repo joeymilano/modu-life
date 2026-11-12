@@ -22,17 +22,17 @@ def run_route(browser, width, height, route):
     page.set_default_timeout(12000)
     try:
         page.goto(BASE + '/?seed=ARRIVALQA', wait_until='domcontentloaded')
-        page.get_by_role('button', name='开局抽卡').click()
+        page.get_by_role('button', name='开始新游戏').click()
         page.get_by_role('button', name='全部揭晓').click()
         page.locator('.setup-forward').click()
-        page.get_by_role('button', name='就这手牌，进上海').click()
+        page.get_by_role('button', name='进入上海').click()
         inbox = page.get_by_role('dialog', name='出站前的三条消息')
         expect(inbox).to_be_visible()
 
         if sender == '毛小毛':
             page.wait_for_function("JSON.parse(localStorage.getItem('modu-life-v1'))?.pendingYearEvent")
             page.reload(wait_until='domcontentloaded')
-            page.get_by_role('button', name='继续上回').click()
+            page.get_by_role('button', name='继续游戏').click()
             expect(inbox).to_be_visible()
 
         for contact in ('毛小毛', '何亮', '陆嘉', sender):
@@ -57,7 +57,7 @@ def run_route(browser, width, height, route):
         page.get_by_role('button', name=choice).click()
         page.get_by_role('button', name='继续', exact=True).click()
         page.get_by_role('button', name='年度结算' if mobile else '结算这一年', exact=True).click()
-        page.get_by_role('button', name='19岁，接着过').click()
+        page.get_by_role('button', name='进入 19 岁').click()
         expect(page.get_by_role('heading', name=followup)).to_be_visible()
         page.get_by_role('dialog').locator('.event-choices button:enabled').first.click()
         page.get_by_role('button', name='继续', exact=True).click()

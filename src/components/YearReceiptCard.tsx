@@ -41,34 +41,31 @@ export default function YearReceiptCard({book, age, receipt, children}: {
     <div className="year-photo-id"><PlayerPortrait appearance={current.state.appearance} size={46} age={age}/>
      <span>{current.state.name}<small>{lineName(current.id)}</small></span>
     </div>
-    <span>年末留影 <b>{String(age-17).padStart(2,'0')}</b></span>
    </figcaption>
   </figure>
   <div className="year-sheet">
    <header className="year-sheet-head">
-    <span>在上海的第 {age-17} 年</span>
     <span><b>{age}</b> 岁</span>
    </header>
    <h2 ref={heading} tabIndex={-1}>{moment.title}</h2>
-   <p className="year-lede">{moment.line}</p>
    <div className="year-balance">
-    <div><small>结完账还剩</small><strong>{yearMoney(receipt.after)}</strong></div>
+    <div><small>余额</small><strong>{yearMoney(receipt.after)}</strong></div>
     <div className={total.delta<0?'year-down':'year-up'}><small>本次结算</small><b>{signedYearMoney(total.delta)}</b></div>
    </div>
    <div className="year-totals">
     <div><span>到账</span><b>{yearMoney(total.income)}</b></div>
-    <div><span>实际付出</span><b>{yearMoney(total.paid)}</b></div>
+    <div><span>支出</span><b>{yearMoney(total.paid)}</b></div>
    </div>
    {receipt.notice&&<p className="outcome-text year-notice">{receipt.notice}</p>}
    <div className="year-actions">
     {children}
     <button className="text-button year-print" disabled={printing} onClick={()=>void print()}>
-     <Icon name="download" size={17}/>{printing?'正在洗照片…':'带走这张照片'}
+     <Icon name="download" size={17}/>{printing?'正在生成…':'下载账单'}
     </button>
    </div>
-   {printError&&<p role="status">照片没洗出来，再试一次</p>}
+   {printError&&<p role="status">下载失败，请重试。</p>}
    <details className="year-details">
-    <summary>这笔账怎么算 <Icon name="chevron" size={16}/></summary>
+    <summary>账单明细 <Icon name="chevron" size={16}/></summary>
     <div className="annual-ledger">
      {item('结算前手上',receipt.before)}
      {item('全年工作收入',receipt.workIncome,true)}
@@ -93,7 +90,7 @@ export default function YearReceiptCard({book, age, receipt, children}: {
     </div>
    </details>
    {hasComparison&&<details className="year-details year-compare">
-    <summary>别的时间线，这一岁 <Icon name="chevron" size={16}/></summary>
+    <summary>对照时间线 <Icon name="chevron" size={16}/></summary>
     <ul>{others.map(line=>{
      const other = line.state.journal.find(entry=>entry.age===age&&entry.receipt)?.receipt;
      return <li key={line.id}>

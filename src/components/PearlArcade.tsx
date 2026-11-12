@@ -2,13 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import { pearlPhoto } from '../game/art';
 import {
  comparePearlScore, CURRENT_PEARL_RULES, pearlCueNames, pearlHash, pearlMarkStamp, pearlMarkText, pearlRank, pearlResultPhoto,
- pearlRoundCount, pearlRounds, type PearlChallenge, type PearlMark, type PearlRunnerId, type PearlScore, type PearlWave,
+ pearlRounds, type PearlChallenge, type PearlMark, type PearlRunnerId, type PearlScore, type PearlWave,
 } from '../game/pearl';
 import { downloadBlob, makePearlTicket, pearlChallengeUrl } from '../game/share';
 import { newSeed } from '../game/seed';
 import Icon from './Icon';
 import LaserGame from './LaserGame';
-import MusicCredit from './MusicCredit';
+import GameCredits from './GameCredits';
 
 function resultMessage(score: PearlScore, target?: number, targetBlocks?: number) {
  if (target === undefined) return '把小票发过去，朋友会碰到同样的红光。';
@@ -92,8 +92,8 @@ export default function PearlArcade({challenge, onClose, audio, onAudio}: {
 
  return <main className="pearl-page">
   <header className="pearl-top">
-   <button type="button" onClick={onClose}>← 回魔都</button>
-   <div><small>外滩 · {pearlRoundCount(rules)} 轮 · #{seed}</small>
+   <button type="button" onClick={onClose}>返回</button>
+   <div><GameCredits/>
     <button type="button" onClick={onAudio} aria-label={audio ? '关闭声音' : '打开声音'}><Icon name={audio ? 'sound' : 'mute'} size={17}/></button>
    </div>
   </header>
@@ -103,14 +103,11 @@ export default function PearlArcade({challenge, onClose, audio, onAudio}: {
      alt={rules === 4 ? '雨后的外滩，雪王站在蜜雪冰城摊位旁，拿着柠檬水的旅客回头' : '雨后的外滩，拿柠檬水的旅客听见动静回头'} width={850} height={1275}/>
     <div>
      <h1 ref={title} tabIndex={-1} aria-label="四元柠檬水保卫战"><span>四元柠檬水</span><span>保卫战</span></h1>
-     <p>{target === undefined ? rules === 4 ? '雪王刚递来四块钱那杯，对岸的灯就红了。' : '吸管刚插下去，对岸的灯就红了。'
-      : targetBlocks !== undefined ? `朋友洒了 ${target} 回，挡了 ${targetBlocks} 回。换你拿杯子。`
-      : target === 0 ? '朋友刚才一滴没洒。换你拿杯子。' : `朋友刚在这儿洒了 ${target} 回。换你拿杯子。`}</p>
+     {target !== undefined && <p>好友成绩 · 洒 {target} 回{targetBlocks !== undefined && ` · 挡 ${targetBlocks} 回`}</p>}
     </div>
    </section>
    <section className="pearl-board" ref={board} tabIndex={-1} aria-label="外滩走位">
     {score ? <div className="pearl-result">
-     <p className="eyebrow">外滩小票 · #{seed}</p>
      <h2 ref={resultHeading} tabIndex={-1}>{pearlRank(score)}</h2>
      <div className="pearl-score"><span>洒了 <b>{score.hits}</b> 回</span><span>挡住 <b>{score.blocks}</b> 回</span></div>
      <p>{resultMessage(score, target, targetBlocks)}</p>
@@ -121,8 +118,8 @@ export default function PearlArcade({challenge, onClose, audio, onAudio}: {
      <div className="pearl-result-actions">
       <button type="button" className="primary" onClick={copyLink}><Icon name="share" size={17}/>复制挑战链接</button>
       <button type="button" className="secondary" disabled={printing} onClick={printTicket}><Icon name="download" size={17}/>{printing?'打印中':'下载小票'}</button>
-      <button type="button" className="text-button" onClick={replay}>原路再来一次</button>
-      <button type="button" className="text-button" onClick={() => { window.location.hash = pearlHash(newSeed(), undefined, CURRENT_PEARL_RULES); }}>换条路线</button>
+      <button type="button" className="text-button" onClick={replay}>重试</button>
+      <button type="button" className="text-button" onClick={() => { window.location.hash = pearlHash(newSeed(), undefined, CURRENT_PEARL_RULES); }}>更换路线</button>
      </div>
      <a className="text-button pearl-story-link" href="/#story=pearl-signal">
       <Icon name="book" size={16}/> 上船，看看五年后的外滩 <Icon name="chevron" size={15}/>
@@ -136,6 +133,5 @@ export default function PearlArcade({challenge, onClose, audio, onAudio}: {
      onFinish={result=>{if(result.method==='run')setScore(result.score);}}/>}
    </section>
   </div>
-  <footer className="pearl-music"><MusicCredit/></footer>
  </main>;
 }

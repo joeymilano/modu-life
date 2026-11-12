@@ -11,6 +11,3 @@
 .stat-row{font-size:11px;color:#65795b}.stat-row b{color:#647859}.place-card p{font-size:10px;color:#7a8e6a}.cash-block>span,.cash-block>div{color:#718565}.life-small-row{color:#718665}.year-hint{color:#839273}.event-body,.outcome-text{color:#667e59}.career-option>p,.romance-grid p{color:#80946f}.goal-description{color:#7c8f6b}@media(max-width:850px){.place-card p{font-size:10px}.event-body,.outcome-text{font-size:13px}}
 
 .mobile-next{display:none}@media(max-width:850px){.mobile-next{display:flex;align-items:center;justify-content:space-between;position:absolute;z-index:3;left:23px;right:23px;bottom:66px;padding:14px 12px 14px 14px;border:1px solid #d3dcc2;border-left:2px solid #b7422c;border-radius:3px;background:#f8f7ebed;gap:12px}.mobile-next span{font-size:8px;color:#99a788;letter-spacing:.3px}.mobile-next p{font-size:11px;color:#738865;margin-top:5px}.mobile-next button{display:flex;align-items:center;gap:7px;background:#e3e9d3;font-size:10px;color:#688251;padding:11px 9px;border-radius:3px;min-height:42px;white-space:nowrap}.city-hotspot{min-height:36px!important;font-size:9px!important}}
-
-.music-credit { display: block; font-size: 11px; line-height: 1.6; }
-.music-credit a { text-underline-offset: 3px; }

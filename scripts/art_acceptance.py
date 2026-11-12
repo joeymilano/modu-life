@@ -28,7 +28,7 @@ with sync_playwright() as pw:
         assert r.headers.get('content-type','').startswith('image/'),(asset,r.headers)
     for gender in ['female','male']:
         for looks,name in [('everyday','普通耐看'),('charming','颇有姿色'),('stunning','惊艳全场')]:
-            p.get_by_role('button',name='开局抽卡').click()
+            p.get_by_role('button',name='开始新游戏').click()
             p.get_by_role('button',name='全部揭晓').click()
             p.locator('.setup-forward').click()
             p.locator('.gender-picker button').nth(0 if gender=='female' else 1).click()
@@ -38,7 +38,7 @@ with sync_playwright() as pw:
             image=p.locator('.casting-photo img')
             assert image.get_attribute('src')==f'/art/portraits/player-{gender}-{looks}.webp'
             assert image.evaluate('async img=>{await img.decode();return img.naturalHeight>700}')
-            p.get_by_role('button',name='就这手牌，进上海').click()
+            p.get_by_role('button',name='进入上海').click()
             annual(p)
             saved=json.loads(p.evaluate('localStorage.getItem("modu-life-v1")'))
             assert saved['appearance']=={'gender':gender,'looks':looks}
@@ -50,7 +50,7 @@ with sync_playwright() as pw:
             if gender=='male' and looks=='stunning':p.screenshot(path=str(OUT/'male-player.png'),full_page=True)
             p.get_by_role('button',name='魔都人生首页',exact=True).click()
     # Verify the selected appearance survives reload and both save formats.
-    p.reload();p.get_by_role('button',name='继续上回').click();p.wait_for_timeout(500)
+    p.reload();p.get_by_role('button',name='继续游戏').click();p.wait_for_timeout(500)
     assert '男性 · 惊艳全场' in p.locator('.player-identity').inner_text()
     p.get_by_role('button',name='存档',exact=True).click()
     with p.expect_download() as d:p.get_by_role('button',name='导出当前人生',exact=True).click()

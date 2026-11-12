@@ -179,7 +179,7 @@
   .screen-play .brand img { width: clamp(91px,29vw,128px); }
   .screen-play .topbar-actions { gap: 2px; }
   .screen-play .topbar-actions :is(.icon-button,.nav-button) { padding-inline: 6px; min-width: 32px; justify-content: center; }
-  .screen-play .topbar-actions .nav-button:not(.scene-switch) > span {
+  .screen-play .topbar-actions .nav-button.outlined > span {
     position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden;
   }
   .screen-play .scene-switch { min-height: 33px; }
