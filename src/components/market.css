@@ -1,0 +1,36 @@
+.modal.market-dialog { width: min(880px, 100%); max-width: 880px; background: #171d20; color: #f7eee0; padding: 0; }
+.market-board { padding: clamp(18px,4vw,42px); }
+.market-board header p { color: #ffd365; margin: 0 0 6px; font-weight: 750; }
+.market-board h2 { margin: 0; font: 900 clamp(30px,5vw,52px)/1.1 'Barlow Condensed','PingFang SC',sans-serif; }
+.market-summary { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 6px; margin: 14px 0; font-variant-numeric: tabular-nums; }
+.market-summary > div { padding: 9px 10px; background: #252d30; border-bottom: 2px solid #a88249; min-width: 0; }
+.market-summary dt { color: #c4c9c5; font-size: 12px; }
+.market-summary dd { margin: 4px 0 0; font-weight: 800; overflow-wrap: anywhere; }
+.market-headline, .market-note { color: #ffd365; font-size: 13px; }
+.market-tabs { display: flex; gap: 5px; margin: 16px 0 9px; }
+.market-tabs button, .market-board .secondary { padding: 9px 13px; color: #f7eee0; background: #263035; border: 1px solid #566164; }
+.market-tabs button[aria-pressed=true], .market-board .primary { background: #ffd365; color: #191b1a; border: 1px solid #ffd365; }
+.market-desk { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.2fr); gap: 10px; }
+.market-watch { display: grid; gap: 4px; align-content: start; }
+.market-watch button { display: flex; justify-content: space-between; gap: 8px; align-items: center; background: #263035; color: #f7eee0; border: 1px solid #566164; min-height: 49px; text-align: left; padding: 6px 10px; }
+.market-watch button[aria-pressed=true] { border-color: #ffd365; box-shadow: inset 3px 0 #ffd365; }
+.market-watch b, .market-watch small { display: block; }
+.market-watch small { color: #c4c9c5; margin-bottom: 3px; }
+.market-watch strong { color: #ffd365; font-size: 13px; }
+.market-ticket { padding: 12px; border: 1px solid #566164; }
+.market-ticket h3 { margin: 0 0 6px; }
+.market-ticket p { font-size: 13px; margin: 5px 0; }
+.market-ticket label { display: flex; gap: 9px; align-items: center; margin-top: 10px; }
+.market-ticket input { background: #111719; color: #f7eee0; border: 1px solid #566164; min-height: 40px; width: min(120px, 60%); padding: 5px 9px; }
+.market-chart { height: 67px; display: flex; align-items: stretch; gap: 3px; padding: 0; margin: 12px 0 0; border-bottom: 1px solid #8d886e; }
+.market-chart li { flex: 1; display: flex; align-items: end; }
+.market-chart i { display: block; width: 100%; background: #ab985d; }
+.market-chart li:last-child i { background: #ffd365; }
+.market-chart-range { display: flex; justify-content: space-between; color: #c4c9c5; font-size: 11px; }
+.market-orders { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+.lottery-ticket > svg { color: #ffd365; margin-bottom: 5px; }
+@media (max-width: 620px) {
+ .market-desk { grid-template-columns: 1fr; }
+ .market-summary > div { padding: 7px 6px; font-size: 12px; }
+ .market-watch button { min-height: 42px; }
+}

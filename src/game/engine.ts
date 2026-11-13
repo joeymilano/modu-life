@@ -1,3 +1,9 @@
+import { hashSeed } from './seed';
+import { calendarYear, cityYearNote, SHANGHAI_START } from './calendar';
+import { marketValue, validateMarket } from './market';
+import type { Showdown } from './showdowns';
+import { playShowdown, showdownView, validateShowdown } from './showdowns';
+import { storyRoute, storySettlement, storyShowdownId, storyShowdownOffer, storyShowdownScene } from './storyShowdown';
 import { DAYWORK, DAYWORK_TEMP, FAMILY_HOME, FAMILY_PAY, HEIR, HEIR_PAY_RATE, lifeStartRent, lifeStartYear, validLifeStartHand } from './lifeStarts';
 import { CAREERS, CAST, GOALS, LIFE_START_CARDS, ORIGIN_POOLS } from './content';
 import { FIRST_NIGHT_FLAG, firstNightYear, hasSharedWithMao } from './firstNight';
@@ -31,7 +37,7 @@ export const CHAPTERS = [
   {name:'自有腔调', years:'53至59岁', quote:'饭局少了，牌局多了'},
 ];
 export const clamp = (n:number,min=0,max=100) => Math.max(min,Math.min(max,n));
-export function hashSeed(seed:string):number {let h=2166136261;for(const c of seed){h=Math.imul(h^c.charCodeAt(0),16777619);}return h>>>0 || 42;}
+export { hashSeed } from './seed';
 export function randomStep(rng:number):[number,number] {let x=rng||42;x^=x<<13;x^=x>>>17;x^=x<<5;return [(x>>>0)/4294967296,x>>>0];}
 export const allOrigins = () => [...Object.values(ORIGIN_POOLS).flat(), ...LIFE_START_CARDS];
 export function drawOrigins(seed:string, reroll=0):OriginCard[] {
@@ -128,7 +134,7 @@ export function eligibleEvent(e:LifeEvent,s:GameState,kind:ActivityKind|'year',r
   if(e.chainId==='family_card'&&e.chainStep===0&&!s.flags.some(f=>f==='family_rich'||f==='card_frozen'))return false;
   if((e.chainId==='project_credit'||e.chainId==='layoff_story')&&e.chainStep===0&&!s.jobId)return false;
   if(!replay){
-    if(e.chainId==='family_plan'&&e.chainStep===0&&hasHeirStory(s))return false;
+    if(e.chainId==='family_plan'&&hasHeirStory(s))return false;
     if(e.chainId==='roommates'&&(e.chainStep??0)<2
       &&(s.housing!==1||s.leaseRent!==undefined||householdPlan(s)==='shared'||!hasSharedWithMao(s)))return false;
     if(e.housingLevels&&!e.housingLevels.includes(s.housing))return false;
@@ -246,8 +252,31 @@ export function resolveChoice(state:GameState,event:LifeEvent,choiceId:string,np
   s.cash=Math.max(0,s.cash);
   return {state:s,title:event.title,text,effect,success};
 }
+export function playStoryRound(state:GameState,move:string): {state:GameState; settled?:Showdown; result?:ChoiceResult} {
+  const active = state.showdown;
+  if (!active || state.ended) throw new Error('这场已经结束了。');
+  const showdown = playShowdown(active,move);
+  const view = showdownView(showdown);
+  if (!view.verdict) return {state:{...state,showdown}};
+  const event = storyShowdownScene(state,showdown);
+  const {effect,reply} = event.choices[0];
+  const settle = storySettlement(showdown);
+  const annual = state.pendingYearEvent ? authoredYear(state) : undefined;
+  const relation= view.ally ? settle.ally : settle.rival;
+  const next = applyEffect(state,relation?{...effect,trust:view.ally?8:-4}:effect,relation);
+  if(relation&&next.relationships[relation]){
+    const contact=next.relationships[relation];
+    contact.memories=[...contact.memories,state.age+'岁 · '+event.title].slice(-8);
+  }
+  delete next.showdown;
+  next.pendingYearEvent = state.pendingYearEvent && (active.age===18 || Boolean(annual && annual.id!==settle.seen));
+  next.seenEvents = [...new Set([...next.seenEvents,event.id,settle.seen])];
+  next.district = event.district ?? next.district;
+  next.journal.push({age:next.age,title:event.title,text:reply,tag:'主线'});
+  return {state:next,settled:showdown,result:{state:next,title:event.title,text:reply,effect,success:view.verdict==='win'}};
+}
 export function nextYear(state:GameState) {
-  if(state.ended)throw new Error('这一生已经结算。');if(state.pendingYearEvent)throw new Error('先把眼前这件事处理好。');
+  if(state.ended)throw new Error('这一生已经结算。');if(state.showdown)throw new Error('先打完眼前这场。');if(state.pendingYearEvent)throw new Error('先把眼前这件事处理好。');
   const s=structuredClone(state),budget=monthlyBudget(s);
   const [yearRoll,nextRng]=randomStep(s.rng);s.rng=nextRng;
   const variable=s.jobId==='freelance'?.7+yearRoll*.6:s.jobId==='business'?.55+yearRoll*.9:1;
@@ -322,7 +351,8 @@ export function nextYear(state:GameState) {
 }
 export function advanceToStory(state: GameState) {
   let result=nextYear(state);
-  while(!result.state.ended&&!authoredYear(result.state)){
+  while(!result.state.ended&&!authoredYear(result.state)&&!storyShowdownOffer(result.state)&&
+    !(result.state.calendar&&cityYearNote(calendarYear(result.state)))){
     result=nextYear({...result.state,pendingYearEvent:false});
   }
   return result;
@@ -338,10 +368,11 @@ export function relationshipLabel(s:GameState,id:string){
 }
 export function commitRelationship(s:GameState,id:string):GameState {const rel=s.relationships[id];if(!rel?.met||rel.trust<55||rel.attraction<45)throw new Error('再多了解彼此一点，现在还没到这一步。');let next=structuredClone(s);next.partnerId=id;next.relationships[id].commitment=clamp(rel.commitment+25);next.flags=[...new Set([...(s.partnerId===id?next.flags:clearHousehold(next.flags)),'committed'])];next.journal.push({age:s.age,title:`和${CAST.find(c=>c.id===id)?.name}一起`,text:'你们吃完饭，顺路一起去买了牙刷。回去的路上，谁也没再说客气话。',tag:'关系'});return next;}
 export function ending(s:GameState){
+  const netWorth=s.cash+marketValue(s);
   const rel=s.partnerId?s.relationships[s.partnerId]:null;
   const candidates=[
-    {id:'million',goal:'wealth',title:'这回真有钞能力',text:'六十岁生日，你查了眼余额，把几个工作群退了。中午加一只蟹，没人需要批准。',ok:s.cash>=2000000},
-    {id:'comfortable',goal:'wealth',title:'卡里还有点钱',text:'存款够用，账单付得出。老同学还在聊项目，你已经在看明天几点退潮。',ok:s.cash>=400000},
+    {id:'million',goal:'wealth',title:'这回真有钞能力',text:'六十岁生日，你查了眼余额，把几个工作群退了。中午加一只蟹，没人需要批准。',ok:netWorth>=2000000},
+    {id:'comfortable',goal:'wealth',title:'卡里还有点钱',text:'存款够用，账单付得出。老同学还在聊项目，你已经在看明天几点退潮。',ok:netWorth>=400000},
     {id:'love',goal:'love',title:'下雨有人来接',text:'下雨了，对方发来消息问你在哪。走出地铁口，那把旧伞又撑在那里。',ok:!!rel&&rel.trust>=75&&rel.commitment>=40},
     {id:'companions',goal:'love',title:'菜还是买多了',text:'你下楼买了菜，对方也买了一份。两个人对着两袋青菜笑了半天，晚上又得吃面。',ok:!!rel&&rel.trust>=45},
     {id:'master',goal:'craft',title:'这活还得找你',text:'老同事把你拉进一个群。新人客气地叫老师，老同事直接问，这个能修伐。',ok:s.stats.skill>=90&&s.yearsEmployed>=15},
@@ -378,6 +409,14 @@ export function validateSave(value:unknown):GameState {
   if(s.ended!==(s.age>=60))throw new Error('年龄与人生状态不匹配。');
   const appearance=Object.prototype.hasOwnProperty.call(s,'appearance')?validateAppearance(s.appearance):{...DEFAULT_APPEARANCE};
   const state={...structuredClone(s),appearance};
+  if(state.calendar!==undefined&&state.calendar!==SHANGHAI_START)throw new Error('开局年份读不出来。');
+  if(state.market!==undefined)state.market=validateMarket(state.market,calendarYear(state));
+  if (state.showdown!==undefined) {
+    const showdown=validateShowdown(state.showdown);
+    if (state.ended||showdown.route!==storyRoute(state)||showdown.age!==state.age||showdown.moves.length>=3||
+        state.seenEvents.includes(storyShowdownId(showdown))) throw new Error('任务和存档进度对不上。');
+    state.showdown=showdown;
+  }
   for(const person of CAST)if(person.role==='family')state.relationships[person.id].met=true;
   return state;
 }

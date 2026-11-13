@@ -45,7 +45,7 @@ export default function HeirAssets({ game, tab, onTab, onVisit }: {
     </button>;
    })}
   </div>}
-  {tab==='shopping'&&!cards.length&&<p>这一批已经全部拿下。<button className="text-button" onClick={()=>onTab('owned')}>看看我的资产 <Icon name="arrow" size={15}/></button></p>}
+  {tab==='shopping'&&!cards.length&&<p>这会儿没有新到的东西。<button className="text-button" onClick={()=>onTab('owned')}>看看我的资产 <Icon name="arrow" size={15}/></button></p>}
   {tab==='tonight'&&offers?.pause&&!game.seenEvents.includes(offers.pause.event.id)&&<div className="heir-visit-list">
    <button type="button" className="secondary" onClick={()=>onVisit(offers.pause!.event)}>把工作交接出去<Icon name="arrow" size={16}/></button>
   </div>}

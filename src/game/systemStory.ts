@@ -1,3 +1,4 @@
+import { calendarYear } from './calendar';
 import { streetPhoto } from './art';
 import { CHAPTER_AGES } from './campaignScript';
 import { OPENING_ALLIES, OPENING_DRAMA, OPENING_PROOF, withOpeningRecord } from './openingStakes';
@@ -39,12 +40,22 @@ export const systemOpening: LifeEvent = {
  ],
 };
 
+export const periodSystemOpening = (state:GameState) => calendarYear(state)<2000 ? {
+ ...systemOpening,title:'终端里多了一个收款人',illustration:'/art/era/terminal-1992.webp',
+ text:'1992 年，机房里最旧的那台终端自己亮了。打印机吐出一行字，外滩首单，八万。顾桥把打了一半的纸往外扯。收款栏里已经有他的名字。',
+ choices:systemOpening.choices.map((item,i)=>({...item,reply:[
+  '你把外滩的地址抄进记事本，走前把机房的门带上。',
+  '你把结算规则手抄了一遍，再按回车。打印机把地址吐出来了。',
+  '终端上又跳了一行字。顾桥叫你到渡口，当面看两张票。',
+ ][i]})),
+} : systemOpening;
+
 export function systemSecondYear(state: GameState): LifeEvent {
  const split = state.flags.includes('system-split-first');
  const completed = state.flags.includes('system-third-credit');
  return {
-  id:'system-next-year',title:'顾桥没接电话',tag:'系统流',category:'year',illustration:systemPhoto('roof'),
-  text:!completed?'最后一单还亮着。顾桥发来一个地址，半分钟后撤回。系统留了存档，问你还接不接。'
+  id:'system-next-year',title:'顾桥没接电话',tag:'系统流',category:'year',illustration:calendarYear(state)<2000?'/art/era/terminal-1992.webp':systemPhoto('roof'),
+  text:calendarYear(state)<2000?'顾桥没来机房。许舟把上次的签收联夹在打字机下面，你进门就能看见。':!completed?'最后一单还亮着。顾桥发来一个地址，半分钟后撤回。系统留了存档，问你还接不接。'
    : split?'上一回你们各拿了一半。过完年，系统又发来一份对账单，顾桥那边的收款人没填。'
    :'上一任宿主那栏变成了灰色。你把顾桥的名字打进搜索框，旧账号还能查到一张没结的单。',
   choices:[
@@ -93,6 +104,11 @@ const tasks = [
 export function systemLead(state: GameState) {
  if (!isSystemLife(state)||state.pendingYearEvent||state.ended||state.actions<=0||!state.seenEvents.includes(systemOpening.id)) return;
  const task = tasks.find(item=>!state.seenEvents.includes(item.event.id));
+ if (task&&calendarYear(state)<2000&&(task.event===firstTask||task.event===secondTask)) return {...task,event:{
+  ...task.event,illustration:'/art/era/terminal-1992.webp',
+  text:task.event.text.replace('系统只给你一次确认机会','终端只认一次签收').replace('又被人改过','被人重新誊了一遍'),
+  choices:task.event.choices.map(item=>({...item,reply:item.reply.replace('把伪造的截屏按灭了','把那份誊错的票收进兜里').replace('你手机上连响两声','账上记了一笔').replace('并排放上屏','并排摆在柜台上')})),
+ }};
  if (task?.event!==thirdTask||!state.flags.includes(OPENING_DRAMA)) return task;
  return {...task,event:{...thirdTask,choices:thirdTask.choices.map(choice=>({
   ...choice,effect:withOpeningRecord(choice.effect,choice.id==='file'?OPENING_PROOF:OPENING_ALLIES),

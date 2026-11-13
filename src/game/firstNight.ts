@@ -1,3 +1,4 @@
+import { calendarYear, SHANGHAI_STATION_1992 } from './calendar';
 import type { DistrictId, EventChoice, GameState, LifeEvent } from './types';
 
 import { arrivalPhoto, streetPhoto, type StreetPhoto } from './art';
@@ -150,9 +151,12 @@ const routes = [
   },
 ];
 
-export function firstNightThread(senderId: string, dramatic = false) {
+export function firstNightThread(senderId: string, dramatic = false, nineties = false) {
   const route = routes.find(item => item.event.speakerId === senderId);
   const update = dramatic ? arrivalDramaThread(senderId) : undefined;
+  if(nineties&&route) return {...route.inbox,
+   note:{mao:'房东也管外滩的场子，签字单在钥匙底下。',he:'两张小票是同一桌。带上原件，别给费启。',lu:'我和乐队在轮渡口。纸箱蓝胶带，别拿错。'}[senderId]??route.inbox.note,
+   go:update?.go??route.inbox.go,district:route.event.district};
   return route && { ...route.inbox, ...(update&&{note:update.note,go:update.go}), district: route.event.district };
 }
 
@@ -180,7 +184,17 @@ export function firstNightLead(state: GameState) {
 export function firstNightYear(state: GameState): LifeEvent | undefined {
   if (!state.flags.includes(FIRST_NIGHT_FLAG)) return undefined;
   const dramatic = state.flags.includes(OPENING_DRAMA);
-  if (state.age === 18) return { ...(dramatic?arrivalDrama(arrival):arrival), illustration: arrivalPhoto(state.appearance) };
+  if (state.age === 18) {
+   const event=dramatic?arrivalDrama(arrival):arrival;
+   if(calendarYear(state)<2000)return {...event,title:'上海站的三张字条',
+    text:'1992 年。你把车票攥在手里走出上海站。费启托人带话，说今晚的试场归他了。等你的三个人各留了一张字条。',
+    illustration:SHANGHAI_STATION_1992,
+    choices:event.choices.map((choice,i)=>({...choice,
+     reply:['毛小毛把楼号和门牌抄在纸背面。「房东十点走。侬先上来。」','何亮把小票折进围裙兜。「我在安福路。票我替你留一张。」','陆嘉的字写得歪。「码头碰头。乐队和票都还在。」'][i],
+    })),
+   };
+   return {...event,illustration:arrivalPhoto(state.appearance)};
+  }
   if (state.age !== 19) return undefined;
   const route = routes.find(route => state.flags.includes(route.flag));
   if (!route) return undefined;

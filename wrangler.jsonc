@@ -2,5 +2,23 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "modulife",
   "pages_build_output_dir": "./dist",
-  "compatibility_date": "2026-11-03"
+  "compatibility_date": "2026-11-03",
+  "d1_databases": [
+    {
+      "binding": "RANK_DB",
+      "database_name": "modulife-ranked",
+      "database_id": "46cf41cb-183f-42ee-86fe-d028f8acab0b"
+    }
+  ],
+  "env": {
+    "preview": {
+      "d1_databases": [
+        {
+          "binding": "RANK_DB",
+          "database_name": "modulife-ranked-preview",
+          "database_id": "bca77e16-39d2-4450-8941-68259cc3b379"
+        }
+      ]
+    }
+  }
 }

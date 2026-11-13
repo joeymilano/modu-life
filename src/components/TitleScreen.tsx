@@ -9,6 +9,7 @@ type TitleScreenProps = {
   onDraw: () => void;
   onParallel: () => void;
   onSelectOrigin: () => void;
+  onRanks: () => void;
   onPearl: () => void;
 };
 
@@ -24,7 +25,7 @@ function MenuEntry({ label, detail, primary, onSelect }: {
   </button>;
 }
 
-export default function TitleScreen({ hand, resume, onStart, onDraw, onParallel, onSelectOrigin, onPearl }: TitleScreenProps) {
+export default function TitleScreen({ hand, resume, onStart, onDraw, onParallel, onSelectOrigin, onRanks, onPearl }: TitleScreenProps) {
   const showResume = Boolean(resume && hand === undefined);
   return <main className="title-screen">
     <div className="title-stage">
@@ -39,13 +40,14 @@ export default function TitleScreen({ hand, resume, onStart, onDraw, onParallel,
 
       <div className="title-copy">
         <h1 className="game-title"><img src="/brand/shanghai-stories/logo-poster.svg" alt="魔都人生" width={524} height={126}/></h1>
-        <p className="title-english" lang="en">MODU LIFE</p>
+        <p className="title-english" >1992 · 上海</p>
 
         <nav className="title-menu" aria-label="选择游戏模式">
           {showResume && resume && <MenuEntry label="继续游戏" detail={resume.label} primary onSelect={resume.onSelect}/>}
           <MenuEntry label={hand === undefined ? '开始新游戏' : '接这手牌'} detail={hand} primary={!showResume} onSelect={onStart}/>
           <MenuEntry label="选择出身" onSelect={onSelectOrigin}/>
           {hand===undefined&&<MenuEntry label="手牌与角色" onSelect={onDraw}/>}
+          <MenuEntry label="本周排位" onSelect={onRanks}/>
           <MenuEntry label="平行上海" onSelect={onParallel}/>
           {!showResume && resume && <MenuEntry label="继续游戏" detail={resume.label} onSelect={resume.onSelect}/>}
         </nav>

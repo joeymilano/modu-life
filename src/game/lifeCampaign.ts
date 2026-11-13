@@ -1,3 +1,5 @@
+import { legacyShowdownEvent, storyFollowup, storyRoute, storyShowdownScene, storyVerdict } from './storyShowdown';
+import { SHOWDOWN_AGES, createShowdown, showdownAftermath } from './showdowns';
 import { openingPhoto, streetPhoto, tablePhoto, workPhoto } from './art';
 import { heirStoryPhoto } from './heirStory';
 import { systemPhoto } from './systemStory';
@@ -40,8 +42,7 @@ const epilogue: Record<CampaignRoute,Record<CampaignMove,string>> = {
  system:{proof:'最后一个签名',people:'有人接了下一单',bid:'第一笔周转金',walk:'这次是真的关机了'},
 };
 
-const routeOf = (state: GameState): CampaignRoute => state.origins.includes('born-heir') ? 'heir'
- : state.origins.includes('born-daywork') ? 'worker' : state.origins.includes('born-system') ? 'system' : 'arrival';
+const routeOf = storyRoute;
 const allyOf = (state: GameState) => state.flags.includes('night-shift') ? '何亮'
  : state.flags.includes('night-ferry') ? '陆嘉' : '毛小毛';
 const replaceAlly = (text: string, state: GameState) => text.replaceAll('{ally}', allyOf(state));
@@ -85,11 +86,12 @@ export function campaignYear(state: GameState): LifeEvent | undefined {
   ? '他把上回平分的付款单翻过来，指着两个人的名字说，照这次来。' : '';
  const opening = index===0 ? (state.flags.includes(OPENING_PROOF)?openingCallbacks[route][0]
   :state.flags.includes(OPENING_ALLIES)?openingCallbacks[route][1]:'') : '';
- return {
+ const event:LifeEvent = {
   id,category:'year',tag:'主线',title:beat.title,objective:beat.objective,district:beat.district,illustration:campaignStills[route][index],
   text:replaceAlly([context,beat.scene,opening,lounge,split].filter(Boolean).join(''),state),
   choices:moves.filter(move=>move==='bid'||move==='walk'||status[move]).map(move=>makeChoice(state,id,beat,move)),
  };
+ return state.age===23||state.age===57?event:storyFollowup(state,event);
 }
 
 export function campaignPressureYear(state:GameState) {
@@ -98,7 +100,10 @@ export function campaignPressureYear(state:GameState) {
  const route=routeOf(state);
  const timing=PRESSURE_YEARS[age];
  const prior=chosenMove(state,sceneId(route,timing.after));
- if(prior)return campaignPressure(route,age,prior,kind=>prepFlag(sceneId(route,timing.before),kind));
+ if(prior){
+  const event=campaignPressure(route,age,prior,kind=>prepFlag(sceneId(route,timing.before),kind));
+  return age===26?storyFollowup(state,event):event;
+ }
 }
 
 export function campaignProgress(state: GameState) {
@@ -117,8 +122,15 @@ export function campaignProgress(state: GameState) {
   return event?[{age,id:event.id,title:event.title,district:event.district,
    decision:state.seenEvents.includes(event.id)?'已处理':undefined}]:[];
  });
- const timeline=[...chapters,...responses].sort((a,b)=>a.age-b.age);
- const current=timeline.find(beat=>beat.age>=state.age&&!state.seenEvents.includes(beat.id));
+ const duels=SHOWDOWN_AGES.map(age=>{
+  const event=storyShowdownScene(state,createShowdown(route,age));
+  const result=storyVerdict(state,route,age);
+  const previous=legacyShowdownEvent(route,age);
+  return {age,id:event.id,title:event.title,district:event.district,
+   decision:result?{win:'拿下',partial:'保住一部分',loss:'下一场再来'}[result]:state.seenEvents.includes(previous)?'已处理':undefined};
+ });
+ const timeline=[...chapters.filter(beat=>beat.age!==23&&beat.age!==57),...responses.filter(beat=>beat.age!==38),...duels].sort((a,b)=>a.age-b.age);
+ const current=timeline.find(beat=>beat.age>=state.age&&!beat.decision);
  return { name:CAMPAIGN_NAMES[route], chapters, next, status, timeline, current };
 }
 
@@ -158,6 +170,10 @@ export function campaignEpilogue(state: GameState) {
  const route = routeOf(state);
  const id = sceneId(route,57);
  const decision = moves.find(move=>state.flags.includes(moveFlag(id,move)));
+ const last=storyVerdict(state,route,57);
+ if (last) {
+  return {title:last==='win'?epilogue[route][decision??'people']:last==='partial'?'还有一条路':'散场以后',text:showdownAftermath(route,57,last)};
+ }
  if (!decision) return;
  const coda = {
   arrival:'六十岁生日，{ally}发来一张江边的排期表。周五那格还是亮的。你关掉手机，到门口等第一批客人。',

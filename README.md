@@ -103,7 +103,9 @@ GitHub `main` 分支自动发布到 Cloudflare Pages：
 - Node.js：22
 - 每次推送触发 Cloudflare 构建；GitHub Actions 同时检查测试和构建。无需在 GitHub 配置 Cloudflare 密钥。
 
-需要手动发布时，在同一 Cloudflare 账号登录后运行 `npm run deploy`。`wrangler.jsonc` 是当前发布配置。游戏仅使用静态文件，没有后端函数或付费模型调用。
+需要手动发布时，在同一 Cloudflare 账号登录后运行 `npm run deploy`。`wrangler.jsonc` 是当前发布配置。剧情和交易所使用浏览器存档。全服排位由 Pages Functions 和 D1 处理，预览与正式环境使用独立的排行榜数据库。
+
+本地排位可先执行 `npx wrangler d1 migrations apply modulife-ranked --local`，再用 `npx wrangler pages dev dist` 启动构建好的游戏。更新数据库结构时，先对预览数据库应用迁移并完成双身份走查，再迁移正式数据库。
 
 存档和车票保存在当前浏览器。邀请与回执可通过链接或 JSON 文件交换，拿到链接或文件的人都能打开。若之前在另一地址玩过，请在原地址导出人生档案，再到新地址的「存档」中导入。
 

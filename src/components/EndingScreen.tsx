@@ -1,3 +1,5 @@
+import { calendarYear, LEGACY_START } from '../game/calendar';
+import { marketValue } from '../game/market';
 import { ending, publicOriginNames } from '../game/engine';
 import { endingPhoto } from '../game/art';
 import { lastDayMemory } from '../game/lastDay';
@@ -24,10 +26,12 @@ export default function EndingScreen({ game, sharing, onShare, onChallenge, onDr
  const start = lifeStartProfile(game.origins);
  const owed = familyLoanOwed(game);
  const photo = lifeYearsAlbumPhoto(game) ?? endingPhoto(result.id);
+ const investments=marketValue(game);
  const contacts = Object.values(game.relationships).filter(person => person.met).length;
 
  return <main className="ending-screen">
   <header className="ending-copy">
+   <p className="eyebrow">{game.calendar??LEGACY_START}–{calendarYear(game)}</p>
    <h1>{result.title}</h1>
    <p className="ending-description">{result.text}</p>
   </header>
@@ -41,6 +45,7 @@ export default function EndingScreen({ game, sharing, onShare, onChallenge, onDr
    <dl className="ending-stats">
     {start&&<div><dt>初始余额</dt><dd>¥{start.cash.toLocaleString('zh-CN')}</dd></div>}
     <div><dt>最终余额</dt><dd>¥{Math.round(game.cash).toLocaleString('zh-CN')}</dd></div>
+    {!!investments&&<div><dt>持仓市值</dt><dd>¥{investments.toLocaleString('zh-CN')}</dd></div>}
     {!!owed&&<div><dt>公司尚欠你的款</dt><dd>¥{owed.toLocaleString('zh-CN')}</dd></div>}
     <div><dt>认识的人</dt><dd>{contacts} 位</dd></div>
     <div><dt>遇到的故事</dt><dd>{game.seenEvents.length} 段</dd></div>

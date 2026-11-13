@@ -1,3 +1,4 @@
+import { calendarYear } from '../game/calendar';
 import { DISTRICTS } from '../game/content';
 import { campaignLead, campaignProgress } from '../game/lifeCampaign';
 import type { GameState, LifeEvent } from '../game/types';
@@ -13,7 +14,7 @@ export default function CampaignPanel({game,onVisit,onAdvance}: {
   <ol>{timeline.map(chapter=>{
    const district = DISTRICTS.find(place=>place.id===chapter.district)?.name;
    return <li key={chapter.id} aria-current={chapter.id===current?.id?'step':undefined}>
-    <span>{chapter.age} 岁</span><div><b>{chapter.title}</b><small>{chapter.decision??district}</small></div>
+    <span>{game.calendar?calendarYear({...game,age:chapter.age})+' 年':chapter.age+' 岁'}</span><div><b>{chapter.title}</b><small>{chapter.decision??district}</small></div>
     {chapter.decision&&<Icon name="check" size={17}/>}
    </li>;
   })}</ol>

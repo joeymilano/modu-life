@@ -1,5 +1,5 @@
 import { dayworkLead } from './lifeStarts';
-import { heirStoryLead } from './heirStory';
+import { hasHeirStory, heirStoryLead } from './heirStory';
 import { systemLead } from './systemStory';
 import { blossomsLead } from './blossoms';
 import { contactStory } from './contactStories';
@@ -50,7 +50,7 @@ const leads: StreetLead[] = [
   },
   {
     message: '老妈改了两次复诊时间',
-    available: s => s.age >= 32 && s.age <= 53,
+    available: s => s.age >= 32 && s.age <= 53 && !hasHeirStory(s),
     event: {
       id: 'street-clinic', title: '早上七点的号', category: 'social', district: 'people', speakerId: 'mother',
       illustration: streetPhoto('station'), tag: '家里',

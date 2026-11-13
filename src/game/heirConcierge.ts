@@ -1,4 +1,5 @@
-import { buyHeirAssets, hasHeirStory, HEIR_CATALOG, heirStoryPhoto, ownsHeirAsset } from './heirStory';
+import { calendarYear } from './calendar';
+import { buyHeirAssets, hasHeirStory, heirAssetAvailable, HEIR_CATALOG, heirStoryPhoto, ownsHeirAsset } from './heirStory';
 import type { EventChoice, GameState, LifeEvent } from './types';
 
 export const PENTHOUSE_FEE = 12_000;
@@ -24,29 +25,29 @@ function retail(state: GameState, type: 'mall' | 'cars'): Offer | undefined {
  const mall = type === 'mall';
  const first = mall ? 'lv' : 'cullinan';
  const second = mall ? 'hermes' : 'revuelto';
- const hasFirst = ownsHeirAsset(state, first);
- const hasSecond = ownsHeirAsset(state, second);
+ const hasFirst = ownsHeirAsset(state, first)||!heirAssetAvailable(state,first);
+ const hasSecond = ownsHeirAsset(state, second)||!heirAssetAvailable(state,second);
  if (hasFirst && hasSecond) return;
  const choices = [];
- if (!hasFirst) choices.push(buyHeirAssets([first], mall ? '买下 LV 旅行袋' : '提走库里南',
+ if (!hasFirst) choices.push(buyHeirAssets(state,[first], mall ? '买下 LV 旅行袋' : '提走库里南',
   mall ? '店员把旅行袋送进你的后备厢。下趟出去玩，出门前往里扔两件衣服就能走。'
    : '销售把两把钥匙都交给你。司机问今晚开哪辆，你指了指刚擦干净的后座。'));
- if (!hasSecond) choices.push(buyHeirAssets([second], mall ? '买下爱马仕 Kelly' : '提走 Revuelto',
+ if (!hasSecond) choices.push(buyHeirAssets(state,[second], mall ? '买下爱马仕 Kelly' : '提走 Revuelto',
   mall ? '店员当着你的面把焦糖色的 Kelly 重新包好。你在门口就拆了，往里放了把车钥匙。'
    : '展厅门一开，淮海路方向的路灯刚亮。你坐进去试了下方向盘，销售把副驾那张保护膜撕掉。'));
- if (!hasFirst && !hasSecond) choices.push(buyHeirAssets([first, second], mall ? '两只都包起来' : '两辆都提',
+ if (!hasFirst && !hasSecond) choices.push(buyHeirAssets(state,[first, second], mall ? '两只都包起来' : '两辆都提',
   mall ? '两只纸袋摆上后座。柜姐问小票要不要分开，你说，一起夹在里面就行。'
    : '你自己开 Revuelto。司机跟在后面开库里南，问回去以后哪辆停电梯口。你说，俩都停。'));
  return offer(type+'-'+Number(hasFirst)+Number(hasSecond),
   mall ? '恒隆扫货' : '西岸提车', mall ? '静安 · 恒隆广场' : '徐汇滨江 · 西岸展厅',
   heirStoryPhoto(mall ? 'shopping' : 'garage'), 'explore',
-  mall ? '南京西路还在下雨。柜姐把门掩上，问柜上的包要试一只，还是一起拿下。'
-   : '西岸的两家销售都还在。库里南已经洗过，Revuelto 的车门开着。车可以直接送到你楼下。', choices);
+  mall ? '南京西路还在下雨。柜姐把门掩上，等你挑。'
+   : '展厅的灯还亮着。选完车，钥匙可以直接送到你楼下。', choices);
 }
 
 function penthouse(state: GameState): Offer | undefined {
- if (ownsHeirAsset(state, 'penthouse')) return;
- const purchase = buyHeirAssets(['penthouse'], '买下，今晚搬进去', '物业把电梯权限录进你的手机。最后一箱东西送上来时，对岸外滩的楼已经亮了。你让搬家师傅把沙发转过去，正对江面。');
+ if (!heirAssetAvailable(state,'penthouse')||ownsHeirAsset(state,'penthouse')) return;
+ const purchase = buyHeirAssets(state,['penthouse'], '买下，今晚搬进去', '物业把电梯权限录进你的手机。最后一箱东西送上来时，对岸外滩的楼已经亮了。你让搬家师傅把沙发转过去，正对江面。');
  return offer('penthouse', '看江景顶层', HEIR_CATALOG.penthouse.place, HEIR_CATALOG.penthouse.image, 'housing',
   `电梯直接进客厅。露台外面是黄浦江，对岸海关钟楼刚敲完八下。入住后物业费每月 ¥${PENTHOUSE_FEE.toLocaleString('zh-CN')}。搬过去，你就用自己的房卡。`,
   [{...purchase, effect:{...purchase.effect,housing:3}}]);
@@ -81,19 +82,25 @@ function supper(state: GameState): Offer {
 
 function nightDrive(state: GameState): Offer | undefined {
  const choices: EventChoice[] = [];
+ if(ownsHeirAsset(state,'classic'))choices.push({id:'classic',label:'叫司机开 600 SEL 去锦江饭店',
+  reply:'司机把车停在门廊下。你下车时，门口的领位员已经走过来。',effect:{spirit:8,face:4}});
  if (ownsHeirAsset(state,'revuelto')) choices.push({id:'revuelto',label:'开 Revuelto 去浦东兜一圈',
   reply:'车从延安东路隧道钻出来，两侧灯一下散开。你在滨江停了车，坐在台阶上看对岸的灯亮到最后。',effect:{spirit:10,face:5}});
  if (ownsHeirAsset(state,'cullinan')) choices.push({id:'cullinan',label:'叫司机开库里南，去淮海路吃宵夜',
   reply:'司机在淮海中路让你下车。点心店还开着，你进去要了碗馄饨，出来的时候后座的暖气已经开了。',effect:{spirit:9,health:4}});
  if (!choices.length) return;
- return offer('drive-'+state.age, '今晚用哪辆车', '私人车库', heirStoryPhoto('garage'), 'explore',
+ return offer('drive-'+state.age, '今晚用哪辆车', '私人车库', calendarYear(state)<2018?HEIR_CATALOG.classic.image:heirStoryPhoto('garage'), 'explore',
   '车库的灯一排排亮起来。车都在，今晚去哪儿你定。', choices, BOOKING);
 }
 
 export function heirConcierge(state: GameState) {
  if (!hasHeirStory(state) || state.pendingYearEvent || state.ended) return;
- const shopping = [penthouse(state),retail(state,'mall'),retail(state,'cars')].filter(item=>item!==undefined);
- const tonight = [yacht(state),supper(state),nightDrive(state)].filter(item=>item!==undefined);
+ const classic=!ownsHeirAsset(state,'classic')&&state.calendar&&calendarYear(state)<1999
+  ? offer('classic','订一辆奔驰 600 SEL','上海 · 进口车行',HEIR_CATALOG.classic.image,'explore',
+   '车行把钥匙和出库单放在同一个托盘上。',[buyHeirAssets(state,['classic'],'开走这辆奔驰','出库单写上你的名字，司机把钥匙交给你。')])
+  : undefined;
+ const shopping = [classic,penthouse(state),retail(state,'mall'),retail(state,'cars')].filter(item=>item!==undefined);
+ const tonight = [calendarYear(state)>=1994?yacht(state):undefined,calendarYear(state)>=2010?supper(state):undefined,nightDrive(state)].filter(item=>item!==undefined);
  const owned: Offer[] = [];
  if (ownsHeirAsset(state,'penthouse') && !livesInPenthouse(state)) owned.push(offer('move-'+state.age,'搬回江景顶层',
   HEIR_CATALOG.penthouse.place,HEIR_CATALOG.penthouse.image,'housing',

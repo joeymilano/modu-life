@@ -1,9 +1,10 @@
+import { calendarYear } from './calendar';
 import { openingPhoto } from './art';
 import { heirClassYear, staffBedRent, workerClassYear } from './classLives';
 import { livesInPenthouse, PENTHOUSE_FEE } from './heirConcierge';
 import { HEIR_CAPITAL_TIER, HEIR_PERSONAL_CASH, heirTerms } from './heirCapital';
 import { HEIR_WEST_BUND, heirStoryPhoto, westBundSecondYear } from './heirStory';
-import { isSystemLife, SYSTEM_CASH, systemOpening, systemPhoto, systemSecondYear } from './systemStory';
+import { isSystemLife, SYSTEM_CASH, periodSystemOpening, systemPhoto, systemSecondYear } from './systemStory';
 import { dramaPhoto, OPENING_ALLIES, OPENING_DRAMA, OPENING_PROOF, withOpeningRecord } from './openingStakes';
 import { laterDaywork, laterHeir } from './lifeYears';
 import { warehouseHeirYear, warehouseWorkerYear } from './relocation';
@@ -170,6 +171,16 @@ const westBundOpening: LifeEvent = {
  }),
 };
 
+const ninetiesHeirOpening:LifeEvent = {
+ ...westBundOpening,title:'今晚锦江饭店见',illustration:'/art/era/jinjiang-1992.webp',objective:'找母亲拿请帖原件，开席前抢回主位',
+ text:'老爸把家里给你的存折和房门钥匙放在桌上。电话响了。周骁说，今晚的座牌他都排好了，你挨着他坐。母亲在锦江饭店，手上还有一张没改过的请帖。',
+ choices:westBundOpening.choices.map(choice=>choice.id==='keys'?{
+  ...choice,label:'收钥匙，去锦江找母亲',reply:'你把钥匙收好。父亲打电话让司机来，母亲在饭店等你。',
+ }:choice.id==='floor'?{
+  ...choice,label:'进公司，今晚我自己做东',reply:'你在人事科签了名字。下楼先找公用电话，让饭店把话筒留着。',
+ }:{...choice,label:'退钥匙，自己去赴宴',reply:'父亲把钥匙收回抽屉，说散场晚了就叫司机。'}),
+};
+
 const board = year('heir-board', '八十万签给谁',
  '老爸请你来看一份八十万的采购单。供应商是表哥介绍的，主管说有一条线今年用不上。老爸让你决定怎么推进，采购和财务走完会签才放款。', [
   option('pilot','先做小批试单，让车间验收','财务把大单撤下来，先给车间留一批样机。表哥只回了个「行」。晚上车间主管发来一段短视频，机器真的跑了起来。',{skill:10,trust:4,setFlags:[HEIR_TRIAL]},'公司先试单 · 个人账户 ¥0'),
@@ -237,7 +248,7 @@ export function dayworkLead(state: GameState): {message: string; event: LifeEven
 
 export function lifeStartYear(state: GameState) {
  if (isSystemLife(state)) {
-  if (state.age===18) return systemOpening;
+  if (state.age===18) return periodSystemOpening(state);
   if (state.age===19) return systemSecondYear(state);
  }
  if (state.flags.includes(DAYWORK)) {
@@ -249,7 +260,7 @@ export function lifeStartYear(state: GameState) {
  }
  if (state.flags.includes(HEIR)) {
   const westBund = state.flags.includes(HEIR_WEST_BUND);
-  if (state.age === 18 && westBund) return westBundOpening;
+  if (state.age === 18 && westBund) return calendarYear(state)<2001?ninetiesHeirOpening:westBundOpening;
   if (state.age === 18) return state.flags.includes(HEIR_CAPITAL_TIER) ? {
    ...firstKeys,
    illustration:heirStoryPhoto('family'),
@@ -279,6 +290,9 @@ export function lifeStartRent(state: GameState, ordinaryRent: number, shared: bo
 
 export function lifeStartHousing(state: GameState): string | undefined {
  if (livesInPenthouse(state)) return '陆家嘴江景顶层 · 自有';
- if (state.flags.includes(FAMILY_HOME) && state.housing === 2) return state.flags.includes(FAMILY_PAY) ? '家里租的江景房' : '江景房 · 自付';
+ if (state.flags.includes(FAMILY_HOME) && state.housing === 2) {
+  if(calendarYear(state)<2001)return state.flags.includes(FAMILY_PAY)?'家里的花园公寓':'花园公寓 · 自付';
+  return state.flags.includes(FAMILY_PAY) ? '家里租的江景房' : '江景房 · 自付';
+ }
  if (state.flags.includes(DAYWORK) && state.housing === 0) return state.flags.includes(DAYWORK_TEMP) ? '临时落脚' : staffBedRent(state) !== undefined ? '仓配宿舍' : '短租床位';
 }

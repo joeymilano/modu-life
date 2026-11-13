@@ -7,14 +7,14 @@ from playwright.sync_api import expect, sync_playwright
 
 BASE = os.environ.get('GAME_URL', 'http://localhost:5173').rstrip('/')
 ROUTES = [
-    ('毛小毛', '去莘庄拿签字单', '两把钥匙', '今天先别付', 'night-room', '毛小毛找了另一间', '拿原件上台'),
-    ('何亮', '去安福路对小票', '账上少两份面', '让她先走', 'night-shift', '何亮排了张班表', '让何亮带大家进场'),
-    ('陆嘉', '去轮渡口接乐队', '箱底开了', '下一班船再走', 'night-ferry', '一袋有疤的橘子', '让陆嘉带大家进场'),
+    ('毛小毛', '去莘庄拿签字单', '两把钥匙', '今天先别付', 'night-room', '毛小毛找了另一间'),
+    ('何亮', '去安福路对小票', '账上少两份面', '让她先走', 'night-shift', '何亮排了张班表'),
+    ('陆嘉', '去轮渡口接乐队', '箱底开了', '下一班船再走', 'night-ferry', '一袋有疤的橘子'),
 ]
 
 
 def run_route(browser, width, height, route):
-    sender, visit, meeting, choice, flag, followup, finale = route
+    sender, visit, meeting, choice, flag, followup = route
     mobile = width < 600
     page = browser.new_page(viewport={'width': width, 'height': height}, has_touch=mobile)
     errors = []
@@ -23,7 +23,7 @@ def run_route(browser, width, height, route):
     try:
         page.goto(BASE + '/?seed=ARRIVALQA', wait_until='domcontentloaded')
         page.get_by_role('button', name='开始新游戏').click()
-        inbox = page.get_by_role('dialog', name='车还没出站，场子被抢了')
+        inbox = page.get_by_role('dialog', name='上海站的三张字条')
         expect(inbox).to_be_visible()
 
         if sender == '毛小毛':
@@ -54,10 +54,11 @@ def run_route(browser, width, height, route):
         expect(page.get_by_role('heading', name=meeting)).to_be_visible()
         page.get_by_role('button', name=choice).click()
         page.get_by_role('dialog').get_by_role('button', name='去外滩抢回首演', exact=True).click()
-        expect(page.get_by_role('heading', name='话筒还没关')).to_be_visible()
-        expect(page.locator('.event-photo img')).to_have_attribute('src', '/art/cold-open/stage.webp')
-        page.get_by_role('button', name=finale).click()
-        page.get_by_role('button', name='继续', exact=True).click()
+        expect(page.get_by_role('heading', name='开门前，票卖了两遍')).to_be_visible()
+        expect(page.locator('.showdown-frame img')).to_have_attribute('src', '/art/cold-open/stage.webp')
+        for move in ('proof', 'verify', 'expose'):
+            page.locator('[data-move='+move+']').click()
+        page.get_by_role('button', name='回到街上').click()
         page.get_by_role('button', name='年度结算' if mobile else '结算这一年', exact=True).click()
         page.get_by_role('button', name='进入 19 岁').click()
         expect(page.get_by_role('heading', name=followup)).to_be_visible()

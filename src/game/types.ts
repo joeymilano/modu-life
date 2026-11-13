@@ -1,3 +1,5 @@
+import type { MarketAccount } from './market';
+import type { Showdown } from './showdowns';
 import type { YearReceipt } from './yearReceipt';
 
 export type DistrictId = 'bund' | 'anfu' | 'people' | 'lujiazui' | 'zhangjiang' | 'xinzhuang';
@@ -38,7 +40,7 @@ export interface GameState {
  version: 1; seed: string; rng: number; name: string; age: number; actions: number; goal: GoalId;
  appearance: PlayerAppearance;
  district: DistrictId; cash: number; stats: Record<StatKey,number>; jobId: string|null; jobRank: number; housing: number; leaseRent?: number;
- employment?: Employment;
+ employment?: Employment; showdown?: Showdown; calendar?: 1992; market?: MarketAccount;
  origins: string[]; flags: string[]; seenEvents: string[]; relationships: Record<string,Relationship>; partnerId: string|null;
  journal: JournalEntry[]; pendingYearEvent: boolean; ended: boolean; totalEarned: number; yearsEmployed: number; rescues: number;
 }

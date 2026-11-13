@@ -1,13 +1,15 @@
+import { SHANGHAI_STATION_1992 } from '../game/calendar';
 import { useState } from 'react';
 import { LIFE_STARTS, type LifeStart } from '../game/lifeStarts';
-import { dramaPhoto } from '../game/openingStakes';
 import Icon from './Icon';
 import './life-starts.css';
 
 const starts = [{
- id:'arrival' as const,place:'上海南站',title:'随机出身',photo:dramaPhoto('stage'),
+ id:'arrival' as const,place:'上海站',title:'随机出身',photo:SHANGHAI_STATION_1992,
  text:'刚出站，费启就拿走你的试场。十点开门，先把名字抢回来。',
-},...LIFE_STARTS];
+},...LIFE_STARTS.map(start=>start.id==='heir'?{...start,place:'锦江饭店',photo:'/art/era/jinjiang-1992.webp',
+ text:'母亲把请帖留在锦江饭店。周骁已经在排座位，你先去拿原件。'}:
+ start.id==='system'?{...start,photo:'/art/era/terminal-1992.webp',text:'机房最旧的终端亮了。第一张结算单上，顾桥写了自己的名字。'}:start)];
 
 export default function LifeStartPicker({hasSave,onPick,onEdit}: {
  hasSave:boolean; onPick:(start?:LifeStart)=>void; onEdit:(start?:LifeStart)=>void;
@@ -23,7 +25,7 @@ export default function LifeStartPicker({hasSave,onPick,onEdit}: {
   {hasSave&&!edit&&<p className="start-save-note">开局会替换自动存档</p>}
   <div className="life-start-options">
    {starts.map(start => <button type="button" key={start.id} onClick={() => {
-    const profile = start.id==='arrival'?undefined:start;
+    const profile = LIFE_STARTS.find(item=>item.id===start.id);
     (edit?onEdit:onPick)(profile);
    }}>
     <div className="start-portrait">

@@ -1,3 +1,4 @@
+import { calendarYear, cityYearNote } from '../game/calendar';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { activeLine, lineName, type LifeBook } from '../game/lifeLines';
 import { downloadBlob, makeYearCard } from '../game/share';
@@ -17,6 +18,8 @@ export default function YearReceiptCard({book, age, receipt, children}: {
  const [printing,setPrinting] = useState(false);
  const [printError,setPrintError] = useState(false);
  const current = activeLine(book);
+ const settledYear=calendarYear({...current.state,age});
+ const nextNote=current.state.calendar&&cityYearNote(calendarYear(current.state));
  const moment = yearMoment(receipt.moment);
  const total = yearTotals(receipt);
  const others = book.lines.filter(line=>line.id!==book.active);
@@ -45,7 +48,7 @@ export default function YearReceiptCard({book, age, receipt, children}: {
   </figure>
   <div className="year-sheet">
    <header className="year-sheet-head">
-    <span><b>{age}</b> 岁</span>
+    <span><b>{current.state.calendar?settledYear:age}</b> {current.state.calendar?'年':'岁'}</span>
    </header>
    <h2 ref={heading} tabIndex={-1}>{moment.title}</h2>
    <div className="year-balance">
@@ -56,6 +59,7 @@ export default function YearReceiptCard({book, age, receipt, children}: {
     <div><span>到账</span><b>{yearMoney(total.income)}</b></div>
     <div><span>支出</span><b>{yearMoney(total.paid)}</b></div>
    </div>
+   {nextNote&&<p className="outcome-text year-notice">{nextNote}</p>}
    {receipt.notice&&<p className="outcome-text year-notice">{receipt.notice}</p>}
    <div className="year-actions">
     {children}

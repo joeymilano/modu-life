@@ -7,8 +7,8 @@ import Icon from './Icon';
 import { Portrait } from './Portrait';
 import './first-night.css';
 
-export default function ArrivalInbox({event, appearance, heading, onReply}: {
- event: LifeEvent; appearance: PlayerAppearance; heading: Ref<HTMLHeadingElement>; onReply: (id: string) => void;
+export default function ArrivalInbox({event, appearance, heading, onReply, nineties}: {
+ event: LifeEvent; nineties?:boolean; appearance: PlayerAppearance; heading: Ref<HTMLHeadingElement>; onReply: (id: string) => void;
 }) {
  const firstReply = event.objective ? event.choices[0]?.id : undefined;
  const [current, setCurrent] = useState(firstReply);
@@ -16,27 +16,27 @@ export default function ArrivalInbox({event, appearance, heading, onReply}: {
  const [stationView, setStationView] = useState(true);
  const messages = event.choices.flatMap(choice => {
   const sender = CAST.find(person => person.id === choice.senderId);
-  const thread = sender && firstNightThread(sender.id,Boolean(event.objective));
+  const thread = sender && firstNightThread(sender.id,Boolean(event.objective),nineties);
   return sender && thread ? [{ choice, sender, thread }] : [];
  });
  const active = messages.find(item => item.choice.id === current);
  const attachment = stationView ? undefined : active;
- const photo = attachment?.thread.photo ?? arrivalPhoto(appearance);
+ const photo = attachment?.thread.photo ?? (nineties?event.illustration:undefined) ?? arrivalPhoto(appearance);
  return <>
   <div className="event-visual event-photo arrival-snapshot" data-station={!attachment}>
-   <img key={photo} src={photo} alt={attachment?.thread.alt ?? '你拖着箱子站在上海南站出口，看手机里的消息'}
+   <img key={photo} src={photo} alt={attachment?.thread.alt ?? (nineties?'1992 年，提着行李走出上海站':'你拖着箱子站在上海南站出口，看手机里的消息')}
     onError={attachment ? undefined : event => {
      const image = event.currentTarget;
      const fallback = streetPhoto('first-night-arrival');
      if (image.getAttribute('src') !== fallback) {
       image.src = fallback;
-      image.alt = '上海南站出口，行李箱的轮子卡住了';
+      image.alt = nineties?'上海站出站口':'上海南站出口，行李箱的轮子卡住了';
      }
     }}/>
    <div className="arrival-photo-footer">
-    <span className="snapshot-credit">{attachment ? attachment.sender.name + '发来的照片' : '上海南站 · 出站口'}</span>
+    <span className="snapshot-credit">{attachment ? attachment.sender.name + '发来的照片' : nineties?'上海站 · 1992':'上海南站 · 出站口'}</span>
     {active && <button type="button" onClick={() => setStationView(value => !value)}>
-     <Icon name="eye" size={14}/>{attachment ? '回看南站' : '看消息照片'}
+     <Icon name="eye" size={14}/>{attachment ? '回看车站' : '看消息照片'}
     </button>}
    </div>
   </div>

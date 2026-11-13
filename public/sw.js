@@ -108,7 +108,7 @@ async function audioRange(cached, range) {
 self.addEventListener('fetch', event => {
   const request = event.request;
   const url = new URL(request.url);
-  if (request.method !== 'GET' || url.origin !== self.location.origin) return;
+  if (request.method !== 'GET' || url.origin !== self.location.origin || url.pathname.startsWith('/api/')) return;
 
   const range = url.pathname.startsWith('/audio/') && /^bytes=(\d*)-(\d*)$/.exec(request.headers.get('range') || '');
   const page = /^\/(pearl|stall)(?:\/|\/index\.html)?$/.exec(url.pathname);
