@@ -66,13 +66,13 @@ export default function MarketBoard({game,onChange}:{game:GameState;onChange:(st
     {available?<>
      <p>{yuan(price)} / {item.lot} · {owned?'持有 '+owned.lots+' 手':'暂无持仓'}</p>
      {owned&&<p>账面盈亏 <b>{(owned.lots*price-owned.cost>=0?'+':'−')+yuan(Math.abs(owned.lots*price-owned.cost))}</b></p>}
-     <ol className="market-chart" aria-label="历年价格">
+     {points.length>1&&<><ol className="market-chart" aria-label="历年价格">
       {points.map(point=><li key={point.at} title={point.at+' 年 · '+yuan(point.price)}>
        <i style={{height:Math.max(4,point.price/ceiling*100)+'%'}} aria-hidden="true"/>
        <span className="visually-hidden">{point.at} 年 {yuan(point.price)}</span>
       </li>)}
      </ol>
-     <div className="market-chart-range"><span>{points[0].at}</span><span>{year}</span></div>
+     <div className="market-chart-range"><span>{points[0].at}</span><span>{year}</span></div></>}
      <label>手数 <input aria-label="交易手数" inputMode="numeric" type="number" min={1} max={1000000} value={lots} onChange={event=>setLots(event.target.value)}/></label>
      <div className="market-orders">
       <button className="primary" disabled={locked||!valid||buy>game.cash} onClick={()=>order('buy')}>买入 {valid&&yuan(buy)}</button>

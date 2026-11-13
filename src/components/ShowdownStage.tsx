@@ -10,7 +10,8 @@ export default function ShowdownStage({game,photo,intro,ranked,busy,onMove,onDon
  const view=showdownView(game);
  const focus=useRef<HTMLHeadingElement>(null);
  useEffect(()=>{
-  focus.current?.closest('.modal')?.scrollTo({top:0});
+  const stage=focus.current?.closest('.showdown-stage');
+  stage?.closest('.modal')?.scrollTo({top:0});
   focus.current?.focus({preventScroll:true});
  },[game.moves.length,game.route,game.age]);
  return <article className="showdown-stage">

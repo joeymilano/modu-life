@@ -98,3 +98,8 @@
  .rank-table { font-size: 12px; }
  .rank-tabs { display: grid; grid-template-columns: 1fr 1fr; }
 }
+.modal.showdown-dialog { display: block; }
+@media (max-width: 750px) {
+ .modal.showdown-dialog { max-height: calc(100dvh - 24px); }
+ .showdown-body { padding-top: 14px; }
+}
