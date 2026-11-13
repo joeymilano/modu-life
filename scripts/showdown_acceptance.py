@@ -28,7 +28,7 @@ def stage(page):
 
 
 def open_route(page, route):
-    page.goto(BASE+'/?seed=ARRIVALQA', wait_until='domcontentloaded')
+    page.goto(BASE+'/?seed=ARRIVALQA', wait_until='domcontentloaded', timeout=30000)
     if route == '初到上海':
         page.get_by_role('button', name='开始新游戏').click()
         expect(page.get_by_role('heading',name='上海站的三张字条')).to_be_visible()
@@ -72,7 +72,7 @@ def play_story(browser, route, width, through_ending=True):
                 stage(page).locator(f'[data-move={moves[0]}]').click()
                 if age==18:
                     page.wait_for_function("JSON.parse(localStorage.getItem('modu-life-v1')).showdown.moves.length===1")
-                    page.reload(wait_until='domcontentloaded')
+                    page.reload(wait_until='domcontentloaded', timeout=30000)
                     page.get_by_role('button', name='继续游戏').click()
                     expect(stage(page).get_by_text('剩余 2 回合')).to_be_visible()
                 for move in moves[1:]:
@@ -158,7 +158,7 @@ def play_ranks(browser):
                 page.context.set_offline(False)
                 page.get_by_role('button',name='重试这一步').click()
             else:
-                page.reload(wait_until='domcontentloaded')
+                page.reload(wait_until='domcontentloaded', timeout=30000)
                 page.get_by_role('button',name='继续排位').click()
                 stage(page).locator('[data-move=verify]').click()
             expect(stage(page).get_by_text('剩余 1 回合')).to_be_visible()
@@ -169,7 +169,7 @@ def play_ranks(browser):
             expect(row).to_be_visible()
             ids.append(row.locator('td').nth(2).inner_text())
         for page in pages:
-            page.reload(wait_until='domcontentloaded')
+            page.reload(wait_until='domcontentloaded', timeout=30000)
             expect(page.get_by_role('table',name='全服排名')).to_be_visible()
             for public_id in ids:
                 row=page.get_by_role('row').filter(has_text=public_id)
