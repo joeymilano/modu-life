@@ -252,7 +252,11 @@ export function lifeStartYear(state: GameState) {
   if (state.age===19) return systemSecondYear(state);
  }
  if (state.flags.includes(DAYWORK)) {
-  if (state.age === 18) return state.flags.includes(OPENING_DRAMA)?shiftOpening:firstShift;
+  if (state.age === 18) {
+   if(calendarYear(state)<2000)return {...shiftOpening,illustration:'/art/era/shift-1992.webp',
+    choices:shiftOpening.choices.map(choice=>({...choice,reply:choice.reply.replace('在群里只报了两天','在白板上只写了两天')}))};
+   return state.flags.includes(OPENING_DRAMA)?shiftOpening:firstShift;
+  }
   if (state.age === 19) return state.flags.includes(DAYWORK_DUE) ? shiftPay : state.flags.includes(DAYWORK_REMAINDER) ? remainingPay :
    state.flags.includes(DAYWORK_TEMP) ? {...shiftBed,text:'去年的床位没能续上。吴师傅把你的行李先寄在门房，问你今天想先见收货岗的人，还是先接一班日结。'} : shiftBed;
   if (state.age === 20) return state.flags.includes(DAYWORK_REMAINDER) ? remainingPay : workerThird;

@@ -9,7 +9,7 @@ const starts = [{
  text:'刚出站，费启就拿走你的试场。十点开门，先把名字抢回来。',
 },...LIFE_STARTS.map(start=>start.id==='heir'?{...start,place:'锦江饭店',photo:'/art/era/jinjiang-1992.webp',
  text:'母亲把请帖留在锦江饭店。周骁已经在排座位，你先去拿原件。'}:
- start.id==='system'?{...start,photo:'/art/era/terminal-1992.webp',text:'机房最旧的终端亮了。第一张结算单上，顾桥写了自己的名字。'}:start)];
+ start.id==='system'?{...start,photo:'/art/era/terminal-1992.webp',text:'机房最旧的终端亮了。第一张结算单上，顾桥写了自己的名字。'}:{...start,photo:'/art/era/shift-1992.webp'})];
 
 export default function LifeStartPicker({hasSave,onPick,onEdit}: {
  hasSave:boolean; onPick:(start?:LifeStart)=>void; onEdit:(start?:LifeStart)=>void;

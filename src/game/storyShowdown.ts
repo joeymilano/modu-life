@@ -29,6 +29,10 @@ const opensAfter = {
  heir:['heir-showroom'],
  system:['system-second'],
 };
+const ninetiesPhoto:Record<CampaignRoute,string> = {
+ arrival:'/art/era/stage-1992.webp',worker:'/art/era/shift-1992.webp',
+ heir:'/art/era/jinjiang-1992.webp',system:'/art/era/terminal-1992.webp',
+};
 const rivalId = {arrival:'fei', worker:undefined, heir:undefined, system:undefined};
 const allyId = {arrival:'mao', worker:'wu', heir:'mother', system:undefined};
 export const legacyShowdownEvent = (route:CampaignRoute,age:ShowdownAge) =>
@@ -86,7 +90,7 @@ export function storyShowdownScene(state: GameState, showdown: Showdown): LifeEv
     (ownsHeirAsset(state,'hermes')?'母亲让你把原件收进 Kelly。':ownsHeirAsset(state,'lv')?'你从 LV 旅行袋抽出请帖。':'')
   : '';
  return {id:storyShowdownId(showdown),category:'social',district:district[route],speakerId:rivalId[route],tag:'主线',
-  title:scene.title,text:[carry,arrival,scene.intro].filter(Boolean).join(''),objective:scene.goal,illustration:showdown.nineties&&route==='heir'?'/art/era/jinjiang-1992.webp':showdown.nineties&&route==='system'?'/art/era/terminal-1992.webp':showdown.nineties&&route==='arrival'&&age!==18?BUND_1992:photo[route](age),
+  title:scene.title,text:[carry,arrival,scene.intro].filter(Boolean).join(''),objective:scene.goal,illustration:showdown.nineties?(route==='arrival'&&age!==18?BUND_1992:ninetiesPhoto[route]):photo[route](age),
   choices:finish&&verdict?[{id:finish,label:scene[verdict],reply:summary,effect:{...reward,setFlags:flags}}]:[],
  };
 }

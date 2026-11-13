@@ -55,7 +55,7 @@ def run_route(browser, width, height, route):
         page.get_by_role('button', name=choice).click()
         page.get_by_role('dialog').get_by_role('button', name='去外滩抢回首演', exact=True).click()
         expect(page.get_by_role('heading', name='开门前，票卖了两遍')).to_be_visible()
-        expect(page.locator('.showdown-frame img')).to_have_attribute('src', '/art/cold-open/stage.webp')
+        expect(page.locator('.showdown-frame img')).to_have_attribute('src', '/art/era/stage-1992.webp')
         for move in ('proof', 'verify', 'expose'):
             page.locator('[data-move='+move+']').click()
         page.get_by_role('button', name='回到街上').click()
