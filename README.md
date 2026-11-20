@@ -36,7 +36,7 @@ npm run dev
 - [黄河路先庆哪一桩](https://modulife.pages.dev/#story=huanghe-toast)可以走汽水和包厢两条路，周五各有一张结账剧照。在「我的人生」21 岁以后去人民广场，可以翻菜单夹，找到 ¥48 拼桌的第三种庆功。[在上海碰到谁](https://modulife.pages.dev/#story=shanghai-cameos)有外白渡桥与安福路的两场虚构街头偶遇。
 - 约人界面可按当前城区筛选。八位约会角色在通讯录、约人和见面时使用对应年龄的照片，32 岁和 53 岁换到下一阶段。年轻时初次见面仍有不同的街景和饭桌镜头。
 - 通讯录可以切换全部、见过和有消息。吴师傅、方姐、沈经理等人的来信会排在前面，从照片点进去可以赴约。24 位联系人都有三个年龄段的头像和立绘，毛小毛、老妈等八位熟人的重拍提示词见 `art/support-casting.json`。
-- 点右上角扬声器可以开关游戏声音。配乐《Apero Hour》由 [Kevin MacLeod](https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1700070) 提供，采用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)，游戏中降低了音量并转码。
+- 首次操作后开始播放配乐。主菜单、剧情、街区、夜景和小游戏会切换曲目。「菜单」中的背景音乐可以关闭或切到下一首，静音设置下次打开游戏时也会生效。六首配乐均由 Kevin MacLeod 创作，逐首来源和 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 许可见游戏内「制作名单」。
 - 人民公园相亲角可以挂牌、把资料改成真话，或替汪阿姨收伞。可以把号码留给汪阿姨代转。挂牌或改简历的路线后来会遇到群截图，对照两版能找出最早转图的人。[直接试玩转发事件](https://modulife.pages.dev/#story=paper-forward)。[直接试玩相亲角](https://modulife.pages.dev/#story=park-umbrella)。
 - 租房三处查坑和约会对话都有替代办法与资源代价。
 - 跨年故事用条件、标记和后续节点保留旧选择。失业、缺钱、疲惫有恢复办法；不因一次翻车直接清档。
@@ -74,7 +74,7 @@ PW_BROWSER=webkit GAME_URL=http://127.0.0.1:4178 python3 scripts/pujiang_accepta
 
 ## 后续模型升级
 
-外滩和陆家嘴加载东方明珠，安福路加载武康大楼。开局选择女性「惊艳全场」可旋转预览绿裙模型，进城后也会使用该模型。夜猫子邮筒保留3D特写和来信互动。模型制作见 [Tripo 模型接入说明](TRIPO_MODELS.md)。
+外滩和陆家嘴加载东方明珠，安福路加载武康大楼。18 岁选角可旋转预览各款 3D 角色，街区地图上用「你」标出玩家。已有存档可在「菜单 → 角色形象」切换男性或女性。女性「惊艳全场」使用绿裙模型。夜猫子邮筒保留3D特写和来信互动。模型制作见 [Tripo 模型接入说明](TRIPO_MODELS.md)。
 
 外滩 3D 地图把海关钟楼和和平饭店摆在浦西，东方明珠、金茂、环球金融中心和上海中心隔江在浦东。地图采用游戏比例，玩家可走到浦西码头并触发轮渡故事。石墙、铜顶贴图和建筑参考见 `art/bund-bank-materials.json`。
 

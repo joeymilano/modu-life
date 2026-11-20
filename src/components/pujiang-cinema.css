@@ -21,6 +21,7 @@
 .pj-place { display:inline-flex; align-items:center; gap:12px; color:#fff6eb; font-size:12px; font-weight:600; text-shadow:0 1px 8px #000; }
 .pj-place b { font:600 18px/1 ui-monospace,monospace; font-style:italic; }
 .pj-motion,.pj-pause { display:inline-flex; justify-content:center; align-items:center; background:none; border:0; }
+.pj-film-controls { display: flex; align-items: center; }
 .pj-motion { width:44px; height:44px; color:#fff6e9; }
 .pj-motion i { height:10px; width:7px; border-inline:2px solid currentColor; filter:drop-shadow(0 1px 3px black); }
 .pj-frame figcaption { position:absolute; z-index:1; inset:auto 17% 9% 0; padding:0 0 0 clamp(20px,4.5vw,86px); border:0; background:none; }

@@ -4,14 +4,14 @@ import { LIFE_ALBUM_AGES, LOOKS, playerArt } from '../game/art';
 import { PlayerPortrait } from './Portrait';
 import Icon from './Icon';
 
-const ModelPreview = lazy(() => import('./OwlPreview').then(module => ({default: module.ModelPreview})));
+const PlayerModelPreview = lazy(() => import('./OwlPreview').then(module => ({default: module.PlayerModelPreview})));
 
 export default function AppearancePicker({value, onChange, children}: {
  value: PlayerAppearance; onChange: (value: PlayerAppearance) => void; children: ReactNode;
 }) {
  const [age, setAge] = useState<(typeof LIFE_ALBUM_AGES)[number]>(18);
  const [preview, setPreview] = useState(false);
- const canPreview = age === 18 && value.gender === 'female' && value.looks === 'stunning';
+ const canPreview = age === 18;
  const selected = LOOKS.find(look => look.id === value.looks)!;
  function pick(next: PlayerAppearance) {
   setPreview(false);
@@ -20,8 +20,7 @@ export default function AppearancePicker({value, onChange, children}: {
  return <section className="casting-room" aria-label="选择人物形象">
   <div className="casting-view">
    {canPreview && preview ? <div className="player-model-preview casting-model-view">
-    <Suspense fallback={<p>转台准备中</p>}><ModelPreview slot="player-female-stunning" rotationY={-Math.PI / 2}
-     label="绿裙角色三维模型，可以拖动旋转"/></Suspense>
+    <Suspense fallback={<p>转台准备中</p>}><PlayerModelPreview appearance={value}/></Suspense>
    </div> : <div className="casting-photo" key={value.gender + value.looks + age}>
     <PlayerPortrait appearance={value} age={age} full/>
    </div>}

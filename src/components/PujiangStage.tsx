@@ -68,7 +68,7 @@ export function PujiangSystemPanel({game,onChange,onStart,onError}:{game:GameSta
  </section>;
 }
 
-export default function PujiangStage({game,onStart,onMove,onDone,onPause,onChange,onError}:{game:GameState;onStart:(id:string)=>void;onMove:(move:EpisodeMove)=>void;onDone:()=>void;onPause:()=>void;onChange:(s:GameState)=>void;onError:(s:string)=>void}){
+export default function PujiangStage({game,onStart,onMove,onDone,onPause,onChange,onError,audio,onAudio}:{game:GameState;onStart:(id:string)=>void;onMove:(move:EpisodeMove)=>void;onDone:()=>void;onPause:()=>void;onChange:(s:GameState)=>void;onError:(s:string)=>void;audio:boolean;onAudio:()=>void}){
  const run=game.episode,view=run?episodeView(game):undefined,script=view?.script??episodeOffer(game)!;
  const heading=useRef<HTMLHeadingElement>(null),panel=useRef<HTMLElement>(null);
  const [targeting,setTargeting]=useState<'forecast'|'resonate'>();
@@ -90,7 +90,10 @@ export default function PujiangStage({game,onStart,onMove,onDone,onPause,onChang
     <img src={script.commission?script.photo:CINEMA_ART[shot.art]} style={{objectPosition:shot.focus}} alt={script.commission?'':`${shot.speaker}，${shot.direction}`} fetchPriority="high"/>
    </div>
    <div className="pj-film-top"><span className="pj-place"><b>{calendarYear(game)}</b> 上海 / {place}</span>
-    <button type="button" className="pj-motion" aria-label={still?'开启镜头微动':'静止画面'} title={still?'开启镜头微动':'静止画面'} aria-pressed={still} onClick={()=>setStill(v=>!v)}>{still?<Icon name="play" size={14}/>:<i aria-hidden="true"/>}</button>
+    <div className="pj-film-controls">
+     <button type="button" className="pj-motion" aria-label={audio?'关闭声音':'打开声音'} onClick={onAudio}><Icon name={audio?'sound':'mute'} size={16}/></button>
+     <button type="button" className="pj-motion" aria-label={still?'开启镜头微动':'静止画面'} title={still?'开启镜头微动':'静止画面'} aria-pressed={still} onClick={()=>setStill(v=>!v)}>{still?<Icon name="play" size={14}/>:<i aria-hidden="true"/>}</button>
+    </div>
    </div>
    {!receipt&&<figcaption><div className="pj-dialogue" key={`${script.id}-${act}`}>
     <span>{shot.speaker}</span><blockquote>{shot.line}</blockquote>

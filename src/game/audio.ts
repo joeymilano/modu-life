@@ -12,18 +12,31 @@ const notes: Record<Sound, number[]> = {
 let context: AudioContext | null = null;
 let enabled = false;
 let music: HTMLAudioElement | null = null;
+let track = '';
+let playingTrack = '';
+let advanceTrack: (() => void) | undefined;
 
 function syncMusic() {
- if (!enabled || document.hidden) {
+ if (!enabled || document.hidden || !track) {
   music?.pause();
   return;
  }
  if (!music) {
-  music = new Audio('/audio/apero-hour.mp3');
-  music.loop = true;
-  music.volume = .65;
+  music = new Audio();
+  music.volume = .62;
+  music.addEventListener('ended', () => advanceTrack?.());
  }
- void music.play().catch(() => {});
+ if (playingTrack !== track) {
+  playingTrack = track;
+  music.src = track;
+ }
+ if (music.paused) void music.play().catch(() => {});
+}
+
+export function setMusicTrack(source: string, onEnded: () => void) {
+ track = source;
+ advanceTrack = onEnded;
+ syncMusic();
 }
 
 function playbackContext() {
@@ -34,6 +47,10 @@ function playbackContext() {
 }
 
 export function setAudioEnabled(value: boolean) {
+ if (enabled === value) {
+  if (value) syncMusic();
+  return;
+ }
  enabled = value;
  if (value) {
   playbackContext();

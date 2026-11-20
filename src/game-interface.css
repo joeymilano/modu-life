@@ -213,6 +213,25 @@
 }
 .pause-menu button:first-child { color: var(--game-yellow); }
 .pause-menu button:hover { background: var(--game-row); }
+.soundtrack-settings, .saved-avatar-settings {
+  display: flex; align-items: center; gap: 10px;
+  min-height: 54px; padding-block: 5px; border-block-end: 1px solid var(--game-line); color: var(--game-white);
+}
+.soundtrack-settings > div { display: grid; flex: 1; min-width: 0; gap: 1px; }
+.soundtrack-settings small { color: var(--game-muted); font-size: 11px; }
+.soundtrack-settings b { overflow-wrap: anywhere; font-size: 13px; }
+.soundtrack-settings > button { flex: none; color: var(--game-yellow); }
+.soundtrack-settings > .text-button { min-height: 44px; }
+.saved-avatar-settings { justify-content: space-between; font-size: 13px; }
+.saved-avatar-settings > div { display: flex; gap: 6px; }
+.saved-avatar-settings button { min-height: 44px; padding-inline: 12px; border-radius: 50px; background: transparent; color: var(--game-muted); }
+.saved-avatar-settings button[aria-pressed="true"] { background: var(--game-row); color: var(--game-yellow); }
+.city-player-label {
+  position: absolute; top: 0; left: 0; z-index: 1; visibility: hidden;
+  padding: 2px 6px; border-radius: 14px;
+  background: #382b23; color: #ffe8ac; font: 800 10px/1.4 system-ui, sans-serif; white-space: nowrap;
+  box-shadow: 0 2px 8px #18101655;
+}
 .game-controls { margin: 0 0 12px; }
 .game-controls > div { padding: 10px 0; border-top: 1px solid var(--game-line); }
 .game-controls dt { font-weight: 750; }

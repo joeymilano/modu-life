@@ -42,7 +42,10 @@ import { CAREERS, CAST, castForGame, castTitle, DISTRICTS, GOALS, HOUSING_NAMES 
 import { ACTIVITY_NAMES, CHAPTERS, SAVE_KEY, STAT_NAMES, advanceToStory, allOrigins, canAfford, chapterOf, checkChance, commitRelationship, createGame, drawCityCards, drawOrigins, monthlyBudget, newSeed, nextYear, playStoryRound, publicOriginNames, resolveChoice, selectEvent } from './game/engine';
 import { downloadBlob, challengeUrl, makeOpeningCard, makeShareCard, readChallenge, type SharedHand } from './game/share';
 import { draftFromEvent, isTicketHash, type Timeline } from './game/timelines';
-import { playSound, setAudioEnabled } from './game/audio';
+import { playSound } from './game/audio';
+import { useSoundtrack } from './components/useSoundtrack';
+import SoundtrackSettings from './components/SoundtrackSettings';
+import { loadAvatarPreference, saveAvatarPreference } from './game/avatarPreference';
 import GameCredits from './components/GameCredits';
 import OfflinePack from './components/OfflinePack';
 import type { ActivityKind, Career, CastMember, ChoiceResult, DistrictId, Effect, FirstDatePicks, GameState, GoalId, Hotspot, LifeEvent, OriginCard, PlayerAppearance, StatKey } from './game/types';
@@ -128,7 +131,13 @@ export default function App(){
  const [setupStep,setSetupStep]=useState<'cards'|'cast'>('cards');
  const [activeCard,setActiveCard]=useState(0);
  const setupHeading=useRef<HTMLHeadingElement>(null);
- const [appearance,setAppearance]=useState<PlayerAppearance>({gender:'female',looks:'stunning'});
+ const [preferredAppearance,setPreferredAppearance]=useState(()=>loadAvatarPreference(game?.appearance));
+ const [appearance,setAppearance]=useState(preferredAppearance);
+ function chooseAppearance(value:PlayerAppearance){
+  setAppearance(value);
+  setPreferredAppearance(value);
+  saveAvatarPreference(value);
+ }
  const [modal,setModal]=useState<Modal>(()=>new URLSearchParams(window.location.search).has('rank')?'ranks':null),[activeEvent,setActiveEvent]=useState<LifeEvent|null>(null),[eventNpc,setEventNpc]=useState<string|undefined>(),[outcome,setOutcome]=useState<(ChoiceResult&{annual?:YearReceipt;source?:{event:LifeEvent;choiceId:string}})|null>(null),[mini,setMini]=useState<Mini|null>(null);
  const [showdownRecap,setShowdownRecap]=useState<Showdown>();
  const [conciergeTab,setConciergeTab]=useState<ConciergeTab>('shopping');
@@ -138,7 +147,7 @@ export default function App(){
  const [swapIndex,setSwapIndex]=useState<number>();
  const [handLink,setHandLink]=useState('');
  const [map3d,setMap3d]=useState(false);
- const [night,setNight]=useState(false),[audio,setAudio]=useState(false),[toast,setToast]=useState(''),[mobilePanel,setMobilePanel]=useState<'stats'|'places'|null>(null),[sharing,setSharing]=useState(false),[saveVersion,setSaveVersion]=useState(0);
+ const [night,setNight]=useState(false),[toast,setToast]=useState(''),[mobilePanel,setMobilePanel]=useState<'stats'|'places'|null>(null),[sharing,setSharing]=useState(false),[saveVersion,setSaveVersion]=useState(0);
  const sceneHeading=useRef<HTMLHeadingElement>(null);
  useEffect(()=>{
   const heading=sceneHeading.current;
@@ -172,6 +181,14 @@ export default function App(){
  const showdownScene=game&&activeShowdown?storyShowdownScene(game,activeShowdown):undefined;
  const activePujiang=screen==='play'&&!parallel&&!pearl&&!modal&&!activeEvent&&!outcome&&!mini&&!!game&&!!(game.episode||episodeOffer(game));
  const blocked=!!(modal||activeEvent||outcome||mini||activeShowdown||activePujiang);
+ const soundtrack=useSoundtrack(
+  pearl||mini?.type==='laser'||mini?.type==='stall'?'arcade':
+  parallel||screen==='end'?'night':
+  modal==='cityCards'?'cards':
+  activePujiang||activeShowdown||activeEvent||mini?'story':
+  screen==='play'?(map3d&&night?'night':district.id==='lujiazui'||district.id==='zhangjiang'?'work':'street'):'home',
+ );
+ const {audio,toggleAudio}=soundtrack;
  function notify(text:string){setToast(text);if(toastTimer.current)clearTimeout(toastTimer.current);toastTimer.current=setTimeout(()=>setToast(''),3800);}
  useEffect(()=>{
   if(!blocked)return;
@@ -251,7 +268,7 @@ export default function App(){
   const gender=params.get('gender'), looks=params.get('looks');
   const nextGoal=!start&&GOALS.some(item=>item.id===sharedGoal)?sharedGoal as GoalId:goal;
   const nextAppearance:PlayerAppearance=!start&&(gender==='female'||gender==='male')&&LOOKS.some(item=>item.id===looks)
-   ?{gender,looks:looks as PlayerAppearance['looks']}:appearance;
+   ?{gender,looks:looks as PlayerAppearance['looks']}:preferredAppearance;
   return {nextSeed,initial,nextGoal,nextAppearance};
  }
  function beginDraw(start?:LifeStart,shared=false){
@@ -518,7 +535,12 @@ export default function App(){
   const next=getSlots()[i];
   if(next){resumeBook(next);const {state}=activeLine(next);notify('回到'+state.name+'的'+state.age+'岁。');}
  }
- function toggleAudio(){const value=!audio;setAudio(value);setAudioEnabled(value);if(value)playSound('good');}
+ function correctAvatar(gender:PlayerAppearance['gender']){
+  if(!game||game.appearance.gender===gender)return;
+  const selected={...game.appearance,gender};
+  setGame({...game,appearance:selected});
+  chooseAppearance(selected);
+ }
  const dialogOpen=blocked;
  const speakerRecord=eventNpc?CAST.find(person=>person.id===eventNpc):undefined;
  const speaker=speakerRecord&&game?castForGame(speakerRecord,game):undefined;
@@ -586,7 +608,7 @@ export default function App(){
  <header className="topbar">
   <Brand onClick={()=>{setScreen('home');closeModal();}}/>
   <nav className="topbar-actions" aria-label="游戏菜单" inert={blocked||undefined}>
-   {screen!=='play'&&<button className="icon-button" aria-label={audio?'关闭声音':'打开声音'} onClick={toggleAudio}><Icon name={audio?'sound':'mute'}/></button>}
+   {(!compact||screen!=='play')&&<button className="icon-button" aria-label={audio?'关闭声音':'打开声音'} onClick={toggleAudio}><Icon name={audio?'sound':'mute'}/></button>}
    {screen==='play'&&<button className="nav-button scene-switch" aria-pressed={map3d} onClick={()=>{setMap3d(!map3d);setWalking(false);setDestination(null);setSelected(null);}}><Icon name="map" size={17}/><span>{map3d?'街景':'3D 地图'}</span></button>}
    {screen==='play'&&map3d&&<button className="icon-button" aria-label={night?'切换白天':'切换夜景'} onClick={()=>setNight(n=>!n)}><Icon name={night?'sun':'moon'}/></button>}
    {screen==='play'&&<button className="nav-button" onClick={()=>setModal('ranks')}><GameIcon name="rank" size={17}/>排位</button>}
@@ -662,7 +684,7 @@ export default function App(){
    </div>
   </>:<>
    <h1 className="casting-heading" ref={setupHeading} tabIndex={-1}>选角色</h1>
-   <AppearancePicker value={appearance} onChange={setAppearance}>
+   <AppearancePicker value={appearance} onChange={chooseAppearance}>
     <div className="name-field"><label htmlFor="player-name">名字</label><input id="player-name" value={name} maxLength={12} onChange={e=>setName(e.target.value)} placeholder="小申"/></div>
     <div className="goal-picker"><p>人生目标</p><div className="goal-options">{GOALS.map(g=><button key={g.id} className={goal===g.id?'selected':''} aria-pressed={goal===g.id} onClick={()=>setGoal(g.id)}><GameIcon name={({wealth:'housing',love:'romance',craft:'career',free:'rest',community:'social'} as const)[g.id]} size={16}/>{g.name}</button>)}</div></div>
     <div className="draw-actions">
@@ -689,7 +711,7 @@ export default function App(){
   onChallenge={copyChallenge} onDraw={()=>setModal('starts')} onJournal={()=>setModal('journal')} onLines={()=>setModal('lines')} onCollection={openCityCards}/>}
  {dialogOpen&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget&&!activeEvent&&!mini&&!outcome&&!activeShowdown&&!activePujiang)closeModal();}}><section className={'modal '+(activePujiang?'pj-dialog ':'')+(activeShowdown?'showdown-dialog ':'')+(modal==='ranks'?'rank-dialog ':'')+(modal==='market'?'market-dialog ':'')+(activeEvent?'event-modal':'')+(wideShot?' wide-shot-modal':'')+(openingMessages?' arrival-modal':'')+(arrivalReply||dinnerResultPhoto?' arrival-reply-modal':'')+(dinnerClue?' blossoms-menu':'')+(nightClue?' first-night-meeting':'')+(lifeStartScene?' life-start-scene':'')+(heirScene||campaignScene||systemScene?' heir-scene':'')+(classDocument?' class-lives-scene':'')+(relocationScene?' relocation-scene':'')+(activeEvent?.firstDate?' date-parting-modal':'')+(dateReturnScene?' date-return-modal':'')+(rentalScene?' rental-negotiation':'')+(tableScene?' long-table-modal':'')+(parkScene?' match-scene':'')+(forwardScene?' forward-scene':'')+(workScene?' handover-scene':'')+(offerScene?' job-offer-modal':'')+(birthScene||stallScene||householdScene?' birth-scene-modal':'')+(mini?' minigame-modal':'')+(mini?.type==='rental'?' rental-modal':'')+(mini?.type==='stall'?' stall-modal':'')+(mini?.type==='dialogue'?(mini.person?' date-modal first-date-modal':' date-modal work-interview-modal'):'')+(modal==='romance'?' romance-modal':'')+(modal==='journal'?' journal-modal':'')+(modal==='swap'?' swap-modal':'')+(modal==='starts'?' life-start-modal':'')+(modal==='lines'?' lines-modal':'')+(modal==='cityCards'?' city-cards-modal':'')} role="dialog" aria-modal="true" aria-label={(activePujiang?'浦江剧情':undefined)||showdownScene?.title||(modal==='ranks'?'本周排位':modal==='market'?'交易所':modal==='cityCards'?'街头抽卡':undefined)||activeEvent?.title||(arrivalContact?arrivalContact.name+'回你了':outcome?.title)||(mini?.type==='stall'?'晚风小吃街':mini?'人生现场':modal==='menu'?'菜单':modal==='help'?'操作':modal==='saves'?'存档':modal==='swap'?'换牌':modal==='starts'?'选择出身':modal==='romance'?'约会':modal==='system'?'系统':modal==='campaign'?'主线':modal==='assets'?'私人礼宾':modal==='journal'?'人生记事':modal==='lines'?'时间线':modal==='contacts'?(profile?.name??'认识的人'):'魔都人生')}>
  {!activePujiang&&!activeShowdown&&!(activeEvent&&game?.pendingYearEvent)&&<button className={'modal-close icon-button'+(modal==='ranks'?' showdown-close':'')} aria-label="关闭" onClick={()=>{if(outcome)closeOutcome();else{closeModal();setMini(null);dismissEvent();}}}><Icon name="close"/></button>}
- {activePujiang&&game&&<PujiangStage game={game} onStart={startPujiang} onMove={movePujiang} onDone={donePujiang} onPause={pausePujiang} onChange={setGame} onError={notify}/>}
+ {activePujiang&&game&&<PujiangStage game={game} onStart={startPujiang} onMove={movePujiang} onDone={donePujiang} onPause={pausePujiang} onChange={setGame} onError={notify} audio={audio} onAudio={toggleAudio}/>}
  {modal==='cityCards'&&game&&<CityCards game={game} onDraw={drawStreetCards}/>}
  {modal==='market'&&game&&<Suspense fallback={<LoadCity/>}><MarketBoard game={game} onChange={setGame}/></Suspense>}
  {modal==='ranks'&&<Suspense fallback={<LoadCity/>}><RankBoard initialRoute={game?storyRoute(game):undefined}/></Suspense>}
@@ -707,9 +729,15 @@ export default function App(){
    {hasConcierge&&<button onClick={()=>openConcierge()}>私人礼宾<Icon name="chevron" size={17}/></button>}
    <button onClick={()=>setModal('lines')}>时间线<Icon name="chevron" size={17}/></button>
    <button onClick={()=>setModal('saves')}>存档<Icon name="chevron" size={17}/></button>
-   <button onClick={toggleAudio} aria-pressed={audio}>声音 <span>{audio?'开':'关'}</span></button>
    <button onClick={()=>setModal('help')}>操作<Icon name="chevron" size={17}/></button>
   </nav>
+  {game&&<div className="saved-avatar-settings"><b>角色形象</b>
+   <div role="group" aria-label="存档角色性别">
+    <button type="button" aria-pressed={game.appearance.gender==='male'} onClick={()=>correctAvatar('male')}>男性</button>
+    <button type="button" aria-pressed={game.appearance.gender==='female'} onClick={()=>correctAvatar('female')}>女性</button>
+   </div>
+  </div>}
+  <SoundtrackSettings soundtrack={soundtrack}/>
   <GameCredits/>
  </div>}
  {modal==='help'&&<div className="help-content"><h2>操作</h2>
@@ -719,6 +747,7 @@ export default function App(){
    <div><dt>移动</dt><dd>在 3D 地图点击地面，或用 WASD / 方向键。</dd></div>
    <div><dt>结算</dt><dd>结算工资和开支，进入下一年。</dd></div>
   </dl>
+  <SoundtrackSettings soundtrack={soundtrack}/>
   <GameCredits/>
  </div>}
  {modal==='lines'&&book&&<LifeLines book={book} onFork={branchFrom} onSwitch={returnToLine} onDrop={id=>setBook(current=>current?dropLine(current,id):current)}/>}

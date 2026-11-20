@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { stallPhoto } from '../game/art';
-import { setAudioEnabled } from '../game/audio';
+import { useSoundtrack } from './useSoundtrack';
 import { newSeed } from '../game/seed';
 import { STALL_ORDER_COUNT, STALL_STEPS, stallSchedule } from '../game/stall';
 import { readStallChallenge, stallChallengeHash, type StallChallenge } from '../game/stallChallenge';
@@ -19,7 +19,7 @@ export default function StallArcade() {
  const [challenge, setChallenge] = useState(firstChallenge);
  const [round, setRound] = useState(0);
  const [started, setStarted] = useState(false);
- const [audio,setAudio] = useState(false);
+ const {audio,toggleAudio} = useSoundtrack('arcade');
 
  useEffect(() => {
   const sync = () => {
@@ -31,7 +31,6 @@ export default function StallArcade() {
   window.addEventListener('hashchange', sync);
   return () => {
    window.removeEventListener('hashchange', sync);
-   setAudioEnabled(false);
   };
  }, []);
 
@@ -49,10 +48,7 @@ export default function StallArcade() {
   <header className="stall-page-top">
    <a href="/">返回</a>
    <div className="stall-page-sound"><GameCredits/>
-    <button className="icon-button" aria-label={audio?'关闭声音':'打开声音'} onClick={()=>{
-     setAudioEnabled(!audio);
-     setAudio(!audio);
-    }}><Icon name={audio?'sound':'mute'} size={17}/></button>
+    <button className="icon-button" aria-label={audio?'关闭声音':'打开声音'} onClick={toggleAudio}><Icon name={audio?'sound':'mute'} size={17}/></button>
    </div>
   </header>
   <div className="stall-arcade-layout">
