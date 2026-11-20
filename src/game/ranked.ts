@@ -2,6 +2,7 @@ import type { CampaignRoute } from './campaignScript';
 import { SHOWDOWN_AGES, createShowdown, type Showdown } from './showdowns';
 
 export const RANK_ATTEMPTS = 3;
+export const RANK_PAGE_SIZE = 50;
 export const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const SHANGHAI_OFFSET = 8 * 60 * 60 * 1000;
 const DAY_MS = WEEK_MS / 7;
@@ -43,6 +44,9 @@ export interface RankBoard {
  player:RankedPlayer|null;
  mine:RankRow|null;
  rows:RankRow[];
+ page:number;
+ rankedPlayers:number;
+ totalPlayers:number;
  latest:RankedRun|null;
  challenge:Showdown;
 }

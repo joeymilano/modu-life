@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CampaignRoute } from '../game/campaignScript';
-import { RANK_ATTEMPTS, isRankWeek, rankWeekLabel, type RankBoard as Board, type RankedRun } from '../game/ranked';
+import { RANK_ATTEMPTS, RANK_PAGE_SIZE, isRankWeek, rankWeekLabel, type RankBoard as Board, type RankedRun } from '../game/ranked';
+import { playId, recordStoryPlay } from '../game/playIdentity';
 import { SHOWDOWN_NAMES, SHOWDOWN_ROUTES, showdownView, type Move } from '../game/showdowns';
 import ShowdownStage from './ShowdownStage';
 
@@ -15,12 +16,15 @@ async function rankRequest<T>(query:Record<string,string>,body?:Record<string,un
  return data as T;
 }
 
-export default function RankBoard({initialRoute}: {initialRoute?:CampaignRoute}) {
+const playersNumber=new Intl.NumberFormat('zh-CN');
+
+export default function RankBoard({initialRoute,hasPlayed}: {initialRoute?:CampaignRoute;hasPlayed:boolean}) {
  const params=new URLSearchParams(window.location.search);
  const selected=params.get('rank') as CampaignRoute;
  const date=params.get('week');
  const [route,setRoute]=useState<CampaignRoute>(SHOWDOWN_ROUTES.includes(selected)?selected:initialRoute??'arrival');
  const [week,setWeek]=useState<string|null>(date&&isRankWeek(date)?date:null);
+ const [page,setPage]=useState(1);
  const [board,setBoard]=useState<Board>();
  const [run,setRun]=useState<RankedRun>();
  const [nickname,setNickname]=useState('');
@@ -34,13 +38,14 @@ export default function RankBoard({initialRoute}: {initialRoute?:CampaignRoute})
 
  const refresh=useCallback(async(signal?:AbortSignal)=>{
   try{
-   const next=await rankRequest<Board>({route,...(week?{week}:{})},undefined,signal);
+   if(hasPlayed) await recordStoryPlay();
+   const next=await rankRequest<Board>({route,page:String(page),...(week?{week}:{})},undefined,signal);
    if (signal?.aborted||!mounted.current) return;
    setBoard(next);if(!pending.current)setFailed('');
   }catch(error){
    if(!signal?.aborted&&mounted.current) setFailed(error instanceof TypeError?'网络断开了，连上后再试。':(error as Error).message);
   }
- },[route,week]);
+ },[route,week,page,hasPlayed]);
  useEffect(()=>{
   const controller=new AbortController();
   void refresh(controller.signal);
@@ -58,7 +63,11 @@ export default function RankBoard({initialRoute}: {initialRoute?:CampaignRoute})
  function select(nextRoute:CampaignRoute,nextWeek:string|null){
   setBoard(undefined);setRun(undefined);setShare('');setFailed('');
   pending.current=undefined;
-  setRoute(nextRoute);setWeek(nextWeek);
+  setRoute(nextRoute);setWeek(nextWeek);setPage(1);
+ }
+ function turnPage(next:number){
+  setBoard(undefined);setFailed('');
+  setPage(next);
  }
  async function request<T>(body:Record<string,unknown>,onSuccess:(result:T)=>void){
   if(locked.current)return;
@@ -76,7 +85,7 @@ export default function RankBoard({initialRoute}: {initialRoute?:CampaignRoute})
  function start(){
   if(!board)return;
   if(board.latest&&board.latest.game.moves.length<3){setRun(board.latest);return;}
-  void request<RankedRun>({op:'start',week:board.week,route,after:board.latest?.id??null},next=>{
+  void request<RankedRun>({op:'start',week:board.week,route,after:board.latest?.id??null,playId:playId()},next=>{
    setBoard({...board,latest:next});setRun(next);
   });
  }
@@ -107,11 +116,16 @@ export default function RankBoard({initialRoute}: {initialRoute?:CampaignRoute})
   </div>}
  </>;
 
- const rows=board?[...board.rows,...(board.mine&&!board.rows.some(row=>row.id===board.mine?.id)?[board.mine]:[])]:[];
+ const rows=board?[...board.rows,...(page===1&&board.mine&&!board.rows.some(row=>row.id===board.mine?.id)?[board.mine]:[])]:[];
+ const pages=Math.max(1,Math.ceil((board?.rankedPlayers??0)/RANK_PAGE_SIZE));
  const attempts=board?.latest?.attempt??0;
  const active=!!board?.latest&&board.latest.game.moves.length<3;
  return <section className="rank-board">
-  <h2>本周排位</h2>
+  <h2>全球周榜</h2>
+  {board&&<dl className="rank-counts" aria-label="玩家统计">
+   <div><dt>累计玩过</dt><dd><strong>{playersNumber.format(board.totalPlayers)}</strong> 人</dd></div>
+   <div><dt>本期上榜</dt><dd><strong>{playersNumber.format(board.rankedPlayers)}</strong> 人</dd></div>
+  </dl>}
   <nav className="rank-tabs" aria-label="出身排行榜">
    {SHOWDOWN_ROUTES.map(item=><button type="button" key={item} aria-pressed={item===route} disabled={busy}
     onClick={()=>{if(item!==route)select(item,week);}}>{SHOWDOWN_NAMES[item]}</button>)}
@@ -132,7 +146,7 @@ export default function RankBoard({initialRoute}: {initialRoute?:CampaignRoute})
    </div>
    {share&&<input readOnly aria-label="本周同题链接" value={share} onFocus={event=>event.currentTarget.select()}/>}
    {!board.player&&board.week===board.current&&<form className="rank-register" onSubmit={event=>{
-    event.preventDefault();void request({op:'join',nickname},()=>void refresh());
+    event.preventDefault();void request({op:'join',nickname,playId:playId()},()=>void refresh());
    }}>
     <input value={nickname} onChange={event=>setNickname(event.target.value)} aria-label="排位昵称" placeholder="取个昵称" required minLength={2} maxLength={12}/>
     <button className="primary" disabled={busy}>取名参赛</button>
@@ -144,6 +158,12 @@ export default function RankBoard({initialRoute}: {initialRoute?:CampaignRoute})
      <td>{row.position}</td><td>{row.nickname}</td><td>{row.id}</td><td>{row.score}</td>
     </tr>)}</tbody>
    </table>:<p>这期还没有成绩。</p>}
+   {pages>1&&<nav className="rank-pagination" aria-label="排行榜翻页">
+    <button type="button" className="secondary" disabled={page===1||busy} onClick={()=>turnPage(page-1)}>上一页</button>
+    <span>第 {page} / {pages} 页</span>
+    <button type="button" className="secondary" disabled={page>=pages||busy} onClick={()=>turnPage(page+1)}>下一页</button>
+   </nav>}
+   <p className="rank-count-note">累计按浏览器去重，包含剧情和排位。本期上榜人数按所选出身统计。</p>
   </>}
  </section>;
 }

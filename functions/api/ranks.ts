@@ -1,10 +1,11 @@
 import type { D1Database, PagesFunction, Request as CloudRequest, Response as CloudResponse } from '@cloudflare/workers-types';
 import type { CampaignRoute } from '../../src/game/campaignScript';
 import {
- isRankWeek, priorWeek, RANK_ATTEMPTS, rankWeek, weeklyShowdown,
+ isRankWeek, priorWeek, RANK_ATTEMPTS, RANK_PAGE_SIZE, rankWeek, weeklyShowdown,
  type RankBoard, type RankedPlayer, type RankRow,
 } from '../../src/game/ranked';
 import { playShowdown, showdownView, SHOWDOWN_ROUTES, validateShowdown } from '../../src/game/showdowns';
+import { isPlayId } from '../../src/game/playIdentity';
 
 declare const Response: typeof CloudResponse;
 
@@ -24,14 +25,34 @@ async function playerFor(db:D1Database,request:CloudRequest) {
  return db.prepare('SELECT id, nickname FROM rank_players WHERE token_hash = ?').bind(await digest(token)).first<RankedPlayer>();
 }
 
-async function join(db:D1Database,nickname:unknown,secure:boolean) {
+async function join(db:D1Database,nickname:unknown,secure:boolean,browserId:unknown) {
  const name=typeof nickname==='string'?nickname.trim().normalize('NFC'):'';
  if (!/^[\p{Script=Han}a-zA-Z0-9_]{2,12}$/u.test(name)) return error('昵称用 2–12 个汉字、字母、数字或下划线。');
  const token=hex(crypto.getRandomValues(new Uint8Array(32)));
  const id='SH-'+hex(crypto.getRandomValues(new Uint8Array(6))).toUpperCase();
- await db.prepare('INSERT INTO rank_players (id,nickname,token_hash) VALUES (?,?,?)').bind(id,name,await digest(token)).run();
+ await db.prepare('INSERT INTO rank_players (id,nickname,token_hash,browser_id) VALUES (?,?,?,?)')
+  .bind(id,name,await digest(token),isPlayId(browserId)?browserId:null).run();
  const cookie=cookieName+'='+token+'; Path=/; HttpOnly; SameSite=Lax; Max-Age=31536000'+(secure?'; Secure':'');
  return reply({id,nickname:name},201,{'Set-Cookie':cookie});
+}
+
+function linkBrowser(db:D1Database,playerId:string,browserId:string) {
+ return db.prepare('UPDATE rank_players SET browser_id = ? WHERE id = ? AND browser_id IS NULL')
+  .bind(browserId,playerId);
+}
+
+async function recordStoryPlay(db:D1Database,player:RankedPlayer|null,browserId:unknown) {
+ if(!isPlayId(browserId)) return error('这次游玩记录读不出来。');
+ if(player) {
+  await db.batch([
+   linkBrowser(db,player.id,browserId),
+   db.prepare('INSERT OR IGNORE INTO story_players (id) SELECT browser_id FROM rank_players WHERE id = ?')
+    .bind(player.id),
+  ]);
+ } else {
+  await db.prepare('INSERT OR IGNORE INTO story_players (id) VALUES (?)').bind(browserId).run();
+ }
+ return new Response(null,{status:204,headers});
 }
 
 const ranked = `
@@ -48,15 +69,29 @@ const latest = (db:D1Database,id:string,week:string,route:CampaignRoute) => db.p
 ).bind(id,week,route);
 const present = (row:RunRow) => ({id:row.id,attempt:row.attempt,game:validateShowdown(JSON.parse(row.state))});
 
-async function getBoard(db:D1Database,week:string,current:string,route:CampaignRoute,player:RankedPlayer|null) {
- const top=db.prepare(ranked+' ORDER BY score DESC, p.id LIMIT 50').bind(week,route);
- const [rows,mine,run] = await Promise.all([
+async function getBoard(db:D1Database,week:string,current:string,route:CampaignRoute,player:RankedPlayer|null,page:number) {
+ const top=db.prepare(ranked+' ORDER BY score DESC, p.id LIMIT ? OFFSET ?')
+  .bind(week,route,RANK_PAGE_SIZE,(page-1)*RANK_PAGE_SIZE);
+ const totals=db.prepare(`
+  SELECT COUNT(*) AS totalPlayers,
+   (SELECT COUNT(DISTINCT player_id) FROM rank_runs
+    WHERE week = ? AND route = ? AND score IS NOT NULL) AS rankedPlayers
+   FROM (
+    SELECT id FROM story_players
+    UNION
+    SELECT COALESCE(p.browser_id,p.id) FROM rank_players p
+    WHERE EXISTS (SELECT 1 FROM rank_runs r WHERE r.player_id = p.id)
+   )
+ `).bind(week,route);
+ const [rows,mine,run,counts] = await Promise.all([
   top.all<RankRow>(),
   player?db.prepare(ranked+' WHERE p.id = ?').bind(week,route,player.id).first<RankRow>():null,
   player&&week===current?latest(db,player.id,week,route).first<RunRow>():null,
+  totals.first<{totalPlayers:number;rankedPlayers:number}>(),
  ]);
+ if (!counts) return error('排位暂时连不上，稍后再试。',503);
  const board:RankBoard={week,current,previous:priorWeek(current),player,mine,rows:rows.results,
-  latest:run?present(run):null,challenge:weeklyShowdown(week,route)};
+  page,...counts,latest:run?present(run):null,challenge:weeklyShowdown(week,route)};
  return reply(board);
 }
 
@@ -107,8 +142,10 @@ export const onRequest:PagesFunction<Env> = async ({request,env}) => {
   if (request.method==='GET') {
    const route=url.searchParams.get('route') as CampaignRoute;
    const week=url.searchParams.get('week')??current;
+   const page=Number(url.searchParams.get('page')??1);
    if (!SHOWDOWN_ROUTES.includes(route)||!isRankWeek(week)||week>current) return error('找不到这一期。',404);
-   return await getBoard(db,week,current,route,await playerFor(db,request));
+   if (!Number.isSafeInteger(page)||page<1||page>Math.floor(Number.MAX_SAFE_INTEGER/RANK_PAGE_SIZE)) return error('找不到这一页。',404);
+   return await getBoard(db,week,current,route,await playerFor(db,request),page);
   }
   if (request.method!=='POST') return error('这项操作不支持。',405);
   if (request.headers.get('origin')!==url.origin||!request.headers.get('content-type')?.startsWith('application/json')) {
@@ -119,11 +156,15 @@ export const onRequest:PagesFunction<Env> = async ({request,env}) => {
   const body=JSON.parse(raw) as Record<string,unknown>|null;
   if (!body||typeof body!=='object'||Array.isArray(body)) return error('这项操作读不出来。');
   const player=await playerFor(db,request);
-  if (body.op==='join') return player?reply(player):await join(db,body.nickname,url.protocol==='https:');
+  if (body.op==='played') return await recordStoryPlay(db,player,body.playId);
+  if (body.op==='join') return player?reply(player):await join(db,body.nickname,url.protocol==='https:',body.playId);
   if (!player) return error('先取个昵称参赛。',401);
   const route=body.route as CampaignRoute;
   if (!SHOWDOWN_ROUTES.includes(route)||body.week!==current) return error('这期已结束，去看本周的新题。',409);
-  if (body.op==='start') return await startRun(db,player,current,route,body.after);
+  if (body.op==='start') {
+   if (isPlayId(body.playId)) await linkBrowser(db,player.id,body.playId).run();
+   return await startRun(db,player,current,route,body.after);
+  }
   if (body.op==='move') return await moveRun(db,player,current,route,body);
   return error('这项操作读不出来。');
  }catch(cause){

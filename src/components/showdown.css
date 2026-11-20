@@ -69,6 +69,17 @@
 .showdown-score > div:first-child { color: var(--show-gold); font-size: 20px; font-weight: 800; }
 .showdown-score dd { margin: 0; font-variant-numeric: tabular-nums; }
 .rank-board > h2 { margin-top: 0; padding-right: 36px; }
+.rank-counts {
+  display: flex; flex-wrap: wrap; gap: 14px clamp(28px,6vw,60px);
+  margin: 18px 0; padding: 14px 0;
+  border-block: 1px solid #564a56;
+}
+.rank-counts dt { color: var(--show-muted); font-size: 13px; }
+.rank-counts dd { margin: 2px 0 0; font-size: 14px; }
+.rank-counts strong {
+  color: var(--show-gold); font: 700 clamp(28px,4.4vw,44px)/1 'Barlow Condensed',sans-serif;
+  font-variant-numeric: tabular-nums;
+}
 .rank-tabs, .rank-tools, .rank-register { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
 .rank-board :is(.secondary,.rank-tabs button) { border: 1px solid #746171; color: var(--show-ink); background: #322735; }
 .rank-board .rank-tabs button { padding: 9px 11px; min-height: 40px; }
@@ -86,6 +97,9 @@
 .rank-table th { color: var(--show-muted); }
 .rank-table td:first-child, .rank-table tr[data-me=true] { color: var(--show-gold); }
 .rank-table tr[data-me=true] { background: #3c302b; }
+.rank-pagination { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 16px 0 0; }
+.rank-pagination span { color: var(--show-muted); font-size: 13px; }
+.rank-board .rank-count-note { margin-top: 16px; font-size: 12px; }
 .modal-close.showdown-close { position: sticky; top: 0; float: right; margin: 6px 6px -48px 0; z-index: 2; }
 @media (max-width: 750px) {
  .showdown-stage { grid-template-columns: 1fr; }

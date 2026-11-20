@@ -52,7 +52,7 @@ export default function TitleScreen({ hand, resume, onStart, onDraw, onParallel,
           <MenuEntry label={hand === undefined ? '开始新游戏' : '接这手牌'} icon={hand === undefined?'new-life':'hand'} detail={hand} primary={!showResume} onSelect={onStart}/>
           <MenuEntry label="选择出身" icon="origin" onSelect={onSelectOrigin}/>
           {hand===undefined&&<MenuEntry label="手牌与角色" icon="hand" onSelect={onDraw}/>}
-          <MenuEntry label="本周排位" icon="rank" onSelect={onRanks}/>
+          <MenuEntry label="全球周榜" icon="rank" onSelect={onRanks}/>
           <MenuEntry label="平行上海" icon="parallel" onSelect={onParallel}/>
           {!showResume && resume && <MenuEntry label="继续游戏" icon="resume" detail={resume.label} onSelect={resume.onSelect}/>}
         </nav>

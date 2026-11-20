@@ -43,6 +43,7 @@ import { ACTIVITY_NAMES, CHAPTERS, SAVE_KEY, STAT_NAMES, advanceToStory, allOrig
 import { downloadBlob, challengeUrl, makeOpeningCard, makeShareCard, readChallenge, type SharedHand } from './game/share';
 import { draftFromEvent, isTicketHash, type Timeline } from './game/timelines';
 import { playSound } from './game/audio';
+import { recordStoryPlay } from './game/playIdentity';
 import { useSoundtrack } from './components/useSoundtrack';
 import SoundtrackSettings from './components/SoundtrackSettings';
 import { loadAvatarPreference, saveAvatarPreference } from './game/avatarPreference';
@@ -104,6 +105,14 @@ export default function App(){
  const compact=useCompact();const [screen,setScreen]=useState<'home'|'draw'|'play'|'end'>('home');
  const [book,setBook]=useState(readLife);
  const line=book?activeLine(book):null,game=line?.state??null;
+ const hasPlayed=Boolean(game);
+ useEffect(()=>{
+  if(!hasPlayed)return;
+  const reportPlay=()=>void recordStoryPlay();
+  reportPlay();
+  window.addEventListener('online',reportPlay);
+  return()=>window.removeEventListener('online',reportPlay);
+ },[hasPlayed]);
  function setGame(state:GameState){setBook(current=>current?updateLife(current,state):startBook(state));}
  const [timelineDraft,setTimelineDraft]=useState<Timeline>();
  const [timelineHash,setTimelineHash]=useState(window.location.hash),[parallel,setParallel]=useState(isParallelHash(window.location.hash));
@@ -709,12 +718,12 @@ export default function App(){
  </main>}
  {screen==='end'&&game&&<EndingScreen game={game} sharing={sharing} onShare={share}
   onChallenge={copyChallenge} onDraw={()=>setModal('starts')} onJournal={()=>setModal('journal')} onLines={()=>setModal('lines')} onCollection={openCityCards}/>}
- {dialogOpen&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget&&!activeEvent&&!mini&&!outcome&&!activeShowdown&&!activePujiang)closeModal();}}><section className={'modal '+(activePujiang?'pj-dialog ':'')+(activeShowdown?'showdown-dialog ':'')+(modal==='ranks'?'rank-dialog ':'')+(modal==='market'?'market-dialog ':'')+(activeEvent?'event-modal':'')+(wideShot?' wide-shot-modal':'')+(openingMessages?' arrival-modal':'')+(arrivalReply||dinnerResultPhoto?' arrival-reply-modal':'')+(dinnerClue?' blossoms-menu':'')+(nightClue?' first-night-meeting':'')+(lifeStartScene?' life-start-scene':'')+(heirScene||campaignScene||systemScene?' heir-scene':'')+(classDocument?' class-lives-scene':'')+(relocationScene?' relocation-scene':'')+(activeEvent?.firstDate?' date-parting-modal':'')+(dateReturnScene?' date-return-modal':'')+(rentalScene?' rental-negotiation':'')+(tableScene?' long-table-modal':'')+(parkScene?' match-scene':'')+(forwardScene?' forward-scene':'')+(workScene?' handover-scene':'')+(offerScene?' job-offer-modal':'')+(birthScene||stallScene||householdScene?' birth-scene-modal':'')+(mini?' minigame-modal':'')+(mini?.type==='rental'?' rental-modal':'')+(mini?.type==='stall'?' stall-modal':'')+(mini?.type==='dialogue'?(mini.person?' date-modal first-date-modal':' date-modal work-interview-modal'):'')+(modal==='romance'?' romance-modal':'')+(modal==='journal'?' journal-modal':'')+(modal==='swap'?' swap-modal':'')+(modal==='starts'?' life-start-modal':'')+(modal==='lines'?' lines-modal':'')+(modal==='cityCards'?' city-cards-modal':'')} role="dialog" aria-modal="true" aria-label={(activePujiang?'浦江剧情':undefined)||showdownScene?.title||(modal==='ranks'?'本周排位':modal==='market'?'交易所':modal==='cityCards'?'街头抽卡':undefined)||activeEvent?.title||(arrivalContact?arrivalContact.name+'回你了':outcome?.title)||(mini?.type==='stall'?'晚风小吃街':mini?'人生现场':modal==='menu'?'菜单':modal==='help'?'操作':modal==='saves'?'存档':modal==='swap'?'换牌':modal==='starts'?'选择出身':modal==='romance'?'约会':modal==='system'?'系统':modal==='campaign'?'主线':modal==='assets'?'私人礼宾':modal==='journal'?'人生记事':modal==='lines'?'时间线':modal==='contacts'?(profile?.name??'认识的人'):'魔都人生')}>
+ {dialogOpen&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget&&!activeEvent&&!mini&&!outcome&&!activeShowdown&&!activePujiang)closeModal();}}><section className={'modal '+(activePujiang?'pj-dialog ':'')+(activeShowdown?'showdown-dialog ':'')+(modal==='ranks'?'rank-dialog ':'')+(modal==='market'?'market-dialog ':'')+(activeEvent?'event-modal':'')+(wideShot?' wide-shot-modal':'')+(openingMessages?' arrival-modal':'')+(arrivalReply||dinnerResultPhoto?' arrival-reply-modal':'')+(dinnerClue?' blossoms-menu':'')+(nightClue?' first-night-meeting':'')+(lifeStartScene?' life-start-scene':'')+(heirScene||campaignScene||systemScene?' heir-scene':'')+(classDocument?' class-lives-scene':'')+(relocationScene?' relocation-scene':'')+(activeEvent?.firstDate?' date-parting-modal':'')+(dateReturnScene?' date-return-modal':'')+(rentalScene?' rental-negotiation':'')+(tableScene?' long-table-modal':'')+(parkScene?' match-scene':'')+(forwardScene?' forward-scene':'')+(workScene?' handover-scene':'')+(offerScene?' job-offer-modal':'')+(birthScene||stallScene||householdScene?' birth-scene-modal':'')+(mini?' minigame-modal':'')+(mini?.type==='rental'?' rental-modal':'')+(mini?.type==='stall'?' stall-modal':'')+(mini?.type==='dialogue'?(mini.person?' date-modal first-date-modal':' date-modal work-interview-modal'):'')+(modal==='romance'?' romance-modal':'')+(modal==='journal'?' journal-modal':'')+(modal==='swap'?' swap-modal':'')+(modal==='starts'?' life-start-modal':'')+(modal==='lines'?' lines-modal':'')+(modal==='cityCards'?' city-cards-modal':'')} role="dialog" aria-modal="true" aria-label={(activePujiang?'浦江剧情':undefined)||showdownScene?.title||(modal==='ranks'?'全球周榜':modal==='market'?'交易所':modal==='cityCards'?'街头抽卡':undefined)||activeEvent?.title||(arrivalContact?arrivalContact.name+'回你了':outcome?.title)||(mini?.type==='stall'?'晚风小吃街':mini?'人生现场':modal==='menu'?'菜单':modal==='help'?'操作':modal==='saves'?'存档':modal==='swap'?'换牌':modal==='starts'?'选择出身':modal==='romance'?'约会':modal==='system'?'系统':modal==='campaign'?'主线':modal==='assets'?'私人礼宾':modal==='journal'?'人生记事':modal==='lines'?'时间线':modal==='contacts'?(profile?.name??'认识的人'):'魔都人生')}>
  {!activePujiang&&!activeShowdown&&!(activeEvent&&game?.pendingYearEvent)&&<button className={'modal-close icon-button'+(modal==='ranks'?' showdown-close':'')} aria-label="关闭" onClick={()=>{if(outcome)closeOutcome();else{closeModal();setMini(null);dismissEvent();}}}><Icon name="close"/></button>}
  {activePujiang&&game&&<PujiangStage game={game} onStart={startPujiang} onMove={movePujiang} onDone={donePujiang} onPause={pausePujiang} onChange={setGame} onError={notify} audio={audio} onAudio={toggleAudio}/>}
  {modal==='cityCards'&&game&&<CityCards game={game} onDraw={drawStreetCards}/>}
  {modal==='market'&&game&&<Suspense fallback={<LoadCity/>}><MarketBoard game={game} onChange={setGame}/></Suspense>}
- {modal==='ranks'&&<Suspense fallback={<LoadCity/>}><RankBoard initialRoute={game?storyRoute(game):undefined}/></Suspense>}
+ {modal==='ranks'&&<Suspense fallback={<LoadCity/>}><RankBoard initialRoute={game?storyRoute(game):undefined} hasPlayed={hasPlayed}/></Suspense>}
  {activeShowdown&&showdownScene&&<ShowdownStage game={activeShowdown} photo={showdownScene.illustration} intro={showdownScene.text}
   onMove={moveShowdown} onDone={()=>setShowdownRecap(undefined)}/>}
  {modal==='menu'&&<div className="help-content">
