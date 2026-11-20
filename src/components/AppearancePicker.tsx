@@ -1,6 +1,7 @@
 import { lazy, Suspense, useState, type ReactNode } from 'react';
 import type { PlayerAppearance } from '../game/types';
 import { LIFE_ALBUM_AGES, LOOKS, playerArt } from '../game/art';
+import { playerModelSlot } from '../game/avatarPreference';
 import { PlayerPortrait } from './Portrait';
 import Icon from './Icon';
 
@@ -11,7 +12,7 @@ export default function AppearancePicker({value, onChange, children}: {
 }) {
  const [age, setAge] = useState<(typeof LIFE_ALBUM_AGES)[number]>(18);
  const [preview, setPreview] = useState(false);
- const canPreview = age === 18;
+ const canPreview = age === 18 && !!playerModelSlot(value);
  const selected = LOOKS.find(look => look.id === value.looks)!;
  function pick(next: PlayerAppearance) {
   setPreview(false);
@@ -19,7 +20,7 @@ export default function AppearancePicker({value, onChange, children}: {
  }
  return <section className="casting-room" aria-label="选择人物形象">
   <div className="casting-view">
-   {canPreview && preview ? <div className="player-model-preview casting-model-view">
+   {canPreview && preview ? <div className="player-model-preview casting-model-view" data-casting-gender={value.gender}>
     <Suspense fallback={<p>转台准备中</p>}><PlayerModelPreview appearance={value}/></Suspense>
    </div> : <div className="casting-photo" key={value.gender + value.looks + age}>
     <PlayerPortrait appearance={value} age={age} full/>

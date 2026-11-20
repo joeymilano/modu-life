@@ -1,0 +1,22 @@
+《魔都人生》实录音效来源
+
+这些音效来自 Freesound 的实物录音，均为 CC0 1.0。游戏素材经过裁剪、响度调整和转码。
+许可 https://creativecommons.org/publicdomain/zero/1.0/
+
+切换和点击 · Switches Click in out Switch · kamgam
+https://freesound.org/people/kamgam/sounds/788037/
+
+抽卡 · playing_cards.aif · KevinHilt
+https://freesound.org/people/KevinHilt/sounds/196541/
+
+成功反馈 · SILENCYO_DESKBELL.wav · silencyo
+https://freesound.org/people/silencyo/sounds/148844/
+
+失败反馈 · Spinning Book Closes.wav · sirTmoney
+https://freesound.org/people/sirTmoney/sounds/640436/
+
+年度结算 · Paper Sketchbook Page Flips 1 · OwlStorm
+https://freesound.org/people/OwlStorm/sounds/320148/
+
+激光提示 · analog camera wind and shutter click #2 · jgrzinich
+https://freesound.org/people/jgrzinich/sounds/170139/

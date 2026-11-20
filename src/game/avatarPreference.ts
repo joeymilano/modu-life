@@ -3,6 +3,10 @@ import type { PlayerAppearance } from './types';
 const AVATAR_KEY = 'modu-life-avatar';
 const DEFAULT_AVATAR: PlayerAppearance = { gender: 'female', looks: 'stunning' };
 
+export function playerModelSlot(appearance: PlayerAppearance) {
+  return appearance.looks === 'stunning' ? `player-${appearance.gender}-stunning` as const : undefined;
+}
+
 export function loadAvatarPreference(fallback = DEFAULT_AVATAR): PlayerAppearance {
   try {
     const value = JSON.parse(localStorage.getItem(AVATAR_KEY) ?? 'null');

@@ -10,6 +10,7 @@ export default function GameCredits() {
         <li key={track.file}><a href={`https://incompetech.com/music/royalty-free/index.html?isrc=${track.isrc}`} target="_blank" rel="noreferrer">{track.title}</a></li>
       )}</ul>
       <p><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC BY 4.0</a> · 音量调整、转码</p>
+      <p><a href="/audio/foley/credits.txt" target="_blank" rel="noreferrer">实录音效来源 · CC0</a></p>
       <hr/>
       <span>图标 · Delapouite</span>
       <a href="https://game-icons.net/" target="_blank" rel="noreferrer">Game-icons.net</a>

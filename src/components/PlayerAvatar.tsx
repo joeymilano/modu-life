@@ -5,10 +5,6 @@ import type { Group } from 'three';
 import type { PlayerAppearance } from '../game/types';
 import { Block } from './CityModels';
 
-export function playerModelSlot(appearance: PlayerAppearance) {
- return appearance.gender === 'female' && appearance.looks === 'stunning' ? 'player-female-stunning' : undefined;
-}
-
 export default function PlayerAvatar({appearance,walking=false}:{appearance:PlayerAppearance;walking?:boolean}){
  const legs=useRef<Group>(null),arms=useRef<Group>(null),body=useRef<Group>(null);
  const female=appearance.gender==='female',glam=appearance.looks==='stunning',smart=appearance.looks==='charming';

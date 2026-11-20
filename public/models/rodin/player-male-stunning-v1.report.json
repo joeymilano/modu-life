@@ -1,0 +1,19 @@
+{
+  "source_faces": 349764,
+  "source_vertices": 219758,
+  "target_faces": 24000,
+  "result_faces": 24000,
+  "result_vertices": 37137,
+  "bytes": 2921368,
+  "objects": [
+    {
+      "name": "player-male-stunning-v1-0",
+      "dimensions": [
+        0.729837954044342,
+        0.32690203189849854,
+        1.7441411018371582
+      ],
+      "colours": []
+    }
+  ]
+}

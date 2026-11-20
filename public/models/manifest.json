@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "description": "Static GLB assets. Tripo files are loaded by the game; API credentials are development-only.",
+  "description": "Static GLB assets from Tripo and Rodin.",
   "slots": {
     "oriental-pearl": {
       "url": "/models/tripo/oriental-pearl-v1.glb",
@@ -60,6 +60,12 @@
       "url": "/models/tripo/player-female-stunning-v1.glb",
       "targetHeight": 1.43,
       "rotationY": -1.5707963267948966,
+      "maxWidth": 0.85,
+      "maxDepth": 0.85
+    },
+    "player-male-stunning": {
+      "url": "/models/rodin/player-male-stunning-v1.glb",
+      "targetHeight": 1.51,
       "maxWidth": 0.85,
       "maxDepth": 0.85
     }

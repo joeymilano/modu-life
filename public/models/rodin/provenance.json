@@ -1,0 +1,20 @@
+{
+  "assets": [
+    {
+      "id": "player-male-stunning",
+      "provider": "Hyper3D Rodin",
+      "engine": "Gen-2.5 Low",
+      "kind": "image-to-3d",
+      "reference": "art/model-references/male-stunning-reference.png",
+      "reference_sha256": "92444e01a111cc7176365b091a189d72c7ab6ad0565cd2dbe6cd016253bf945c",
+      "source_export": "base_basic_pbr.glb",
+      "source_export_sha256": "55eb9c3ae80a50550d47595fedcf9ed50ad490018839b183d6cafcdc2fd515e0",
+      "file": "/models/rodin/player-male-stunning-v1.glb",
+      "sha256": "2fc464fb25518f90bc7c38c3e0996d4eb1ca414a500a69d666c406f6ca89eefa",
+      "processing": "Decimated the exported mesh in Blender and resized the embedded PBR textures from 2048 to 1024 pixels. Exported a self-contained GLB for the existing browser renderer.",
+      "faces": 24000,
+      "bytes": 2921368,
+      "terms": "https://hyper3d.ai/legal/terms?lang=en"
+    }
+  ]
+}

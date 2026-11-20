@@ -183,6 +183,18 @@
 .casting-panel .draw-share > button { color: #f0deba; }
 .casting-model-view.player-model-preview { position: absolute; inset: 0; z-index: -1; margin: 0; border-radius: 0; }
 .casting-model-view.player-model-preview .owl-preview { height: 100%; }
+.casting-model-view[data-casting-gender="male"] {
+  background: radial-gradient(ellipse at 53% 38%, #8b7567 0%, #50433f 47%, #252026 81%);
+}
+.casting-model-view[data-casting-gender="male"] canvas { cursor: grab; }
+.casting-model-view[data-casting-gender="male"] canvas:active { cursor: grabbing; }
+.casting-model-view[data-casting-gender="male"] .owl-drag-note { inset: 24px auto auto 18px; }
+.casting-view:has([data-casting-gender="male"]) .casting-strip {
+  background: linear-gradient(0deg, #211b1f 10%, #211b1fd9 41%, #211b1f00);
+}
+.casting-view:has([data-casting-gender="male"]) .casting-ages > button:not([aria-pressed="true"]) {
+  background: #372e31;
+}
 .casting-model-view > p { padding: 16px; }
 
 .modal.swap-modal { max-width: 980px; padding: 0; background: #f4eee1; color: #293e33; }

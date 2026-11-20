@@ -1,22 +1,19 @@
 type Sound = 'tap' | 'draw' | 'good' | 'bad' | 'year' | 'scan';
 
-const notes: Record<Sound, number[]> = {
- tap: [440],
- draw: [293.66, 440, 587.33],
- good: [392, 493.88, 587.33],
- bad: [196, 146.83],
- year: [261.63, 329.63, 392, 523.25],
- scan: [246.94, 369.99],
-};
+const sounds: readonly Sound[] = ['tap', 'draw', 'good', 'bad', 'year', 'scan'];
+const clips = new Map<Sound, Promise<AudioBuffer | undefined>>();
 
 let context: AudioContext | null = null;
+let effects: GainNode | null = null;
 let enabled = false;
+let enableRevision = 0;
 let music: HTMLAudioElement | null = null;
 let track = '';
 let playingTrack = '';
 let advanceTrack: (() => void) | undefined;
 
 function syncMusic() {
+ if (effects) effects.gain.value = enabled && !document.hidden ? 1 : 0;
  if (!enabled || document.hidden || !track) {
   music?.pause();
   return;
@@ -41,9 +38,27 @@ export function setMusicTrack(source: string, onEnded: () => void) {
 
 function playbackContext() {
  if (typeof AudioContext === 'undefined') return null;
- context ??= new AudioContext();
+ if (!context) {
+  context = new AudioContext();
+  effects = context.createGain();
+  effects.connect(context.destination);
+ }
  if (context.state !== 'running') void context.resume().catch(() => {});
  return context;
+}
+
+function loadClip(type: Sound, ctx: AudioContext) {
+ const cached = clips.get(type);
+ if (cached) return cached;
+ const loaded = fetch('/audio/foley/' + type + '.wav').then(response => {
+  if (!response.ok) throw new Error('Missing sound effect');
+  return response.arrayBuffer();
+ }).then(data => ctx.decodeAudioData(data)).catch(() => {
+  clips.delete(type);
+  return undefined;
+ });
+ clips.set(type, loaded);
+ return loaded;
 }
 
 export function setAudioEnabled(value: boolean) {
@@ -52,29 +67,29 @@ export function setAudioEnabled(value: boolean) {
   return;
  }
  enabled = value;
+ enableRevision++;
  if (value) {
-  playbackContext();
+  const ctx = playbackContext();
+  if (ctx) for (const sound of sounds) void loadClip(sound, ctx);
   document.addEventListener('visibilitychange',syncMusic);
  } else document.removeEventListener('visibilitychange',syncMusic);
  syncMusic();
 }
 
 export function playSound(type: Sound = 'tap') {
- if (!enabled) return;
+ if (!enabled || document.hidden) return;
  const ctx = playbackContext();
- if (!ctx) return;
- notes[type].forEach((frequency, index) => {
-  const oscillator = ctx.createOscillator();
-  const gain = ctx.createGain();
-  const start = ctx.currentTime + index * .075;
-  oscillator.type = type === 'tap' ? 'sine' : 'triangle';
-  oscillator.frequency.value = frequency;
-  gain.gain.setValueAtTime(0, start);
-  gain.gain.linearRampToValueAtTime(type === 'scan' ? .031 : .045, start + .012);
-  gain.gain.exponentialRampToValueAtTime(.0001, start + .28);
-  oscillator.connect(gain);
-  gain.connect(ctx.destination);
-  oscillator.start(start);
-  oscillator.stop(start + .3);
+ const output = effects;
+ if (!ctx || !output) return;
+ const revision = enableRevision;
+ const called = performance.now();
+ void loadClip(type, ctx).then(clip => {
+  if (!clip || !enabled || document.hidden || revision !== enableRevision ||
+      ctx.state !== 'running' || performance.now() - called > 350) return;
+  const source = ctx.createBufferSource();
+  source.buffer = clip;
+  source.connect(output);
+  source.onended = () => source.disconnect();
+  source.start();
  });
 }
