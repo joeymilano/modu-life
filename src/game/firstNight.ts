@@ -171,6 +171,7 @@ export function hasSharedWithMao(state: GameState) {
 }
 
 export function firstNightLead(state: GameState) {
+  if(state.storyEdition===2)return null;
   if (state.age !== 18 || state.pendingYearEvent || state.ended || state.actions<=0 || !state.flags.includes(FIRST_NIGHT_FLAG)) return null;
   const route = routes.find(item => state.flags.includes(item.flag));
   if (!route) return null;

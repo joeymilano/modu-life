@@ -1,6 +1,7 @@
 import type { MarketAccount } from './market';
 import type { Showdown } from './showdowns';
 import type { YearReceipt } from './yearReceipt';
+import type { EpisodeRun, SystemProgress } from './pujiangTypes';
 
 export type DistrictId = 'bund' | 'anfu' | 'people' | 'lujiazui' | 'zhangjiang' | 'xinzhuang';
 export type ActivityKind = 'career' | 'romance' | 'rest' | 'learn' | 'housing' | 'social' | 'business' | 'explore';
@@ -37,10 +38,12 @@ export interface Relationship { attraction: number; trust: number; commitment: n
 export interface JournalEntry { age: number; title: string; text: string; tag: string; receipt?: YearReceipt; }
 export interface Employment { sinceAge: number; reviews: number; reviewedAt?: number; rate: number; closedMonths: number; earned: number; }
 export interface GameState {
+ storyEdition?: 2; episode?: EpisodeRun; systemProgress?: SystemProgress;
  version: 1; seed: string; rng: number; name: string; age: number; actions: number; goal: GoalId;
  appearance: PlayerAppearance;
  district: DistrictId; cash: number; stats: Record<StatKey,number>; jobId: string|null; jobRank: number; housing: number; leaseRent?: number;
  employment?: Employment; showdown?: Showdown; calendar?: 1992; market?: MarketAccount;
+ cityDraws?: number;
  origins: string[]; flags: string[]; seenEvents: string[]; relationships: Record<string,Relationship>; partnerId: string|null;
  journal: JournalEntry[]; pendingYearEvent: boolean; ended: boolean; totalEarned: number; yearsEmployed: number; rescues: number;
 }

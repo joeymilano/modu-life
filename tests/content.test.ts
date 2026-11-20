@@ -8,8 +8,8 @@ describe('完整人生内容资产', () => {
     expect(DISTRICTS.every(d => d.hotspots.length === 4)).toBe(true);
     expect(new Set(DISTRICTS.flatMap(d => d.hotspots.map(h => h.id))).size).toBe(24);
     expect(DISTRICTS.flatMap(d => d.hotspots).every(h => h.position.every(n => Math.abs(n) <= 10))).toBe(true);
-    expect(CAST).toHaveLength(24);
-    expect(new Set(CAST.map(c => c.id)).size).toBe(24);
+    expect(CAST).toHaveLength(27);
+    expect(new Set(CAST.map(c => c.id)).size).toBe(27);
     expect(CAST.filter(c => c.role === 'romance')).toHaveLength(8);
     expect(CAST.filter(c => c.role === 'romance').every(c => c.ageOffset >= 0)).toBe(true);
     expect(Object.values(ORIGIN_POOLS).every(cards => cards.length === 8)).toBe(true);

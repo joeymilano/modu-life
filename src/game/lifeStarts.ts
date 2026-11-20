@@ -220,6 +220,7 @@ const heirReview = year('heir-role', '工牌还是公司那张',
  ], 'heir-board');
 
 export function dayworkLead(state: GameState): {message: string; event: LifeEvent} | undefined {
+ if(state.storyEdition===2&&state.age===18)return;
  if (!state.flags.includes(DAYWORK)) return undefined;
  const pending = state.flags.includes(DAYWORK_DUE) ? shiftPay : state.flags.includes(DAYWORK_REMAINDER) ? remainingPay : undefined;
  if (pending && !state.seenEvents.includes(pending.id)) return {
@@ -247,6 +248,7 @@ export function dayworkLead(state: GameState): {message: string; event: LifeEven
 }
 
 export function lifeStartYear(state: GameState) {
+ if(state.storyEdition===2&&(state.age<=19||isSystemLife(state)))return;
  if (isSystemLife(state)) {
   if (state.age===18) return periodSystemOpening(state);
   if (state.age===19) return systemSecondYear(state);

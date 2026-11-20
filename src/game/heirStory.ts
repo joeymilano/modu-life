@@ -36,7 +36,7 @@ function heirPrice(state:GameState,id:AssetId) {
 }
 const assetFlag = (id: AssetId) => 'heir-owned-' + id;
 export const ownsHeirAsset = (state: GameState, id: AssetId) => state.flags.includes(assetFlag(id));
-const hosted = (state: GameState) => state.seenEvents.includes(PARTY);
+const hosted = (state: GameState) => state.seenEvents.includes(PARTY)||state.seenEvents.includes('pj-heir-18');
 export const hasHeirStory = (state: GameState) => state.origins.includes('born-heir') && state.flags.includes(HEIR_CAPITAL_TIER);
 const shopId = (id: string, state: GameState, first: AssetId, second: AssetId, revisit: boolean) =>
  revisit ? `${id}-return-${state.age}-${Number(ownsHeirAsset(state,first))+Number(ownsHeirAsset(state,second))}` : id;
@@ -162,8 +162,8 @@ export function westBundSecondYear(state: GameState): LifeEvent {
 
 export function heirStoryLead(state: GameState) {
  if (!hasHeirStory(state) || state.pendingYearEvent || state.ended || state.actions <= 0) return;
- if (!state.seenEvents.includes(MALL)) return { message:heirAssetAvailable(state,'lv')?'去恒隆拿请帖':'去锦江饭店拿请帖',event:mall(state,false) };
- if (!state.seenEvents.includes(CARS)) return { message:heirAssetAvailable(state,'cullinan')?'去西岸挑车':'去车行看车',event:showroom(state,false) };
+ if (state.storyEdition!==2&&!state.seenEvents.includes(MALL)) return { message:heirAssetAvailable(state,'lv')?'去恒隆拿请帖':'去锦江饭店拿请帖',event:mall(state,false) };
+ if (state.storyEdition!==2&&!state.seenEvents.includes(CARS)) return { message:heirAssetAvailable(state,'cullinan')?'去西岸挑车':'去车行看车',event:showroom(state,false) };
  if (!hosted(state)) return { message:'进会客厅，拿回主位',event:openingNight(state) };
  if (state.age>=19 && heirAssetAvailable(state,'lounge') && !state.seenEvents.includes(VENUE)) return { message:'看看会客厅的转让书',event:venue(state) };
  if (state.age>=20 && ownsHeirAsset(state,'lounge') && !state.seenEvents.includes(FIRST_NIGHT_AS_OWNER)) {

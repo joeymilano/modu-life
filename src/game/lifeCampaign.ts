@@ -1,4 +1,6 @@
 import { legacyShowdownEvent, storyFollowup, storyRoute, storyShowdownScene, storyVerdict } from './storyShowdown';
+import { AFTER_YEARS, isPujiangSystem, isPujiang, pujiangRoute, pujiangYear } from './pujiang';
+import { OPENING_EPISODES, SYSTEM_EPISODES } from './pujiangScript';
 import { SHOWDOWN_AGES, createShowdown, showdownAftermath } from './showdowns';
 import { openingPhoto, streetPhoto, tablePhoto, workPhoto } from './art';
 import { heirStoryPhoto } from './heirStory';
@@ -72,6 +74,7 @@ function makeChoice(state: GameState, id: string, beat: CampaignBeat, move: Camp
 }
 
 export function campaignYear(state: GameState): LifeEvent | undefined {
+ if(isPujiangSystem(state))return;
  const index = CHAPTER_AGES.findIndex(age=>age===state.age);
  if (index<0) return;
  const route = routeOf(state);
@@ -95,6 +98,7 @@ export function campaignYear(state: GameState): LifeEvent | undefined {
 }
 
 export function campaignPressureYear(state:GameState) {
+ if(isPujiangSystem(state))return;
  const age=state.age;
  if(age!==26&&age!==38)return;
  const route=routeOf(state);
@@ -107,6 +111,12 @@ export function campaignPressureYear(state:GameState) {
 }
 
 export function campaignProgress(state: GameState) {
+ if(isPujiangSystem(state)){
+  const timeline=[...SYSTEM_EPISODES.map(e=>({age:e.age,id:e.id,title:e.title,district:e.district,decision:state.seenEvents.includes(e.id)?(state.flags.includes(e.id+'-win')?'拿下':state.flags.includes(e.id+'-partial')?'保住一部分':'失手后继续'):undefined})),
+   ...AFTER_YEARS.map(age=>{const event=pujiangYear({...state,age})!;return {age,id:event.id,title:event.title,district:event.district,decision:state.seenEvents.includes(event.id)?'已见面':undefined};})];
+  const current=timeline.find(e=>e.age>=state.age&&!e.decision);
+  return {name:'浦江破局',chapters:timeline,next:current,status:undefined,timeline,current};
+ }
  const route = routeOf(state);
  const chapters = CHAPTER_AGES.map((age,index) => {
   const beat = CAMPAIGN_SCRIPT[route][index];
@@ -123,6 +133,10 @@ export function campaignProgress(state: GameState) {
    decision:state.seenEvents.includes(event.id)?'已处理':undefined}]:[];
  });
  const duels=SHOWDOWN_AGES.map(age=>{
+  if(isPujiang(state)&&age===18){
+   const episode=OPENING_EPISODES.find(e=>e.route===pujiangRoute(state))!;
+   return {age,id:episode.id,title:episode.title,district:episode.district,decision:state.seenEvents.includes(episode.id)?(state.flags.includes(episode.id+'-win')?'拿下':state.flags.includes(episode.id+'-partial')?'保住一部分':'失手后继续'):undefined};
+  }
   const event=storyShowdownScene(state,createShowdown(route,age));
   const result=storyVerdict(state,route,age);
   const previous=legacyShowdownEvent(route,age);
@@ -135,13 +149,14 @@ export function campaignProgress(state: GameState) {
 }
 
 export function campaignLead(state: GameState) {
+ if(isPujiangSystem(state))return;
  if (state.pendingYearEvent||state.ended||state.actions<=0||state.age<20) return;
  const {next} = campaignProgress(state);
  if (!next||next.age<=state.age) return;
  const id = next.id+'-prep';
  if (state.seenEvents.includes(id)) return;
  const route = routeOf(state);
- const index = CHAPTER_AGES.indexOf(next.age);
+ const index = CHAPTER_AGES.findIndex(age=>age===next.age);
  const beat = CAMPAIGN_SCRIPT[route][index];
  const [title,text,proof,people] = beat.prep;
  const event: LifeEvent = {
@@ -167,6 +182,7 @@ export function campaignClue(state: GameState, eventId: string) {
 }
 
 export function campaignEpilogue(state: GameState) {
+ if(isPujiangSystem(state))return;
  const route = routeOf(state);
  const id = sceneId(route,57);
  const decision = moves.find(move=>state.flags.includes(moveFlag(id,move)));

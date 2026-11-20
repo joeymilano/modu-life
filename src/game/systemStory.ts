@@ -1,4 +1,5 @@
 import { calendarYear } from './calendar';
+import { abilityPoints, isPujiangSystem } from './pujiang';
 import { streetPhoto } from './art';
 import { CHAPTER_AGES } from './campaignScript';
 import { OPENING_ALLIES, OPENING_DRAMA, OPENING_PROOF, withOpeningRecord } from './openingStakes';
@@ -20,6 +21,7 @@ const redeemedFlag = (id: string) => 'system-redeemed-'+id;
 export const isSystemLife = (state: GameState) => state.flags.includes(SYSTEM_START);
 
 export function systemPoints(state: GameState) {
+ if(isPujiangSystem(state))return abilityPoints(state);
  const earned = received.filter(flag=>state.flags.includes(flag)).length + Number(state.flags.includes('laser_master'));
  const spent = rewards.filter(reward=>state.flags.includes(redeemedFlag(reward.id))).length;
  return Math.max(0,earned-spent);
@@ -102,6 +104,7 @@ const tasks = [
 ];
 
 export function systemLead(state: GameState) {
+ if(isPujiangSystem(state))return;
  if (!isSystemLife(state)||state.pendingYearEvent||state.ended||state.actions<=0||!state.seenEvents.includes(systemOpening.id)) return;
  const task = tasks.find(item=>!state.seenEvents.includes(item.event.id));
  if (task&&calendarYear(state)<2000&&(task.event===firstTask||task.event===secondTask)) return {...task,event:{
@@ -129,6 +132,7 @@ export function systemClue(eventId: string) {
 }
 
 export function systemRedemption(state: GameState): LifeEvent | undefined {
+ if(isPujiangSystem(state))return;
  if (!isSystemLife(state)||state.pendingYearEvent||state.ended||state.actions<=0||systemPoints(state)<=0) return;
  const next = CHAPTER_AGES.find(age=>age>state.age);
  const choices = rewards.filter(reward=>!state.flags.includes(redeemedFlag(reward.id))&&(reward.id!=='proof'||next)).map(reward=>choice(

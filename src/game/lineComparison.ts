@@ -16,6 +16,7 @@ function decisionKey(point: Point) {
  return JSON.stringify([
   scene.kind, scene.eventId, scene.npc, scene.picks, scene.evidence,
   before.seed, before.age, before.actions, before.rng, point.journalLength,
+  ...(scene.kind==='episode'?[before.episode?.moves]:[]),
  ]);
 }
 

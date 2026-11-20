@@ -6,12 +6,13 @@ import { lastDayMemory } from '../game/lastDay';
 import { longTableMemory } from '../game/longTable';
 import type { GameState } from '../game/types';
 import Icon from './Icon';
+import GameIcon from './GameIcon';
 import LifeAlbum from './LifeAlbum';
 import { lifeStartProfile } from '../game/lifeStarts';
 import { familyLoanOwed, lifeYearsAlbumPhoto } from '../game/lifeYears';
 import './ending.css';
 
-export default function EndingScreen({ game, sharing, onShare, onChallenge, onDraw, onJournal, onLines }: {
+export default function EndingScreen({ game, sharing, onShare, onChallenge, onDraw, onJournal, onLines, onCollection }: {
  game: GameState;
  sharing: boolean;
  onShare: () => void;
@@ -19,6 +20,7 @@ export default function EndingScreen({ game, sharing, onShare, onChallenge, onDr
  onDraw: () => void;
  onJournal: () => void;
  onLines: () => void;
+ onCollection: () => void;
 }) {
  const result = ending(game);
  const memory = lastDayMemory(game);
@@ -72,6 +74,7 @@ export default function EndingScreen({ game, sharing, onShare, onChallenge, onDr
     <button className="text-button" onClick={onChallenge}>分享手牌 <Icon name="share" size={16}/></button>
     <button className="text-button" onClick={onLines}>时间线 <Icon name="map" size={16}/></button>
     <button className="text-button" onClick={onJournal}>记事本 <Icon name="book" size={16}/></button>
+    <button className="text-button" onClick={onCollection}>街头卡片收藏 <GameIcon name="hand" size={16}/></button>
    </div>
   </section>
  </main>;

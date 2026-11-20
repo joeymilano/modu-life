@@ -45,12 +45,14 @@ export function storyVerdict(state: GameState, route: CampaignRoute, age: Showdo
 }
 
 export function storyShowdownOffer(state: GameState, forceOpening = false) {
+ if(state.storyEdition===2&&(state.age===18||storyRoute(state)==='system'))return;
  const route = storyRoute(state), age = state.age as ShowdownAge;
  if (state.ended||!SHOWDOWN_AGES.includes(age)) return;
  const reserveAge = age===38?23:age===57?38:18;
  const showdown = createShowdown(route,age,
   (age!==18&&route==='heir'&&ownsHeirAsset(state,'lounge')) ||
   (age!==18&&state.flags.includes(storyFlag(route,reserveAge,'backup'))) ||
+  (age===23&&state.storyEdition===2&&state.flags.includes('pj-opening-kept')) ||
   (age!==18&&state.flags.includes(storyFlag(route,reserveAge,'deal'))),undefined,calendarYear(state)<2000);
  if (state.seenEvents.includes(storyShowdownId(showdown)) || state.seenEvents.includes(legacyShowdownEvent(route,age))) return;
  if (age===18 && (state.pendingYearEvent||!forceOpening&&state.actions>0&&!opensAfter[route].some(id=>state.seenEvents.includes(id)))) return;
@@ -113,6 +115,7 @@ const carryLines: Record<CampaignRoute,Record<Verdict,string>> = {
 };
 
 export function storyCarry(state:GameState,route:CampaignRoute,age:ShowdownAge) {
+ if(state.storyEdition===2&&age===18)return state.flags.includes('pj-opening-kept')?'19岁答应的安排已经兑现，老伙伴这次替你留了一个备用方案。':'上次怎样安排人和事，今天到场的人都记得。';
  const result = storyVerdict(state,route,age);
  if (!result) return;
  const standing = state.flags.includes(storyFlag(route,age,'ally')) ? SHOWDOWN_CAST[route].broker+'也来了。' : '';

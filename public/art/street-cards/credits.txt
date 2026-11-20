@@ -1,0 +1,55 @@
+《魔都人生》街区素材来源
+
+游戏图标
+Delapouite · Game-icons.net · CC BY 3.0
+作者：https://delapouite.com/
+素材集合：https://github.com/game-icons/icons/tree/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite
+许可：https://creativecommons.org/licenses/by/3.0/
+处理：去除背景，改为跟随界面配色，合并为本地图标集。
+
+历史照片
+The Bund, 1992 · Gary Stevens · CC BY 2.0
+原图：https://commons.wikimedia.org/wiki/File:The_Bund,_1992_(3776324495).jpg
+许可：https://creativecommons.org/licenses/by/2.0/
+用处：早期外滩「四元观景位」及街头卡片「外滩留存的底片」。图片经裁切、调色及转码。
+
+本次新绘场景
+用内置图片生成制作两张四宫格，再裁切为游戏素材。画面采用 1990 年代上海的电影剧照质感。
+街头抽卡背景用内置图片生成绘制。主题为 1992 年的雨夜弄堂，旧木柜台、铜色抽奖笼、钨丝灯与湿地倒影。
+第一组：江边长椅与老轮渡、人民公园象棋摊、安福路三楼画图桌、张江夜间电子研发室。
+第二组：1992 年陆家嘴码头与起重机、夜校电子实训室、厂区午休草坪、弄堂长椅与搪瓷茶杯。
+
+图标逐项来源
+new-life - https://game-icons.net/1x1/delapouite/open-gate.html
+resume - https://game-icons.net/1x1/delapouite/save.html
+origin - https://game-icons.net/1x1/delapouite/id-card.html
+hand - https://game-icons.net/1x1/delapouite/card-exchange.html
+rank - https://game-icons.net/1x1/delapouite/trophy-cup.html
+parallel - https://game-icons.net/1x1/delapouite/railway.html
+arcade - https://game-icons.net/1x1/delapouite/bolt-drop.html
+stall - https://game-icons.net/1x1/delapouite/noodles.html
+career - https://game-icons.net/1x1/delapouite/briefcase.html
+romance - https://game-icons.net/1x1/delapouite/love-letter.html
+rest - https://game-icons.net/1x1/delapouite/park-bench.html
+learn - https://game-icons.net/1x1/delapouite/book-pile.html
+housing - https://game-icons.net/1x1/delapouite/house-keys.html
+social - https://game-icons.net/1x1/delapouite/three-friends.html
+business - https://game-icons.net/1x1/delapouite/coffee-cup.html
+explore - https://game-icons.net/1x1/delapouite/photo-camera.html
+health - https://game-icons.net/1x1/delapouite/heart-beats.html
+spirit - https://game-icons.net/1x1/delapouite/sunrise.html
+skill - https://game-icons.net/1x1/delapouite/pencil.html
+face - https://game-icons.net/1x1/delapouite/clothes.html
+network - https://game-icons.net/1x1/delapouite/mesh-network.html
+bund - https://game-icons.net/1x1/delapouite/sailboat.html
+anfu - https://game-icons.net/1x1/delapouite/double-street-lights.html
+people - https://game-icons.net/1x1/delapouite/asian-lantern.html
+lujiazui - https://game-icons.net/1x1/delapouite/modern-city.html
+zhangjiang - https://game-icons.net/1x1/delapouite/factory.html
+xinzhuang - https://game-icons.net/1x1/delapouite/block-house.html
+market - https://game-icons.net/1x1/delapouite/chart.html
+journal - https://game-icons.net/1x1/delapouite/notebook.html
+action - https://game-icons.net/1x1/delapouite/ticket.html
+mission - https://game-icons.net/1x1/delapouite/target-poster.html
+reward - https://game-icons.net/1x1/delapouite/two-coins.html
+night-mail - https://game-icons.net/1x1/delapouite/old-lantern.html

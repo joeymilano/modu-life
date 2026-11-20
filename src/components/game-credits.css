@@ -30,5 +30,6 @@
 .game-credit-list > span { display: block; color: #cbbcc4; font-size: 11px; }
 .game-credit-list > a { display: inline-block; margin-top: 3px; font-weight: 700; }
 .game-credit-list a { color: inherit; text-underline-offset: 3px; }
-.game-credit-list > p:last-child { margin-top: 7px; color: #cbbcc4; font-size: 11px; }
+.game-credit-list > p { margin-top: 4px; color: #cbbcc4; font-size: 11px; }
+.game-credit-list > hr { border: 0; border-top: 1px solid #51454d; margin: 12px 0; }
 .help-content .game-credit-list { position: static; box-shadow: none; }

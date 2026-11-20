@@ -88,18 +88,7 @@
 .play-screen .street-frame { min-height: 196px; border-color: var(--game-line); }
 .play-screen .street-name h1,
 .play-screen .district-title h1 { font-family: inherit; font-weight: 850; letter-spacing: .02em; }
-.play-screen .street-places { background: var(--game-line); border-color: var(--game-line); }
-.play-screen .street-places .street-place {
-  grid-template-columns: minmax(0,1fr) auto;
-  gap: 12px;
-  min-height: 59px;
-  padding: 9px 14px;
-  background: #262029;
-}
-.play-screen .street-place > span { display: grid; gap: 3px; }
-.play-screen .street-place b { font-family: inherit; font-size: clamp(14px,1.5vw,19px); font-weight: 750; }
-.play-screen .street-place small { color: var(--game-muted); }
-.play-screen :is(.street-places .street-place,.place-list .place-card):hover:not(:disabled) { background: #3c303b; color: var(--game-white); }
+.play-screen .place-list .place-card:hover:not(:disabled) { background: #3c303b; color: var(--game-white); }
 .play-screen .story-lead {
   background: #2d222b;
   border: 0;
@@ -108,7 +97,6 @@
 }
 .play-screen .story-lead:hover:not(:disabled) { background: #493344; }
 .play-screen .story-lead.opening-lead { border-left-color: var(--game-focus); background: #302432; }
-.play-screen .story-lead-dot { display: none; }
 .play-screen .story-lead small { color: var(--game-yellow); }
 .play-screen .stage-bottom { padding: 6px 9px; background: #1e1723dc; }
 .play-screen .stage-bottom :is(span,small) { color: var(--game-white); }
@@ -302,7 +290,6 @@
     border-color: var(--game-line);
     color: var(--game-white);
   }
-  .play-screen .street-places .street-place { min-height: 51px; padding: 7px 10px; gap: 4px; }
   .play-screen .district-nav,
   .play-screen .metro-line { height: 50px; }
   .play-screen .metro-line button { padding-inline: 3px; }

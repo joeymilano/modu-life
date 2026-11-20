@@ -85,9 +85,9 @@ describe('running into old acquaintances', () => {
   expect(contactStory(result,'boss')).toBeUndefined();
  });
 
- it('ships every contact portrait and avatar at all three life stages', () => {
+ it('ships the photographic cast at all three life stages; new story contacts use name seals', () => {
   const stages = [[18,''], [31,''], [32,'-midlife'], [52,'-midlife'], [53,'-senior'], [60,'-senior']] as const;
-  for (const {id} of CAST) {
+  for (const {id} of CAST.filter(person=>!person.id.startsWith('pj-'))) {
    for (const [age, suffix] of stages) {
     const full = portraitArt(id, true, age);
     const head = portraitArt(id, false, age);

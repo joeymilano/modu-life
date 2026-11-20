@@ -60,3 +60,16 @@
   .class-lives-scene .relocation-paper dl > div { padding-block: 1px; }
   .class-lives-scene .event-choices > button small:empty { display: none; }
 }
+
+.modal.life-start-modal { background:#171719; border-color:#6c503c; }
+.life-start-modal .modal-close { background:#302721; color:#e4c5a1; }
+.life-start-picker h2 { font-family:'Songti SC',serif; font-weight:600; letter-spacing:.08em; }
+.life-start-options { gap:12px; }
+.life-start-options>button { background:#211e1d; border-color:#574235; border-radius:3px; }
+.life-start-options>button:hover { border-color:#d2a16b; }
+.life-start-options img { aspect-ratio:2.05; object-position:60% 18%; }
+.life-start-options [data-origin=heir] img { object-position:78% 18%; }
+.start-portrait::after { background:linear-gradient(180deg,transparent 35%,#151013db 100%); }
+.life-start-options h3 { font-family:'Songti SC',serif; letter-spacing:.05em; }
+.start-details { padding:13px 15px 5px; }.start-details p { color:#d5c5b6; }.start-action { margin-top:10px; border-color:#4d3c31; color:#d3ac7d; }
+@media(max-width:480px) { .life-start-options { gap:8px; }.life-start-options img { aspect-ratio:1; }.start-details { padding:10px 10px 4px; }.life-start-options h3 { font-size:22px; }.start-title { bottom:12px; } }

@@ -23,13 +23,14 @@ import { openingLead } from './originStories';
 import { ALL_RENTAL_CLUES, isRentalRenewal, rentalNegotiation, rentalRenewal } from './rental';
 import { isWorkHandover, workHandover } from './workHandover';
 import type { ActivityKind, FirstDatePicks, GameState, LifeEvent } from './types';
+import { episodeView } from './pujiang';
 
 export const MAX_LINES = 8;
 const MAX_POINTS = 24;
 export const SAVE_SIZE_LIMIT = 2_000_000;
 
 interface SceneRef {
-  kind: ActivityKind | 'year' | 'owl' | 'lead' | 'match' | 'origin' | 'date' | 'rental' | 'showdown';
+  kind: ActivityKind | 'year' | 'owl' | 'lead' | 'match' | 'origin' | 'date' | 'rental' | 'showdown' | 'episode';
   eventId: string;
   npc?: string;
   picks?: FirstDatePicks;
@@ -81,6 +82,7 @@ export function clearReplay(book: LifeBook): LifeBook {
 }
 
 export function replayScene(state: GameState, scene: SceneRef): LifeEvent | null {
+  if(scene.kind==='episode')return state.episode?.id===scene.eventId&&!state.episode.receipt?episodeEvent(state):null;
   if (scene.kind === 'showdown') {
     const showdown = storyShowdownOffer(state,true);
     return showdown && storyShowdownId(showdown)===scene.eventId ? storyShowdownScene(state,showdown) : null;
@@ -155,6 +157,18 @@ export function recordDecision(book: LifeBook, state: GameState, event: LifeEven
   return updateLine(book, { ...line, state, points, replay: undefined });
 }
 
+function episodeEvent(state:GameState):LifeEvent {
+ const view=episodeView(state);
+ return {id:view.script.id,title:view.scene.title,text:view.scene.text,category:'year',tag:'浦江破局',illustration:view.script.photo,
+  choices:view.choices.filter(c=>!c.disabled).map(c=>({id:c.id,label:c.label,reply:c.reply,effect:{}}))};
+}
+export function recordEpisodeDecision(book:LifeBook,state:GameState,choiceId:string):LifeBook {
+ const line=activeLine(book),event=episodeEvent(line.state),choice=event.choices.find(c=>c.id===choiceId);
+ if(!choice)throw new Error('这次选择不在当前现场。');
+ const {journal,...before}=structuredClone(line.state);
+ const point:ForkPoint={scene:{kind:'episode',eventId:event.id},title:event.title,choice:choice.label,before,journalLength:journal.length};
+ return updateLine(book,{...line,state,points:[...line.points,point].slice(-MAX_POINTS),replay:undefined});
+}
 export function recordShowdown(book:LifeBook,state:GameState,showdown:Showdown): LifeBook {
   const line=activeLine(book);
   const {journal,showdown:_,...before}=line.state;
@@ -218,7 +232,7 @@ function label(value: unknown, max: number) {
 function sceneRef(value: unknown): SceneRef {
   const raw = record(value);
   const kind = label(raw.kind, 12) as SceneRef['kind'];
-  if (kind !== 'year' && kind !== 'owl' && kind !== 'lead' && kind !== 'match' && kind !== 'origin' && kind !== 'date' && kind !== 'rental' && kind !== 'showdown' && !Object.hasOwn(ACTIVITY_NAMES, kind)) throw new Error('这段故事认不出来');
+  if (kind !== 'episode' && kind !== 'year' && kind !== 'owl' && kind !== 'lead' && kind !== 'match' && kind !== 'origin' && kind !== 'date' && kind !== 'rental' && kind !== 'showdown' && !Object.hasOwn(ACTIVITY_NAMES, kind)) throw new Error('这段故事认不出来');
   const npc = raw.npc === undefined ? undefined : label(raw.npc, 32);
   if (npc && !CAST.some(person => person.id === npc)) throw new Error('这位人物认不出来');
   const eventId = label(raw.eventId, 120);

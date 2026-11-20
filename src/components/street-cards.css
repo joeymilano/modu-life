@@ -1,0 +1,128 @@
+.game-icon { display: block; flex: none; }
+
+.street-name { display: flex; align-items: center; gap: 12px; }
+.street-name .game-icon { color: #f5cc8d; filter: drop-shadow(0 2px 4px #111b); }
+.street-owl .game-icon { color: #f5cc8d; }
+
+.play-screen .street-places {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 2px;
+  background: #19151d;
+}
+
+.play-screen .street-places .street-place {
+  --activity-ink: #f5cd91;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 91px;
+  padding: 9px 13px;
+  border: 0;
+  border-radius: 0;
+  background: #25202a;
+  text-align: left;
+  opacity: 1;
+}
+
+.play-screen .street-place[data-activity="romance"] { --activity-ink: #ffadad; }
+.play-screen .street-place[data-activity="social"] { --activity-ink: #a7ddc6; }
+.play-screen .street-place[data-activity="learn"] { --activity-ink: #a7cee8; }
+.play-screen .street-place[data-activity="explore"] { --activity-ink: #cec3fc; }
+.play-screen .street-place[data-activity="rest"] { --activity-ink: #ced695; }
+
+.street-card-art {
+  position: absolute;
+  z-index: -2;
+  inset: 0 0 0 auto;
+  width: 86%;
+  height: 100%;
+  object-fit: cover;
+  opacity: .88;
+  transition: opacity .2s ease, transform .2s ease;
+}
+
+.street-place::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: linear-gradient(90deg, #19151d 7%, #19151df7 24%, #19151db9 48%, #19151d25 82%, #19151d65);
+}
+
+.play-screen .street-place:not(:disabled):is(:hover, :focus-visible) { box-shadow: inset 0 -2px var(--activity-ink); }
+.street-place:not(:disabled):is(:hover, :focus-visible) .street-card-art { opacity: 1; transform: scale(1.035); }
+.street-place:disabled .street-card-art { opacity: .42; }
+.play-screen .street-place:disabled :is(b, small, .street-place-icon, .street-place-chevron) { opacity: .62; }
+
+.play-screen .street-place > .street-place-icon,
+.play-screen .story-lead-emblem {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  color: var(--activity-ink, #f5cd91);
+  filter: drop-shadow(0 1px 6px #141016e0);
+}
+
+.play-screen .street-place-copy { display: grid; gap: 3px; min-width: 0; }
+.play-screen .street-place-copy b { color: #fff3e5; font-size: clamp(14px,1.5vw,19px); font-weight: 750; line-height: 1.25; }
+.play-screen .street-place-copy small { color: var(--activity-ink); font-size: 10px; line-height: 1.25; letter-spacing: 0; }
+.play-screen .street-place-chevron { color: #fff1dc; }
+.play-screen .street-place:focus-visible { outline-offset: -3px; }
+
+.play-screen .story-lead .story-lead-emblem { width: 30px; height: 30px; flex: none; }
+.play-screen .story-lead .story-lead-emblem svg { margin: 0; }
+.play-screen .main-story-link { display: inline-flex; align-items: center; gap: 4px; }
+.play-screen .main-story-link > .game-icon { color: var(--game-yellow); }
+
+.play-screen .stat-row .stat-label { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.play-screen .age-row > span { padding-top: 0; }
+.play-screen .age-row > span > b { display: block; font: 650 14px/1.4 system-ui, sans-serif; letter-spacing: 0; }
+.play-screen .city-map-mode[data-night="false"] .district-title h1 { color: #213638; }
+.play-screen .city-map-mode .district-title h1 { display: flex; align-items: center; gap: 7px; }
+.stat-label .game-icon { color: #d5af89; }
+.play-screen .time-tokens > span {
+  height: 28px;
+  flex: 0 0 28px;
+  border: 0;
+  border-radius: 50%;
+  color: #ffda88;
+  background: #3f302a;
+}
+.play-screen .time-tokens > span.used { color: #92828b; background: #2b242d; }
+.play-screen .place-list .place-icon { color: #f4ca8f; background: transparent; }
+.play-screen .metro-line button { gap: 3px; color: #d6bda8; }
+.play-screen .metro-line button b { margin-top: 0; }
+.play-screen .metro-line button.active { color: var(--game-yellow); }
+
+@media (max-width: 850px) {
+  .street-name { gap: 8px; }
+  .street-name .game-icon { width: 24px; height: 24px; }
+  .play-screen .street-places .street-place { min-height: 71px; padding: 7px; gap: 6px; }
+  .street-card-art { width: 100%; }
+  .street-place::before {
+    background: linear-gradient(90deg, #19151ded 3%, #19151dce 40%, #19151d60 80%, #19151d78);
+  }
+  .play-screen .street-place > .street-place-icon { width: 26px; height: 28px; }
+  .street-place-icon .game-icon { width: 16px; height: 16px; }
+  .play-screen .street-place-copy b { font-size: 14px; }
+  .street-place-chevron { width: 12px; }
+  .play-screen .metro-line .game-icon { width: 16px; height: 16px; }
+  .play-screen .story-lead .story-lead-emblem { width: 26px; height: 26px; }
+  .story-lead-emblem .game-icon { width: 17px; height: 17px; }
+}
+
+@media (max-width: 380px) {
+  .play-screen .street-places .street-place { grid-template-columns: auto minmax(0, 1fr); }
+  .street-place-chevron { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .street-card-art { transition: none; }
+  .street-place:not(:disabled):is(:hover, :focus-visible) .street-card-art { transform: none; }
+}

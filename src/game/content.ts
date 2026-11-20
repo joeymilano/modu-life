@@ -46,6 +46,9 @@ export const DISTRICTS: District[] = [
 ];
 
 export const CAST: CastMember[] = [
+  {id:'pj-gu',name:'顾桥',ageOffset:9,title:'项目主理人',district:'bund',role:'rival',description:'总比别人早一步知道报价，却很少提当年一起做事的人。',trait:'ambition',color:'#977152',gender:'male'},
+  {id:'pj-wen',name:'周闻',ageOffset:3,title:'工程师',district:'zhangjiang',role:'friend',description:'先问东西为什么能用，再问下一次别人能不能自己修。',trait:'sincerity',color:'#5e8c86',gender:'male'},
+  {id:'pj-xu',name:'许舟',ageOffset:2,title:'运输与交付负责人',district:'xinzhuang',role:'friend',description:'愿意救急，也有自己的客户。说好哪天能来，就哪天能来。',trait:'freedom',color:'#b68650',gender:'female'},
   {id:'xia',name:'许小雯',ageOffset:1,title:'建筑助理',district:'anfu',role:'romance',description:'改图改到太晚，周末反倒醒得早。约她吃早饭，比约晚饭容易。',trait:'sincerity',color:'#bb785f',gender:'female'},
   {id:'ning',name:'周宁',ageOffset:2,title:'研发工程师',district:'zhangjiang',role:'romance',description:'消息回得慢。真约了几点，他会把地铁出口也发过来。',trait:'security',color:'#5b8386',gender:'male'},
   {id:'lin',name:'林佳',ageOffset:0,title:'社区插画师',district:'xinzhuang',role:'romance',description:'等菜时会在餐巾上画两笔。画到谁，谁就可以带走。',trait:'humor',color:'#b9914d',gender:'female'},
@@ -77,6 +80,7 @@ export function castTitle(person: CastMember, age: number) {
 }
 
 export function castForGame(person: CastMember, state: GameState): CastMember {
+ if(person.id==='pj-gu'&&state.seenEvents.includes('pj-system-21'))return {...person,title:'上一任宿主',description:'你已经知道他也曾看见系统。比起失去奖金，他更怕没有人再来找自己。'};
  if (state.flags.includes(HEIR)) {
   if (person.id === 'father') return {
    ...person, portraitId:'father-heir', district:'lujiazui', title:'仓配公司创办人',

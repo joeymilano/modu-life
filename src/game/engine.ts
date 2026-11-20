@@ -1,4 +1,7 @@
-import { hashSeed } from './seed';
+import { hashSeed, randomStep } from './seed';
+import { cityDrawHistory, cityTicketAllowance, cityTickets, type CityDrawSize } from './cityCards';
+import { episodeById, episodeOffer, episodeSettlement, isPujiang, isPujiangSystem, playEpisode, pujiangEpilogue, pujiangYear, PUJIANG_CONTACTS, validatePujiang } from './pujiang';
+import type { EpisodeMove } from './pujiangTypes';
 import { calendarYear, cityYearNote, SHANGHAI_START } from './calendar';
 import { marketValue, validateMarket } from './market';
 import type { Showdown } from './showdowns';
@@ -37,8 +40,7 @@ export const CHAPTERS = [
   {name:'自有腔调', years:'53至59岁', quote:'饭局少了，牌局多了'},
 ];
 export const clamp = (n:number,min=0,max=100) => Math.max(min,Math.min(max,n));
-export { hashSeed } from './seed';
-export function randomStep(rng:number):[number,number] {let x=rng||42;x^=x<<13;x^=x>>>17;x^=x<<5;return [(x>>>0)/4294967296,x>>>0];}
+export { hashSeed, randomStep } from './seed';
 export const allOrigins = () => [...Object.values(ORIGIN_POOLS).flat(), ...LIFE_START_CARDS];
 export function drawOrigins(seed:string, reroll=0):OriginCard[] {
   let rng=hashSeed(seed+':'+reroll);
@@ -101,6 +103,16 @@ function applyEffect(state:GameState,effect:Effect,npcId?:string):GameState {
   }
   return s;
 }
+export function drawCityCards(state: GameState, amount: CityDrawSize): GameState {
+  if (state.ended || state.episode || state.showdown) throw new Error('现在不能抽卡。');
+  if (amount !== 1 && amount !== 5) throw new Error('抽卡张数无效。');
+  if (cityTickets(state) < amount) throw new Error('抽奖券不够。');
+  const before = state.cityDraws ?? 0;
+  const count = before + amount;
+  const drawn = cityDrawHistory(state.seed, count).cards.slice(before);
+  const next = drawn.reduce((game, card) => applyEffect(game, card.effect), state);
+  return { ...next, cityDraws: count };
+}
 export function createGame(seed:string,name:string,goal:GoalId,cards:OriginCard[],appearance:PlayerAppearance=DEFAULT_APPEARANCE):GameState {
   const selectedAppearance=validateAppearance(appearance);
   let state:GameState={version:1,seed:seed.slice(0,32),rng:hashSeed(seed),name:name.trim().slice(0,12)||'小申',age:18,actions:3,goal,appearance:selectedAppearance,district:'bund',cash:36000,stats:{health:80,spirit:75,skill:28,face:30+LOOKS_BONUS[selectedAppearance.looks].face,network:20},jobId:null,jobRank:0,housing:0,origins:cards.map(c=>c.id),flags:[FIRST_NIGHT_FLAG,OPENING_DRAMA],seenEvents:[],relationships:Object.fromEntries(CAST.map(c=>[c.id,{attraction:10,trust:15,commitment:0,met:false,memories:[]}])),partnerId:null,journal:[],pendingYearEvent:true,ended:false,totalEarned:0,yearsEmployed:0,rescues:0};
@@ -162,7 +174,7 @@ export function replayCatalogEvent(state:GameState,id:string,kind:ActivityKind,n
     ? adaptYearLetter(event,state) : null;
 }
 function authoredYear(s:GameState) {
-  return [lifeStartYear(s), firstNightYear(s), lastDayEvent(s), workYearEvent(s), campaignYear(s), campaignPressureYear(s), longTableYear(s)]
+  return [pujiangYear(s), lifeStartYear(s), isPujiang(s)?undefined:firstNightYear(s), lastDayEvent(s), workYearEvent(s), campaignYear(s), campaignPressureYear(s), longTableYear(s)]
     .find(event=>event&&!s.seenEvents.includes(event.id));
 }
 export function selectEvent(s:GameState,kind:ActivityKind|'year',npcId?:string):LifeEvent {
@@ -228,6 +240,7 @@ export function routineEvent(s:GameState,kind:ActivityKind|'year',npcId?:string)
 export function canAfford(s:GameState,effect:Effect){return (effect.cash||0)>=0||s.cash>=-(effect.cash||0);}
 export function checkChance(s:GameState,choice:EventChoice){if(!choice.check)return 100;return Math.round(clamp(50+s.stats[choice.check.stat]-choice.check.threshold,15,95));}
 export function resolveChoice(state:GameState,event:LifeEvent,choiceId:string,npcId?:string):ChoiceResult {
+  if(state.episode||episodeOffer(state))throw new Error('先完成眼前的章节。');
   const actionCost=event.actionCost??1;
   if(state.ended||(!state.pendingYearEvent&&state.actions<actionCost))throw new Error('今年的时间用完了，先去年度结算。');
   if(actionCost===0){
@@ -275,7 +288,25 @@ export function playStoryRound(state:GameState,move:string): {state:GameState; s
   next.journal.push({age:next.age,title:event.title,text:reply,tag:'主线'});
   return {state:next,settled:showdown,result:{state:next,title:event.title,text:reply,effect,success:view.verdict==='win'}};
 }
+export function playPujiangMove(state:GameState,move:EpisodeMove):GameState {
+ const run=playEpisode(state,move),settlement=episodeSettlement(state,run);
+ if(!settlement)return {...state,episode:run};
+ const {receipt,relations}=settlement;
+ let next=applyEffect(state,receipt.effect);
+ for(const [id,trust] of relations){
+  next=applyEffect(next,{trust},id);
+  const person=next.relationships[id];
+  if(person){person.met=true;person.memories=[...person.memories,`${state.age}岁 · ${receipt.title}`].slice(-8);}
+ }
+ next.seenEvents=[...new Set([...next.seenEvents,run.id])];
+ if(next.systemProgress)next.systemProgress.rewardCash+=receipt.cash;
+ next.episode={...run,receipt};
+ next.pendingYearEvent=Boolean(state.pendingYearEvent&&authoredYear(next));
+ next.journal.push({age:next.age,title:episodeById(run.id)!.title,text:[receipt.title,receipt.text,...receipt.relationships,receipt.next].join(' '),tag:'浦江破局'});
+ return next;
+}
 export function nextYear(state:GameState) {
+  if(state.episode||episodeOffer(state))throw new Error('先完成眼前的章节。');
   if(state.ended)throw new Error('这一生已经结算。');if(state.showdown)throw new Error('先打完眼前这场。');if(state.pendingYearEvent)throw new Error('先把眼前这件事处理好。');
   const s=structuredClone(state),budget=monthlyBudget(s);
   const [yearRoll,nextRng]=randomStep(s.rng);s.rng=nextRng;
@@ -351,7 +382,7 @@ export function nextYear(state:GameState) {
 }
 export function advanceToStory(state: GameState) {
   let result=nextYear(state);
-  while(!result.state.ended&&!authoredYear(result.state)&&!storyShowdownOffer(result.state)&&
+  while(!result.state.ended&&!episodeOffer(result.state)&&!authoredYear(result.state)&&!storyShowdownOffer(result.state)&&
     !(result.state.calendar&&cityYearNote(calendarYear(result.state)))){
     result=nextYear({...result.state,pendingYearEvent:false});
   }
@@ -385,16 +416,17 @@ export function ending(s:GameState){
     {id:'ordinary',goal:'any',title:'在上海过了四十二年',text:'以前换乘总走错，现在闭着眼都知道哪个出口近。今天不赶时间，你偏偏绕了远路。',ok:true},
   ];
   const result=candidates.find(e=>e.ok&&e.goal===s.goal)||candidates.find(e=>e.ok)||candidates[candidates.length-1];
-  return {...result,...campaignEpilogue(s)};
+  return {...result,...campaignEpilogue(s),...pujiangEpilogue(s)};
 }
 export function mergeEffect(a:Effect,b:Effect):Effect{return {...a,...b};}
 export function publicOriginNames(s:GameState){return s.origins.map(id=>allOrigins().find(c=>c.id===id)?.name||'未知');}
 export const SAVE_KEY='modu-life-v1';
 export function validateSave(value:unknown):GameState {
-  if(!value||typeof value!=='object')throw new Error('这不是有效的人生档案。');const s=value as GameState;
+  if(!value||typeof value!=='object')throw new Error('这不是有效的人生档案。');const s={...value} as GameState;
   const finite=(n:unknown,min:number,max:number)=>typeof n==='number'&&Number.isFinite(n)&&n>=min&&n<=max;
   if(s.version!==1||typeof s.seed!=='string'||s.seed.length>32||typeof s.name!=='string'||s.name.length>12||!finite(s.age,18,60)||!Number.isInteger(s.age)||!finite(s.actions,0,3)||!Number.isInteger(s.actions)||!finite(s.cash,0,1e12)||!finite(s.rng,0,4294967295)||!GOALS.some(g=>g.id===s.goal)||!['bund','anfu','people','lujiazui','zhangjiang','xinzhuang'].includes(s.district)||typeof s.ended!=='boolean'||typeof s.pendingYearEvent!=='boolean')throw new Error('档案格式或数值不完整。');
   if(!s.stats||Object.keys(STAT_NAMES).some(k=>!finite(s.stats[k as StatKey],0,100)))throw new Error('人物状态不完整。');
+  if(s.cityDraws!==undefined&&(!Number.isInteger(s.cityDraws)||!finite(s.cityDraws,0,cityTicketAllowance(s.age))))throw new Error('抽卡记录无效。');
   if(!finite(s.jobRank,0,3)||!finite(s.housing,0,3)||!Number.isInteger(s.housing)||!finite(s.totalEarned,0,1e12)||!finite(s.yearsEmployed,0,42)||!finite(s.rescues,0,1000))throw new Error('年度资料不完整。');
   if(s.leaseRent!==undefined&&(s.housing!==1||!Number.isInteger(s.leaseRent)||!finite(s.leaseRent,2000,6000)))throw new Error('租约里的房租不对。');
   if(s.jobId!==null&&!CAREERS.some(c=>c.id===s.jobId))throw new Error('职业资料不匹配。');
@@ -404,6 +436,9 @@ export function validateSave(value:unknown):GameState {
   if(s.origins.length!==5||!validLifeStartHand(s.origins)||s.origins.some(id=>!allOrigins().some(c=>c.id===id)))throw new Error('开局卡片不存在。');
   if(!Array.isArray(s.journal)||s.journal.length>1000||s.journal.some(j=>!j||!finite(j.age,18,60)||typeof j.title!=='string'||j.title.length>200||typeof j.text!=='string'||j.text.length>5000||typeof j.tag!=='string'||j.tag.length>80||(j.receipt!==undefined&&(j.tag!=='账本'||!validYearReceipt(j.receipt)))))throw new Error('人生记录损坏。');
   if(!s.relationships||typeof s.relationships!=='object')throw new Error('关系记录不完整。');
+  // Only the three newly introduced people get defaults; missing legacy contacts still fail validation.
+  s.relationships=structuredClone(s.relationships);
+  for(const id of PUJIANG_CONTACTS)if(!Object.hasOwn(s.relationships,id))s.relationships[id]={attraction:10,trust:15,commitment:0,met:false,memories:[]};
   for(const npc of CAST){const r=s.relationships[npc.id];if(!r||!finite(r.attraction,0,100)||!finite(r.trust,0,100)||!finite(r.commitment,0,100)||typeof r.met!=='boolean'||!Array.isArray(r.memories)||r.memories.length>20||r.memories.some(x=>typeof x!=='string'||x.length>300))throw new Error('关系记录损坏。');}
   if(s.partnerId!==null&&!CAST.some(c=>c.id===s.partnerId&&c.role==='romance'))throw new Error('关系对象不存在。');
   if(s.ended!==(s.age>=60))throw new Error('年龄与人生状态不匹配。');
@@ -417,6 +452,7 @@ export function validateSave(value:unknown):GameState {
         state.seenEvents.includes(storyShowdownId(showdown))) throw new Error('任务和存档进度对不上。');
     state.showdown=showdown;
   }
+  validatePujiang(state);
   for(const person of CAST)if(person.role==='family')state.relationships[person.id].met=true;
   return state;
 }

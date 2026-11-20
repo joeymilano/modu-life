@@ -41,7 +41,7 @@ describe('人生规则',()=>{
 });
 
 describe('内容资料可运行',()=>{
- it('开局40张、24名人物、8位恋爱对象、8条职业',()=>{expect(Object.values(ORIGIN_POOLS).flat()).toHaveLength(40);expect(CAST).toHaveLength(24);expect(CAST.filter(c=>c.role==='romance')).toHaveLength(8);expect(CAREERS).toHaveLength(8);});
+ it('开局40张、27名人物、8位恋爱对象、8条职业',()=>{expect(Object.values(ORIGIN_POOLS).flat()).toHaveLength(40);expect(CAST).toHaveLength(27);expect(CAST.filter(c=>c.role==='romance')).toHaveLength(8);expect(CAREERS).toHaveLength(8);});
  it('事件id唯一，每个事件都有一个无现金支出选项',()=>{expect(new Set(EVENTS.map(e=>e.id)).size).toBe(EVENTS.length);for(const e of EVENTS){expect(e.choices.length,e.id).toBe(3);expect(e.choices.some(c=>(c.effect.cash||0)>=0),e.id).toBe(true);if(e.speakerId)expect(CAST.some(c=>c.id===e.speakerId),e.id).toBe(true);for(const c of e.choices){if(c.effect.job)expect([...CAREERS.map(c=>c.id),'unemployed']).toContain(c.effect.job);}}});
  it('42个年度都有确定的来信',()=>{for(let age=18;age<60;age++)expect(EVENTS.some(e=>e.category==='year'&&e.minAge===age&&e.maxAge===age)).toBe(true);});
 });

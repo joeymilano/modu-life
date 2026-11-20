@@ -182,3 +182,57 @@
   .title-scene .home-key-art { animation: none; }
   .title-entry { transition: none; }
 }
+
+/* 1992 cinematic edition */
+.app.screen-home { background:#121214; }
+.title-cinema { grid-template-columns:minmax(300px,36%) 1fr; }
+.title-cinema .title-scene { inset:0 0 0 28%; clip-path:none; background:#18171a; }
+.title-cinema .home-key-art { object-position:66% 30%; }
+.title-cinema .title-scene::after { content:''; position:absolute; inset:0; background:linear-gradient(90deg,#121214 0%,#121214d9 10%,#12121412 37%,transparent 70%),linear-gradient(0deg,#121214d9,transparent 40%); }
+.title-cinema .title-copy { z-index:2; max-width:420px; }
+.title-era { font:12px/1.5 'Songti SC',serif; color:#d9b282; letter-spacing:.32em; margin:0 0 21px; }
+.title-copy .cinema-wordmark { font:700 clamp(68px,7.4vw,118px)/1.08 'Songti SC','Noto Serif SC','STSong',serif; letter-spacing:.09em; color:#f4e7d2; text-shadow:0 5px 35px #0007; }
+.cinema-wordmark span { display:block; }
+.title-cinema .title-english { color:#a99785; font-size:11px; font-weight:400; letter-spacing:.32em; margin-top:24px; }
+.title-cinema .title-menu { margin-top:28px; max-width:340px; border-color:#66503a; }
+.title-cinema .title-entry { border-bottom-color:#483c31; background:#1413158c; }
+.title-cinema .title-entry:hover { background:#33251f; border-left-color:#c99865; }
+.title-cinema .title-entry b { font-size:16px; font-weight:500; }
+.title-cinema .title-entry-primary { background:#bd8b5c; color:#1b1411; border-color:#e8be8b; }
+.title-cinema .title-entry-primary:hover { background:#dfb586; }.title-cinema .title-entry-primary b { font-size:19px; font-weight:700; }
+.title-cinema .title-entry small { color:#c1ada0; }.title-cinema .title-entry-primary small { color:#3b2a20; }
+.title-entry-emblem {
+  display: grid; place-items: center; flex: none;
+  width: 23px; height: 31px; color: #ebc092;
+}
+.title-entry-primary .title-entry-emblem { color: #261817; }
+.title-cinema .title-arcades { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 340px; gap: 8px; }
+.title-cinema .title-arcades :is(button,a) {
+  position: relative; isolation: isolate; overflow: hidden; min-height: 57px;
+  border: 0; border-bottom: 1px solid #725342; padding: 7px 9px;
+  background: #241b19; color: #fff0dc; font-size: 12px; font-weight: 700;
+}
+.title-cinema .title-arcades img {
+  position: absolute; inset: 0; z-index: -2;
+  width: 100%; height: 100%; object-fit: cover; object-position: center 57%;
+}
+.title-cinema .title-arcades :is(button,a)::before {
+  content: ''; position: absolute; z-index: -1; inset: 0;
+  background: linear-gradient(90deg,#1c151cfa 8%,#1c151cd4 52%,#1c151c30);
+}
+.title-cinema .title-arcades :is(button,a):hover { border-color: #d2a476; }
+.title-cinema .title-arcades svg { color: #f2bd88; }
+.title-feature { position:absolute; z-index:1; bottom:48px; left:48%; right:30px; color:#f6e9d8; text-shadow:0 2px 18px #000; }
+.title-feature>span { font-size:11px; letter-spacing:.24em; color:#d6ae7f; }.title-feature p { font:500 clamp(24px,2.8vw,42px)/1.45 'Songti SC',serif; margin:12px 0; letter-spacing:.04em; }.title-feature small { font-size:11px; letter-spacing:.1em; color:#bba999; }
+@media(max-width:760px),(max-width:1000px) and (orientation:portrait) {
+ .app.screen-home { --scene-height:350px; }
+ .title-cinema { padding-top:calc(var(--scene-height) - 32px); }
+ .title-cinema .title-scene { inset:0 0 auto; height:var(--scene-height); clip-path:none; }
+ .title-cinema .home-key-art { object-position:66% 22%; }
+ .title-cinema .title-scene::after { background:linear-gradient(0deg,#121214,transparent 60%),linear-gradient(90deg,#12121455,transparent); }
+ .title-feature { bottom:51px; left:20px; right:15px; }.title-feature p { font-size:23px; margin:7px 0; }.title-feature small { display:none; }.title-feature>span { font-size:10px; }
+ .title-era { margin:0 0 10px; font-size:10px; }.title-copy .cinema-wordmark { font-size:clamp(49px,13vw,76px); line-height:1.15; letter-spacing:.08em; }.cinema-wordmark span { display:inline; }
+ .title-cinema .title-english { margin-top:10px; font-size:10px; }.title-cinema .title-menu { margin-top:22px; max-width:none; }.title-cinema .title-copy { max-width:490px; }
+ .title-cinema .title-arcades { max-width: none; }
+}
+@media(max-width:500px) and (max-height:700px) { .app.screen-home { --scene-height:280px; } }

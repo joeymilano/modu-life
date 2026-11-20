@@ -24,20 +24,7 @@
   color: #f6efe4; background: #242f36ef; border: 1px solid #d2cdc2;
   border-radius: 2px; font-size: 13px;
 }
-.street-places {
-  display: grid; grid-template-columns: 1fr 1fr; background: #3a454a;
-  gap: 1px; border: 1px solid #3a454a; border-top: 0;
-}
-.street-places .street-place {
-  min-height: 85px; display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: 9px;
-  padding: 10px 12px; text-align: left; align-items: center;
-  border: 0; border-radius: 0; color: #eeeae2; background: #29343a;
-}
-.street-places .street-place:hover:not(:disabled), .street-owl:hover:not(:disabled) { background: #3b4a51; color: #fffaf1; }
-.street-places .street-place > span:nth-child(2) { display: grid; gap: 3px; }
-.street-place small { color: #ccc0aa; font-size: 10px; letter-spacing: .08em; }
-.street-place b { color: inherit; font: 700 clamp(15px,1.35vw,20px)/1.15 var(--serif); }
-.street-place span span { color: #e1dbcf; font-size: 11px; line-height: 1.3; }
+.street-owl:hover:not(:disabled) { background: #3b4a51; color: #fffaf1; }
 .career-grid .career-option { padding-top: 0; overflow: hidden; }
 .career-preview {
   display: block; width: calc(100% + 28px); max-width: none; margin: 0 -14px 12px;
@@ -56,7 +43,6 @@
 .story-lead b { margin-top: 4px; line-height: 1.25; }
 .story-lead small { font-size: 11px; color: #f5dcaf; }
 .story-lead svg { margin-left: auto; flex-shrink: 0; }
-.story-lead-dot { width: 7px; height: 7px; flex-shrink: 0; background: #eec17e; border-radius: 50%; }
 .screen-play .place-list + .quiet-action { margin-top: 12px; }
 .screen-play .scene-switch { border: 1px solid #a6a995; padding: 0 9px; }
 .event-photo > img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
@@ -73,8 +59,6 @@
   .street-frame { min-height: clamp(160px,45vw,295px); }
   .street-name { left: 15px; bottom: 15px; }
   .street-owl { bottom: 11px; right: 10px; min-height: 35px; }
-  .street-places .street-place { min-height: 62px; padding: 7px; gap: 5px; }
-  .street-place span span { display: none; }
   .street-index { font-size: 10px; }
   .career-preview { width: calc(100% + 24px); margin-inline: -12px; }
   .city-street-mode > .story-leads { order: -1; margin: 0 0 8px; }
@@ -187,8 +171,6 @@
   .city-street-mode .street-frame { min-height: 165px; }
   .city-street-mode .street-frame img { object-position: 52% center; }
   .city-street-mode .street-frame[data-district="bund"] img { object-position: 65% center; }
-  .street-places .street-place { min-height: 67px; }
-  .street-place span span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 10px; }
   .screen-play .district-nav .metro-line { min-width: 0; }
   .screen-play .district-nav .metro-line button { flex: 1; min-width: 0; }
   .screen-play .district-nav .metro-line button small { display: none; }
