@@ -70,7 +70,7 @@ export default function PrologueStage({route,game,onChange,onPause,audio,onAudio
   </div>
   <div className="vn-lower">
    <div className="vn-name"><b>{story.speaker}</b><i/><span>{story.role}</span></div>
-   <section className="vn-paper" data-advance={!!next} aria-label="对白">
+   <section className="vn-paper" aria-label="对白">
     <div key={page} className="vn-line" aria-live="polite" aria-atomic="true">
      {current.action&&<p>{current.action}</p>}
      <blockquote>{current.line}</blockquote>

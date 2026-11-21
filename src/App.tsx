@@ -207,15 +207,15 @@ export default function App(){
   if(!blocked)return;
   const prior=document.activeElement as HTMLElement|null;
   const timer=requestAnimationFrame(()=>{
-   const heading=document.querySelector<HTMLElement>('.relocation-scene .event-content h2');
+   const heading=document.querySelector<HTMLElement>('.vn-stage, .relocation-scene .event-content h2');
    (heading??document.querySelector<HTMLElement>('[aria-modal="true"] button:not(:disabled)'))?.focus({preventScroll:true});
   });
   const trap=(e:KeyboardEvent)=>{
-   if(e.key!=='Tab')return;
+   if(e.key!=='Tab'||document.querySelector('.vn-history[open]'))return;
    const nodes=Array.from(document.querySelectorAll<HTMLElement>('[aria-modal="true"] :is(button:not(:disabled), a[href], input, summary, textarea, select)')).filter(node=>node.getClientRects().length>0);
    if(!nodes.length)return;
    const first=nodes[0],last=nodes[nodes.length-1],focused=document.activeElement;
-   if(e.shiftKey&&(focused===first||focused?.matches('.relocation-scene .event-content h2'))){e.preventDefault();last.focus();}
+   if(e.shiftKey&&(focused===first||focused?.matches('.vn-stage, .relocation-scene .event-content h2'))){e.preventDefault();last.focus();}
    else if(!e.shiftKey&&focused===last){e.preventDefault();first.focus();}
   };
   window.addEventListener('keydown',trap);
