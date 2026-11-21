@@ -59,7 +59,7 @@ describe('direct openings and lasting consequences',()=>{
   const signed=resolveChoice(dock,streetLead(dock)!.event,'receipt').state;
   expect(signed.flags).toContain(OPENING_PROOF);
   const kitchen=resolveChoice(start,first,'kitchen').state;
-  expect(streetLead(kitchen)!.event.title).toBe('送餐单上写的是谁');
+  expect(streetLead(kitchen)!.event.title).toBe('他连你的送餐单都要抢');
   const due=resolveChoice(start,first,'later').state;
   expect(streetLead(due)!.event.title).toBe('三天都在，表上只有两天');
  });

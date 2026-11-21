@@ -5,35 +5,35 @@ import { dateScenePhoto } from './art';
 type Answer={label:string;reply:string;points:number;cost?:number; intent?:'date'|'friend'|'leave'};
 export type Question={text:string;answers:Answer[]};
 const firstDates:Record<string,Question>={
- xia:{text:'许小雯发来消息，图还没改完，可能要晚半小时。',answers:[
+ xia:{text:'约好的时间过了十分钟，许小雯的消息才来：图改砸了一版，要再晚半小时。隔壁桌一直看你这边。',answers:[
   {label:'我先吃点，给你打包一份',reply:'“要辣的，别放香菜。你怎么知道我没吃饭？”',points:2},
   {label:'我在楼下那家面馆等你',reply:'她发来一个位置，还圈出了不用排队的后门。',points:0},
   {label:'改天也行，你空了提前说',reply:'“好，我忙完就跟你讲。”她又补了一个抱歉的表情。',points:2}]},
- ning:{text:'周宁放下手机，说刚修好一个问题，又出了三个。',answers:[
+ ning:{text:'周宁放下手机，苦笑一下：刚修好一个问题，又冒出三个，今晚的发布悬了。他盯着菜单半天没翻页。',answers:[
   {label:'先吃饭，电脑又不会饿',reply:'他笑了一下，把手机扣在桌上。',points:2},
   {label:'那你把电脑带来，边改边约',reply:'“这样也算约会？”他看了看旁边空着的座位。',points:0},
   {label:'我也下班了，今天谁都别提工作',reply:'“好。我知道前面有家蛮好吃的。”',points:0}]},
- lin:{text:'林佳翻了两页菜单，问今天能不能让她当一回顾客。',answers:[
+ lin:{text:'林佳把菜单翻得哗哗响，突然合上：「今天能不能让我当一回顾客？每次都是我给别人排单子。」服务员就站在旁边等。',answers:[
   {label:'你点，我负责吃完',reply:'“那我要点两份甜品，先讲好。”',points:0},
   {label:'我看了十篇攻略，照我的来',reply:'她合上菜单，问你来之前是不是还做了张表。',points:0},
   {label:'可以，我今天也只带了嘴',reply:'“那洗碗的时候我先跑。”她笑着把菜单推过来。',points:2}]},
- chen:{text:'陈恺看见你选的咖啡店，问休息日能不能换个地方。',answers:[
+ chen:{text:'陈恺在你选的咖啡店门口站住，欲言又止，最后还是开了口：休息日，能不能换个地方。店员已经推开了门。',answers:[
   {label:'可这家的豆子真的很特别',reply:'“我知道，上周就是我给他们调的磨。”',points:0},
   {label:'那吃面去，葱油的还是辣肉的',reply:'“辣肉。终于有人不问我豆子哪里来的了。”',points:2},
   {label:'你挑一家，别让我猜了',reply:'他转身就走，回头确认你跟上没有。',points:0}]},
- qiao:{text:'乔敏把复习资料塞进包，说今天最多只能待一个小时。',answers:[
+ qiao:{text:'乔敏把复习资料塞进包，把话先说在前头：「今天最多一个小时，到点我就走，别劝。」说完看了眼表。',answers:[
   {label:'吃完送你到地铁口',reply:'她看了眼表，说那现在先点菜。',points:0},
   {label:'下次你考完，我们吃顿大的',reply:'“讲好了。别到时候只记得发个表情包。”',points:2},
   {label:'考证哪有约会重要',reply:'“对我蛮重要的。”她把包拉好，放到旁边。',points:0}]},
- yang:{text:'杨帆刚坐下，社区群里又开始找他。',answers:[
+ yang:{text:'杨帆刚坐下，社区群里又开始 @他，手机在桌上震个不停。他把手机翻过去，它还在响。',answers:[
   {label:'你先回，我看看菜',reply:'他回完把手机调了静音，说下次保证不带群出来。',points:2},
   {label:'约会还工作，你到底忙不忙',reply:'“忙。所以我今天特地腾了晚上。”',points:0},
   {label:'出什么事了，要搭把手伐',reply:'“楼下漏水，我只要帮他们找到物业电话。”',points:2}]},
- lu:{text:'陆嘉说周末临时多了一场演出，原定的见面得改。',answers:[
+ lu:{text:'陆嘉的消息只有一行：周末临时加了一场演出，原定的见面黄了。隔了两分钟又补一句：「你要生气，我理解。」',answers:[
   {label:'你演完我们吃夜宵',reply:'她发来后台出口的位置，又补了句想吃烧烤。',points:0},
   {label:'我去台下，结束了你来找我',reply:'“好，别站最前面拍我鼻孔。”',points:2},
   {label:'我卡着点到，就不来后台了',reply:'「行。我把门票留在吧台，你报名字。」',points:0}]},
- he:{text:'何亮端详菜单，说这家的锅气还没他家后厨大。',answers:[
+ he:{text:'何亮把菜单端详了半天，当着服务员的面来了句：「这家的锅气，还没我家后厨大。」服务员的脸当场挂不住。',answers:[
   {label:'你先尝一口，再写差评',reply:'他夹了一筷子，说还行，先放过。',points:0},
   {label:'贵总有贵的道理',reply:'他指着三十八块的白米饭，半天没接话。',points:0},
   {label:'那去你家，老板给打折伐',reply:'“报我名字，洗碗免单。”',points:2}]}

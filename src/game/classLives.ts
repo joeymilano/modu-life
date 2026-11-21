@@ -27,11 +27,11 @@ const event = (shot: Parameters<typeof openingPhoto>[0], worker: boolean, title:
 });
 
 const workerBed = event('worker-bed',true,'床位和工牌一起领',
- '吴师傅带你看了仓库后面的四人间。下铺的人怕夜里吵，把电水壶搬到了走廊。仓配公司的白班有一个缺，住这里一个月八百，本期签到明年。外头短租床位一千零五十，什么时候去都能问。',
+ '吴师傅带你去看仓库后面的四人间，门刚推开，管登记的人先拦了一道：「就剩最后一个名额，今天不定，明天就给别人。」下铺的人怕夜里吵，把电水壶搬到了走廊。住这里一个月八百，本期签到明年；外头短租床位一千零五十，什么时候去都能问。',
  [
   {id:'staff',label:'接白班，领宿舍门卡',hint:'床位 ¥800/月 · 白班按岗位基础薪资发',
    effect:{housing:0,job:'service',payRate:1,health:4,setFlags:[STAFF_BED],removeFlags:[NIGHT_WORK,LONG_COMMUTE]},
-   reply:'吴师傅让你先试下门卡。回去收行李的时候，你把早班闹钟往后拨了半小时。'},
+   reply:'你当场把名字填了。吴师傅让你先试下门卡——回去收行李的时候，你把早班闹钟往后拨了半小时。'},
   {id:'private',label:'去短租点租床，手头的活照做',hint:'短租床位 ¥1,050/月 · 工作照旧',
    effect:{housing:0,spirit:5},
    reply:'你给短租房的管理员发了条消息。晚上回来晚了，室友给你留了盏灯，问新宿舍能不能带电饭锅。你说没问。'},
@@ -44,7 +44,7 @@ function workerNotice(renewed = false) {
  return event('worker-notice',true,renewed?'门卡还能刷一年':'下个月房租谁出',
   renewed
    ? '续租的通知贴出来了。今年那笔宿舍补贴还在。下铺的人让你把门卡拿去更新，他试了两次，旧卡只能刷到周五。'
-   : '走廊里贴了张单子。公司不续宿舍补贴，现有住户可以搬回短租点。有人已经去问新开的夜班，吴师傅在纸背记下还住在这儿的名字，说每人七百五的搬家补助，得一起去确认名单。',
+   : '走廊里一张单子贴出来，人群当场炸了：公司不续宿舍补贴，现有住户搬回短租点。有人骂了一句就去问新开的夜班，有人默默开始收箱子。吴师傅在纸背记下还住在这儿的名字，说每人七百五的搬家补助，得一起去确认名单——这笔钱，不去就真的没人发。',
   renewed ? [
    {id:'renew',label:'去更新门卡',reply:'你把两张卡一起带去。下铺的人下工回来，先拎着菜去试了试门。',effect:{}},
    {id:'move',label:'搬回原来的短租点',reply:'室友帮你把箱子推到门口。这回你留下了他的号码。',effect:{}},
@@ -62,31 +62,31 @@ function workerNotice(renewed = false) {
 }
 
 const equityOffer = ({sharePrice}: Terms) => event('heir-equity',false,'这回要用你自己的卡',
- '晚饭订在江边，司机已经到了。财务说还要占你十分钟。有位老股东要卖仓配子公司的六个点，开价 '+wan(sharePrice)+'。爸说你也可以先旁听股东会。财务把转让协议递给你，顺手把去年那份撤回的报价也翻了出来。',
+ '晚饭订在江边，司机已经到了，财务说「还要占您十分钟」。有位老股东要卖仓配子公司的六个点，开价 '+wan(sharePrice)+'——饭桌另一头，有人半开玩笑地放话：「小辈拿零花钱玩票，明年还得求着卖回去。」财务把转让协议递给你，顺手把去年那份撤回的报价也翻了出来。爸不置可否：买不买，你自己定。',
  [
   {id:'buy',label:'用自己的钱接下股权',hint:'个人支出 '+yuan(sharePrice)+' · 持有 '+LOGISTICS_SHARE_PERCENT+'% 股权',
    effect:{cash:-sharePrice,skill:6,setFlags:[STOCK]},
-   reply:'财务让你在付款人一栏签全名。爸问楼下还等不等，你说等一会儿，你要自己把汇款回单存好。'},
+   reply:'财务让你在付款人一栏签全名。放话的人隔着桌子看过来——你的钱，你的名字，你的六票。爸问楼下还等不等，你说等一会儿，你要自己把汇款回单存好。'},
   {id:'observe',label:'先去听会，自己的钱先留着',hint:'受邀旁听 · 没有表决权和分红',
    effect:{skill:7,network:4,setFlags:[SHADOW]},
-   reply:'下一次开会，助理给你加了把椅子。签到表传过来，爸把它接过去，说这张你不用签。'},
+   reply:'下一次开会，助理给你加了把椅子。签到表传过来，爸把它接过去，说这张你不用签——椅子先坐着，什么时候签字，你自己挑日子。'},
   {id:'pass',label:'这家公司我先不掺和',hint:'个人存款照旧 · 不入股',
    effect:{spirit:7},
-   reply:'你把两页纸叠好推回去。爸到楼下才问晚饭还去不去，订位用的是他的名字。'},
+   reply:'你把两页纸叠好推回去。放话的人笑了，你没接——不入局，也是一种回答。爸到楼下才问晚饭还去不去，订位用的是他的名字。'},
  ]);
 
 const shareholderVote = ({sharePrice,saleProceeds,distribution,dividend}: Terms) => event('heir-vote',false,'差你手里这六票',
- '财务算出这次能分 '+wan(distribution)+'。两套年度方案，一套现在分，宿舍补贴到期就停。一套把钱留在公司，修库区、续宿舍。赞成留钱的股东有四十八票，要分的有四十六票。爸让你看自己面前那张。',
+ '股东会开到一半，财务算出这次能分 '+wan(distribution)+'。两套年度方案：一套现在分钱，宿舍补贴到期就停——仓库那几十个人的床，就摊在这张表决单上；一套把钱留在公司，修库区、续宿舍。唱票前有人回头看了你一眼：赞成留钱四十八票，要分四十六票。差的那六票，在你手里。爸让你看自己面前那张。',
  [
   {id:'pay',label:'投给分红，宿舍补贴到期就停',hint:'个人分红实际到账 '+yuan(dividend)+' · 股权保留',
    effect:{cash:dividend,face:3},
-   reply:'分红方案过了。两周后钱打到了自己的账户。那天财务还发了另一封邮件，宿舍停补贴的通知要赶在月底前贴出去。'},
+   reply:'分红方案过了。两周后钱打进自己的账户。那天财务还发了另一封邮件：宿舍停补贴的通知，赶在月底前贴了出去——这张票投下去是什么分量，你数得清。'},
   {id:'keep',label:'把钱留在公司，续一年宿舍',hint:'今天个人到账 ¥0 · 股权保留',
    effect:{skill:6,network:6},
-   reply:'续租过了。仓库的人问门卡用不用换，财务把负责续卡的号码发过去。爸把杯里的茶喝完，没再提晚饭。'},
+   reply:'续租过了。要分钱的那几位散会时没跟你搭话，仓库的人却问门卡用不用换——你的六票，那边的人记住了。爸把杯里的茶喝完，没再提晚饭。'},
   {id:'sell',label:'接受老股东的报价，卖掉这六个点',hint:'股权转让实际到账 '+yuan(saleProceeds)+' · 此后没有表决权',
    effect:{cash:saleProceeds,spirit:7,removeFlags:[STOCK]},
-   reply:'你提前办完了转让。'+wan(saleProceeds)+'到账，比买的时候少了 '+wan(sharePrice-saleProceeds)+'。会后纪要转来时，表决栏里已经没有你的名字。'},
+   reply:'你提前办完了转让。'+wan(saleProceeds)+'到账，比买的时候少了 '+wan(sharePrice-saleProceeds)+'。会后纪要转来时，表决栏里已经没有你的名字——再想投那一票，得重新挣回来。'},
  ]);
 
 const observerVote = ({distribution}: Terms) => ({...event('heir-vote',false,'椅子给你留了',

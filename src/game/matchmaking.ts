@@ -16,7 +16,7 @@ function opening(housing: GameState['housing']): LifeEvent {
   : (housing ? '那是你租的房子。' : '你现在借住在那儿。') + '汪阿姨倒也承认，这张纸换成房东的名字就对了。';
  return {
   ...location, id: openingId, title: '伞下这张写的是你', speakerId: 'aunt', illustration: matchPhoto('paper'),
-  text: '人民公园刚停雨。汪阿姨捏着个夹子，把一张纸递给你。名字是你的，地址是你的，旁边添了一行「上海有房」。' + line,
+  text: '人民公园刚停雨。伞底下已经有人探头打量你——单身、没对象、被家里派来看看，几句话就能被编排完。汪阿姨捏着个夹子，把一张纸递过来：名字是你的，地址是你的，旁边添了一行「上海有房」。' + line,
   choices: [
    { id: 'list', label: owns ? '就这么挂 · 留个联系方式' : '先挂上 · 房本的事见面再说',
     reply: '纸夹上去不到五分钟，有人来问「有房」那行怎么写得比名字还大。汪阿姨说纸就这么宽，然后把你号码发过去了。',

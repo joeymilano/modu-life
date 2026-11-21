@@ -23,8 +23,8 @@ const arrival = scene('arrival', 'first-night-arrival', '出站前的三条消�
       reply: '转你二十块坐地铁。蓝胶带，橘子贴纸。拿错了也先别拆，上回我爸那箱是咸肉。', effect: { cash: 20, setFlags: ['night-ferry'] } },
   ]);
 
-const room = scene('keys', 'first-night-room', '两把钥匙',
-  '毛小毛坐在楼梯上，膝盖上摊着合同。房东指着左边那把钥匙，说阳台算半间房。毛小毛把另一把捡起来。「小间门锁是好的。我们可以一人住一间。」', [
+const room = scene('keys', 'first-night-room', '房东说，阳台也算半间',
+  '毛小毛坐在楼梯上，膝盖上摊着合同。房东上下打量你们两个外地口音，把价抬了半截：「阳台算半间房，现在就这个行情，不租后面还有人看。」毛小毛把另一把钥匙捡起来，头也不抬：「小间门锁是好的。我们可以一人住一间。」', [
     { label: '跟毛小毛合住 · 先交 ¥1,800',
       reply: '你们一人转了一千八。屋里只有一把椅子，毛小毛把装电饭煲的纸箱翻过来，坐在上面吃面。', effect: { cash: -1800, housing: 1, spirit: 9, trust: 12, setFlags: ['night-shared'] } },
     { label: '请他把合同拍下来 · 今天先别付',
