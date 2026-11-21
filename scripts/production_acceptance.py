@@ -14,7 +14,10 @@ with sync_playwright() as p:
  page.wait_for_function('navigator.serviceWorker.controller!==null')
  page.get_by_role('button',name='手牌与角色').click();page.get_by_role('button',name='全部揭晓').click();page.wait_for_timeout(700)
  page.locator('.setup-forward').click()
- page.get_by_role('button',name='进入上海').click();page.get_by_role('button',name='看毛小毛的消息').click();page.locator('.event-choices button').first.click();page.locator('.outcome-content .primary').click();page.wait_for_timeout(600)
+ page.get_by_role('button',name='进入上海').click()
+ page.locator('[data-pj-start]').click()
+ for _ in range(3): page.locator('[data-pj-choice]:enabled').first.click()
+ page.locator('[data-pj-done]').click()
  with page.expect_download(timeout=20000) as download:
   page.get_by_role('button',name='生成人生卡').click()
  download.value.save_as(str(OUT/'人生分享卡.png'))
@@ -41,7 +44,7 @@ with sync_playwright() as p:
     .title-stage { min-height:630px }
  ''')
  page.locator('.home-key-art').evaluate('img=>img.decode()')
- page.locator('.game-title img').evaluate('img=>img.decode()')
+ page.evaluate('document.fonts.ready')
  page.evaluate('new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))')
  page.screenshot(path=str(OUT/'social-preview.png'))
  assert Image.open(OUT/'social-preview.png').size==(1200,630)

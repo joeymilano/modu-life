@@ -100,6 +100,7 @@ export default function PujiangStage({game,onStart,onMove,onDone,onPause,onChang
    </div></figcaption>}
   </figure>
   <div className="pj-stage-body">
+   {intro&&<span className="pj-year-print" aria-hidden="true">{calendarYear(game)}</span>}
    <div className="pj-topline"><span className="pj-index"><i aria-hidden="true"/>{series}{chapter>0 && <> / <b>{String(chapter).padStart(2,'0')}</b></>}</span>
     <button type="button" className="pj-pause" aria-label="保存并回首页" onClick={onPause}><Icon name="save" size={14}/>存档离场</button></div>
    <h2 ref={heading} tabIndex={-1}>{receipt?receipt.title:run?view!.scene.title:script.title}</h2>
@@ -108,6 +109,7 @@ export default function PujiangStage({game,onStart,onMove,onDone,onPause,onChang
     <span><GameIcon name="action" size={16}/>{script.scenes.length} 回合{script.commission?' · 1 格行动':''}</span>
     {script.reward>0&&<span className="pj-bounty"><GameIcon name="reward" size={16}/>最高 <b>{money(script.reward)}</b></span>}
    </div>}
+   {run&&!receipt&&<p className="pj-current-act">第 {act+1} 幕 <span>/ {script.scenes.length}</span></p>}
    {run&&!receipt&&<ol className="pj-act-strip" aria-label="本章幕次">{script.scenes.map((scene,i)=><li key={scene.title} data-current={i===act} data-done={i<act} aria-label={scene.title} aria-current={i===act?'step':undefined}/>)}</ol>}
    {!run?<>
     <p className="pj-prose">{script.intro}</p>

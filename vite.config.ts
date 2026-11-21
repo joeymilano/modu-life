@@ -4,8 +4,10 @@ import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { resolve, relative } from 'node:path';
 import { createHash } from 'node:crypto';
 const homeArt = [
-  '/art/title/shanghai-stories.webp',
-  '/art/title/shanghai-stories-mobile.webp',
+  '/art/title/bund-night.webp', '/art/title/bund-night-mobile.webp',
+  '/art/title/arcade-pearl.webp', '/art/title/arcade-stall.webp',
+  '/fonts/qingke-display.woff2', '/fonts/barlow-sign.woff2',
+  '/art/title/bund-deck.webp', '/art/pujiang-cinema/gu.webp',
   '/art/shanghai-streets/first-night-arrival.webp',
   '/art/corners/bund.webp',
 ];
@@ -31,11 +33,10 @@ const offlinePrecache = {
 
     const index = readFileSync(resolve(root, 'index.html'), 'utf8');
     const entryAssets = Array.from(index.matchAll(/(?:src|href)="(\/assets\/[^"]+)"/g), match => match[1]);
-    const core = ['/', '/manifest.webmanifest', '/brand/shanghai-stories/logo-poster.svg',
+    const core = ['/', '/manifest.webmanifest',
       '/icons/pearl-dusk/apple-touch-icon.png', '/icons/pearl-dusk/icon-192.png', '/icons/game-ui.svg',
-      '/art/pujiang-cinema/gu.webp', '/art/street-cards/bund-photo.webp', '/art/street-cards/xin-street.webp',
       ...homeArt, ...entryAssets,
-      ...Array.from(pack.keys()).filter(url => url.startsWith('/brand/pearl-dusk/'))];
+      '/brand/pearl-dusk/icon.svg', '/brand/pearl-dusk/logo-dark.svg', '/brand/pearl-dusk/symbol.svg'];
     const precache = Array.from(new Set(core));
     for (const url of precache) {
       if (!pack.has(url)) throw new Error(`Offline shell asset is missing: ${url}`);

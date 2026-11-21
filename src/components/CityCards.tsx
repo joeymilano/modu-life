@@ -80,7 +80,7 @@ export default function CityCards({ game, onDraw }: { game: GameState; onDraw: (
             <CardEffects card={featured}/>
           </figcaption>
         </figure> : <div className="city-card-back" aria-hidden="true"><div className="city-sealed-card">
-          <div className="city-seal"><GameIcon name="hand" size={54}/></div>
+          <img src="/art/title/bund-deck.webp" alt="" width={520} height={780}/>
         </div></div>}
         {latest.length > 1 && <ol className="city-result-reel" aria-label="本次抽到的卡片">
           {latest.map((card, index) => <li key={total - latest.length + index} data-rarity={card.rarity}>

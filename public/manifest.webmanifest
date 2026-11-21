@@ -4,8 +4,8 @@
   "description": "开局五连抽，在上海混个名堂。",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#121117",
-  "theme_color": "#121117",
+  "background_color": "#0c1c20",
+  "theme_color": "#0c1c20",
   "icons": [
     {
       "src": "/brand/pearl-dusk/icon.svg",

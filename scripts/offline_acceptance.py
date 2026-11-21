@@ -33,7 +33,7 @@ with sync_playwright() as playwright:
     page.wait_for_function('navigator.serviceWorker.controller !== null')
     initial = cached_paths(page)
     assert len(initial) <= 25
-    assert '/art/title/shanghai-stories-mobile.webp' in initial
+    assert '/art/title/bund-night-mobile.webp' in initial
     assert not any(path.endswith(('.glb', '.mp3')) or path.startswith('/art/arrival/') for path in initial)
 
     button(page, '接这手牌').click()
@@ -41,12 +41,13 @@ with sync_playwright() as playwright:
     button(page, '女性', True).click()
     button(page, '颜值 惊艳全场', True).click()
     button(page, '进入上海').click()
-    portrait = page.locator('.arrival-snapshot img')
-    expect(portrait).to_have_attribute('src', '/art/arrival/female-stunning.webp')
+    portrait = page.locator('.pj-shot img')
+    expect(portrait).to_have_attribute('src', '/art/pujiang-cinema/stage.webp')
     portrait.evaluate('img => img.decode()')
-    button(page, '看毛小毛的消息', True).click()
-    button(page, '回毛小毛').click()
-    button(page, '稍后再去', True).click()
+    page.locator('[data-pj-start]').click()
+    for move in ('announce', 'host', 'stage'):
+        page.locator(f'[data-pj-choice="{move}"]').click()
+    page.locator('[data-pj-done]').click()
 
     districts = page.get_by_role('navigation', name='切换城区')
     button(districts, '安福路').click()
@@ -55,7 +56,7 @@ with sync_playwright() as playwright:
     page.wait_for_selector('[data-loaded-models*="wukang-corner"]', timeout=25000)
     visited = cached_paths(page)
     assert '/models/tripo/wukang-corner-v1.glb' in visited
-    assert '/art/arrival/female-stunning.webp' in visited
+    assert '/art/pujiang-cinema/stage.webp' in visited
     assert retry_asset not in visited
 
     context.set_offline(True)

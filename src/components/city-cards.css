@@ -123,17 +123,9 @@
     radial-gradient(ellipse, #a55242, #5f2d32 75%),
     #633033;
 }
-.city-sealed-card::before {
-  content: ''; position: absolute; inset: 8%; border: 3px double #d9a470;
-  border-radius: 6px; opacity: .78;
-}
-.city-seal {
-  display: grid; place-items: center; width: 54%; aspect-ratio: 1; border-radius: 50%;
-  background: radial-gradient(circle, #783846 40%, #532734 82%);
-  color: #ffcf94; border: 1px solid #cf9467;
-  box-shadow: 0 0 0 5px #ad775349, 0 8px 16px #321b246b;
-}
-.city-seal svg { width: 51%; height: 51%; }
+.city-sealed-card { overflow:hidden; }
+.city-sealed-card img { width:100%; height:100%; object-fit:cover; }
+
 
 .city-result-reel { display: flex; justify-content: center; flex-wrap: wrap; gap: 5px 9px; margin: 0; padding: 0; list-style: none; }
 .city-result-reel button { position: relative; display: grid; justify-items: center; gap: 3px; padding: 0 2px; color: var(--tier-ink); background: none; font: 700 12px/1.2 Georgia, serif; }

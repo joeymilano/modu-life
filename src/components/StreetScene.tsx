@@ -27,7 +27,10 @@ export default function StreetScene({ district, disabled, onVisit, onNightOwl, o
         <span className="corner-pin-label">{returning?'再去看看':object.label}</span>
         <span className="corner-pin-target"><Icon name="eye" size={19}/></span>
       </button>}
-      <div className="street-name"><GameIcon name={district.id} size={32}/><h1>{district.name}</h1></div>
+      <div className="street-name">
+        <div className="street-dateline"><span>{year}</span> {district.en}</div>
+        <h1>{district.name}</h1>
+      </div>
       {district.id === 'bund' && <button className="street-owl" onClick={onNightOwl} disabled={disabled} aria-label="打开夜猫子邮筒">
         <GameIcon name="night-mail" size={18}/> 夜猫子邮筒
       </button>}
