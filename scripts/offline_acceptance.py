@@ -41,6 +41,11 @@ with sync_playwright() as playwright:
     button(page, '女性', True).click()
     button(page, '颜值 惊艳全场', True).click()
     button(page, '进入上海').click()
+    for kind in ('actor', 'place'):
+        image = page.locator('.vn-actor' if kind == 'actor' else '.vn-scenery')
+        expect(image).to_have_attribute('src', f'/art/prologue/arrival-{kind}.webp')
+        image.evaluate('img => img.decode()')
+    page.get_by_role('button', name='跳过序章').click()
     portrait = page.locator('.pj-shot img')
     expect(portrait).to_have_attribute('src', '/art/pujiang-cinema/stage.webp')
     portrait.evaluate('img => img.decode()')

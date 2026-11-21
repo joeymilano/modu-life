@@ -1,9 +1,11 @@
 import Icon, { type IconName } from './Icon';
 import GameIcon from './GameIcon';
 import { useEffect, useRef, useState } from 'react';
-import { ABILITIES, abilityPoints, abilitySlots, completedChapters, ENDING_NAMES, episodeCarry, episodeOffer, episodeView, equipAbility, isPujiangSystem, learnAbility, PUJIANG_NAMES, systemLevel } from '../game/pujiang';
-import { CINEMA_ART, cinemaBeat, cinemaRelationships } from '../game/pujiangCinema';
+import { ABILITIES, abilityPoints, abilitySlots, completedChapters, ENDING_NAMES, episodeCarry, episodeOffer, episodeView, equipAbility, isPujiangSystem, learnAbility, systemLevel } from '../game/pujiang';
+import { CINEMA_ART, cinemaBeat, cinemaRelationships, speakerRole } from '../game/pujiangCinema';
+import { PROLOGUES, PROLOGUE_PENDING, rememberedMeeting } from '../game/pujiangPrologue';
 import { COMMISSIONS, SYSTEM_EPISODES } from '../game/pujiangScript';
+import PrologueStage from './PrologueStage';
 import { DISTRICTS } from '../game/content';
 import { calendarYear } from '../game/calendar';
 import type { AbilityId, EpisodeMove } from '../game/pujiangTypes';
@@ -70,13 +72,15 @@ export function PujiangSystemPanel({game,onChange,onStart,onError}:{game:GameSta
 
 export default function PujiangStage({game,onStart,onMove,onDone,onPause,onChange,onError,audio,onAudio}:{game:GameState;onStart:(id:string)=>void;onMove:(move:EpisodeMove)=>void;onDone:()=>void;onPause:()=>void;onChange:(s:GameState)=>void;onError:(s:string)=>void;audio:boolean;onAudio:()=>void}){
  const run=game.episode,view=run?episodeView(game):undefined,script=view?.script??episodeOffer(game)!;
+ const prologue=!run&&script.age===18&&!script.commission&&game.flags.includes(PROLOGUE_PENDING)?PROLOGUES[script.route]:undefined;
+ const meeting=!run&&script.age===18&&!script.commission?rememberedMeeting(game.flags,script.route):undefined;
  const heading=useRef<HTMLHeadingElement>(null),panel=useRef<HTMLElement>(null);
  const [targeting,setTargeting]=useState<'forecast'|'resonate'>();
- useEffect(()=>{setTargeting(undefined);panel.current?.closest('.modal')?.scrollTo({top:0});heading.current?.focus({preventScroll:true});},[script.id,view?.stage,!!run?.receipt]);
+ useEffect(()=>{setTargeting(undefined);panel.current?.closest('.modal')?.scrollTo({top:0});heading.current?.focus({preventScroll:true});},[script.id,!!prologue,!!run,view?.stage,!!run?.receipt]);
  const useTarget=(id:'forecast'|'resonate',target:string)=>{onMove({kind:'ability',id,target});setTargeting(undefined);};
  const chapter=SYSTEM_EPISODES.indexOf(script)+1,receipt=run?.receipt;
  const act=Math.min(view?.stage??0,script.scenes.length-1),shot=cinemaBeat(script,act);
- const relationships=cinemaRelationships(game,script,receipt?[]:view?.relations);
+ const relationships=cinemaRelationships(game,script,receipt?[]:view?.relations,act);
  const [still,setStill]=useState(false);
  const district=DISTRICTS.find(d=>d.id===script.district)!.name;
  const place=script.id==='pj-heir-18'||script.id==='pj-system-20'?'锦江饭店':
@@ -84,9 +88,10 @@ export default function PujiangStage({game,onStart,onMove,onDone,onPause,onChang
   script.id==='pj-worker-18'?'莘庄仓库':district;
  const series=script.commission?'街区委托':chapter?'浦江破局':{arrival:'初到上海',worker:'日结工',heir:'顶级富二代',system:'浦江破局'}[script.route];
  const intro=!run;
+ if(prologue)return <PrologueStage route={script.route} game={game} onChange={onChange} onPause={onPause} audio={audio} onAudio={onAudio}/>;
  return <article className="pj-stage" ref={panel} data-still={still} data-route={script.route} data-mode={intro?'brief':receipt?'result':'scene'} data-verdict={receipt?.verdict}>
   <figure className="pj-frame">
-   <div className="pj-shot" key={`${script.id}-${act}-${!!receipt}`}>
+   <div className="pj-shot" key={`${script.id}-${act}-${!!receipt}-${!!prologue}`}>
     <img src={script.commission?script.photo:CINEMA_ART[shot.art]} style={{objectPosition:shot.focus}} alt={script.commission?'':`${shot.speaker}，${shot.direction}`} fetchPriority="high"/>
    </div>
    <div className="pj-film-top"><span className="pj-place"><b>{calendarYear(game)}</b> 上海 / {place}</span>
@@ -96,7 +101,7 @@ export default function PujiangStage({game,onStart,onMove,onDone,onPause,onChang
     </div>
    </div>
    {!receipt&&<figcaption><div className="pj-dialogue" key={`${script.id}-${act}`}>
-    <span>{shot.speaker}</span><blockquote>{shot.line}</blockquote>
+    <span>{shot.speaker}<small>{speakerRole(shot.speaker)}</small></span><blockquote>{shot.line}</blockquote>
    </div></figcaption>}
   </figure>
   <div className="pj-stage-body">
@@ -104,16 +109,16 @@ export default function PujiangStage({game,onStart,onMove,onDone,onPause,onChang
    <div className="pj-topline"><span className="pj-index"><i aria-hidden="true"/>{series}{chapter>0 && <> / <b>{String(chapter).padStart(2,'0')}</b></>}</span>
     <button type="button" className="pj-pause" aria-label="保存并回首页" onClick={onPause}><Icon name="save" size={14}/>存档离场</button></div>
    <h2 ref={heading} tabIndex={-1}>{receipt?receipt.title:run?view!.scene.title:script.title}</h2>
-   {intro&&<div className="pj-mission">
+   {run&&!receipt&&<p className="pj-current-act">第 {act+1} 幕 <span>/ {script.scenes.length}</span></p>}
+   {run&&!receipt&&<ol className="pj-act-strip" aria-label="本章幕次">{script.scenes.map((scene,i)=><li key={scene.title} data-current={i===act} data-done={i<act} aria-label={scene.title} aria-current={i===act?'step':undefined}/>)}</ol>}
+   {!run?<>{meeting&&<details className="pj-aside"><summary>回想初见</summary><p className="pj-first-reply">{meeting.reply}</p></details>}
+    <p className="pj-prose">{script.intro}</p>
+    {episodeCarry(game,script).map(t=><p className="pj-carry" key={t}>{t}</p>)}
+   <div className="pj-mission">
     <p className="pj-objective"><GameIcon name="mission" size={17}/>{script.goal}</p>
     <span><GameIcon name="action" size={16}/>{script.scenes.length} 回合{script.commission?' · 1 格行动':''}</span>
     {script.reward>0&&<span className="pj-bounty"><GameIcon name="reward" size={16}/>最高 <b>{money(script.reward)}</b></span>}
-   </div>}
-   {run&&!receipt&&<p className="pj-current-act">第 {act+1} 幕 <span>/ {script.scenes.length}</span></p>}
-   {run&&!receipt&&<ol className="pj-act-strip" aria-label="本章幕次">{script.scenes.map((scene,i)=><li key={scene.title} data-current={i===act} data-done={i<act} aria-label={scene.title} aria-current={i===act?'step':undefined}/>)}</ol>}
-   {!run?<>
-    <p className="pj-prose">{script.intro}</p>
-    {episodeCarry(game,script).map(t=><p className="pj-carry" key={t}>{t}</p>)}
+   </div>
     {script.offline&&<p className="pj-offline">今晚异能离线。</p>}
     {isPujiangSystem(game)&&!script.offline&&<AbilityLoadout game={game} onChange={onChange} onError={onError}/>}
 
@@ -138,7 +143,9 @@ export default function PujiangStage({game,onStart,onMove,onDone,onPause,onChang
     <div className="pj-prose"><p>{view!.scene.text.split('\n\n')[0]}</p></div>
     {view!.scene.text.includes('\n\n')&&<details className="pj-aside" key={'talk-'+act}><summary>听他们说</summary>{view!.scene.text.split('\n\n').slice(1).map((t,i)=><p key={i}>{t}</p>)}</details>}
     <details className="pj-observation" key={`${script.id}-${act}`}><summary><span>查看</span><b>{shot.prop}</b><span aria-hidden="true">＋</span></summary><p>{shot.observation}</p></details>
-    <details className="pj-people"><summary>在场伙伴 <span>{relationships.filter(r=>r.delta>0).length?'有人开始信任你':'信任'}</span></summary><div>{relationships.map(r=><p key={r.id}><b>{PUJIANG_NAMES[r.id]}</b><span>信任 {r.trust}</span>{r.delta!==0&&<em data-negative={r.delta<0}>{r.delta>0?'+':''}{r.delta}</em>}</p>)}</div></details>
+    {relationships.length>0&&<details className="pj-people"><summary>这场戏里的人 <span>{relationships.length} 位</span></summary><dl>{relationships.map(person=><div key={person.name}>
+     <dt>{person.name}</dt><dd>{person.role}</dd>{person.trust!==undefined&&<dd className="pj-trust">信任 {person.trust} {person.delta!==0&&<em data-negative={person.delta<0}>{person.delta>0?'+':''}{person.delta}</em>}</dd>}
+    </div>)}</dl></details>}
     {view!.abilities.length>0&&<div className="pj-powerbar" aria-label="本场能力">{view!.abilities.map(a=><button key={a.id} data-ability={a.id} disabled={!!a.reason} onClick={()=>{if(a.id==='forecast'||a.id==='resonate')setTargeting(targeting===a.id?undefined:a.id);else onMove({kind:'ability',id:a.id});}}><b>{a.name}</b><small>{a.reason??(targeting===a.id?'取消选择':a.id==='forecast'?'指定一个选择':a.id==='resonate'?'安排协同行动':'使用')}</small></button>)}</div>}
     {targeting==='forecast'&&<p className="pj-help" role="status">选择要推演的行动。</p>}
     {targeting==='resonate'&&<div className="pj-powerbar" aria-label="协同行动"><button data-pj-aid="team" onClick={()=>useTarget('resonate','team')}><b>请伙伴留在现场补位</b><small>合作 +2 · 不消耗选择回合</small></button><button data-pj-aid="dispatch" onClick={()=>useTarget('resonate','dispatch')}><b>请伙伴协调下一轮人手</b><small>合作 +1 · 调度 +1</small></button></div>}

@@ -47,7 +47,7 @@ export default function TitleScreen({ hand, resume, onStart, onDraw, onParallel,
       <div className="title-copy">
         <div className="title-era"><i aria-hidden="true"/>SHANGHAI <span>1992</span></div>
         <h1 className="game-title" id="game-cover-title"><span>魔都</span><em>人生</em></h1>
-        <p className="cover-line">十八岁到上海。手里五张牌，先打哪一张？</p>
+        <p className="cover-line">从十八岁走到六十岁。上海的故事，从你遇见的第一个人讲起。</p>
         <nav className="title-menu" aria-label="选择游戏模式">
           {showResume && resume && <MenuEntry label="继续游戏" icon="resume" detail={resume.label} primary onSelect={resume.onSelect}/>}
           <MenuEntry label={hand === undefined ? '开始新游戏' : '接这手牌'} icon={hand === undefined ? 'new-life' : 'hand'} detail={hand} primary={!showResume} onSelect={onStart}/>

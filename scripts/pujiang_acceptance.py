@@ -39,6 +39,15 @@ def start(page, origin):
  page.goto(BASE, wait_until='networkidle')
  page.get_by_role('button', name='选择出身', exact=True).click()
  page.locator('.life-start-options button').filter(has_text=origin).click()
+ expect(page.locator('[data-mode=prologue]')).to_be_visible()
+ for image in ('.vn-scenery', '.vn-actor'):
+  page.locator(image).evaluate('img => img.decode()')
+ page.locator('[data-vn-next=meet]').click()
+ page.locator('[data-pj-prologue]').first.click()
+ expect(page.locator('[data-page=reply]')).to_be_visible()
+ page.locator('[data-vn-next=ask]').click()
+ page.locator('[data-pj-prologue=stay]').click()
+ page.locator('[data-vn-next=leave]').click()
  expect(page.locator('[data-pj-start]')).to_be_visible()
 
 def menu(page, name):

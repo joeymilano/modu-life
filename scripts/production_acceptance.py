@@ -15,6 +15,7 @@ with sync_playwright() as p:
  page.get_by_role('button',name='手牌与角色').click();page.get_by_role('button',name='全部揭晓').click();page.wait_for_timeout(700)
  page.locator('.setup-forward').click()
  page.get_by_role('button',name='进入上海').click()
+ page.get_by_role('button',name='跳过序章').click()
  page.locator('[data-pj-start]').click()
  for _ in range(3): page.locator('[data-pj-choice]:enabled').first.click()
  page.locator('[data-pj-done]').click()

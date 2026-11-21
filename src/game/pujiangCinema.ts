@@ -83,11 +83,32 @@ export const CINEMA_CONTACTS:Record<string,{art:Art;focus:string}>={
  'pj-gu':{art:'gu',focus:'67% 27%'},'pj-wen':{art:'workshop',focus:'60% 26%'},'pj-xu':{art:'xu',focus:'57% 25%'},
 };
 
-export function cinemaRelationships(game:GameState,script:EpisodeScript,changes:[string,number][]=[]) {
- const ids=script.route==='worker'?['wu']:script.route==='heir'?['boss']:script.route==='arrival'?['lu','mao']:['pj-xu','pj-wen','lu'];
- return ids.map(id=>{
-  const delta=changes.filter(([person])=>person===id).reduce((n,[,change])=>n+change,0);
-  const trust=game.relationships[id]?.trust??15;
-  return {id,delta,trust:Math.max(0,Math.min(100,trust+delta))};
+const chapterCast: {name:string; role:string; id?:string}[] = [
+ {name:'毛小毛',role:'替礼堂收票，也管散场那顿饭',id:'mao'},
+ {name:'陆嘉',role:'在江边小礼堂唱歌的乐手',id:'lu'},
+ {name:'费启',role:'在隔壁场地办演出的人',id:'fei'},
+ {name:'吴师傅',role:'莘庄仓库里带过新人的老工友',id:'wu'},
+ {name:'赵正',role:'决定夜班排班和宿舍续住的领班'},
+ {name:'老孙',role:'在仓门口等最后一班的司机'},
+ {name:'沈经理',role:'带队做样品，替工人追尾款的负责人',id:'boss'},
+ {name:'周骁',role:'你的表哥，今晚代家里招呼客户'},
+ {name:'采购主任',role:'替饭店验样、签试单的人'},
+ {name:'许舟',role:'自己接单跑运输的司机',id:'pj-xu'},
+ {name:'顾桥',role:'熟悉场地方和客户的项目主理人',id:'pj-gu'},
+ {name:'周闻',role:'修设备的工程师，习惯把故障记在纸上',id:'pj-wen'},
+ {name:'余老师',role:'街区夜校的老师',id:'yu'},
+ {name:'陶厂长',role:'亲自来看样品的采购负责人'},
+];
+
+export function speakerRole(name:string) {
+ return chapterCast.find(person=>person.name===name)?.role;
+}
+
+export function cinemaRelationships(game:GameState,script:EpisodeScript,changes:[string,number][]=[],stage=0) {
+ const visibleText=[script.intro,...script.scenes.slice(0,stage+1).map(scene=>scene.text),cinemaBeat(script,stage).speaker].join(' ');
+ return chapterCast.filter(person=>visibleText.includes(person.name)).map(person=>{
+  const delta=changes.filter(([id])=>id===person.id).reduce((n,[,change])=>n+change,0);
+  const relation=person.id?game.relationships[person.id]:undefined;
+  return {...person,delta,trust:relation?Math.max(0,Math.min(100,relation.trust+delta)):undefined};
  });
 }

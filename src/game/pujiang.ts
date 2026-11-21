@@ -1,5 +1,6 @@
 import { OPENING_EPISODES, SYSTEM_EPISODES, COMMISSIONS, PUJIANG_EPISODES } from './pujiangScript';
 import type { AbilityId, EpisodeChoice, EpisodeMove, EpisodeReceipt, EpisodeRun, EpisodeScript, PujiangEnding, PujiangRoute, SystemProgress } from './pujiangTypes';
+import { PROLOGUES, PROLOGUE_PENDING, openingScene, rememberedMeeting } from './pujiangPrologue';
 import type { Effect, GameState, LifeEvent } from './types';
 
 export const PUJIANG_CONTACTS = ['pj-gu','pj-wen','pj-xu'] as const;
@@ -28,13 +29,41 @@ export function beginPujiangLife(state:GameState):GameState {
  if(pujiangRoute(s)==='system')s.systemProgress=newSystemProgress();
  for(const id of PUJIANG_CONTACTS)s.relationships[id]??={attraction:10,trust:15,commitment:0,met:false,memories:[]};
  // The legacy first-night episode has its own scheduler. New openings own this slot.
- s.journal=[{age:18,title:'1992，初到上海',text:pujiangRoute(s)==='system'?'江边的灯忽然熄了。只有你看见一行悬在眼前的字。':pujiangRoute(s)==='worker'?'工牌刚拿到手，末班车已经发动。':pujiangRoute(s)==='heir'?'司机停在锦江饭店门口，母亲让你先听完桌上的话。':'上海站的字条把你带到了江边，今晚的演出还缺一个人。',tag:'开局'}];
+ const prologue=PROLOGUES[pujiangRoute(s)];
+ s.flags.push(PROLOGUE_PENDING);
+ s.journal=[{age:18,title:prologue.title,text:prologue.setup,tag:'序章'}];
  return s;
 }
 export function episodeOffer(s:GameState):EpisodeScript|undefined {
  if(!isPujiang(s)||s.ended||s.episode)return;
  return (pujiangRoute(s)==='system'?SYSTEM_EPISODES:OPENING_EPISODES.filter(e=>e.route===pujiangRoute(s)))
   .find(e=>e.age===s.age&&!s.seenEvents.includes(e.id));
+}
+export function advancePrologue(state:GameState, action:string):GameState {
+ const opening=episodeOffer(state);
+ if(!opening || opening.age!==18 || !state.flags.includes(PROLOGUE_PENDING))return state;
+ const {story,page}=openingScene(opening.route,state.flags);
+ if(action==='skip'||(page==='departure'&&action==='leave')){
+  return {...state,flags:state.flags.filter(flag=>flag!==PROLOGUE_PENDING)};
+ }
+ if(page==='entrance'&&action==='meet')return {...state,flags:[...state.flags,'pj-prologue-talk']};
+ if(page==='reply'&&action==='ask')return {...state,flags:[...state.flags,'pj-prologue-offer']};
+ const first=page==='question' ? story.choices.find(choice=>choice.id===action) : undefined;
+ const second=page==='offer' ? story.partings.find(choice=>choice.id===action) : undefined;
+ if(!first&&!second)return state;
+ const next=structuredClone(state), contact=next.relationships[story.personId];
+ if(first){
+  next.flags.push('pj-prologue-'+first.id);
+  contact.met=true;
+  contact.memories.push(first.memory);
+  next.journal.push({age:next.age,title:first.label,text:first.reply,tag:'初识'});
+ }
+ if(second){
+  next.flags.push('pj-prologue-'+opening.route+'-'+second.id);
+  if(second.id==='stay')contact.trust=Math.min(100,contact.trust+3);
+  next.journal.push({age:next.age,title:second.label,text:second.gesture,tag:'赴约'});
+ }
+ return next;
 }
 export function learnAbility(s:GameState,id:AbilityId):GameState {
  if(!isPujiangSystem(s)||s.episode||s.ended)throw new Error('进入现场后配置锁定，离场再调整。');
@@ -58,13 +87,18 @@ export function startEpisode(s:GameState,id:string):GameState {
   if(!isPujiangSystem(s)||s.pendingYearEvent||episodeOffer(s)||s.actions<1)throw new Error('先完成年度剧情，并留一格行动。');
  }else if(episodeOffer(s)?.id!==id)throw new Error('这场故事与当前年龄不符。');
  const next=structuredClone(s);next.district=script.district;
+ if(script.age===18&&!script.commission)next.flags=next.flags.filter(flag=>flag!==PROLOGUE_PENDING);
  if(script.commission)next.actions--;
  next.episode={id,moves:[],loadout:[...(s.systemProgress?.equipped??[])]};
  return next;
 }
 
 interface Frame {stage:number;score:number;team:number;budget:number;cash:number;flags:string[];used:{id:AbilityId;stage:number;target?:string}[];relations:[string,number][];recent:string[];}
-function initialFrame(script:EpisodeScript,s:GameState):Frame {return {stage:0,score:0,team:0,budget:script.budget+(script.id==='pj-system-24'&&s.flags.includes('pj-system-23-win')?1:0),cash:0,flags:[],used:[],relations:[],recent:[]};}
+function initialFrame(script:EpisodeScript,s:GameState):Frame {
+ const prepared=script.age===18&&!script.commission&&s.flags.includes('pj-prologue-'+script.route+'-prepare');
+ const priorWin=script.id==='pj-system-24'&&s.flags.includes('pj-system-23-win');
+ return {stage:0,score:0,team:0,budget:script.budget+(prepared||priorWin?1:0),cash:0,flags:[],used:[],relations:[],recent:[]};
+}
 function has(f:Frame,s:GameState,flag:string){return f.flags.includes(flag)||s.flags.includes('pj-'+flag);}
 function used(f:Frame,id:string){return f.used.some(a=>a.id===id&&a.stage===f.stage);}
 function condition(term:string,f:Frame,s:GameState):boolean {
@@ -181,6 +215,8 @@ export const ENDING_NAMES = {independent:'独立掌舵',together:'合伙共营',
 export function episodeCarry(s:GameState,script:EpisodeScript):string[] {
  if(script.commission)return [];
  const lines:string[]=[];
+ const meeting=script.age===19?rememberedMeeting(s.flags,script.route):undefined;
+ if(meeting)lines.push(meeting.nextYear);
  if(script.age===19&&s.flags.includes('pj-system-share'))lines.push('许舟还记得你分出的第一笔奖金。这次她把备用路线也带来了。');
  if(script.age===20&&s.flags.includes('pj-system-contract-team'))lines.push('上一单留下的共同订单还在。许舟可以带客户一起进门，团队也有了联合试演的依据。');
  if(script.age===20&&s.flags.includes('pj-exclusive'))lines.push('当年被排除在外的那一次，许舟记得。她现在要先听具体安排。');
@@ -198,21 +234,40 @@ export function pujiangYear(s:GameState):LifeEvent|undefined {
  if(!isPujiang(s))return;
  const route=pujiangRoute(s);
  if(route!=='system'&&s.age===19){
+  const memory=rememberedMeeting(s.flags,route)?.nextYear??'';
   const success=s.flags.includes('pj-'+route+'-18-win'),team=s.flags.includes('opening-allies');
   if(route==='heir'&&s.flags.includes('pj-heir-blind-order'))return {
    id:'pj-return-heir',title:'三楼那十盏灯',category:'year',tag:'开篇回访',speakerId:'boss',
    illustration:OPENING_EPISODES.find(e=>e.route==='heir')!.photo,
-   text:'早上七点，沈经理拿着蓝色底联来接你。十间客房，九盏灯好用。三一七的拉绳被床头柜挡住了。采购主任把整层楼的订单扣在手里，等你开口。',
+   text:memory+'早上七点，沈经理拿着蓝色底联来接你。十间客房，九盏灯好用。三一七的拉绳被床头柜挡住了。采购主任把整层楼的订单扣在手里，等你开口。',
    choices:[
     {id:'keep',label:'进三一七，和木工一起挪灯座',hint:'本事 +5 · 沈经理信任 +10',reply:'你坐到床上试了一次，又请客房阿姨躺下试一次。主任签了整层楼，木工留了家里的电话，答应赶工时来搭把手。',effect:{skill:5,trust:10,setFlags:['pj-opening-kept']}},
     {id:'change',label:'亮出家底，自费重做十只底座',hint:'花 ¥12,000 · 人脉 +6',reply:'主任这才知道你是谁。他拨通另一家饭店的电话，把话筒递给你。木工收起工具，等厂里发新底座。',effect:{cash:-12000,network:6,trust:3,setFlags:['pj-opening-changed']}},
    ]};
-  const npc=route==='arrival'?'lu':route==='worker'?'wu':'boss';
-  return {id:'pj-return-'+route,title:{arrival:'上回留下的那张节目单',worker:'换班的日子到了',heir:'酒桌之后，客户来了'}[route],category:'year',tag:'开篇回访',speakerId:npc,
-   illustration:OPENING_EPISODES.find(e=>e.route===route)!.photo,
-   text:(success?'上次做成的事，让对方更早来找你。':team?'上次没拿到全部，留下的伙伴却记得你。':'上次没能拿下，但你留下的地址还在。')+{arrival:'陆嘉把节目单铺在桌上，要你决定这次是自己主持，还是让年轻乐手上来。',worker:'吴师傅拿来新的排班，问你还记不记得当时说过要替谁守最后一班。',heir:'沈经理带着客户来找你，门口没有酒宴，也没有人替你接话。'}[route],choices:[
-    {id:'keep',label:team?'带上开篇留下的伙伴，兑现下一次合作':success?'把上次做成的办法再做一遍，兑现承诺':'补上上次没做完的部分，重新争取信任',reply:team?'老伙伴带来了新人。这次不用从头介绍，先前留出的空间，成了有人愿意替你分担的岗位。':success?'对方把新的时间写给你。上次说过的话，这回终于落到了实处。':'你从最小的一段重新做起。对方还记得上次失约，也愿意留意你这次有没有做完。',hint:team?'伙伴继续出力 · 人脉+6，信任+12':success?'已有成果 · 本事+5，信任+10':'重建合作 · 本事+3，信任+6',effect:{skill:success?5:3,network:team?6:0,trust:team?12:success?10:6,setFlags:['pj-opening-kept']}},
-    {id:'change',label:'说明自己的新安排，提前把事情交接好',reply:'对方没有全都同意，但至少不用到最后一刻才找替补。',effect:{network:6,trust:3,setFlags:['pj-opening-changed']}},
+  const followup={
+   arrival:{
+    npc:'lu',title:'上回留下的那张节目单',
+    text:success?'上回留到散场的姐妹俩又来买票了。陆嘉把下周五的节目单递过来，开场那一格还空着。':'陆嘉在新节目单上留了十分钟。「上次赶得急。这回周五开场，你来得及伐？」',
+    keep:'把周五留出来，跟陆嘉排一次开场',kept:'周五你提前一刻钟到了。陆嘉给你弹了四小节前奏，等你吸完那口气才落最后一个音。那十分钟刚刚好。',
+    change:'把开场让给新来的乐手，陪他对词',changed:'你把话筒调低半截。新人开口时声音有点抖，陆嘉便用同一个和弦多陪了他一遍。',
+   },
+   worker:{
+    npc:'wu',title:'换班的日子到了',
+    text:success?'吴师傅把新班表递过来。上回一起卸过货的人各签了一格，只剩周四夜班。他那天得带老伴去复诊。':'吴师傅在门房等你。「上次那车开走，咱俩话也没说完。周四我得陪老伴去医院，这一班能替伐？」',
+    keep:'签下周四的夜班，让吴师傅去医院',kept:'周四点名，领班一眼认出你的字。天快亮时吴师傅回来了，把病历塞进口袋，给你带了两个还温着的茶叶蛋。',
+    change:'说明周四走不开，当面找人换一班',changed:'你们在门房待到换班的人亲自点头。吴师傅收好那张新班表，这才去跟老伴说几点出门。',
+   },
+   heir:{
+    npc:'boss',title:'酒桌之后，客户来了',
+    text:success?'饭店采购主任这次直接打来电话。沈经理在听筒边记下时间，转头问你：「周二送样，谁跟车？」':'上回那桌饭没谈成整单，采购主任倒还记得那只旧箱子。沈经理约到周二再送一次样，只差一个跟车的人。',
+    keep:'周二亲自跟车，当着客户的面试样',kept:'你把灯放到客房床边，按顾客平时的姿势试了一回。沈经理在记录上补了一笔，把签收联交到你手里。',
+    change:'把样品逐件点清，请沈经理带队交接',changed:'你把仓库号码留给主任。周二那天，沈经理从饭店打来电话：「签收了，箱扣也好好的。」',
+   },
+  }[route];
+  return {id:'pj-return-'+route,title:followup.title,category:'year',tag:'开篇回访',speakerId:followup.npc,
+   illustration:OPENING_EPISODES.find(e=>e.route===route)!.photo,text:[memory,followup.text].filter(Boolean).join('\n\n'),choices:[
+    {id:'keep',label:followup.keep,reply:followup.kept,hint:team?'伙伴继续出力 · 人脉+6，信任+12':success?'已有成果 · 本事+5，信任+10':'重建合作 · 本事+3，信任+6',effect:{skill:success?5:3,network:team?6:0,trust:team?12:success?10:6,setFlags:['pj-opening-kept']}},
+    {id:'change',label:followup.change,reply:followup.changed,effect:{network:6,trust:3,setFlags:['pj-opening-changed']}},
    ]};
  }
  if(route!=='system'||!AFTER_YEARS.includes(s.age))return;

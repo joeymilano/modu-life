@@ -1,0 +1,85 @@
+.vn-stage {
+ --ivory:#fff1d8; --cinnabar:#963b2e; --gold:#e7be83; --ink:#30281f;
+ --gutter:clamp(24px,5.2vw,104px);
+ position:relative; isolation:isolate; overflow:hidden; box-sizing:border-box;
+ min-height:max(580px,100dvh); display:flex; flex-direction:column; color:var(--ivory);
+ background:#28241e; font-family:'PingFang SC','Microsoft YaHei',sans-serif; outline:none;
+}
+.vn-stage *, .vn-stage *::before, .vn-stage *::after {box-sizing:border-box}
+.vn-stage button {font:inherit; cursor:pointer; color:inherit; letter-spacing:normal; text-transform:none}
+.vn-stage button:focus-visible {outline:3px solid #ffbb62; outline-offset:3px}
+.vn-stage .vn-scenery,.vn-shade,.vn-frame {position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.vn-stage .vn-scenery {z-index:-5; object-fit:cover; object-position:50% 45%}
+.vn-shade {z-index:-4;background:linear-gradient(180deg,#130e0be0 0%,#140f0c20 20%,transparent 42%,#100e0c75 78%,#100d0aea),linear-gradient(90deg,#20161299 0%,#20161250 34%,transparent 67%)}
+.vn-frame {inset:12px;width:auto;height:auto;border:1px solid #ffe4b126;z-index:-1}
+.vn-stage .vn-actor {display:block;position:absolute;z-index:-3;right:clamp(12%,15vw,25%);top:10%;height:97%;width:auto;max-width:54%;object-fit:contain;object-position:top;filter:drop-shadow(8px 9px 10px #25171066);transform-origin:50% 75%;pointer-events:none;transition:transform .65s ease-out}
+.vn-stage[data-page=reply] .vn-actor,.vn-stage[data-page=departure] .vn-actor {transform:translateY(-.9%) scale(1.035)}
+.vn-header {display:flex;align-items:center;justify-content:space-between;gap:14px;padding:clamp(20px,3.5vh,42px) var(--gutter) 0}
+.vn-mast {display:flex;align-items:center;gap:12px;color:var(--ivory);font:700 clamp(19px,1.7vw,26px)/1.2 'Songti SC','STSong',serif;letter-spacing:.15em;text-shadow:0 2px 5px #0008}
+.vn-seal {display:grid;place-items:center;width:32px;height:33px;background:#983c2d;color:#ffeace;border:1px solid #e6a881;outline:1px solid #993c2d;outline-offset:2px;font:600 23px/1 'Songti SC',serif;letter-spacing:0}
+.vn-header nav {display:flex;align-items:center;gap:4px;padding:1px 7px;border:1px solid #e9cda552;background:#211b17ba;border-radius:3px}
+.vn-header button {border:0;background:none;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:0 10px;min-height:40px;min-width:36px;color:#f2e5cf;font-size:12px}
+.vn-header button:hover,.vn-lower footer button:hover {color:white;background:#d1b88c26}
+.vn-location {margin:clamp(22px,5vh,65px) var(--gutter) 0;display:flex;align-items:center;gap:10px;align-self:flex-start;color:#fff3dd;font-size:clamp(13px,1.1vw,17px);font-weight:550;letter-spacing:.08em;text-shadow:0 2px 5px #291f12}
+.vn-location i {height:9px;width:9px;transform:rotate(45deg);border:1px solid var(--gold);box-shadow:inset 0 0 0 2px #28201b;background:var(--gold)}
+.vn-location span {font:13px/1.2 ui-monospace,monospace;border-left:1px solid #f7daac91;padding-left:10px;letter-spacing:.07em}
+.vn-center {position:relative;flex:1;min-height:220px;padding:22px var(--gutter) 24px;display:flex;align-items:center}
+.vn-title {margin-top:auto;margin-bottom:clamp(8px,3vh,35px);text-shadow:0 3px 22px #20130dd9}
+.vn-chapter,.vn-options h3 {display:flex;align-items:center;gap:10px;font:600 13px/1.5 'PingFang SC',sans-serif;letter-spacing:.22em;color:#ffe0ae}
+.vn-chapter i,.vn-options h3 i {width:29px;height:1px;background:var(--gold)}
+.vn-chapter span {opacity:.65}
+.vn-stage .vn-title h2 {color:#fff1d7;letter-spacing:.025em;font:650 clamp(44px,min(5.1vw,8.5vh),90px)/1.18 'Songti SC','STSong','Noto Serif CJK SC',serif;margin:12px 0 18px}
+.vn-title h2 span {display:block}
+.vn-title p {display:flex;align-items:center;gap:11px;margin:0;color:#fff0da;font-size:14px;letter-spacing:.12em}
+.vn-title p b {font:italic 21px/1 Georgia,serif;letter-spacing:.06em}
+.vn-title p i {height:1px;width:26px;background:#e0c6a4}
+.vn-options {width:min(43vw,560px);margin-top:auto;margin-bottom:clamp(8px,4vh,40px)}
+.vn-options h3 {margin:0 0 11px;text-shadow:0 1px 6px #1b1410}
+.vn-options button {border:1px solid #d4bd8ea3;border-left:3px solid var(--gold);border-radius:1px;min-height:54px;width:100%;padding:11px 17px;margin:6px 0 0;display:flex;align-items:center;gap:13px;background:linear-gradient(100deg,#30251ef7,#30251ee6);text-align:left;color:#fff0d6;font-weight:550;font-size:clamp(15px,1.2vw,19px);line-height:1.55;transition:background .15s,transform .15s}
+.vn-options button:hover {background:#703b29;transform:translateX(3px)}
+.vn-options kbd {font:italic 18px/1 Georgia,serif;color:var(--gold);border-right:1px solid #aa896b;padding-right:12px}
+.vn-options svg {margin-left:auto;flex:none}
+.vn-lower {position:relative;margin:0 var(--gutter);z-index:1}
+.vn-name {display:inline-flex;gap:13px;align-items:center;min-height:42px;padding:8px 26px 8px 19px;background:linear-gradient(90deg,#823329,#a34432);color:#fff1d9;clip-path:polygon(0 0,100% 0,calc(100% - 11px) 100%,0 100%);border-left:3px solid #f2c188}
+.vn-name b {font:700 22px/1.1 'Songti SC','STSong',serif;letter-spacing:.08em}
+.vn-name i {height:12px;width:1px;background:#f0c99a96}
+.vn-name span {font-size:12px;color:#ffe5c7}
+.vn-paper {position:relative;display:flex;flex-direction:column;align-items:stretch;justify-content:center;min-height:clamp(145px,19dvh,220px);padding:clamp(19px,2.5vh,32px) clamp(22px,3vw,54px);color:var(--ink);border-top:2px solid #eec99d;background:linear-gradient(100deg,#f8ecd4fa,#f3e3c9f7 73%,#e1c9a8f7);box-shadow:0 7px 30px #17110e55}
+.vn-paper::after {content:'';position:absolute;inset:5px;border:1px solid #946e492f;pointer-events:none}
+.vn-line p {font:400 clamp(14px,1.18vw,18px)/1.65 'PingFang SC','Microsoft YaHei',sans-serif;color:#615044;margin:0 0 7px;max-width:70em}
+.vn-line blockquote {font:650 clamp(22px,2vw,34px)/1.45 'Songti SC','STSong',serif;color:#34271f;letter-spacing:.02em;margin:0;max-width:49em}
+.vn-effect {display:inline-block;font:600 12px/1.5 sans-serif;color:#763528;margin:9px 0 0;padding:1px 0 1px 8px;border-left:2px solid #a44e36}
+.vn-stage .vn-next {align-self:flex-end;align-items:center;display:inline-flex;gap:12px;min-height:40px;padding:4px 0 0 12px;color:#773829;font-size:13px;font-weight:650;background:none;border:0}
+.vn-next::before {content:"";position:absolute;inset:0}
+.vn-next svg {padding:3px;width:26px;height:26px;border:1px solid #a56b51;border-radius:50%}
+.vn-next:hover svg {background:#843c2b;color:#fff2d8}
+.vn-lower footer {display:flex;align-items:center;justify-content:space-between;min-height:46px}
+.vn-pages {display:flex;gap:5px}.vn-pages i {width:18px;height:2px;background:#ead5ad59}.vn-pages i[data-on=true]{background:#eac391}
+.vn-lower footer button {border:0;background:none;color:#f6e6cd;padding:6px 3px;min-height:36px;font-size:12px}.vn-lower footer button span {margin-left:4px}
+.vn-history {position:fixed;inset:0;margin:auto;padding:0;border:1px solid #ae8b68;background:#f6ead5;color:#33261e;width:min(600px,90vw);max-height:75dvh;box-shadow:0 15px 90px #110c09aa}
+.vn-history::backdrop {background:#17100dbc}
+.vn-history>div {padding:22px 26px}.vn-history header {display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #c1a584;padding-bottom:7px}
+.vn-history header h3 {font:700 26px/1.5 'Songti SC',serif;margin:0}.vn-history header button {width:44px;height:44px;background:transparent;border:0}
+.vn-history ol {padding:0;margin:0;list-style:none}.vn-history li {padding:15px 0;border-bottom:1px solid #cab695}.vn-history p {font-size:15px;line-height:1.65;margin:4px 0}.vn-history b,.vn-history-player {color:#863e2e}
+@media(prefers-reduced-motion:no-preference){.vn-line,.vn-options {animation:vn-dialogue-in .24s ease-out}.vn-stage[data-page=entrance] .vn-actor {animation:vn-enter .65s ease-out}@keyframes vn-dialogue-in{from{opacity:.35;transform:translateY(3px)}}@keyframes vn-enter{from{opacity:.2;translate:1.5% 0}}}
+@media(prefers-reduced-motion:reduce){.vn-stage *{animation:none!important;transition:none!important}}
+@media(max-width:700px){
+ .vn-stage {--gutter:18px;min-height:max(620px,100dvh)}.vn-frame {inset:6px}
+ .vn-header {padding-top:max(17px,env(safe-area-inset-top))}.vn-mast {gap:8px;letter-spacing:.08em;font-size:19px}.vn-seal{width:24px;height:26px;font-size:19px}
+ .vn-header nav {padding:0 2px;gap:0}.vn-header button{padding:0 7px;gap:4px;min-width:34px;font-size:11px}
+ .vn-location{margin-top:20px;font-size:12px;gap:7px}.vn-location span {font-size:11px}
+ .vn-stage .vn-actor {top:15%;height:69%;right:-2%;max-width:80%;}
+ .vn-center {padding-top:18px;padding-bottom:13px;min-height:230px;align-items:flex-end}
+ .vn-title {margin:0 0 8px}.vn-stage .vn-title h2{font-size:clamp(32px,8vw,51px);margin:9px 0 12px;line-height:1.23}.vn-chapter,.vn-options h3 {font-size:11px;gap:8px}
+ .vn-title p{font-size:12px;gap:8px}.vn-title p b{font-size:16px}
+ .vn-options{width:min(100%,450px);margin:0}.vn-options button{min-height:45px;padding:8px 12px;font-size:14px;gap:10px}.vn-options h3{margin-bottom:3px}
+ .vn-name {padding:7px 20px 7px 12px;min-height:34px;gap:9px}.vn-name b {font-size:18px}.vn-name span {font-size:11px}
+ .vn-paper{padding:15px 16px 10px;min-height:clamp(138px,20dvh,195px)}.vn-line p{font-size:13px;line-height:1.6}.vn-line blockquote{font-size:clamp(19px,4.8vw,26px);line-height:1.45}
+ .vn-lower footer{min-height:40px;padding-bottom:env(safe-area-inset-bottom)}.vn-stage .vn-next{font-size:12px;min-height:36px}
+}
+@media(max-height:530px) and (min-width:650px) {
+ .vn-stage{min-height:max(360px,100dvh)}.vn-header{padding-top:12px}.vn-location{margin-top:6px}.vn-center{min-height:120px;padding-block:6px}
+ .vn-title{margin:0}.vn-stage .vn-title h2{font-size:30px;margin:5px 0}.vn-title h2 span{display:inline}.vn-options{margin:0}
+ .vn-options button{min-height:36px;padding-block:5px}.vn-paper{min-height:110px;padding:8px 20px}.vn-line blockquote{font-size:18px}
+ .vn-name{min-height:25px;padding-block:4px}.vn-name b{font-size:16px}.vn-lower footer{min-height:30px}.vn-stage .vn-next{min-height:30px}
+}

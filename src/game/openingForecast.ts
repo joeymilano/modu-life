@@ -1,6 +1,7 @@
 import { HOUSING_NAMES } from './content';
 import { createGame } from './engine';
 import { lifeStartHousing, lifeStartProfile, lifeStartYear } from './lifeStarts';
+import { PROLOGUES } from './pujiangPrologue';
 import { openingStory } from './originStories';
 import { beginPujiangLife, episodeOffer } from './pujiang';
 import type { GoalId, OriginCard, PlayerAppearance } from './types';
@@ -11,8 +12,9 @@ export function openingForecast(seed: string, cards: OriginCard[], goal: GoalId,
  const event = profile && lifeStartYear(opening);
  if(newStory){
   const episode=episodeOffer(beginPujiangLife(opening))!;
+  const prologue=PROLOGUES[episode.route];
   return {cash:opening.cash,housing:lifeStartHousing(opening)??HOUSING_NAMES[opening.housing],
-   story:{cards:opening.origins,teaser:episode.goal,event:{id:episode.id,title:episode.title,text:episode.intro,category:'year' as const,choices:[],illustration:episode.photo}}};
+   story:{cards:opening.origins,teaser:episode.goal,event:{id:episode.id,title:prologue.title,text:prologue.setup,category:'year' as const,choices:[],illustration:prologue.photo}}};
  }
  return {
   cash: opening.cash,
