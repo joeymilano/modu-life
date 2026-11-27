@@ -15,6 +15,29 @@ def button(scope, name, exact=False):
     return scope.get_by_role('button', name=name, exact=exact)
 
 
+def read(page, target):
+    """The dialogue stage types each line out: read up to `target`, taking the first open answer at a question."""
+    for _ in range(300):
+        if page.locator(target).count():
+            return
+        if page.locator('[data-vn-choice]').count():
+            page.locator('[data-vn-choice]:not([disabled])').first.click()
+            page.wait_for_timeout(120)
+            continue
+        page.evaluate("() => document.querySelector('[data-vn-next]')?.click()")
+        page.wait_for_timeout(40)
+    raise AssertionError(target + ' was never reached')
+
+
+def question(page):
+    for _ in range(300):
+        if page.locator('[data-vn-choice]').count():
+            return
+        page.evaluate("() => document.querySelector('[data-vn-next]')?.click()")
+        page.wait_for_timeout(40)
+    raise AssertionError('no question')
+
+
 def cached_paths(page):
     return set(page.evaluate("""async () => {
         const cache = (await caches.keys()).filter(key => key.startsWith('modu-life-')).at(-1);
@@ -41,17 +64,26 @@ with sync_playwright() as playwright:
     button(page, '女性', True).click()
     button(page, '颜值 惊艳全场', True).click()
     button(page, '进入上海').click()
-    for kind in ('actor', 'place'):
-        image = page.locator('.vn-actor' if kind == 'actor' else '.vn-scenery')
-        expect(image).to_have_attribute('src', f'/art/prologue/arrival-{kind}.webp')
-        image.evaluate('img => img.decode()')
-    page.get_by_role('button', name='跳过序章').click()
+    # 毛小毛 meets you at the station with his lunchbox: one cut-out over one empty plate.
+    expect(page.locator('.vn-scenery')).to_have_attribute('src', '/art/stages/station.webp')
+    # Two lines of foreshadowing play over the empty square before 毛小毛 walks in with his lunchbox.
+    for _ in range(12):
+        if page.locator('.vn-actor').count():
+            break
+        page.evaluate("() => document.querySelector('[data-vn-next]')?.click()")
+        page.wait_for_timeout(60)
+    expect(page.locator('.vn-actor')).to_have_attribute('src', '/art/sprites/mao-2.webp')
+    for selector in ('.vn-scenery', '.vn-actor'):
+        page.locator(selector).evaluate('img => img.decode()')
+    read(page, '[data-pj-start]')
     portrait = page.locator('.pj-shot img')
     expect(portrait).to_have_attribute('src', '/art/pujiang-cinema/stage.webp')
     portrait.evaluate('img => img.decode()')
     page.locator('[data-pj-start]').click()
     for move in ('announce', 'host', 'stage'):
-        page.locator(f'[data-pj-choice="{move}"]').click()
+        question(page)
+        page.locator(f'[data-vn-choice="{move}"]').click()
+    read(page, '[data-pj-done]')
     page.locator('[data-pj-done]').click()
 
     districts = page.get_by_role('navigation', name='切换城区')

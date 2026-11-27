@@ -17,6 +17,10 @@ export default function ShowdownStage({game,photo,intro,ranked,busy,onMove,onDon
  return <article className="showdown-stage">
   {photo&&<figure className="showdown-frame"><img src={photo} alt=""/></figure>}
   <section className="showdown-body">
+   {view.verdict&&<div className="gta-stamp" data-verdict={view.verdict} aria-hidden="true">
+    <span lang="en">{view.verdict==='win'?'SHOWDOWN WON':view.verdict==='partial'?'TURF HELD':'OUTPLAYED'}</span>
+    <i>{view.verdict==='win'?'场面拿下':view.verdict==='partial'?'守住底盘':'下回讨还'}</i>
+   </div>}
    <div className="showdown-kicker">
     <span>{ranked?'本周排位':'主线任务'}</span>
     <span>{view.verdict?'已结算':`剩余 ${4-view.round} 回合`}</span>

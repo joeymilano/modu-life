@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { calendarYear, cityYearNote } from '../game/calendar';
+import { hasMarketInsider, nextYearQuoteForecast, useTacticalSupply, type ModuMeta } from '../game/commercial';
 import {
  LISTINGS, LISTING_IDS, lotteryPrice, marketQuote, marketValue, openYear, scratchLottery, tradeMarket, tradeValue, type ListingId,
 } from '../game/market';
@@ -9,7 +10,7 @@ import './market.css';
 
 const yuan=(n:number)=>'¥'+n.toLocaleString('zh-CN');
 
-export default function MarketBoard({game,onChange}:{game:GameState;onChange:(state:GameState)=>void}) {
+export default function MarketBoard({game,onChange,meta,onMetaChange}:{game:GameState;onChange:(state:GameState)=>void;meta?:ModuMeta;onMetaChange?:(next:ModuMeta)=>void}) {
  const year=calendarYear(game);
  const [selected,setSelected]=useState<ListingId>('sh_trade');
  const [tab,setTab]=useState<'trade'|'lottery'>('trade');
@@ -18,6 +19,8 @@ export default function MarketBoard({game,onChange}:{game:GameState;onChange:(st
  const item=LISTINGS[selected];
  const first=openYear(selected), available=year>=first;
  const price=marketQuote(game,selected,year);
+ const insiderOpen=meta?hasMarketInsider(meta,game):false;
+ const forecast=available&&insiderOpen?nextYearQuoteForecast(game,selected):null;
  const units=Number(lots);
  const valid=Number.isInteger(units)&&units>0&&units<=1_000_000;
  const buy=valid?tradeValue(game,selected,units,'buy'):0;
@@ -65,6 +68,12 @@ export default function MarketBoard({game,onChange}:{game:GameState;onChange:(st
     <h3>{item.name}</h3>
     {available?<>
      <p>{yuan(price)} / {item.lot} · {owned?'持有 '+owned.lots+' 手':'暂无持仓'}</p>
+     {forecast?<p className={'market-insider '+(forecast.pct>=0?'up':'down')}>
+      <Icon name="spark" size={14}/>外滩私募内参：{year+1} 年预估 {yuan(forecast.next)}（{forecast.pct>=0?'+':''}{forecast.pct}%）
+     </p>:meta&&onMetaChange&&!locked&&<button type="button" className="text-button market-insider-unlock" disabled={meta.supplies.insider<=0} onClick={()=>{
+      try{const res=useTacticalSupply(meta,game,'insider');onMetaChange(res.meta);onChange(res.game);setNote(res.message);}
+      catch(error){setNote((error as Error).message);}
+     }}><Icon name="spark" size={14}/>{meta.supplies.insider>0?`启用陆家嘴风向内参（余 ${meta.supplies.insider} 张）`:'黑卡会员或持风向内参可看明年涨跌'}</button>}
      {owned&&<p>账面盈亏 <b>{(owned.lots*price-owned.cost>=0?'+':'−')+yuan(Math.abs(owned.lots*price-owned.cost))}</b></p>}
      {points.length>1&&<><ol className="market-chart" aria-label="历年价格">
       {points.map(point=><li key={point.at} title={point.at+' 年 · '+yuan(point.price)}>

@@ -9,6 +9,7 @@ import './game-interface.css';
 import './components/street-cards.css';
 import './night-palette.css';
 import './night-edition.css';
+import './gta-modu.css';
 createRoot(document.getElementById('root')!).render(<StrictMode><App /></StrictMode>);
 
 if (import.meta.env.PROD && 'serviceWorker' in navigator && !isPearlPath(window.location.pathname)) {

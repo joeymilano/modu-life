@@ -28,20 +28,20 @@ export const PROJECT_BUDGET = 800000;
 
 export const LIFE_STARTS = [
  {
-  id: 'daywork', seed: 'SH-SHIFT', cash: 780, place: '莘庄', title: '日结工', line: '名字被划，床位只续到今晚',
-  text: '赵正当众撕了你的报名角：「外地人，也配挑班？」手心只剩七百八，床位今晚到期。',
+  id: 'daywork', seed: 'SH-SHIFT', cash: 780, place: '莘庄', title: '日结工', line: '赵正撕了报名单角：名字划掉，铺位没侬份',
+  text: '兜里七百八十块，一只滚进雨里的旧皮箱。夜里最后一车货，你一个人卸。',
   cards: ['born-daywork', 'fund-thin', 'talent-code', 'tie-free', 'secret-kind'],
   photo: openingPhoto('daywork-gate'),
  },
  {
-  id: 'heir', seed: 'SH-HEIR', cash: HEIR_PERSONAL_CASH, place: '陆家嘴', title: '顶级富二代', line: '六千万到账，全上海都当你被除名',
-  text: '大舅发难，周骁抢了你的主位还留话：「厨房给你留了传菜的位子。」没人知道，六千万刚进你的账户。',
+  id: 'heir', seed: 'SH-HEIR', cash: HEIR_PERSONAL_CASH, place: '陆家嘴', title: '顶级富二代', line: '周骁霸了主位：「备餐口给你加张折凳」',
+  text: '满座推杯换盏，没人晓得六千万上午刚进你的中行存折。母亲把原版主东请帖塞进了你掌心。',
   cards: ['born-heir', 'fund-family', 'talent-count', 'tie-demand', 'secret-kind'],
   photo: heirStoryPhoto('family'),
  },
  {
-  id:'system',seed:'SH-SYSTEM',cash:SYSTEM_CASH,place:'外滩',title:'系统流',line:'首单被抢，¥18,000 还捏在手里',
-  text:'顾桥当面改了收款人：「新人就该靠边站。」系统只认原件——赶到外滩，八万还能抢回来。',
+  id:'system',seed:'SH-SYSTEM',cash:SYSTEM_CASH,place:'外滩',title:'系统流',line:'首单悬赏八万，面板却把主导权判给了顾桥',
+  text:'外滩暴雨夜，你刚帮许舟把电瓶抬进廊下，顾桥拿伞尖指路让你滚去后门——整栋楼啪地断了电。',
   cards:['born-system','fund-system','talent-code','tie-free','secret-kind'],
   photo:systemPhoto('phone'),
  },

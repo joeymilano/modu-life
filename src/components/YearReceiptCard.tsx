@@ -79,6 +79,7 @@ export default function YearReceiptCard({book, age, receipt, children}: {
      </section>}
      {!!receipt.tableIncome&&item('长桌修补台',receipt.tableIncome,true)}
      {!!receipt.stallIncome&&item('小吃街晚班',receipt.stallIncome,true)}
+     {!!receipt.empireIncome&&item('名下产业分红',receipt.empireIncome,true)}
      {!!receipt.friendAdvance&&item('朋友垫付',receipt.friendAdvance,true)}
      {item(receipt.rentKind==='shared'?'你承担的全年住房费':receipt.rentKind==='lease'?'这份租约的全年房租':'全年住房费',-receipt.rent,true)}
      {item('全年生活开支',-receipt.living,true)}

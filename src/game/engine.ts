@@ -12,6 +12,8 @@ import { CAREERS, CAST, GOALS, LIFE_START_CARDS, ORIGIN_POOLS } from './content'
 import { FIRST_NIGHT_FLAG, firstNightYear, hasSharedWithMao } from './firstNight';
 import { hasHeirStory, HEIR_WEST_BUND } from './heirStory';
 import { livesInPenthouse, replayConcierge } from './heirConcierge';
+import { empireAssetValue, empireDividend, ownedBusinesses, ownsEmpireClub, ownsEmpirePenthouse } from './empire';
+import { HUSTLE_HEAT_FLAGS } from './streetHustles';
 import { campaignEpilogue, campaignPressureYear, campaignYear } from './lifeCampaign';
 import { isSystemLife } from './systemStory';
 import { OPENING_DRAMA } from './openingStakes';
@@ -32,12 +34,12 @@ import type { ActivityKind, ChoiceResult, Effect, EventChoice, GameState, GoalId
 export const STAT_NAMES: Record<StatKey,string> = { health:'身体', spirit:'心气', skill:'本事', face:'腔势', network:'人脉' };
 export const ACTIVITY_NAMES: Record<ActivityKind,string> = { career:'事业', romance:'约会', rest:'歇一歇', learn:'长本事', housing:'住下来', social:'交朋友', business:'搞点事业', explore:'白相相' };
 export const CHAPTERS = [
-  {name:'初来乍到', years:'18至24岁', quote:'行李不重，心思蛮重。'},
-  {name:'各凭本事', years:'25至31岁', quote:'朋友圈很体面，银行卡很安静。'},
-  {name:'立得住脚', years:'32至38岁', quote:'买房、换工作，还是先吃饭？'},
-  {name:'中场换气', years:'39至45岁', quote:'体检预约排在年会前面'},
-  {name:'重新开张', years:'46至52岁', quote:'这回先问问自己欢喜伐。'},
-  {name:'自有腔调', years:'53至59岁', quote:'饭局少了，牌局多了'},
+  {name:'初闯码头', years:'18至24岁', quote:'皮箱轮子磨平了，路数才刚摸熟。'},
+  {name:'各显神通', years:'25至31岁', quote:'场面上滴水不漏，卡里余额自己心里有数。'},
+  {name:'扎稳脚跟', years:'32至38岁', quote:'先上车买房、跳槽单干，还是今晚先吃顿好的？'},
+  {name:'中场换挡', years:'39至45岁', quote:'酒局推掉一半，体检报告比年终奖先拆。'},
+  {name:'二次开张', years:'46至52岁', quote:'前半场替别人赶路，后半场先问自家欢喜伐。'},
+  {name:'老克勒腔调', years:'53至59岁', quote:'虚头巴脑的局不去了，留几桌真朋友吃茶。'},
 ];
 export const clamp = (n:number,min=0,max=100) => Math.max(min,Math.min(max,n));
 export { hashSeed, randomStep } from './seed';
@@ -197,42 +199,42 @@ export function routineEvent(s:GameState,kind:ActivityKind|'year',npcId?:string)
   const npc=CAST.find(c=>c.id===npcId);
   const mk=(id:string,label:string,reply:string,effect:Effect):EventChoice=>({id,label,reply,effect});
   const content:Record<string,[string,string,EventChoice[]]>={
-    rest:['今天先不争气','手机扣在桌上，水壶刚响。楼下有人在讲电话，讲的也不是什么大事。',[
-      mk('nap','补一觉，谁也别找我','一觉睡到下午三点。手机没几条新消息，你又翻了个身。',{health:14,spirit:10}),
-      mk('walk','到江边走一圈','走到第二座桥，终于不再一遍遍想那句气话。',{health:8,spirit:14}),
-      mk('call','给一个惦记的人打电话','本来只想问吃了伐，聊到水壶响了第二回。',{spirit:10,network:5,trust:5})]],
-    learn:['收藏的课该看了','新课程的广告说，七天改变人生。老师本人看起来已经七天没睡觉。',[
-      mk('practice','先拿手头的真问题练习','你照着试了三遍，同事那份卡了一周的文件总算能打开了。',{skill:9,spirit:-2}),
-      mk('course','报个正经课程 · ¥2,000','报名之后，老师先发来一份作业。你当天就做了两个钟头。',{cash:-2000,skill:15,network:2}),
-      mk('peer','约同行交换一门手艺','你教他改方案，他把以前报过的价格给你看，说下次别报那么低。',{skill:6,network:7})]],
-    social:['碰头还是碰杯','朋友发来消息，问有空伐，后面紧跟着一家饭店的位置。',[
-      mk('listen','坐下来听听他的近况','你听他把最近的事讲完，约好周末再见一面。',{network:8,spirit:5,trust:5}),
-      mk('treat','请一顿家常饭 · ¥600','菜上齐以后，谁也没顾上拍照。吃完几个人还站在门口聊。',{cash:-600,network:12,spirit:7,trust:8}),
-      mk('help','帮他把一件难事拆开做','你们一起弄了一个下午，朋友终于把那份拖着的文件交了。',{network:10,skill:3,health:-3,trust:7})]],
-    explore:['拐进一条没走过的路','导航又让你掉头。你抬眼看见街角有家店，门口正有人排队。',[
-      mk('wander','收起手机，随便走走','发现一家店，老板连招牌都没擦。东西却做得认真。',{spirit:9,network:3}),
-      mk('photo','拍一张不发朋友圈的照片','照片拍了三张，留了最亮的那张，存在手机里没发。',{spirit:8,skill:3}),
-      mk('chat','和路边爷叔聊两句','聊了三站路的事，爷叔一句导航都没用。',{network:7,spirit:3})]],
-    housing:['住得像自己','中介说这间房很有潜力。你的意思是，还得我花钱？',[
-      mk('stay','先把眼前的房间收拾好','窗帘洗了，书架扶正，床底那几只空盒子也扔了。',{spirit:8,health:4}),
-      mk('upgrade','换个舒服点的住处 · ¥12,000','钥匙转动的声音很轻。你在空屋里坐了五分钟。',{cash:-12000,housing:Math.min(2,s.housing+1),spirit:12}),
-      mk('budget','找个便宜些、通勤还行的房间','看了很多房，最后选了晚上能睡着的那一间。',{housing:0,spirit:3,health:-2})]],
-    business:['想法也要交房租','小店门口贴着转让。你站了一会，已经在脑子里算起水电费。',[
-      mk('small','先小规模接一单试试','第一单收了六千，你把材料和工时分开记好，开始算下一单的价格。',{cash:6000,skill:5,network:3,spirit:-2}),
-      mk('invest','投入一笔钱认真做 · ¥15,000','收支表终于长得比招牌好看了。',{cash:-15000,skill:10,face:5,setFlags:['business_tested']}),
-      mk('observe','先帮朋友做两天，看看实际情况','干到打烊才明白，主理人也得倒垃圾。',{skill:7,network:6,health:-4})]],
-    year:['这一年，上海还在转','群里开始转发新年红包。你翻到今年的第一张照片，认出那时候住的房间。',[
-      mk('keep','把做成的事记下来','你把今年做过的事记下来，第一页不够，又翻了一页。',{spirit:6}),
-      mk('people','给帮过你的人回个消息','有人秒回，有人第二天才回。但都回了。',{network:5,trust:3}),
-      mk('reset','给来年留一点空白','你把下月最挤的两场安排推了，日历总算不再全是红点。',{health:4,spirit:3})]],
-    career:['工作这件事','岗位说明写了一整页。你点进去，对方问你手上有没有能看的项目。',[
-      mk('apply','认真谈谈我会做的事','对方问了几个具体问题。你也问了工资和下班时间。',{job:s.jobId||'service',skill:6,network:3}),
-      mk('build','先做一份拿得出手的作品','这回简历里，有一行是你真正想让人看的。',{skill:12,spirit:-3}),
-      mk('ask','找熟人了解一下行业近况','消息没有直接变成offer，但少绕了几个弯。',{network:10,skill:3})]],
-    romance:[npc?`和${npc.name}再聊一会`:'这周约不约',npc?`${npc.name}没有问你工资。今天想知道的，是上次没讲完的那件事。`:'你点开聊天框，最后一句还是上次说的有空再约。今天正好没安排。',[
-      mk('listen','认真听，不急着表现','对方说了家一直想吃的店。你顺手存进地图，约下次去。',{trust:12,attraction:5,spirit:4}),
-      mk('date','安排一次合对方心意的约会 · ¥500','没有铺满玫瑰。就是你记得，对方说过想来这里。',{cash:-500,trust:10,attraction:14,commitment:4}),
-      mk('honest','说说自己的近况，也说困难','讲完有点不好意思。对方却说，谢谢你告诉我。',{trust:15,attraction:3,commitment:5,spirit:5})]],
+    rest:['今天挂免战牌','手机反扣在桌面，电水壶咔哒跳闸。弄堂里有人隔窗喊收衣裳，没一桩事催你立刻回话。',[
+      mk('nap','拉上窗帘睡到天擦黑','一觉闷到下午四点，工作群静悄悄的，翻个身把风头也避了过去。',{health:14,spirit:10,removeFlags:['hustle_heat_bund','hustle_heat_anfu','hustle_heat_people']}),
+      mk('walk','晃去苏州河边吹夜风','溜达到第二座老桥，胸口堵着的那句闷气顺着江风散干净了。',{health:8,spirit:14,removeFlags:['hustle_heat_lujia','hustle_heat_zhang','hustle_heat_xin']}),
+      mk('call','给挂心的人拨通电话','本来只随口问句吃了伐，不知不觉聊到水壶烧开第二轮。',{spirit:10,network:5,trust:5})]],
+    learn:['压箱底的课该拆封了','广告吹得震天响：七天重塑核心竞争力。点开试听，讲师的黑眼圈比你还重。',[
+      mk('practice','拿手头卡壳的真活练手','照着文档硬啃三遍，把同事拖了一礼拜的烂摊子当场跑通了。',{skill:9,spirit:-2}),
+      mk('course','掏钱报个实战硬课 · ¥2,000','刚交完学费助教就甩来两份实操题，逼着自己连啃两个钟头。',{cash:-2000,skill:15,network:2}),
+      mk('peer','约圈内老手拿手艺换手艺','你帮他改完方案，他顺手把行里真实的底价区间透给了你。',{skill:6,network:7})]],
+    social:['碰头吃茶还是组局碰杯','老熟人弹来一条消息问今朝有空伐，底下紧跟着一家本帮小馆的定位。',[
+      mk('listen','找个角落听他倒苦水','听他把近半年的弯路竹筒倒豆子讲完，临走约实了下回碰头。',{network:8,spirit:5,trust:5}),
+      mk('treat','做东请顿热炒本帮菜 · ¥600','响油鳝丝一上桌没人顾得上玩手机，散席了还在马路牙子上聊了半宿。',{cash:-600,network:12,spirit:7,trust:8}),
+      mk('help','卷起袖子帮他拆解棘手事','俩人对坐忙活一下午，总算把他卡死的那份申报单清干净了。',{network:10,skill:3,health:-3,trust:7})]],
+    explore:['拐进导航没标的后弄堂','高架桥下信号打飘，抬眼撞见转角小铺排起长队，油锅滋啦冒着香气。',[
+      mk('wander','揣起手机顺着弄堂瞎逛','撞见家门头掉漆的老铺子，老板脾气倔，手底下出品倒是真讲究。',{spirit:9,network:3}),
+      mk('photo','捏一张不发圈的街景留底','连按三下快门留住最亮那张霓虹倒影，揣回兜里谁也没给看。',{spirit:8,skill:3}),
+      mk('chat','蹲马路牙子跟爷叔嘎三胡','三站路的陈年八卦听了个遍，比任何城市攻略都灵光。',{network:7,spirit:3})]],
+    housing:['把日子过出点人样','中介拍着胸脯夸这间房极具改造空间——翻译过来就是还得你自己掏腰包。',[
+      mk('stay','挽起袖子把现住处拾掇清爽','窗帘拆洗晾干，歪腿书架垫平，床底攒了半年的空快递箱全清出门。',{spirit:8,health:4}),
+      mk('upgrade','咬牙换套敞亮住处 · ¥12,000','新锁芯转动一声轻响，你在洒满夕阳的空客厅里独坐了五分钟。',{cash:-12000,housing:Math.min(2,s.housing+1),spirit:12}),
+      mk('budget','挑间通勤顺脚、夜里不吵的实惠房','跑断腿看了七八套，最后拍板了弄堂深处最安静的那一间。',{housing:0,spirit:3,health:-2})]],
+    business:['再好的点子也得先交房租','临街铺面贴出旺铺急转，你站在马路对面，脑子里已经噼里啪啦算起了坪效水电。',[
+      mk('small','先接一票小单试探水深','头一单落袋六千现钱，材料工时分列得明明白白，心里有了底价。',{cash:6000,skill:5,network:3,spirit:-2}),
+      mk('invest','真金白银砸下去试水 · ¥15,000','忙活大半个月，流水账面总算长得比门头招牌顺眼了。',{cash:-15000,skill:10,face:5,setFlags:['business_tested']}),
+      mk('observe','先去朋友店里盯两天晚班','干到凌晨拉卷帘门才悟透：叫主理人也好叫老板也罢，打烊都得自己拎垃圾袋。',{skill:7,network:6,health:-4})]],
+    year:['黄浦江的水还在往前淌','满屏都在转迎新红包。你翻到年初随手拍的旧照片，差点没认出当时落脚的那间屋子。',[
+      mk('keep','把今年啃下来的硬骨头记一笔','拿笔一条条列下来，一页纸居然没写满，翻过面又添了两行。',{spirit:6}),
+      mk('people','给搭过手的朋友挨个回声谢','有人秒回表情包，有人隔天清晨才回，好在情分都还在。',{network:5,trust:3}),
+      mk('reset','替开春的台历留几格透气窗','果断推掉两场虚头巴脑的应酬，下个月总算不用连轴转了。',{health:4,spirit:3})]],
+    career:['饭碗与身价这笔账','招聘简章写得天花乱坠，真坐上谈判桌，对面头一句还是问你手头有没有硬活。',[
+      mk('apply','摊开做成的项目谈真格的','对面追问了三个落地细节，你也毫不客气问清了底薪跟加班规矩。',{job:s.jobId||'service',skill:6,network:3}),
+      mk('build','闭关攒一份镇得住场的代表作','简历上总算多出一行不用心虚圆场的硬通货。',{skill:12,spirit:-3}),
+      mk('ask','约行里熟人摸摸今年真实行情','虽没当场拿到录用函，但把坑人的两家公司提前排了雷。',{network:10,skill:3})]],
+    romance:[npc?`约${npc.name}出来吹吹晚风`:'这礼拜约不约出来',npc?`${npc.name}没打听你月底拿多少钞票，只顺着上回没讲完的话头往下聊。`:'点开置顶对话框，上一句还停在「改天约饭」，今晚偏巧两边都没局。',[
+      mk('listen','收起表现欲，踏踏实实听对方讲','对方随口提了家藏在弄堂里的小馆子，你不动声色记进地图备忘录。',{trust:12,attraction:5,spirit:4}),
+      mk('date','订一处合对方脾气的去处 · ¥500','没搞浮夸排场，就是对方上月念叨过一句的地方，你一直记着。',{cash:-500,trust:10,attraction:14,commitment:4}),
+      mk('honest','不端着架子，连近来的难处一块摊开','话讲出口反倒松快了，对方安静听完，替你把空茶杯续上了热茶。',{trust:15,attraction:3,commitment:5,spirit:5})]],
   };
   const [title,text,choices]=content[kind]||content.explore;
   return {id:`routine-${kind}`,title,text,choices,speakerId:npcId,category:kind,tag:'日常'};
@@ -316,8 +318,9 @@ export function nextYear(state:GameState) {
   const currentPay=Math.round(budget.salary*activeMonths*variable);
   const table=longTableBudget(state);
   const stallIncome=stallCommitment(state)?STALL_YEARLY_PAY:0;
+  const empireIncome=empireDividend(state);
   const workIncome=employment.earned+currentPay;
-  const income=workIncome+table.income+stallIncome,rentExpense=budget.rent*12,expense=rentExpense+budget.living*12;
+  const income=workIncome+table.income+stallIncome+empireIncome,rentExpense=budget.rent*12,expense=rentExpense+budget.living*12;
   const payroll=employment.closedMonths>0?{previous:employment.earned,current:currentPay,months:activeMonths}:undefined;
   const plan=householdPlan(s);
   const pressure:Record<string,[number,number]>={tech:[5,5],finance:[3,8],creative:[3,4],service:[6,3],public:[2,2],freelance:[2,3],business:[4,4],trade:[4,5]};
@@ -337,6 +340,11 @@ export function nextYear(state:GameState) {
   if(familyPaid)note+=` 家里代付指定账单 ¥${familyPaid.toLocaleString()}。`;
   if(table.income)note+=` 长桌修补台入账 ¥${table.income.toLocaleString()}。`;
   if(stallIncome)note+=` 小吃街晚班入账 ¥${stallIncome.toLocaleString()}。`;
+  if(empireIncome)note+=` 名下产业分红 ¥${empireIncome.toLocaleString()}。`;
+  if(ownsEmpireClub(s)){
+    const activeHeat=s.flags.find(flag=>(HUSTLE_HEAT_FLAGS as readonly string[]).includes(flag));
+    if(activeHeat){s.flags=s.flags.filter(flag=>flag!==activeHeat);notices.push('十六铺夜总会替你把街面上的风声压平了一桩。');}
+  }
   if(plan==='shared')note+=` 同住的住房费，你这一年出了 ¥${rentExpense.toLocaleString()}。`;
   else if(state.leaseRent!==undefined)note+=` 这份租约全年房租 ¥${rentExpense.toLocaleString()}。`;
   if(repayment){
@@ -368,12 +376,12 @@ export function nextYear(state:GameState) {
   const notice=notices.join(' ');
   if(notice)note+=' '+notice;
   const receipt: YearReceipt = {
-    before:state.cash, after:s.cash, workIncome, tableIncome:table.income, stallIncome,
+    before:state.cash, after:s.cash, workIncome, tableIncome:table.income, stallIncome, ...(empireIncome?{empireIncome}:{}),
     rent:rentExpense, living:expense-rentExpense, familyPaid, repayment, uncovered, friendAdvance, care,
     body:s.stats.health-state.stats.health, spirit:s.stats.spirit-state.stats.spirit,
     payroll, rentKind:plan==='shared'?'shared':state.leaseRent!==undefined?'lease':'plain', notice,
     moment:receiptMoment({uncovered,friendAdvance,familyPaid,after:s.cash,before:state.cash},recovered,
-      activeMonths>0&&(commute||state.flags.includes(NIGHT_WORK)),livesInPenthouse(s)),
+      activeMonths>0&&(commute||state.flags.includes(NIGHT_WORK)),livesInPenthouse(s)||ownsEmpirePenthouse(s)),
   };
   s.journal.push({age:s.age,title:`${s.age}岁年度账本`,text:note,tag:'账本',receipt});
   if(s.employment)s.employment={...employment,closedMonths:0,earned:0};
@@ -399,21 +407,23 @@ export function relationshipLabel(s:GameState,id:string){
 }
 export function commitRelationship(s:GameState,id:string):GameState {const rel=s.relationships[id];if(!rel?.met||rel.trust<55||rel.attraction<45)throw new Error('再多了解彼此一点，现在还没到这一步。');let next=structuredClone(s);next.partnerId=id;next.relationships[id].commitment=clamp(rel.commitment+25);next.flags=[...new Set([...(s.partnerId===id?next.flags:clearHousehold(next.flags)),'committed'])];next.journal.push({age:s.age,title:`和${CAST.find(c=>c.id===id)?.name}一起`,text:'你们吃完饭，顺路一起去买了牙刷。回去的路上，谁也没再说客气话。',tag:'关系'});return next;}
 export function ending(s:GameState){
-  const netWorth=s.cash+marketValue(s);
+  const netWorth=s.cash+marketValue(s)+empireAssetValue(s);
+  const bizCount=ownedBusinesses(s).length;
   const rel=s.partnerId?s.relationships[s.partnerId]:null;
   const candidates=[
-    {id:'million',goal:'wealth',title:'这回真有钞能力',text:'六十岁生日，你查了眼余额，把几个工作群退了。中午加一只蟹，没人需要批准。',ok:netWorth>=2000000},
-    {id:'comfortable',goal:'wealth',title:'卡里还有点钱',text:'存款够用，账单付得出。老同学还在聊项目，你已经在看明天几点退潮。',ok:netWorth>=400000},
-    {id:'love',goal:'love',title:'下雨有人来接',text:'下雨了，对方发来消息问你在哪。走出地铁口，那把旧伞又撑在那里。',ok:!!rel&&rel.trust>=75&&rel.commitment>=40},
-    {id:'companions',goal:'love',title:'菜还是买多了',text:'你下楼买了菜，对方也买了一份。两个人对着两袋青菜笑了半天，晚上又得吃面。',ok:!!rel&&rel.trust>=45},
-    {id:'master',goal:'craft',title:'这活还得找你',text:'老同事把你拉进一个群。新人客气地叫老师，老同事直接问，这个能修伐。',ok:s.stats.skill>=90&&s.yearsEmployed>=15},
-    {id:'maker',goal:'craft',title:'手艺还在',text:'街角那块招牌还是你做的。老板见你经过，照旧喊你进来坐，茶早就泡好了。',ok:s.stats.skill>=65},
-    {id:'free',goal:'free',title:'今天没安排',text:'睡醒九点半。手机没什么消息，你拎着杯子出门，临时决定坐两站轮渡。',ok:s.stats.spirit>=75&&s.stats.health>=55},
-    {id:'reset',goal:'free',title:'又开张了',text:'当年搬走时没带的那盆花，朋友还替你养着。这回拿回来，正好放在新桌子上。',ok:s.flags.includes('needed_help')&&s.stats.spirit>=50},
-    {id:'community',goal:'community',title:'弄堂里叫得出名号',text:'下楼买个酱油，来回走了四十分钟。这个喊你吃生煎，那个托你看看手机。',ok:s.stats.network>=85},
-    {id:'friends',goal:'community',title:'老地方留了座',text:'群里只发了三个字，老地方。你到的时候，靠窗那张椅子没人坐，筷子已经摆好了。',ok:s.stats.network>=60},
-    {id:'comeback',goal:'any',title:'还真让你混下来了',text:'几次交不起房租，也几次换了工作。现在翻出刚来时的照片，你先笑了，箱子那时候真破。',ok:s.rescues>=3},
-    {id:'ordinary',goal:'any',title:'在上海过了四十二年',text:'以前换乘总走错，现在闭着眼都知道哪个出口近。今天不赶时间，你偏偏绕了远路。',ok:true},
+    {id:'kingpin',goal:'wealth',title:'浦江两岸话事人',text:'从拎只旧皮箱出站，到外滩包厢、张江机房与陆家嘴席位尽数挂在你名下。黄浦江的汽笛还是老腔调，只是如今船过十六铺，岸上亮灯的招牌有一半姓你的姓。',ok:netWorth>=10000000&&bizCount>=3},
+    {id:'million',goal:'wealth',title:'黄浦江边钞能力',text:'六十岁生日查了眼资产净值，随手退掉最后几个应酬群。午饭加点一只六月黄大闸蟹，再不用看任何人的脸色批条子。',ok:netWorth>=2000000},
+    {id:'comfortable',goal:'wealth',title:'兜里有底不慌张',text:'存折数字扎实，水电账单随手清。老同学还在酒桌上吹百亿风口，你已经在看明早吴淞口几点退潮。',ok:netWorth>=400000},
+    {id:'love',goal:'love',title:'梅雨天总有人撑伞',text:'黄梅天骤雨砸下来，手机震了一下问你在哪个出口。迈出地铁站台，那把熟悉的大黑伞稳稳候在风口。',ok:!!rel&&rel.trust>=75&&rel.commitment>=40},
+    {id:'companions',goal:'love',title:'菜篮子撞了同款',text:'你拎着一把矮脚青菜上楼，迎面撞见对方也拎着一袋。俩人对着满桌绿叶菜笑弯了腰，今夜爽性下面条吃。',ok:!!rel&&rel.trust>=45},
+    {id:'master',goal:'craft',title:'行里压舱老法师',text:'后辈恭恭敬敬拉你进顾问群喊老师，老搭档没讲虚礼，甩来一张图纸直接问：这硬骨头还啃得动伐？',ok:s.stats.skill>=90&&s.yearsEmployed>=15},
+    {id:'maker',goal:'craft',title:'手艺长在骨头里',text:'街角那块老招牌还是你早年亲手定的稿。店主远远瞧见你晃过来，熟门熟路端出泡好的明前龙井。',ok:s.stats.skill>=65},
+    {id:'free',goal:'free',title:'今朝日程全留白',text:'睡到九点半自然醒，手机干干净净没半条夺命催办。拎起保温杯晃出门，兴起坐了两块钱过江轮渡。',ok:s.stats.spirit>=75&&s.stats.health>=55},
+    {id:'reset',goal:'free',title:'跌过跟头照开张',text:'早年退租没带走的那盆绿萝，老友替你养得爬满了窗台。今朝端回新书桌，正好迎着南窗日头。',ok:s.flags.includes('needed_help')&&s.stats.spirit>=50},
+    {id:'community',goal:'community',title:'十里街坊有牌面',text:'下楼打瓶酱油硬是晃了四十分钟——前弄堂塞你两只刚出锅的生煎，后弄堂拉你掌眼挑新手机。',ok:s.stats.network>=85},
+    {id:'friends',goal:'community',title:'老馆子永远留着座',text:'群里只蹦出三个字：老地方。推门进去，靠窗那把椅子空着，烫好的黄酒和碗筷早替你摆齐了。',ok:s.stats.network>=60},
+    {id:'comeback',goal:'any',title:'硬是在上海滩扎下了根',text:'断过房租，也砸过饭碗。如今翻出十八岁出站那张旧照，你指着那只破皮箱先乐出了声。',ok:s.rescues>=3},
+    {id:'ordinary',goal:'any',title:'浦江两岸四十二载',text:'刚来那年换乘总迷路，如今闭着眼都摸得准哪扇门离扶梯最近。今朝不赶钟点，你偏挑梧桐树影最密的那条远路慢慢走。',ok:true},
   ];
   const result=candidates.find(e=>e.ok&&e.goal===s.goal)||candidates.find(e=>e.ok)||candidates[candidates.length-1];
   return {...result,...campaignEpilogue(s),...pujiangEpilogue(s)};

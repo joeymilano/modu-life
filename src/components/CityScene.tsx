@@ -19,6 +19,7 @@ export interface CitySceneProps {
  district:DistrictId; selectedHotspot?:string|null; onHotspot:(id:string)=>void;
  destination?:[number,number]|null; onArrive?:()=>void; night?:boolean; reducedMotion?:boolean;
  compact?:boolean; mode?:'hero'|'play'; onReady?:()=>void; appearance?:PlayerAppearance; onNightOwl?:()=>void;
+ heatLevel?:number;
 }
 function inputBlocked(){const tag=document.activeElement?.tagName;return tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||!!document.querySelector('[aria-modal="true"]');}
 function CameraRig({compact,district,hero,reducedMotion,onReady}:{
@@ -45,11 +46,11 @@ function CameraRig({compact,district,hero,reducedMotion,onReady}:{
  return null;
 }
 function Road({asphalt,night,end=14.7,crossStreet}:{asphalt:CityTextures['asphalt'];night:boolean;end?:number;crossStreet:boolean}){
- const color=asphalt?(crossStreet?(night?'#ced4d8':'#90979b'):'#d2d7d4'):'#505a5f',roughness=night?.61:.95;
+ const color=asphalt?(night?'#343d52':crossStreet?'#90979b':'#d2d7d4'):'#303846',roughness=night?.28:.92;
  const rightCurb=end-1.65;
  return <group>
-  <CitySurface position={[(end-14.7)/2,.054,0]} size={[end+14.7,2.72]} map={asphalt} color={color} tile={4} roughness={roughness} relief={.022}/>
-  {crossStreet&&<CitySurface position={[0,.056,0]} size={[2.72,22.5]} map={asphalt} color={color} tile={4} roughness={roughness} relief={.022}/>}
+  <CitySurface position={[(end-14.7)/2,.054,0]} size={[end+14.7,2.72]} map={asphalt} color={color} tile={4} roughness={roughness} metalness={night?.32:0} relief={.022}/>
+  {crossStreet&&<CitySurface position={[0,.056,0]} size={[2.72,22.5]} map={asphalt} color={color} tile={4} roughness={roughness} metalness={night?.32:0} relief={.022}/>}
   {crossStreet?[-1.48,1.48].map(z=><group key={z}>
    <Block position={[-8.1,.055,z]} size={[12.9,.06,.15]} color='#b4b5a9' shadow={false}/>
    <Block position={[1.65+rightCurb/2,.055,z]} size={[rightCurb,.06,.15]} color='#b4b5a9' shadow={false}/>
@@ -58,6 +59,10 @@ function Road({asphalt,night,end=14.7,crossStreet}:{asphalt:CityTextures['asphal
   {[-12,-9,-6,-3,3,6,9,12].filter(x=>x+.5<end).map(x=><Block key={x} position={[x,.063,0]} size={[.85,.007,.05]} color='#a4a18e' shadow={false}/>)}
   {crossStreet&&[-6,-3.8,3.8,6].map(z=><Block key={z} position={[0,.063,z]} size={[.05,.007,.85]} color='#a4a18e' shadow={false}/>)}
   {crossStreet&&[-2.13,2.13].flatMap((z,j)=>Array.from({length:6},(_,i)=><Block key={j+'-'+i} position={[-.98+i*.392,.068,z]} size={[.21,.008,.66]} color='#d5d5c7' shadow={false}/>))}
+  {night&&<>
+   <mesh rotation={[-Math.PI/2,0,0]} position={[-4.5,.066,-.45]}><planeGeometry args={[4.6,.42]}/><meshBasicMaterial color='#ff2e93' transparent opacity={.14} toneMapped={false}/></mesh>
+   <mesh rotation={[-Math.PI/2,0,0]} position={[3.8,.066,.52]}><planeGeometry args={[5.2,.38]}/><meshBasicMaterial color='#00f5d4' transparent opacity={.13} toneMapped={false}/></mesh>
+  </>}
  </group>;
 }
 function StreetFurniture({district,night}:{district:DistrictId;night:boolean}){
@@ -75,16 +80,35 @@ function StreetFurniture({district,night}:{district:DistrictId;night:boolean}){
 
  </group>;
 }
-function Taxi({offset=0,color='#bdad55',reducedMotion,end=13}:{offset?:number;color?:string;reducedMotion:boolean;end?:number}){
+function Taxi({offset=0,color='#bdad55',night=false,reducedMotion,end=13,reverse=false,patrol=false}:{offset?:number;color?:string;night?:boolean;reducedMotion:boolean;end?:number;reverse?:boolean;patrol?:boolean}){
  const ref=useRef<THREE.Group>(null);
- useFrame(({clock})=>{if(ref.current&&!reducedMotion)ref.current.position.x=((clock.elapsedTime*.9+offset+13)%(end+13))-13;});
- return <group ref={ref} position={[offset,.08,-.62]} rotation={[0,Math.PI/2,0]}>
- <RoundedBox args={[.72,.35,1.52]} radius={.09} smoothness={2} position={[0,.28,0]} castShadow><meshStandardMaterial color={color} roughness={.45}/></RoundedBox>
- <RoundedBox args={[.64,.35,.82]} radius={.07} smoothness={2} position={[0,.56,0]} castShadow><meshStandardMaterial color='#e8ddba' roughness={.45}/></RoundedBox>
- <Block position={[0,.59,.43]} size={[.51,.24,.025]} color='#54756b' roughness={.3}/>
- <Block position={[0,.59,-.43]} size={[.51,.24,.025]} color='#54756b' roughness={.3}/>
- {[-.37,.37].flatMap((x,i)=>[-.49,.49].map((z,j)=><mesh key={`${i}-${j}`} position={[x,.2,z]} rotation={[0,0,Math.PI/2]}><cylinderGeometry args={[.14,.14,.1,10]}/><meshStandardMaterial color='#41433a'/></mesh>))}
- <Block position={[0,.78,0]} size={[.24,.1,.22]} color='#e6d081'/>
+ const flashRed=useRef<THREE.MeshBasicMaterial>(null);
+ const flashBlue=useRef<THREE.MeshBasicMaterial>(null);
+ useFrame(({clock})=>{
+  if(ref.current&&!reducedMotion){
+   const span=end+13;
+   const prog=((clock.elapsedTime*(patrol?1.35:.95)+offset+13)%span);
+   ref.current.position.x=reverse?(end-prog):(prog-13);
+  }
+  if(patrol&&flashRed.current&&flashBlue.current&&!reducedMotion){
+   const phase=Math.sin(clock.elapsedTime*14)>0;
+   flashRed.current.opacity=phase?1:.18;
+   flashBlue.current.opacity=phase?.18:1;
+  }
+ });
+ const laneZ=reverse?.62:-.62;
+ return <group ref={ref} position={[offset,.08,laneZ]} rotation={[0,reverse?-Math.PI/2:Math.PI/2,0]}>
+ <RoundedBox args={[.72,.35,1.52]} radius={.09} smoothness={2} position={[0,.28,0]} castShadow><meshStandardMaterial color={patrol?'#141926':color} roughness={night?.24:.45} metalness={night?.32:.05}/></RoundedBox>
+ <RoundedBox args={[.64,.35,.82]} radius={.07} smoothness={2} position={[0,.56,0]} castShadow><meshStandardMaterial color={patrol?'#dce4f5':'#e8ddba'} roughness={.38}/></RoundedBox>
+ <Block position={[0,.59,.43]} size={[.51,.24,.025]} color='#3e5d66' roughness={.22}/>
+ <Block position={[0,.59,-.43]} size={[.51,.24,.025]} color='#3e5d66' roughness={.22}/>
+ {[-.37,.37].flatMap((x,i)=>[-.49,.49].map((z,j)=><mesh key={`${i}-${j}`} position={[x,.2,z]} rotation={[0,0,Math.PI/2]}><cylinderGeometry args={[.14,.14,.1,10]}/><meshStandardMaterial color='#2b2d30'/></mesh>))}
+ {patrol?<>
+  <mesh position={[-.14,.79,0]}><boxGeometry args={[.22,.08,.18]}/><meshBasicMaterial ref={flashRed} color='#ff2a55' transparent opacity={.95} toneMapped={false}/></mesh>
+  <mesh position={[.14,.79,0]}><boxGeometry args={[.22,.08,.18]}/><meshBasicMaterial ref={flashBlue} color='#2979ff' transparent opacity={.95} toneMapped={false}/></mesh>
+ </>:<mesh position={[0,.78,0]}><boxGeometry args={[.24,.1,.22]}/><meshStandardMaterial color='#ffe28a' emissive={night?'#ffae42':'#000'} emissiveIntensity={night?1.8:0}/></mesh>}
+ {night&&[-.23,.23].map(x=><mesh key={'hl'+x} position={[x,.29,.77]}><boxGeometry args={[.13,.07,.03]}/><meshBasicMaterial color='#fff6d6' toneMapped={false}/></mesh>)}
+ {night&&[-.23,.23].map(x=><mesh key={'tl'+x} position={[x,.29,-.77]}><boxGeometry args={[.14,.06,.03]}/><meshBasicMaterial color='#ff3366' toneMapped={false}/></mesh>)}
  </group>;
 }
 function Pedestrian({start,color,index,reducedMotion}:{start:[number,number];color:string;index:number;reducedMotion:boolean}){
@@ -123,7 +147,7 @@ function Player({district,destination,onArrive,walkRequest,reducedMotion,appeara
  const avatar=<PlayerAvatar appearance={appearance} walking={walking&&!reducedMotion}/>;
  return <group ref={ref} position={[point.current[0],.075,point.current[1]]}>
   {slot ? <group ref={avatarRoot}><ModelSlotView slot={slot} manifest={manifest} height={1.43} onLoaded={()=>onModelLoaded?.(slot)}>{avatar}</ModelSlotView></group> : avatar}
-  <mesh rotation={[-Math.PI/2,0,0]} position={[0,.01,0]}><ringGeometry args={[.39,.51,32]}/><meshBasicMaterial color='#f7bb64' transparent opacity={.92}/></mesh>
+  <mesh rotation={[-Math.PI/2,0,0]} position={[0,.01,0]}><ringGeometry args={[.39,.52,32]}/><meshBasicMaterial color='#2ef2c3' transparent opacity={.95} toneMapped={false}/></mesh>
  </group>;
 }
 type HotspotLabelRefs = RefObject<Map<string, HTMLButtonElement>>;
@@ -151,9 +175,9 @@ function Hotspots({district,selected,labelRefs,compact}:{
    button.style.visibility=projected.z>=-1&&projected.z<=1&&Math.abs(projected.x)<1.12&&Math.abs(projected.y)<1.12?'visible':'hidden';
   }
  });
- return <group>{config?.hotspots.map(h=><group key={h.id} position={[h.position[0],.05,h.position[1]]}><mesh rotation={[-Math.PI/2,0,0]}><ringGeometry args={[.35,.44,24]}/><meshBasicMaterial color={selected===h.id?'#b73e2c':'#a78548'} transparent opacity={.7}/></mesh></group>)}</group>;
+ return <group>{config?.hotspots.map(h=><group key={h.id} position={[h.position[0],.05,h.position[1]]}><mesh rotation={[-Math.PI/2,0,0]}><ringGeometry args={[.36,.47,24]}/><meshBasicMaterial color={selected===h.id?'#ff4d8d':'#ff9447'} transparent opacity={.88} toneMapped={false}/></mesh></group>)}</group>;
 }
-function World({district,selectedHotspot,onHotspot,destination,onArrive,night=false,reducedMotion=false,compact=false,mode='play',onReady,labelRefs,appearance,onNightOwl,onModelLoaded,playerLabel}:CitySceneProps&{labelRefs:HotspotLabelRefs;playerLabel:RefObject<HTMLSpanElement|null>;onModelLoaded?:(id:string)=>void}){
+function World({district,selectedHotspot,onHotspot,destination,onArrive,night=false,reducedMotion=false,compact=false,mode='play',onReady,labelRefs,appearance,onNightOwl,onModelLoaded,playerLabel,heatLevel=0}:CitySceneProps&{labelRefs:HotspotLabelRefs;playerLabel:RefObject<HTMLSpanElement|null>;onModelLoaded?:(id:string)=>void}){
  const [manifest,setManifest]=useState<ModelManifest>({});const [walkRequest,setWalkRequest]=useState<Point2|null>(null);useEffect(()=>setWalkRequest(null),[district]);
  useEffect(()=>{const controller=new AbortController();fetch(new URL('models/manifest.json', document.baseURI),{signal:controller.signal}).then(r=>r.ok?r.json():null).then(j=>{if(j?.slots)setManifest(j.slots);}).catch(()=>{});return()=>controller.abort();},[]);
  const groundClick=useCallback((e:ThreeEvent<PointerEvent>)=>{if(mode==='hero'||inputBlocked())return;e.stopPropagation();setWalkRequest([e.point.x,e.point.z]);},[mode]);
@@ -166,22 +190,24 @@ function World({district,selectedHotspot,onHotspot,destination,onArrive,night=fa
  const slabCenter=bund?BUND_BANK.westEnd+slabWidth/2:0;
  return <>
   <CameraRig compact={compact} district={district} hero={mode==='hero'} reducedMotion={reducedMotion} onReady={onReady}/>
-  <ambientLight intensity={night?.23:.33} color={night?'#bcc9df':'#f3f4ed'}/>
-  <hemisphereLight args={[night?'#8eaed7':'#d2e5f3',night?'#454a55':'#b7ad96',night?.88:1.36]}/>
-  <directionalLight position={[-10,24,12]} color={night?'#aebfe2':'#fff0d6'} intensity={night?1.06:2.65} castShadow shadow-mapSize={[1024,1024]} shadow-camera-left={-24} shadow-camera-right={24} shadow-camera-top={24} shadow-camera-bottom={-24} shadow-camera-near={1} shadow-camera-far={65} shadow-bias={-.0006} shadow-normalBias={.033}/>
-  <directionalLight position={[14,12,-18]} color={night?'#a5b2c9':'#dceaf0'} intensity={night?.34:.64}/>
+  <ambientLight intensity={night?.25:.33} color={night?'#8fa8dc':'#f3f4ed'}/>
+  <hemisphereLight args={[night?'#6c92dc':'#d2e5f3',night?'#1c2233':'#b7ad96',night?.92:1.36]}/>
+  <directionalLight position={[-10,24,12]} color={night?'#a8c0f8':'#fff0d6'} intensity={night?1.15:2.65} castShadow shadow-mapSize={[1024,1024]} shadow-camera-left={-24} shadow-camera-right={24} shadow-camera-top={24} shadow-camera-bottom={-24} shadow-camera-near={1} shadow-camera-far={65} shadow-bias={-.0006} shadow-normalBias={.033}/>
+  <directionalLight position={[14,12,-18]} color={night?'#5ec8e8':'#dceaf0'} intensity={night?.38:.64}/>
   <group>
-   <RoundedBox args={[slabWidth,.62,BUND_BANK.length]} radius={.18} smoothness={3} position={[slabCenter,-.29,0]} receiveShadow castShadow><meshStandardMaterial color={night?'#606d74':'#a7aca8'} roughness={.94}/></RoundedBox>
+   <RoundedBox args={[slabWidth,.62,BUND_BANK.length]} radius={.18} smoothness={3} position={[slabCenter,-.29,0]} receiveShadow castShadow><meshStandardMaterial color={night?'#202838':'#a7aca8'} roughness={.92}/></RoundedBox>
    <CitySurface position={[bund?BUND_BANK.westEnd+westWidth/2:0,.036,0]} size={[bund?westWidth-.08:30.94,24.16]}
-    map={textures.paving} color={park?'#b5b8a7':'#d2d2c6'} tile={4.2} relief={.018} roughness={night?.68:.95}/>
+    map={textures.paving} color={night?(park?'#3d4d46':'#4d5668'):(park?'#b5b8a7':'#d2d2c6')} tile={4.2} relief={.018} roughness={night?.52:.95}/>
    {!park&&<Road asphalt={textures.asphalt} night={night} end={bund?8.95:undefined} crossStreet={bund||district==='lujiazui'}/>}
    {bund&&<BundWaterfront river={textures.river} paving={textures.paving} night={night} reducedMotion={reducedMotion}/>}
    <CityArchitecture district={district} night={night} manifest={manifest} wallMap={textures.limestone} laneBrick={textures['lane-brick']}
     bundStone={textures['bund-stone']} bundCopper={textures['bund-copper']} onLoaded={onModelLoaded}/>
    <DistrictLandmarks district={district} night={night} manifest={manifest} textures={textures} onLoaded={onModelLoaded}/>
    <StreetFurniture district={district} night={night}/>{bund&&<NightOwlPostbox manifest={manifest} onLoaded={owlLoaded} onOpen={()=>{if(!inputBlocked())onNightOwl?.();}}/>}
-   {!park&&<Taxi offset={-7} reducedMotion={reducedMotion} end={bund?8.4:undefined} color='#b8aa58'/>}
-   {!park&&!compact&&<Taxi offset={7} reducedMotion={reducedMotion} end={bund?8.4:undefined} color='#426a58'/>}
+   {!park&&<Taxi offset={-7} night={night} reducedMotion={reducedMotion} end={bund?8.4:undefined} color='#d43f5e'/>}
+   {!park&&!compact&&<Taxi offset={7} night={night} reducedMotion={reducedMotion} end={bund?8.4:undefined} color='#209e8b'/>}
+   {!park&&<Taxi offset={2} night={night} reducedMotion={reducedMotion} end={bund?8.4:undefined} reverse color='#3a7bd5'/>}
+   {!park&&heatLevel>=2&&<Taxi offset={-2} night={night} reducedMotion={reducedMotion} end={bund?8.4:undefined} reverse patrol/>}
    {[{start:[-6,2.55] as Point2,color:'#395d4c'},{start:[4,-2.6] as Point2,color:'#cf9d5b'},{start:[8,2.55] as Point2,color:'#b76b52'},{start:[-8,-2.55] as Point2,color:'#667c8b'}].slice(0,compact?2:4).map((p,i)=><Pedestrian key={i} {...p} index={i} reducedMotion={reducedMotion}/>)}
    {mode==='play'&&<><Player key={district} district={district} destination={destination} onArrive={onArrive} walkRequest={walkRequest} reducedMotion={reducedMotion} appearance={appearance} manifest={manifest} onModelLoaded={onModelLoaded} playerLabel={playerLabel}/><Hotspots district={district} selected={selectedHotspot} labelRefs={labelRefs} compact={compact}/></>}
    <mesh rotation={[-Math.PI/2,0,0]} position={[0,.105,0]} onPointerDown={groundClick}><planeGeometry args={[31,24]}/><meshBasicMaterial transparent opacity={0} depthWrite={false}/></mesh>
@@ -201,6 +227,6 @@ export default function CityScene(props:CitySceneProps){
  useEffect(()=>{const f=()=>setVisible(!document.hidden);document.addEventListener('visibilitychange',f);return()=>document.removeEventListener('visibilitychange',f);},[]);
  return <SceneBoundary><div style={{width:'100%',height:'100%',position:'relative'}} data-loaded-models={currentModels.join(',')} data-avatar-gender={appearance.gender} data-avatar-looks={appearance.looks} data-avatar-model={slot??'player-avatar-'+appearance.gender+'-'+appearance.looks}>
   <Canvas orthographic shadows camera={{position:[31,29,35],zoom:20,near:.1,far:200}} dpr={props.compact?[1,1.3]:[1,1.7]} gl={{preserveDrawingBuffer:true,alpha:true,antialias:true,powerPreference:'high-performance'}} frameloop={visible?'always':'demand'} style={{width:'100%',height:'100%',background:'transparent',touchAction:'none'}} onCreated={({gl})=>{gl.toneMapping=THREE.ACESFilmicToneMapping;gl.toneMappingExposure=.96;gl.shadowMap.type=THREE.PCFSoftShadowMap;gl.setClearColor(0x000000,0);}}><World {...props} labelRefs={labelRefs} onModelLoaded={modelLoaded} playerLabel={playerLabel}/></Canvas>
-  {(props.mode??'play')==='play'&&<div className='city-hotspot-overlay' style={{position:'absolute',inset:0,pointerEvents:'none',zIndex:2,overflow:'hidden'}}><span ref={playerLabel} className="city-player-label" aria-hidden="true">你</span>{config?.hotspots.map(h=><button key={h.id} ref={node=>{if(node)labelRefs.current.set(h.id,node);else labelRefs.current.delete(h.id);}} type='button' className={`city-hotspot${props.selectedHotspot===h.id?' is-selected':''}`} data-hotspot={h.id} onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();props.onHotspot(h.id);}} aria-label={`前往${h.name}`} style={{position:'absolute',left:0,top:0,pointerEvents:'auto',visibility:'hidden',willChange:'transform',border:props.selectedHotspot===h.id?'1px solid #b83d2a':props.night?'1px solid #627581':'1px solid #a9a993',borderRadius:3,background:props.selectedHotspot===h.id?'#b83d2a':props.night?'#21343fec':'#fff9e9',color:props.selectedHotspot===h.id?'#fff7e2':props.night?'#edf0e8':'#354b3c',fontFamily:'inherit',fontSize:10,padding:'5px 8px',boxShadow:'0 3px 10px #253d3520',whiteSpace:'nowrap',cursor:'pointer',display:'flex',gap:6,alignItems:'center',minHeight:30}}><GameIcon name={h.kind} size={14}/>{h.name}<span style={{fontSize:10}}>↗</span></button>)}{props.district==='bund'&&loadedModels.includes('night-owl')&&<button className='city-hotspot owl-hotspot' data-hotspot='night-owl' ref={node=>{if(node)labelRefs.current.set('night-owl',node);else labelRefs.current.delete('night-owl');}} aria-label='打开夜猫子邮筒' onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();props.onNightOwl?.();}}>夜猫子邮筒 <span>收工了伐？</span></button>}</div>}
+  {(props.mode??'play')==='play'&&<div className='city-hotspot-overlay' style={{position:'absolute',inset:0,pointerEvents:'none',zIndex:2,overflow:'hidden'}}><span ref={playerLabel} className="city-player-label" aria-hidden="true">你</span>{config?.hotspots.map(h=><button key={h.id} ref={node=>{if(node)labelRefs.current.set(h.id,node);else labelRefs.current.delete(h.id);}} type='button' className={`city-hotspot${props.selectedHotspot===h.id?' is-selected':''}`} data-hotspot={h.id} onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();props.onHotspot(h.id);}} aria-label={`前往${h.name}`} style={{position:'absolute',left:0,top:0,pointerEvents:'auto',visibility:'hidden',willChange:'transform',border:props.selectedHotspot===h.id?'1px solid #ff4d8d':'1px solid #2ef2c388',borderLeft:props.selectedHotspot===h.id?'3px solid #ffd166':'3px solid #2ef2c3',borderRadius:0,background:props.selectedHotspot===h.id?'linear-gradient(95deg,#ff4d8d,#ff8748)':'#0c101ee8',color:props.selectedHotspot===h.id?'#090a10':'#f7f5ff',fontFamily:'inherit',fontWeight:700,fontSize:11,padding:'5px 9px',boxShadow:'0 6px 18px #000a',whiteSpace:'nowrap',cursor:'pointer',display:'flex',gap:6,alignItems:'center',minHeight:30}}><GameIcon name={h.kind} size={14}/>{h.name}<span style={{fontSize:10}}>↗</span></button>)}{props.district==='bund'&&loadedModels.includes('night-owl')&&<button className='city-hotspot owl-hotspot' data-hotspot='night-owl' ref={node=>{if(node)labelRefs.current.set('night-owl',node);else labelRefs.current.delete('night-owl');}} aria-label='打开夜猫子邮筒' onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();props.onNightOwl?.();}}>夜猫子邮筒 <span>收工了伐？</span></button>}</div>}
  </div></SceneBoundary>;
 }

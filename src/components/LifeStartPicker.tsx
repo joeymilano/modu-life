@@ -5,10 +5,10 @@ import './life-starts.css';
 
 const starts = [{
  id:'arrival' as const,place:'上海站',title:'随机出身',photo:'/art/title/origin-arrival.webp',
- text:'上海站有人举着你的名字。纸板翻过来，是今晚江边小礼堂的一张演出票。',
+ text:'出站不到两钟头，隔壁老板撕了海报、踢翻皮箱，当众喊停演出。五张底牌在手，今晚这台子你接不接？',
 },...LIFE_STARTS.map(start=>start.id==='heir'?{...start,place:'锦江饭店',photo:'/art/title/origin-heir.webp',
- text:'母亲让你第一次去见客户。饭店门廊下，做样灯的沈经理等着有人搭把手。'}:
- start.id==='system'?{...start,photo:'/art/title/origin-system.webp',text:'第一晚给礼堂打杂，送货的车让雨困在侧门。台上试音时，灯闪了一下。'}:{...start,photo:'/art/title/origin-daywork.webp',text:'七百八十块钱，一张只付到明早的床。头回到仓里上工，吴师傅分了你一只手套。'})];
+ text:'表哥周骁霸了主位，招呼服务员在备餐口给你加张折凳。满桌推杯换盏，没人晓得六千万上午刚进你存折。'}:
+ start.id==='system'?{...start,photo:'/art/title/origin-system.webp',text:'外滩暴雨夜，首单悬赏八万。顾桥拿伞尖指路让你去后门卸货——话音没落，整间礼堂啪地断了电。'}:{...start,photo:'/art/title/origin-daywork.webp',text:'兜里七百八，铺位半夜到期。领班赵正撕了报名单角，把老吴的名字也一并划掉：最后一车，你一个人卸。'})];
 
 export default function LifeStartPicker({hasSave,onPick,onEdit}: {
  hasSave:boolean; onPick:(start?:LifeStart)=>void; onEdit:(start?:LifeStart)=>void;

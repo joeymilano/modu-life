@@ -1,4 +1,6 @@
 import { calendarYear, LEGACY_START } from '../game/calendar';
+import { MODU_ACHIEVEMENTS, passLevelOf, unclaimedPassCount, type ModuMeta } from '../game/commercial';
+import { empireAssetValue, ownedEmpireAssets } from '../game/empire';
 import { marketValue } from '../game/market';
 import { ending, publicOriginNames } from '../game/engine';
 import { endingPhoto } from '../game/art';
@@ -12,8 +14,9 @@ import { lifeStartProfile } from '../game/lifeStarts';
 import { familyLoanOwed, lifeYearsAlbumPhoto } from '../game/lifeYears';
 import './ending.css';
 
-export default function EndingScreen({ game, sharing, onShare, onChallenge, onDraw, onJournal, onLines, onCollection }: {
+export default function EndingScreen({ game, meta, sharing, onShare, onChallenge, onDraw, onJournal, onLines, onCollection, onPass }: {
  game: GameState;
+ meta?: ModuMeta;
  sharing: boolean;
  onShare: () => void;
  onChallenge: () => void;
@@ -21,6 +24,7 @@ export default function EndingScreen({ game, sharing, onShare, onChallenge, onDr
  onJournal: () => void;
  onLines: () => void;
  onCollection: () => void;
+ onPass?: () => void;
 }) {
  const result = ending(game);
  const memory = lastDayMemory(game);
@@ -29,6 +33,8 @@ export default function EndingScreen({ game, sharing, onShare, onChallenge, onDr
  const owed = familyLoanOwed(game);
  const photo = lifeYearsAlbumPhoto(game) ?? endingPhoto(result.id);
  const investments=marketValue(game);
+ const empireVal=empireAssetValue(game);
+ const empireCount=ownedEmpireAssets(game).length;
  const contacts = Object.values(game.relationships).filter(person => person.met).length;
 
  return <main className="ending-screen">
@@ -48,6 +54,8 @@ export default function EndingScreen({ game, sharing, onShare, onChallenge, onDr
     {start&&<div><dt>初始余额</dt><dd>¥{start.cash.toLocaleString('zh-CN')}</dd></div>}
     <div><dt>最终余额</dt><dd>¥{Math.round(game.cash).toLocaleString('zh-CN')}</dd></div>
     {!!investments&&<div><dt>持仓市值</dt><dd>¥{investments.toLocaleString('zh-CN')}</dd></div>}
+    {!!empireVal&&<div><dt>名下产业与车房（{empireCount} 处）</dt><dd>¥{empireVal.toLocaleString('zh-CN')}</dd></div>}
+    {!!(investments||empireVal)&&<div><dt>终局总身价</dt><dd>¥{Math.round(game.cash+investments+empireVal).toLocaleString('zh-CN')}</dd></div>}
     {!!owed&&<div><dt>公司尚欠你的款</dt><dd>¥{owed.toLocaleString('zh-CN')}</dd></div>}
     <div><dt>认识的人</dt><dd>{contacts} 位</dd></div>
     <div><dt>遇到的故事</dt><dd>{game.seenEvents.length} 段</dd></div>
@@ -66,6 +74,15 @@ export default function EndingScreen({ game, sharing, onShare, onChallenge, onDr
     <p>开局手牌</p>
     <ul>{publicOriginNames(game).map((name,index)=><li key={index}>{name}</li>)}</ul>
    </div>
+   {meta&&onPass&&<div className="ending-pass-banner">
+    <div>
+     <b>沪上传奇通行证 · Lv.{passLevelOf(meta.xp).level}</b>
+     <small>已解锁 {meta.achievements.length}/{MODU_ACHIEVEMENTS.length} 枚传奇勋章 · 声望继承至下一局</small>
+    </div>
+    <button type="button" className="secondary small" onClick={onPass}>
+     {unclaimedPassCount(meta)>0?`领奖（${unclaimedPassCount(meta)}）`:'查看通行证'}
+    </button>
+   </div>}
    <div className="ending-actions">
     <button className="primary" onClick={onShare} disabled={sharing}><Icon name="share" size={18}/>{sharing?'生成中':'下载人生卡'}</button>
     <button className="secondary" onClick={onDraw}>开始新游戏 <Icon name="dice" size={17}/></button>

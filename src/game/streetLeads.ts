@@ -9,6 +9,7 @@ import { pearlReceipt } from './pearl';
 import { parkVisit } from './matchmaking';
 import { rentalRenewal } from './rental';
 import { workHandover } from './workHandover';
+import { HUSTLE_LEADS } from './streetHustles';
 import type { GameState, LifeEvent } from './types';
 
 interface StreetLead {
@@ -81,6 +82,12 @@ const leads: StreetLead[] = [
 ];
 
 function localLead(state: GameState, eventId?: string) {
+  if (eventId?.startsWith('street-hustle-')) {
+    const hustle = HUSTLE_LEADS.find(item => item.event.id === eventId);
+    return hustle && !state.seenEvents.includes(hustle.event.id)
+      ? { message: hustle.message, event: hustle.event, available: () => true }
+      : undefined;
+  }
   return leads.find(lead => (!eventId || lead.event.id === eventId)
     && !state.seenEvents.includes(lead.event.id) && lead.available(state)
     && (eventId || lead.event.id !== 'street-lease' || hasSharedWithMao(state)));

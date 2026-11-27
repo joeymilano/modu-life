@@ -5,9 +5,19 @@ import os
 from PIL import Image
 OUT=Path('outputs')
 OUT.mkdir(exist_ok=True)
+
+def read(page,target):
+ # The dialogue stage types each line out. Read up to `target`, taking the first open answer at every question.
+ for _ in range(300):
+  if page.locator(target).count():return
+  if page.locator('[data-vn-choice]').count():
+   page.locator('[data-vn-choice]:not([disabled])').first.click();page.wait_for_timeout(120);continue
+  page.evaluate("() => document.querySelector('[data-vn-next]')?.click()");page.wait_for_timeout(40)
+ raise AssertionError(target+' was never reached')
 with sync_playwright() as p:
  b=p.chromium.launch(headless=True,channel='chrome',args=['--use-angle=swiftshader','--enable-webgl','--ignore-gpu-blocklist'])
  ctx=b.new_context(viewport={'width':1440,'height':1000},accept_downloads=True)
+ ctx.add_init_script("try { localStorage.setItem('modu-life-rush','off'); } catch (e) {}")
  page=ctx.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
  page.goto(os.environ.get('GAME_URL','http://localhost:4173').rstrip('/')+'/?seed=FINAL');page.wait_for_load_state('networkidle')
  page.evaluate('navigator.serviceWorker.ready')
@@ -15,9 +25,9 @@ with sync_playwright() as p:
  page.get_by_role('button',name='手牌与角色').click();page.get_by_role('button',name='全部揭晓').click();page.wait_for_timeout(700)
  page.locator('.setup-forward').click()
  page.get_by_role('button',name='进入上海').click()
- page.get_by_role('button',name='跳过序章').click()
+ read(page,'[data-pj-start]')
  page.locator('[data-pj-start]').click()
- for _ in range(3): page.locator('[data-pj-choice]:enabled').first.click()
+ read(page,'[data-pj-done]')
  page.locator('[data-pj-done]').click()
  with page.expect_download(timeout=20000) as download:
   page.get_by_role('button',name='生成人生卡').click()

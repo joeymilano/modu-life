@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { existsSync } from 'node:fs';
-import { ABILITIES, abilityPoints, beginPujiangLife, episodeOffer, episodeView, equipAbility, learnAbility, leaveEpisode, pujiangEnding, startEpisode, systemLevel } from '../src/game/pujiang';
+import { ABILITIES, abilityPoints, beginPujiangLife, episodeOffer, episodeView, equipAbility, gambleChance, learnAbility, leaveEpisode, pujiangEnding, rollLuck, startEpisode, systemLevel, STALL } from '../src/game/pujiang';
 import { COMMISSIONS, OPENING_EPISODES, PUJIANG_EPISODES, SYSTEM_EPISODES } from '../src/game/pujiangScript';
 import { advanceToStory, allOrigins, createGame, drawOrigins, ending, nextYear, playPujiangMove, resolveChoice, routineEvent, selectEvent, validateSave } from '../src/game/engine';
 import { activeLine, decodeLife, encodeLife, forkLife, recordEpisodeDecision, startBook, updateLife } from '../src/game/lifeLines';
@@ -254,5 +254,60 @@ describe('存档、分叉与排位隔离',()=>{
   const result=['proof','verify','expose'].reduce(playShowdown,weekly);
   expect(showdownView(result)).toMatchObject({verdict:'win',score:80});
   expect(weeklyShowdown('2026-11-16','system')).toEqual(weekly);
+ });
+});
+
+describe('抢话、赌局与读数',()=>{
+ it('lets the other side cut in when the clock runs out, and never counts that as a finish',()=>{
+  let s=startEpisode(fresh('worker'),'pj-worker-18');
+  for(const id of ['night','sort'])s=playPujiangMove(s,{kind:'choice',id});
+  s=playPujiangMove(s,{kind:'choice',id:STALL});
+  // Four 气势 were banked, but the last word was taken: the chapter settles short of a win.
+  expect(s.episode?.receipt?.verdict).toBe('partial');
+  expect(validateSave(JSON.parse(JSON.stringify(s))).episode?.moves.at(-1)?.id).toBe(STALL);
+  let early=playPujiangMove(startEpisode(fresh('worker'),'pj-worker-18'),{kind:'choice',id:STALL});
+  early=playPujiangMove(early,{kind:'choice',id:'sort'});
+  expect(episodeView(early).choices.find(c=>c.id==='crew')!.disabled).toBe('气势达到 4');
+  const run=startEpisode(fresh('worker'),'pj-worker-18'),book=startBook(run);
+  const stalled=playPujiangMove(run,{kind:'choice',id:STALL});
+  // Being cut in on is not a decision to branch from.
+  expect(recordEpisodeDecision(book,stalled,STALL).lines[0].points).toHaveLength(0);
+  expect(()=>recordEpisodeDecision(book,playPujiangMove(run,{kind:'choice',id:'night'}),'night')).not.toThrow();
+ });
+ it('settles a gamble from the save seed and writes the roll into the move',()=>{
+  const first=playPujiangMove(startEpisode(fresh('worker'),'pj-worker-18'),{kind:'choice',id:'night'});
+  const bet=playPujiangMove(first,{kind:'choice',id:'bet'});
+  const luck=bet.episode!.moves.at(-1)!.luck;
+  expect(['hit','miss']).toContain(luck);
+  const view=episodeView(bet);
+  expect(view.score).toBe(luck==='hit'?5:2);
+  expect(view.budget).toBe(luck==='hit'?2:1);
+  expect(view.flags.includes('bet-missed')).toBe(luck==='miss');
+  expect(validateSave(JSON.parse(JSON.stringify(bet))).episode?.moves.at(-1)?.luck).toBe(luck);
+  // The same question in the same life always lands the same way, whatever the player knows.
+  expect(rollLuck(first,view.script,1,'bet')).toBe(luck);
+  expect(rollLuck({...first,seed:'ANOTHER-LIFE'},view.script,1,'bet')).toBeDefined();
+  const chance=gambleChance(first,view.script.scenes[1].choices.find(c=>c.id==='bet')!);
+  expect(chance).toBeGreaterThanOrEqual(25);
+  expect(chance).toBeLessThanOrEqual(90);
+  expect(gambleChance({...first,stats:{...first.stats,health:100}},view.script.scenes[1].choices.find(c=>c.id==='bet')!)).toBeGreaterThanOrEqual(chance!);
+  const forged=structuredClone(bet);
+  forged.episode!.moves.at(-1)!.luck='heads' as 'hit';
+  expect(()=>validateSave(forged)).toThrow();
+ });
+ it('names the meters the way the stage shows them, and says what a locked option still needs',()=>{
+  const view=episodeView(startEpisode(fresh('worker'),'pj-worker-18'));
+  expect(view.choices.find(c=>c.id==='shuttle')!.gain).toBe('人心 +2 · 底牌 -1');
+  expect(view.choices.find(c=>c.id==='night')!.gain).toBe('气势 +2 · 吴师傅信任 +6');
+  expect(view.choices.find(c=>c.id==='echo')!.disabled).toBe('先在序章里顶回去');
+  let s=playPujiangMove(startEpisode(fresh('worker'),'pj-worker-18'),{kind:'choice',id:'self'});
+  s=playPujiangMove(s,{kind:'choice',id:'swap'});
+  const last=episodeView(s).choices;
+  expect(last.find(c=>c.id==='route')!.disabled).toBe('人心达到 4，或已安排短驳');
+  expect(last.find(c=>c.id==='crew')!.tag).toBe('终结技');
+ });
+ it('puts the clock on every main chapter and leaves commissions and prologues untimed',()=>{
+  for(const script of [...OPENING_EPISODES,...SYSTEM_EPISODES])expect(script.pressure,script.id).toBeGreaterThanOrEqual(15);
+  for(const script of COMMISSIONS)expect(script.pressure).toBe(0);
  });
 });

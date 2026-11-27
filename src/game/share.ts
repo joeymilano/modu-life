@@ -2,6 +2,10 @@ import { lifeStartProfile, validLifeStartHand } from './lifeStarts';
 import { lifeYearsAlbumPhoto } from './lifeYears';
 import { lastDayMemory } from './lastDay';
 import { allOrigins, ending } from './engine';
+import { loadMeta } from './commercial';
+import { empireAssetValue, ownedBusinesses } from './empire';
+import { marketValue } from './market';
+import { streetCredOf } from './moduRadio';
 import { arrivalPhoto, endingPhoto, LIFE_ALBUM_AGES, originPhoto, playerArt, stallPhoto, streetPhoto, TIMELINE_COVER } from './art';
 import { openingForecast } from './openingForecast';
 import { CAREERS, DISTRICTS } from './content';
@@ -59,57 +63,75 @@ async function paintChallengeCode(ctx: CanvasRenderingContext2D, url: string, ri
  }
 }
 
-const cardInk = '#243a33';
-const cardRust = '#a44832';
-const cardPaper = '#f4eee1';
-const cardSerif = '"Songti SC", "Noto Serif CJK SC", STSong, serif';
+const cardInk = '#f5f2ff';
+const cardRust = '#ff2e93';
+const cardCyan = '#00f5d4';
+const cardGold = '#ffd166';
+const cardPanel = '#171326';
+const cardSerif = '"QingKe Display", "PingFang SC", "Noto Sans SC", sans-serif';
 
 async function paintCardHeader(ctx: CanvasRenderingContext2D, label: string) {
- ctx.fillStyle = cardPaper;
+ const grad = ctx.createLinearGradient(0, 0, 1080, 1440);
+ grad.addColorStop(0, '#0b0814');
+ grad.addColorStop(0.55, '#130e24');
+ grad.addColorStop(1, '#090b16');
+ ctx.fillStyle = grad;
  ctx.fillRect(0, 0, 1080, 1440);
- ctx.fillStyle = cardRust;
- ctx.fillRect(64, 48, 952, 4);
- const logo = new Image();
- logo.src = '/brand/pearl-dusk/logo-dark.svg';
- try {
-  await logo.decode();
-  ctx.drawImage(logo, 64, 68, 213, 50);
- } catch {
-  ctx.fillStyle = cardInk;
-  ctx.font = 'bold 32px ' + cardSerif;
-  ctx.fillText('魔都人生', 64, 106);
- }
+ const stripe = ctx.createLinearGradient(64, 0, 1016, 0);
+ stripe.addColorStop(0, cardRust);
+ stripe.addColorStop(0.55, '#ff8a3d');
+ stripe.addColorStop(1, cardCyan);
+ ctx.fillStyle = stripe;
+ ctx.fillRect(64, 46, 952, 6);
  ctx.fillStyle = cardInk;
- ctx.font = '26px sans-serif';
+ ctx.font = '900 38px ' + cardSerif;
+ ctx.fillText('魔都人生', 64, 106);
+ ctx.fillStyle = cardCyan;
+ ctx.font = '700 18px sans-serif';
+ ctx.fillText('MODU LIFE · SHANGHAI EDITION', 232, 102);
+ const meta = loadMeta();
+ if (meta.blackCard) {
+  ctx.fillStyle = cardGold;
+  ctx.font = 'bold 20px sans-serif';
+  ctx.fillText('★ BLACK CARD · ' + meta.activeTitle, 64, 132);
+ }
+ ctx.fillStyle = '#c8c2de';
+ ctx.font = 'bold 25px sans-serif';
  ctx.textAlign = 'right';
- ctx.fillText(label, 1016, 105, 700);
+ ctx.fillText(label, 1016, 105, 520);
  ctx.textAlign = 'left';
 }
 
 async function paintCurrentCard(ctx: CanvasRenderingContext2D, state: GameState) {
  await Promise.all([
-  paintPhoto(ctx, playerArt(state.appearance, true, state.age), [64, 144, 386, 579]),
-  paintPhoto(ctx, streetPhoto(state.district), [470, 144, 546, 364], .4),
+  paintPhoto(ctx, playerArt(state.appearance, true, state.age), [64, 152, 386, 571]),
+  paintPhoto(ctx, streetPhoto(state.district), [470, 152, 546, 356], .4),
  ]);
  const career = CAREERS.find(role => role.id === state.jobId);
+ const cred = streetCredOf(state);
+ const netWorth = state.cash + marketValue(state) + empireAssetValue(state);
+ const bizCount = ownedBusinesses(state).length;
+ ctx.fillStyle = cardGold;
+ ctx.font = 'bold 24px sans-serif';
+ ctx.fillText('★'.repeat(cred.stars) + '☆'.repeat(5 - cred.stars) + '  ' + cred.title + (bizCount ? ` · 坐拥 ${bizCount} 处产业` : ''), 470, 548, 546);
  ctx.fillStyle = cardInk;
- ctx.font = 'bold 66px ' + cardSerif;
- ctx.fillText(state.name, 470, 599, 546);
- ctx.fillStyle = '#4e6356';
- ctx.font = '30px sans-serif';
- ctx.fillText(career?.ranks[Math.floor(state.jobRank)] ?? '还在找工作', 472, 650, 544);
+ ctx.font = 'bold 64px ' + cardSerif;
+ ctx.fillText(state.name, 470, 614, 546);
+ ctx.fillStyle = '#a9a2c4';
+ ctx.font = '28px sans-serif';
+ ctx.fillText(career?.ranks[Math.floor(state.jobRank)] ?? '街头自由身', 472, 660, 544);
  ctx.font = '24px sans-serif';
- ctx.fillText('手上还有', 472, 710);
- ctx.fillStyle = cardInk;
- ctx.font = 'bold 39px sans-serif';
- ctx.fillText('¥' + Math.round(state.cash).toLocaleString('zh-CN'), 584, 710, 432);
+ ctx.fillText('总身价', 472, 716);
+ ctx.fillStyle = cardCyan;
+ ctx.font = 'bold 40px sans-serif';
+ ctx.fillText('¥' + Math.round(netWorth).toLocaleString('zh-CN'), 562, 716, 454);
  const entry = state.journal.at(-1);
  ctx.fillStyle = cardRust;
- ctx.font = 'bold 25px sans-serif';
- ctx.fillText('最近一幕', 64, 784);
+ ctx.font = 'bold 24px sans-serif';
+ ctx.fillText('最新街头档案', 64, 784);
  ctx.fillStyle = cardInk;
- ctx.font = 'bold 45px ' + cardSerif;
- ctx.fillText(entry?.title ?? '刚到上海', 64, 850, 952);
+ ctx.font = 'bold 44px ' + cardSerif;
+ ctx.fillText(entry?.title ?? '刚下火车进上海', 64, 848, 952);
 }
 
 async function paintEndingCard(ctx: CanvasRenderingContext2D, state: GameState) {
@@ -118,37 +140,38 @@ async function paintEndingCard(ctx: CanvasRenderingContext2D, state: GameState) 
  const scene = lastPhoto ?? endingPhoto(final.id);
  const start = lifeStartProfile(state.origins);
  const memory = lastPhoto ? lastDayMemory(state) : undefined;
+ const netWorth = state.cash + marketValue(state) + empireAssetValue(state);
  await Promise.all([
-  paintPhoto(ctx, scene, [64, 144, 952, 292], scene.endsWith('/river.webp') ? .28 : .5),
+  paintPhoto(ctx, scene, [64, 150, 952, 286], scene.endsWith('/river.webp') ? .28 : .5),
   ...LIFE_ALBUM_AGES.map((age, index) =>
    paintPhoto(ctx, playerArt(state.appearance, true, age), [64 + 321 * index, 632, 310, 300], .15)),
  ]);
  if (memory) {
-  ctx.fillStyle = '#243a33ed';
-  ctx.fillRect(64,389,952,47);
-  ctx.fillStyle = '#fff3dc';
+  ctx.fillStyle = 'rgba(13, 10, 24, 0.88)';
+  ctx.fillRect(64, 389, 952, 47);
+  ctx.fillStyle = cardGold;
   ctx.font = 'bold 24px ' + cardSerif;
-  ctx.fillText(memory.age+' 岁 · '+memory.title,79,420,909);
+  ctx.fillText(memory.age + ' 岁 · ' + memory.title, 79, 420, 909);
  }
  ctx.fillStyle = cardInk;
- ctx.font = 'bold 65px ' + cardSerif;
- ctx.fillText(final.title, 64, 520, 602);
+ ctx.font = 'bold 62px ' + cardSerif;
+ ctx.fillText(final.title, 64, 518, 602);
  ctx.textAlign = 'right';
- ctx.fillStyle = '#4e6356';
+ ctx.fillStyle = '#a9a2c4';
  ctx.font = '22px sans-serif';
- ctx.fillText(start?'开局 ¥'+start.cash.toLocaleString('zh-CN')+' · 最后存下':'最后存下',1016,478,386);
- ctx.fillStyle = cardInk;
- ctx.font = 'bold 32px sans-serif';
- ctx.fillText('¥' + Math.round(state.cash).toLocaleString('zh-CN'), 1016, 520, 326);
+ ctx.fillText(start ? '开局 ¥' + start.cash.toLocaleString('zh-CN') + ' · 终局总身价' : '终局总身价', 1016, 476, 386);
+ ctx.fillStyle = cardCyan;
+ ctx.font = 'bold 34px sans-serif';
+ ctx.fillText('¥' + Math.round(netWorth).toLocaleString('zh-CN'), 1016, 520, 326);
  ctx.textAlign = 'left';
- ctx.fillStyle = '#455d50';
- ctx.font = '27px sans-serif';
- lines(ctx, final.text, 66, 569, 950, 38);
+ ctx.fillStyle = '#cfc9e6';
+ ctx.font = '26px sans-serif';
+ lines(ctx, final.text, 66, 568, 950, 36);
  LIFE_ALBUM_AGES.forEach((age, index) => {
   const x = 64 + 321 * index;
-  ctx.fillStyle = '#243a33';
+  ctx.fillStyle = 'rgba(13, 10, 24, 0.88)';
   ctx.fillRect(x, 891, 310, 42);
-  ctx.fillStyle = '#fff3dc';
+  ctx.fillStyle = cardGold;
   ctx.font = 'bold 24px ' + cardSerif;
   ctx.fillText(age + ' 岁', x + 14, 921);
  });
@@ -158,27 +181,28 @@ function paintOpeningHand(ctx: CanvasRenderingContext2D, state: GameState) {
  const cards = allOrigins();
  const y = state.ended ? 963 : 924;
  ctx.fillStyle = cardRust;
- ctx.font = 'bold 26px sans-serif';
- ctx.fillText('开局这手牌', 64, y);
+ ctx.font = 'bold 25px sans-serif';
+ ctx.fillText('开局这手底牌', 64, y);
  state.origins.forEach((id, index) => {
   const card = cards.find(item => item.id === id);
   const x = 64 + 192 * index;
-  ctx.fillStyle = '#ebe3d3';
+  ctx.fillStyle = cardPanel;
   ctx.fillRect(x, y + 20, 184, 137);
-  ctx.fillStyle = card?.accent ?? cardInk;
-  ctx.fillRect(x, y + 20, 184, 4);
-  ctx.fillStyle = '#576356';
-  ctx.font = '22px sans-serif';
+  ctx.fillStyle = card?.accent ?? cardCyan;
+  ctx.fillRect(x, y + 20, 184, 5);
+  ctx.fillStyle = '#9e96bc';
+  ctx.font = '21px sans-serif';
   ctx.fillText(card?.slot ?? '', x + 13, y + 56);
   ctx.textAlign = 'right';
+  ctx.fillStyle = cardGold;
   ctx.fillText(card?.rarity ?? '', x + 171, y + 56);
   ctx.textAlign = 'left';
   ctx.fillStyle = cardInk;
   const name = card?.name ?? '未知';
-  ctx.font = 'bold 29px ' + cardSerif;
+  ctx.font = 'bold 28px ' + cardSerif;
   const nameWidth = ctx.measureText(name).width;
-  if (nameWidth > 158) ctx.font = 'bold ' + Math.floor(29 * 158 / nameWidth) + 'px ' + cardSerif;
-  ctx.fillText(name, x + 13, y + 102, 158);
+  if (nameWidth > 158) ctx.font = 'bold ' + Math.floor(28 * 158 / nameWidth) + 'px ' + cardSerif;
+  ctx.fillText(name, x + 13, y + 104, 158);
  });
 }
 
@@ -194,17 +218,18 @@ export async function makeShareCard(state: GameState): Promise<Blob> {
  if (state.ended) await paintEndingCard(ctx, state);
  else await paintCurrentCard(ctx, state);
  paintOpeningHand(ctx, state);
- const hasCode = await paintChallengeCode(ctx, challengeUrl(state, state.ended), 1016, 1164, 264);
- ctx.fillStyle = '#a99e88';
- ctx.fillRect(64, 1150, 952, 1);
+ const hasCode = await paintChallengeCode(ctx, challengeUrl(state, state.ended), 1016, 1164, 256);
+ ctx.fillStyle = 'rgba(255, 46, 147, 0.45)';
+ ctx.fillRect(64, 1150, 952, 2);
  ctx.fillStyle = cardInk;
- ctx.font = 'bold 53px ' + cardSerif;
- ctx.fillText('同一手牌，你怎么过', 64, 1266, 702);
+ ctx.font = 'bold 52px ' + cardSerif;
+ ctx.fillText('同一手牌，你镇得住上海滩伐？', 64, 1264, 690);
+ ctx.fillStyle = '#c8c2de';
  ctx.font = '27px sans-serif';
- ctx.fillText(hasCode ? '扫码，带着这五张牌来上海' : '来上海，抽你的开局牌', 66, 1325);
- ctx.fillStyle = cardRust;
- ctx.font = '25px sans-serif';
- ctx.fillText('modulife.pages.dev', 66, 1377);
+ ctx.fillText(hasCode ? '扫码接下这五张底牌，重闯 1992 魔都码头' : '来上海，翻开你的开局五张牌', 66, 1324, 690);
+ ctx.fillStyle = cardCyan;
+ ctx.font = 'bold 25px sans-serif';
+ ctx.fillText('modulife.pages.dev', 66, 1378);
  return new Promise((resolve, reject) => canvas.toBlob(blob =>
   blob ? resolve(blob) : reject(new Error('分享卡生成失败')), 'image/png'));
 }
@@ -254,13 +279,14 @@ export async function makeOpeningCard(hand: SharedHand): Promise<Blob> {
  ctx.fillText('带进上海的五张牌', 64, 735, 952);
  cards.forEach((card, i) => {
   const x = column(i);
-  ctx.fillStyle = '#eae2d0';
+  ctx.fillStyle = cardPanel;
   ctx.fillRect(x, 900, 184, 121);
   ctx.fillStyle = card.accent;
   ctx.fillRect(x, 900, 184, 4);
-  ctx.fillStyle = cardInk;
+  ctx.fillStyle = '#b9b2d4';
   ctx.font = '21px sans-serif';
   ctx.fillText(card.slot + ' · ' + card.rarity, x + 10, 937, 164);
+  ctx.fillStyle = cardInk;
   ctx.font = 'bold 27px ' + cardSerif;
   lines(ctx, card.name, x + 10, 978, 164, 28);
  });
@@ -298,8 +324,8 @@ export async function makeYearCard(state: GameState, age: number, receipt: YearR
  ctx.fillText(moment.title,288,892,728);
  ctx.font = '28px sans-serif';
  lines(ctx,moment.line,290,943,710,37);
- ctx.fillStyle = '#71614c';
- ctx.font = '25px sans-serif';
+ ctx.fillStyle = cardCyan;
+ ctx.font = 'bold 25px sans-serif';
  ctx.fillText('结完账还剩 '+yearMoney(receipt.after)+'  ·  本次结算 '+signedYearMoney(receipt.after-receipt.before),290,1036,716);
  ctx.fillStyle = '#a99e88';
  ctx.fillRect(64,1114,952,1);

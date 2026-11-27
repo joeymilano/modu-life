@@ -1,15 +1,24 @@
 import './game-credits.css';
-import { SOUNDTRACK } from '../game/soundtrack';
+import { SOUNDTRACK, type Song } from '../game/soundtrack';
 
 export default function GameCredits() {
+  const songs = Object.values(SOUNDTRACK);
+  // Songs under the shared licence are listed together; a song used under its own terms is credited on its own line.
+  const shared: Song[] = songs.filter(track => track.isrc);
+  const licensed: Song[] = songs.filter(track => !track.isrc);
   return <details className="game-credits">
     <summary>制作名单</summary>
     <div className="game-credit-list">
-      <span>配乐 · Kevin MacLeod</span>
-      <ul>{Object.values(SOUNDTRACK).map(track =>
-        <li key={track.file}><a href={`https://incompetech.com/music/royalty-free/index.html?isrc=${track.isrc}`} target="_blank" rel="noreferrer">{track.title}</a></li>
-      )}</ul>
-      <p><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC BY 4.0</a> · 音量调整、转码</p>
+      {shared.length > 0 && <>
+        <span>配乐 · Kevin MacLeod</span>
+        <ul>{shared.map(track =>
+          <li key={track.file}><a href={`https://incompetech.com/music/royalty-free/index.html?isrc=${track.isrc}`} target="_blank" rel="noreferrer">{track.title}</a></li>
+        )}</ul>
+        <p><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC BY 4.0</a> · 音量调整、转码</p>
+      </>}
+      {licensed.map(track => <p key={track.file}>配乐 · {track.title} — {track.artist ?? '作者未登记'}
+        {track.source ? <> · <a href={track.source} target="_blank" rel="noreferrer">{track.license ?? '已获授权使用'}</a></> : ` · ${track.license ?? '已获授权使用'}`}
+      </p>)}
       <p><a href="/audio/foley/credits.txt" target="_blank" rel="noreferrer">实录音效来源 · CC0</a></p>
       <hr/>
       <span>图标 · Delapouite</span>

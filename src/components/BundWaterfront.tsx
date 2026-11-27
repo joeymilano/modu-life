@@ -39,10 +39,12 @@ function WaterGlints({ night, reducedMotion }: { night: boolean; reducedMotion: 
           float eastLights = (exp(-abs(stripe - 0.17) * 31.0) + exp(-abs(stripe - 0.42) * 35.0) +
                             exp(-abs(stripe - 0.60) * 32.0) + exp(-abs(stripe - 0.815) * 33.0)) *
                             exp(-(1.0-vUv.x) * 1.8);
-          vec3 lampTint = mix(vec3(1.0, 0.71, 0.37), vec3(0.63, 0.79, 1.0), smoothstep(0.3, 0.75, vUv.x));
+          vec3 westNeon = vec3(1.0, 0.68, 0.30);
+          vec3 eastNeon = mix(vec3(1.0, 0.28, 0.56), vec3(0.18, 0.95, 0.77), smoothstep(0.35, 0.85, vUv.y));
+          vec3 lampTint = mix(westNeon, eastNeon, smoothstep(0.28, 0.74, vUv.x));
           vec3 tint = mix(vec3(0.74, 0.86, 0.93), lampTint, afterDark);
-          float glint = smoothstep(0.48, 0.95, wave) * mix(0.38, 1.0, chop);
-          float strength = mix(0.095, (westLights + eastLights) * 0.46, afterDark) * shoreFade * glint;
+          float glint = smoothstep(0.45, 0.94, wave) * mix(0.42, 1.0, chop);
+          float strength = mix(0.095, (westLights + eastLights) * 0.58, afterDark) * shoreFade * glint;
           gl_FragColor = vec4(tint, strength);
         }
       `} />
@@ -104,7 +106,7 @@ export default function BundWaterfront({ river, paving, night, reducedMotion }: 
   useFrame(({ clock }) => { if (river) river.offset.set(reducedMotion ? 0 : clock.elapsedTime * .008, 0); });
   return <group>
     <CitySurface position={[riverCenter, .099, 0]} size={[riverWidth, BUND_BANK.length]} map={river} tile={6.7}
-      color={night ? '#547789' : '#7899a3'} roughness={night ? .40 : .52} relief={.038} metalness={.24} />
+      color={night ? '#1a334a' : '#7899a3'} roughness={night ? .34 : .52} relief={.038} metalness={.28} />
     <WaterGlints night={night} reducedMotion={reducedMotion} />
     <CitySurface position={[BUND_BANK.eastQuay + eastBankWidth / 2, .039, 0]}
       size={[eastBankWidth, BUND_BANK.length]} map={paving} color="#a9b5b6" tile={4.2} relief={.02} />

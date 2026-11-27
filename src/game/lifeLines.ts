@@ -23,7 +23,7 @@ import { openingLead } from './originStories';
 import { ALL_RENTAL_CLUES, isRentalRenewal, rentalNegotiation, rentalRenewal } from './rental';
 import { isWorkHandover, workHandover } from './workHandover';
 import type { ActivityKind, FirstDatePicks, GameState, LifeEvent } from './types';
-import { episodeView } from './pujiang';
+import { episodeView, STALL } from './pujiang';
 
 export const MAX_LINES = 8;
 const MAX_POINTS = 24;
@@ -89,6 +89,7 @@ export function replayScene(state: GameState, scene: SceneRef): LifeEvent | null
   }
   if (scene.eventId.startsWith('contact-')) return replayContactStory(state,scene.eventId);
   if (scene.eventId.startsWith('street-corner-')) return replayCorner(state,scene.eventId);
+  if (scene.eventId.startsWith('street-hustle-')) return replayLocalLead(state,scene.eventId);
   if (scene.kind === 'lead' && scene.eventId.startsWith('street-')) return replayLocalLead(state,scene.eventId);
   if (scene.kind === 'lead') {
     const visits = [replayConcierge(state,scene.eventId), firstNightLead(state)?.event, replayHeirVisit(state,scene.eventId), heirBoardVisit(state), campaignLead(state)?.event, systemRedemption(state)];
@@ -164,6 +165,8 @@ function episodeEvent(state:GameState):LifeEvent {
 }
 export function recordEpisodeDecision(book:LifeBook,state:GameState,choiceId:string):LifeBook {
  const line=activeLine(book),event=episodeEvent(line.state),choice=event.choices.find(c=>c.id===choiceId);
+ // Being cut in is not a decision anyone would want to go back and make on purpose.
+ if(choiceId===STALL)return updateLife(book,state);
  if(!choice)throw new Error('这次选择不在当前现场。');
  const {journal,...before}=structuredClone(line.state);
  const point:ForkPoint={scene:{kind:'episode',eventId:event.id},title:event.title,choice:choice.label,before,journalLength:journal.length};

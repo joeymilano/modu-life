@@ -1,18 +1,20 @@
-@font-face { font-family:'Qingke Display'; src:url('/fonts/qingke-display.woff2') format('woff2'); font-weight:400; font-display:swap; }
+@font-face { font-family:'Qingke Display'; src:url('/fonts/qingke-display.woff2') format('woff2'); font-weight:400 900; font-display:swap; }
 @font-face { font-family:'Barlow Sign'; src:url('/fonts/barlow-sign.woff2') format('woff2'); font-weight:800; font-style:italic; font-display:swap; }
 :root {
-  --night-ink:#0c1c20; --night-panel:#14292d; --night-raised:#20393c; --night-line:#3a5355;
-  --night-paper:#fff0d6; --night-muted:#b7cbc7; --night-red:#ff8666; --night-mint:#9de1c4;
+  --night-ink:#090a10; --night-panel:#121522; --night-raised:#1b2033; --night-line:#2e3654;
+  --night-paper:#f7f5ff; --night-muted:#a4aecb; --night-red:#ff4d8d; --night-mint:#2ef2c3;
+  --gta-pink:#ff4d8d; --gta-amber:#ff9447; --gta-gold:#ffd166; --gta-cyan:#2ef2c3; --gta-cash:#5effa3;
+  --gta-sunset:linear-gradient(112deg,#ff4d8d 0%,#ff8748 54%,#ffd166 100%);
+  --gta-cut:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);
   --game-black:var(--night-ink); --game-panel:var(--night-panel); --game-row:var(--night-raised);
   --game-line:var(--night-line); --game-white:var(--night-paper); --game-muted:var(--night-muted);
-  --game-yellow:var(--night-red); --game-focus:var(--night-mint);
-  --ticket-mask:radial-gradient(circle 5px at 0 50%,transparent 97%,#000) left / 51% 100% no-repeat,
-    radial-gradient(circle 5px at 100% 50%,transparent 97%,#000) right / 51% 100% no-repeat;
+  --game-yellow:var(--gta-amber); --game-focus:var(--night-mint);
+  --ticket-mask:none;
   --sign-font:'Barlow Sign','Arial Narrow',sans-serif;
 }
-.parallel .parallel-hero-copy h1,.pearl-page .pearl-hero h1,.stall-page .stall-hero h1 { text-shadow:3px 4px #15282c; }
-.parallel .parallel-primary,.pearl-page .primary,.stall-page .primary { mask:var(--ticket-mask); border:0; background:var(--night-red); color:#15282c; }
-.parallel .parallel-primary:focus-visible,.pearl-page .primary:focus-visible,.stall-page .primary:focus-visible { outline-color:#15282c; outline-offset:-5px; }
+.parallel .parallel-hero-copy h1,.pearl-page .pearl-hero h1,.stall-page .stall-hero h1 { text-shadow:3px 4px #090a10; }
+.parallel .parallel-primary,.pearl-page .primary,.stall-page .primary { clip-path:var(--gta-cut); border:0; background:var(--gta-sunset); color:#0b0c14; font-weight:800; }
+.parallel .parallel-primary:focus-visible,.pearl-page .primary:focus-visible,.stall-page .primary:focus-visible { outline:2px solid var(--gta-cyan); outline-offset:2px; }
 .parallel .parallel-reel button[aria-pressed=true] { border-bottom:3px solid var(--night-red); }
 .parallel .illustrated-ticket { border-bottom:2px solid var(--night-mint); }
 .pearl-page .pearl-board,.stall-page .stall-arcade-intro { border-top:3px solid var(--night-mint); }

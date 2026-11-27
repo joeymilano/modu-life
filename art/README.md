@@ -23,3 +23,19 @@
 现有Tripo猫头鹰已作为外滩夜猫子邮筒导入。城市建筑与玩家尚未替换为Tripo模型；详见根目录 `TRIPO_MODELS.md`。
 
 Logo 使用 `public/brand/` 中的矢量文件。四字字标已经转为路径，无需玩家下载字体；另有深浅两版横排标识和东方明珠牌面图标。制作脚本为 `scripts/build_brand.py`，本机使用 Songti SC Black 勾勒字形，不包含字体文件。分享卡和网站图标沿用同一套标识。
+
+## 对话舞台的立绘与背景
+
+`scripts/vn_mask.swift` 用 macOS Vision 按人分离画面，`scripts/build_vn_art.py` 负责裁边、去毛刺、统一到 960px 高，再存成 WebP。两种产物：
+
+- `public/art/sprites/`：透明立绘，文件名是「人物-姿态」。同一人物可以有多张，剧本里用姿态名切换，例如 `wu` 的 `paper`、`xu` 的 `smile`。对应关系和体型缩放在 `src/game/vnCast.ts`。
+- `public/art/stages/`：空背景板。人物从原剧情图里抹掉后，留出的位置刻意保持虚焦。
+
+来源都在表里写死：四张序章人物图、`source/vn-cast-sheet.png`（毛小毛、沈经理各两个姿态）和各张远景。`yu-1` 余老师取自通讯录立绘。重建其中一组：
+
+```sh
+python3 scripts/build_vn_art.py --only sprites zheng-1,gu-1
+python3 scripts/build_vn_art.py --only plates banquet
+```
+
+需要 macOS 14 以上、Xcode 命令行工具，以及 Python 的 Pillow、numpy、opencv-python。产物已入库，玩家不需要运行。

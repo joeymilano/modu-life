@@ -6,6 +6,7 @@ import './title-screen.css';
 type TitleScreenProps = {
   hand?: string;
   resume?: { label: string; onSelect: () => void };
+  passBadge?: { level: number; unclaimed: number; blackCard: boolean; title: string; onSelect: () => void };
   onStart: () => void;
   onDraw: () => void;
   onParallel: () => void;
@@ -36,7 +37,7 @@ function ArcadeTicket({ image, label, mode }: { image: string; label: string; mo
   </>;
 }
 
-export default function TitleScreen({ hand, resume, onStart, onDraw, onParallel, onSelectOrigin, onRanks, onPearl }: TitleScreenProps) {
+export default function TitleScreen({ hand, resume, passBadge, onStart, onDraw, onParallel, onSelectOrigin, onRanks, onPearl }: TitleScreenProps) {
   const showResume = Boolean(resume && hand === undefined);
   return <main className="title-screen">
     <section className="title-stage" aria-labelledby="game-cover-title">
@@ -45,14 +46,22 @@ export default function TitleScreen({ hand, resume, onStart, onDraw, onParallel,
         <img className="home-key-art" src="/art/title/bund-night.webp" alt="夜色里的上海外滩，两位年轻人站在海关钟楼和轮渡的灯火前。" fetchPriority="high"/>
       </picture>
       <div className="title-copy">
-        <div className="title-era"><i aria-hidden="true"/>SHANGHAI <span>1992</span></div>
+        <div className="title-era"><i aria-hidden="true"/>SHANGHAI <span>1992</span> · NIGHT EDITION</div>
         <h1 className="game-title" id="game-cover-title"><span>魔都</span><em>人生</em></h1>
-        <p className="cover-line">从十八岁走到六十岁。上海的故事，从你遇见的第一个人讲起。</p>
+        <p className="cover-line">1992，外滩霓虹初亮。十八岁提只旧皮箱出站——这码头不看眼泪，只看谁能在牌桌上坐到散场。</p>
         <nav className="title-menu" aria-label="选择游戏模式">
           {showResume && resume && <MenuEntry label="继续游戏" icon="resume" detail={resume.label} primary onSelect={resume.onSelect}/>}
           <MenuEntry label={hand === undefined ? '开始新游戏' : '接这手牌'} icon={hand === undefined ? 'new-life' : 'hand'} detail={hand} primary={!showResume} onSelect={onStart}/>
           <MenuEntry label="选择出身" icon="origin" onSelect={onSelectOrigin}/>
           {hand === undefined && <MenuEntry label="手牌与角色" icon="hand" onSelect={onDraw}/>}
+          {passBadge && <button type="button" className={'title-entry title-pass-entry' + (passBadge.blackCard ? ' is-vip' : '')} onClick={passBadge.onSelect}>
+            <GameIcon name="reward" size={18}/>
+            <span>
+              <b>S1 赛季通行证 · Lv.{passBadge.level}</b>
+              <small>{passBadge.blackCard ? `创始黑卡 · ${passBadge.title}` : passBadge.title}</small>
+            </span>
+            {passBadge.unclaimed > 0 && <em className="pass-badge-dot">{passBadge.unclaimed} 项可领</em>}
+          </button>}
           <MenuEntry label="全球周榜" icon="rank" onSelect={onRanks}/>
           <MenuEntry label="平行上海" icon="parallel" onSelect={onParallel}/>
           {!showResume && resume && <MenuEntry label="继续游戏" icon="resume" detail={resume.label} onSelect={resume.onSelect}/>}

@@ -1,7 +1,8 @@
 import { OPENING_EPISODES, SYSTEM_EPISODES, COMMISSIONS, PUJIANG_EPISODES } from './pujiangScript';
 import type { AbilityId, EpisodeChoice, EpisodeMove, EpisodeReceipt, EpisodeRun, EpisodeScript, PujiangEnding, PujiangRoute, SystemProgress } from './pujiangTypes';
-import { PROLOGUES, PROLOGUE_PENDING, openingScene, rememberedMeeting } from './pujiangPrologue';
-import type { Effect, GameState, LifeEvent } from './types';
+import { hashSeed, randomStep } from './seed';
+import { PROLOGUES, PROLOGUE_PENDING, isDecided, prologueFlag, prologueOption, rememberedMeeting, spokenText } from './pujiangPrologue';
+import type { Effect, GameState, LifeEvent, StatKey } from './types';
 
 export const PUJIANG_CONTACTS = ['pj-gu','pj-wen','pj-xu'] as const;
 export const PUJIANG_NAMES: Record<string,string> = {'pj-gu':'顾桥','pj-wen':'周闻','pj-xu':'许舟',lu:'陆嘉',mao:'毛小毛',wu:'吴师傅',boss:'沈经理',yu:'余老师'};
@@ -39,30 +40,23 @@ export function episodeOffer(s:GameState):EpisodeScript|undefined {
  return (pujiangRoute(s)==='system'?SYSTEM_EPISODES:OPENING_EPISODES.filter(e=>e.route===pujiangRoute(s)))
   .find(e=>e.age===s.age&&!s.seenEvents.includes(e.id));
 }
-export function advancePrologue(state:GameState, action:string):GameState {
- const opening=episodeOffer(state);
- if(!opening || opening.age!==18 || !state.flags.includes(PROLOGUE_PENDING))return state;
- const {story,page}=openingScene(opening.route,state.flags);
- if(action==='skip'||(page==='departure'&&action==='leave')){
-  return {...state,flags:state.flags.filter(flag=>flag!==PROLOGUE_PENDING)};
+export function advancePrologue(state: GameState, action: string): GameState {
+ if (!isPujiang(state) || !state.flags.includes(PROLOGUE_PENDING)) return state;
+ // Skipping keeps whatever was already answered and lets the rest of the opening go by.
+ if (action === 'skip' || action === 'finish') return { ...state, flags: state.flags.filter(flag => flag !== PROLOGUE_PENDING) };
+ const route = pujiangRoute(state), found = prologueOption(route, action);
+ if (!found || isDecided(state.flags, route, found.group)) return state;
+ const { group, option } = found;
+ const next = structuredClone(state), story = PROLOGUES[route];
+ next.flags.push(prologueFlag(route, group, option.id));
+ for (const key of Object.keys(next.stats) as StatKey[]) if (option.effect?.[key]) next.stats[key] = clamp(next.stats[key] + option.effect[key]!);
+ const contact = next.relationships[story.personId];
+ if (group === 'meet') {
+  contact.met = true;
+  if (option.memory) contact.memories.push(option.memory);
  }
- if(page==='entrance'&&action==='meet')return {...state,flags:[...state.flags,'pj-prologue-talk']};
- if(page==='reply'&&action==='ask')return {...state,flags:[...state.flags,'pj-prologue-offer']};
- const first=page==='question' ? story.choices.find(choice=>choice.id===action) : undefined;
- const second=page==='offer' ? story.partings.find(choice=>choice.id===action) : undefined;
- if(!first&&!second)return state;
- const next=structuredClone(state), contact=next.relationships[story.personId];
- if(first){
-  next.flags.push('pj-prologue-'+first.id);
-  contact.met=true;
-  contact.memories.push(first.memory);
-  next.journal.push({age:next.age,title:first.label,text:first.reply,tag:'初识'});
- }
- if(second){
-  next.flags.push('pj-prologue-'+opening.route+'-'+second.id);
-  if(second.id==='stay')contact.trust=Math.min(100,contact.trust+3);
-  next.journal.push({age:next.age,title:second.label,text:second.gesture,tag:'赴约'});
- }
+ if (group === 'parting' && option.id === 'stay') contact.trust = Math.min(100, contact.trust + 3);
+ next.journal.push({ age: next.age, title: option.label, text: spokenText(option.then), tag: group === 'meet' ? '初识' : group === 'parting' ? '赴约' : '开场' });
  return next;
 }
 export function learnAbility(s:GameState,id:AbilityId):GameState {
@@ -93,6 +87,46 @@ export function startEpisode(s:GameState,id:string):GameState {
  return next;
 }
 
+/** The clock ran out: the other side spoke first. */
+export const STALL = '__stall';
+const STALL_CHOICE: EpisodeChoice = { id: STALL, label: '慢了半拍，被抢了话', hint: '', reply: '话到嘴边慢了半拍，场子里的风向直接被他截走了。' };
+const clamp = (n: number) => Math.max(0, Math.min(100, n));
+/** Names for what earlier moves left behind, shown when a stronger option is still shut. */
+const FOOTPRINTS: Record<string, string> = {
+ 'arrival-room': '隔壁的备用场地', 'worker-shuttle': '短驳安排', 'worker-swap': '隔壁班的换班承诺', 'heir-stub': '退样存根',
+ 'heir-tested': '亲手试过拉绳', 'heir-paid': '团队尾款已付', 'small-batch': '先做过一批小样', 'system-contract-team': '共同接单的记录',
+ 'credited': '当众署过名', 'ally-xu': '许舟信你，且没被强留', 'heir-listened': '记下了客户的三个问题', 'user-test': '客户的真实使用反馈',
+ 'real-test': '让许舟按真实流程操作过', 'night-assigned': '今晚分工已定', 'xu-free': '把路线还给了许舟',
+};
+const METERS: Record<string, string> = { score: '气势', team: '人心', budget: '底牌', skill: '本事' };
+function requirement(c: EpisodeChoice) {
+ if (c.need) return c.need;
+ return (c.requires ?? '').split('|').map(term => {
+  const [kind, key, n] = term.split(':');
+  if (kind === 'score' || kind === 'team') return `${METERS[kind]}达到 ${key}`;
+  if (kind === 'skill') return `本事达到 ${key}`;
+  if (kind === 'ability') return '先在本幕使用' + ABILITIES.find(a => a.id === key)!.name;
+  if (kind === 'trust') return (PUJIANG_NAMES[key] ?? key) + `信任达到 ${n}`;
+  return '还需要：' + (FOOTPRINTS[key] ?? key);
+ }).join('，或');
+}
+export const gambleChance = (s: GameState, c: EpisodeChoice) => c.gamble ? Math.round(Math.max(25, Math.min(90, 50 + s.stats[c.gamble.stat] - c.gamble.need))) : undefined;
+/** The dice for a gamble come from the save's seed, so the same move always lands the same way. */
+export function rollLuck(s: GameState, script: EpisodeScript, stage: number, id: string): 'hit' | 'miss' | undefined {
+ const choice = script.scenes[stage]?.choices.find(c => c.id === id);
+ if (!choice?.gamble) return undefined;
+ const [roll] = randomStep(hashSeed(`${s.seed}:${script.id}:${stage}:${id}`));
+ return roll * 100 < gambleChance(s, choice)! ? 'hit' : 'miss';
+}
+function gainText(c: EpisodeChoice) {
+ const parts: string[] = [];
+ if (c.score) parts.push(`气势 ${c.score > 0 ? '+' : ''}${c.score}`);
+ if (c.team) parts.push(`人心 ${c.team > 0 ? '+' : ''}${c.team}`);
+ if (c.budget) parts.push(`底牌 ${c.budget > 0 ? '+' : ''}${c.budget}`);
+ if (c.cash) parts.push(`${c.cash > 0 ? '+' : '−'}¥${Math.abs(c.cash).toLocaleString('zh-CN')}`);
+ if (c.relation) parts.push(`${PUJIANG_NAMES[c.relation[0]] ?? c.relation[0]}信任 ${c.relation[1] > 0 ? '+' : ''}${c.relation[1]}`);
+ return parts.join(' · ');
+}
 interface Frame {stage:number;score:number;team:number;budget:number;cash:number;flags:string[];used:{id:AbilityId;stage:number;target?:string}[];relations:[string,number][];recent:string[];}
 function initialFrame(script:EpisodeScript,s:GameState):Frame {
  const prepared=script.age===18&&!script.commission&&s.flags.includes('pj-prologue-'+script.route+'-prepare');
@@ -112,11 +146,20 @@ function condition(term:string,f:Frame,s:GameState):boolean {
  return has(f,s,term);
 }
 function unavailable(c:EpisodeChoice,f:Frame,s:GameState):string|undefined {
- if(c.cash&&s.cash+f.cash+c.cash<0)return '余额不足';
- if(c.budget&&f.budget+c.budget<0)return '调度不足';
+ if(c.cash&&s.cash+f.cash+c.cash<0)return '现金不够';
+ if(c.budget&&f.budget+c.budget<0)return '底牌不够';
  if(c.skill&&s.stats.skill<c.skill&&!(c.ability&&used(f,c.ability)))return `本事需${c.skill}，或本幕使用借技`;
  if(c.ability&&!c.skill&&!used(f,c.ability))return '先在本幕使用'+ABILITIES.find(a=>a.id===c.ability)!.name;
- if(c.requires&&!condition(c.requires,f,s))return c.hint;
+ if(c.requires&&!condition(c.requires,f,s))return requirement(c);
+}
+/** A stall or a missed gamble replaces what the option would have done. */
+function played(script:EpisodeScript,move:EpisodeMove,raw:EpisodeChoice|undefined,strict:boolean):EpisodeChoice|undefined {
+ if(move.id===STALL)return script.scenes.length?STALL_CHOICE:undefined;
+ if(!raw?.gamble)return raw;
+ if(move.luck===undefined){if(strict)throw new Error('这一步要先掷骰。');return raw;}
+ if(move.luck==='hit')return raw;
+ return {...raw,tag:'赌',score:0,team:0,budget:(raw.budget??0)-1,cash:0,relation:undefined,flags:[...(raw.flags??[]),raw.id+'-missed'],
+  reply:'你押了一把，没押中。',react:raw.gamble.miss??[]};
 }
 function change(f:Frame,c:EpisodeChoice){
  f.score+=c.score??0;f.team+=c.team??0;f.budget+=c.budget??0;f.cash+=c.cash??0;
@@ -126,7 +169,7 @@ function contextualChoice(s:GameState,script:EpisodeScript,c:EpisodeChoice):Epis
  if(script.id!=='pj-system-21'||c.id!=='habit')return c;
  const exposed=(s.episode?.loadout??s.systemProgress?.equipped??[]).some(id=>s.flags.includes('pj-shown-'+id));
  if(exposed||!(s.episode?.loadout??s.systemProgress?.equipped??[]).length)return c;
- return {...c,label:'使用未向顾桥展示过的配置',hint:'对手没有见过这套配置 · 现场 +3',score:3,flags:['countered'],reply:'顾桥照着旧习惯抢先解释，你却用另一套办法完成了演示。他第一次没能替你说出下一步。'};
+ return {...c,tag:'奇',label:'使用未向顾桥展示过的配置',hint:'对手没见过这套配置',score:3,flags:['countered'],react:[{t:'nar',text:'顾桥照着旧习惯抢先解释，你却用另一套办法完成了演示。他第一次没能替你说出下一步。'}]};
 }
 function moveFrame(s:GameState,script:EpisodeScript,run:EpisodeRun,strict=true):Frame {
  const f=initialFrame(script,s);
@@ -134,7 +177,7 @@ function moveFrame(s:GameState,script:EpisodeScript,run:EpisodeRun,strict=true):
   const scene=script.scenes[f.stage];
   if(!scene)throw new Error('这场故事已经结算。');
   if(move.kind==='choice'){
-   const raw=scene.choices.find(c=>c.id===move.id),c=raw&&contextualChoice(s,script,raw);
+   const c=played(script,move,scene.choices.find(c=>c.id===move.id)&&contextualChoice(s,script,scene.choices.find(c=>c.id===move.id)!),strict);
    if(!c||strict&&unavailable(c,f,s))throw new Error('这个剧情选择当前不可用。');
    change(f,c);
   }else{
@@ -144,16 +187,18 @@ function moveFrame(s:GameState,script:EpisodeScript,run:EpisodeRun,strict=true):
    if(id==='forecast'&&!scene.choices.some(c=>c.id===move.target))throw new Error('先指定要推演的一个选择。');
    if(id==='resonate'&&!['team','dispatch'].includes(move.target??''))throw new Error('先安排伙伴的协同行动。');
    f.used.push({id,stage:f.stage,target:move.target});
-   if(id==='seek'){f.budget++;f.team++;f.recent.push('寻援：'+scene.support+' 调度 +1，合作 +1。');}
+   if(id==='seek'){f.budget++;f.team++;f.recent.push('寻援：'+scene.support+' 底牌 +1，人心 +1。');}
    if(id==='resonate'){
-    if(move.target==='dispatch'){f.team++;f.budget++;f.recent.push('同频：伙伴去协调下一轮人手，合作 +1、调度 +1。');}
-    else {f.team+=2;f.recent.push('同频：伙伴留在现场补位，替你多完成一轮，合作 +2。');}
+    if(move.target==='dispatch'){f.team++;f.budget++;f.recent.push('同频：伙伴去协调下一轮人手，人心 +1、底牌 +1。');}
+    else {f.team+=2;f.recent.push('同频：伙伴留在现场补位，替你多完成一轮，人心 +2。');}
    }
-   if(id==='combine'&&!scene.choices.some(c=>c.ability==='combine')){f.budget++;f.recent.push('融会：把两项操作合到一轮，省下1份调度。');}
+   if(id==='combine'&&!scene.choices.some(c=>c.ability==='combine')){f.budget++;f.recent.push('融会：把两项操作合到一轮，省下 1 张底牌。');}
   }
  }
  return f;
 }
+/** A choice as the player meets it: the script's option plus what the rules make of it right now. */
+export type EpisodeViewChoice = EpisodeChoice & { disabled?: string; gain?: string; chance?: number; preview?: string };
 export function episodeView(s:GameState,run:EpisodeRun=s.episode!){
  if(!run)throw new Error('没有正在进行的故事。');
  const script=episodeById(run.id)!;
@@ -162,24 +207,32 @@ export function episodeView(s:GameState,run:EpisodeRun=s.episode!){
   run.receipt?'本场已结束':script.offline?'本章异能离线':f.used.some(a=>a.id===id)?'本场已使用':
   id==='resonate'&&!['pj-xu','pj-wen','lu','mao'].some(n=>condition('trust:'+n+':30',f,s))?'需要伙伴信任30':undefined}));
  return {script,...f,scene,abilities:abilityOptions,secret:scene&&used(f,'insight')?scene.secret:undefined,
-  choices:scene?.choices.map(raw=>{const c=contextualChoice(s,script,raw);return {...c,disabled:unavailable(c,f,s),preview:f.used.some(a=>a.id==='forecast'&&a.stage===f.stage&&a.target===c.id)?`${c.reply}（现场${(c.score??0)>=0?'+':''}${c.score??0}，合作+${c.team??0}，调度${(c.budget??0)>=0?'+':''}${c.budget??0}${c.cash?`，现金 ${c.cash.toLocaleString()}元`:''}）`:undefined};})??[]};
+  choices:scene?.choices.map(raw=>{const c=contextualChoice(s,script,raw);
+   const forecast=f.used.some(a=>a.id==='forecast'&&a.stage===f.stage&&a.target===c.id);
+   return {...c,disabled:unavailable(c,f,s),chance:gambleChance(s,c),gain:gainText(c),
+    preview:forecast?`${c.reply}（${gainText(c)||'不动声色'}）`:undefined};})??[]};
 }
 export function playEpisode(s:GameState,move:EpisodeMove):EpisodeRun {
  if(!s.episode||s.episode.receipt||s.seenEvents.includes(s.episode.id))throw new Error('这场已经结算，不能重复领奖。');
  if(!['choice','ability'].includes(move.kind))throw new Error('无法识别这次操作。');
- const run={...s.episode,moves:[...s.episode.moves,move]};moveFrame(s,episodeById(run.id)!,run);return run;
+ const script=episodeById(s.episode.id)!,stage=s.episode.moves.filter(item=>item.kind==='choice').length;
+ // A gamble is settled here, once, and written into the move; nobody else gets to roll.
+ const luck=move.kind==='choice'?move.luck??rollLuck(s,script,stage,move.id):undefined;
+ const settled:EpisodeMove=luck?{...move,luck}:move;
+ const run={...s.episode,moves:[...s.episode.moves,settled]};moveFrame(s,script,run);return run;
 }
 export function episodeSettlement(s:GameState,run:EpisodeRun):{receipt:EpisodeReceipt;relations:[string,number][];flags:string[]}|undefined {
  const script=episodeById(run.id)!,f=moveFrame(s,script,run);
  if(f.stage!==script.scenes.length)return;
- const last=script.scenes.at(-1)!.choices.find(c=>c.id===run.moves.at(-1)!.id)!;
+ const last=script.scenes.at(-1)!.choices.find(c=>c.id===run.moves.at(-1)!.id)??STALL_CHOICE;
+ const stalled=last.id===STALL;
  const isFinal=script.id==='pj-system-25';
  const wins=SYSTEM_EPISODES.filter(e=>s.flags.includes(e.id+'-win')).length;
  const fulfilled=has(f,s,'promises-settled');
  const trusted=['pj-xu','pj-wen'].some(n=>condition('trust:'+n+':35',f,s));
  const finalSuccess=last.ending==='together'?fulfilled&&trusted&&wins>=3:last.ending==='independent'?fulfilled&&wins>=3:fulfilled&&(wins>=1||trusted);
  const strong=f.score>=4||f.team>=4;
- const finishing=last.winningFinish||script.scenes.at(-1)!.choices.indexOf(last)<2;
+ const finishing=!stalled&&(last.winningFinish||script.scenes.at(-1)!.choices.indexOf(last)<2);
  const verdict=isFinal?(finalSuccess?'win':wins>=2?'partial':'loss'):strong&&finishing?'win':(f.score+f.team>=3?'partial':'loss');
  const shared=last.id==='share';
  const maxCash=isPujiangSystem(s)?Math.max(0,3_000_000-(s.systemProgress?.rewardCash??0)):script.reward;
@@ -195,7 +248,7 @@ export function episodeSettlement(s:GameState,run:EpisodeRun):{receipt:EpisodeRe
  }
  const totals=new Map<string,number>();for(const [id,n] of f.relations)totals.set(id,(totals.get(id)??0)+n);
  const relationships=[...totals].map(([id,n])=>(PUJIANG_NAMES[id]??id)+'信任 '+(n>=0?'+':'')+n);
- const title={win:'这一场，你拿下了',partial:'保住一部分，继续走',loss:'这一回失手了，路还在'}[verdict];
+ const title={win:'场面拿下了',partial:'保住半壁场子',loss:'这局栽了，牌桌还在'}[verdict];
  let echo='';
  if(script.id==='pj-system-18')echo=condition('trust:pj-xu:30',f,s)?'许舟信任已达30，下一单可以请她绕路补位。':'许舟还在观望；下一单可以用实际分工或寻援争取她的帮助。';
  if(script.id==='pj-system-19')echo=has(f,s,'system-contract-team')?'共同接单的记录，会打开下一场饭局的团队入场与联合试演。':'下一场仍可凭项目成果入席，团队引荐则需要另外争取许舟的信任。';
@@ -216,7 +269,7 @@ export function episodeCarry(s:GameState,script:EpisodeScript):string[] {
  if(script.commission)return [];
  const lines:string[]=[];
  const meeting=script.age===19?rememberedMeeting(s.flags,script.route):undefined;
- if(meeting)lines.push(meeting.nextYear);
+ if(meeting?.nextYear)lines.push(meeting.nextYear);
  if(script.age===19&&s.flags.includes('pj-system-share'))lines.push('许舟还记得你分出的第一笔奖金。这次她把备用路线也带来了。');
  if(script.age===20&&s.flags.includes('pj-system-contract-team'))lines.push('上一单留下的共同订单还在。许舟可以带客户一起进门，团队也有了联合试演的依据。');
  if(script.age===20&&s.flags.includes('pj-exclusive'))lines.push('当年被排除在外的那一次，许舟记得。她现在要先听具体安排。');
@@ -247,21 +300,21 @@ export function pujiangYear(s:GameState):LifeEvent|undefined {
   const followup={
    arrival:{
     npc:'lu',title:'上回留下的那张节目单',
-    text:success?'上回留到散场的姐妹俩又来买票了。陆嘉把下周五的节目单递过来，开场那一格还空着。':'陆嘉在新节目单上留了十分钟。「上次赶得急。这回周五开场，你来得及伐？」',
-    keep:'把周五留出来，跟陆嘉排一次开场',kept:'周五你提前一刻钟到了。陆嘉给你弹了四小节前奏，等你吸完那口气才落最后一个音。那十分钟刚刚好。',
-    change:'把开场让给新来的乐手，陪他对词',changed:'你把话筒调低半截。新人开口时声音有点抖，陆嘉便用同一个和弦多陪了他一遍。',
+    text:success?'上回留到散场的姐妹俩又来买票了。陆嘉把下周五的节目单拍在你手里：开场那一格，还空着。':'陆嘉在新节目单上留了十分钟。「上回你赶得急，我也急。这回周五开场，你来得及伐？」',
+    keep:'把周五留出来，跟陆嘉排一次开场',kept:'周五你提前一刻钟到。陆嘉弹了四小节前奏，等你吸完那口气，才落下最后一个音。那十分钟，刚刚好。',
+    change:'把开场让给新来的乐手，陪他对词',changed:'你把话筒调低半截。新人一开口，声音有点抖。陆嘉用同一个和弦，多陪了他一遍。',
    },
    worker:{
     npc:'wu',title:'换班的日子到了',
-    text:success?'吴师傅把新班表递过来。上回一起卸过货的人各签了一格，只剩周四夜班。他那天得带老伴去复诊。':'吴师傅在门房等你。「上次那车开走，咱俩话也没说完。周四我得陪老伴去医院，这一班能替伐？」',
-    keep:'签下周四的夜班，让吴师傅去医院',kept:'周四点名，领班一眼认出你的字。天快亮时吴师傅回来了，把病历塞进口袋，给你带了两个还温着的茶叶蛋。',
-    change:'说明周四走不开，当面找人换一班',changed:'你们在门房待到换班的人亲自点头。吴师傅收好那张新班表，这才去跟老伴说几点出门。',
+    text:success?'吴师傅把新班表拍在门房桌上。上回一起卸货的人各签了一格，只剩周四夜班。他那天，得带老伴去复诊。':'吴师傅在门房等你。「上回那车开走，咱俩话也没说完。周四我得陪老伴去医院。这一班，你替不替？」',
+    keep:'签下周四的夜班，让吴师傅去医院',kept:'周四点名，领班一眼认出你的字。天快亮时吴师傅回来了，病历塞在口袋里，手里两个茶叶蛋还温着。',
+    change:'说明周四走不开，当面找人换一班',changed:'你们在门房等到换班的人亲口点头。吴师傅这才收好班表，回去跟老伴说几点出门。',
    },
    heir:{
     npc:'boss',title:'酒桌之后，客户来了',
-    text:success?'饭店采购主任这次直接打来电话。沈经理在听筒边记下时间，转头问你：「周二送样，谁跟车？」':'上回那桌饭没谈成整单，采购主任倒还记得那只旧箱子。沈经理约到周二再送一次样，只差一个跟车的人。',
-    keep:'周二亲自跟车，当着客户的面试样',kept:'你把灯放到客房床边，按顾客平时的姿势试了一回。沈经理在记录上补了一笔，把签收联交到你手里。',
-    change:'把样品逐件点清，请沈经理带队交接',changed:'你把仓库号码留给主任。周二那天，沈经理从饭店打来电话：「签收了，箱扣也好好的。」',
+    text:success?'饭店采购主任这回直接把电话打到你这儿。沈经理在听筒边记下时间，回头问你：「周二送样，谁跟车？」':'上回那桌饭没谈成整单。采购主任倒还记得那只旧箱子。沈经理约了周二再送一次样，就差一个跟车的人。',
+    keep:'周二亲自跟车，当着客户的面把灯点亮',kept:'你把灯放到床边，照着客人的姿势试了一遍。主任没说话，在签收联上盖了章。',
+    change:'把样品逐件点清，请沈经理带队交接',changed:'你把仓库号码留给主任。周二，沈经理从饭店打来电话：「签收了。箱扣，也好好的。」',
    },
   }[route];
   return {id:'pj-return-'+route,title:followup.title,category:'year',tag:'开篇回访',speakerId:followup.npc,
@@ -273,11 +326,11 @@ export function pujiangYear(s:GameState):LifeEvent|undefined {
  if(route!=='system'||!AFTER_YEARS.includes(s.age))return;
  const ending=pujiangEnding(s)??'independent';
  const titles:Record<number,string>={26:'下一张自己的名片',28:'老客户带来一个新人',34:'这一回，让别人试试',38:'另一张桌上的朋友',41:'生意之外的一个晚上',49:'你教过的人回来了',57:'把下一次交给他们'};
- const context={independent:'你继续经营自己的事业，系统按实际完成的成果结算。合作的人可以选择来，也可以选择走。',together:'共同项目已经有了各自的负责人。许舟和周闻都有自己的客户，聚到一起时仍会先问分工。',leave:'竞逐任务已经停止。你照常工作、见朋友，学会的本事与愿意来往的人都留在现实里。'}[ending];
- const consequence=s.flags.includes('pj-system-25-win')?'当年的承诺大多兑现了，见面不用先解释旧事。':'有些旧事还没补完。对方愿意来听，也会记得你接下来怎样做。';
+ const context={independent:'你的公司挂上了自己的牌子。系统还在，只是如今它按你实际交出的东西结算。来的人，走的人，都由你签字。',together:'许舟有了自己的车队，周闻带出了三个徒弟。每到月底，几张桌子拼在一起，先问分工，再碰杯。',leave:'系统再没亮过。你照常上班、见朋友。那八年学会的东西，一样都没带走。'}[ending];
+ const consequence=s.flags.includes('pj-system-25-win')?'当年答应过的事，大半兑现了。老朋友见面，不用先把旧账翻出来。':'有些旧账还没清。他们愿意来，也记得你接下来怎么做。';
  return {id:'pj-after-'+s.age,title:titles[s.age],text:context+consequence,category:'year',tag:'浦江后日谈',speakerId:'pj-wen',illustration:'/art/era/stage-1992.webp',choices:[
-  {id:'work',label:ending==='leave'?'做一件自己愿意做的事':'接下眼前的小项目，给新人留一个位置',reply:'你把能做的部分排好，余下的请对方一起决定。这一回没有人替另一个人领取全部功劳。',effect:{skill:5,network:4,trust:6}},
-  {id:'people',label:'把这一晚留给老朋友',reply:'许舟带来一张旧照片，周闻认出了当年那只工具箱。你们讲到散场，约好下次不要隔这么久。',effect:{spirit:8,trust:10}},
+  {id:'work',label:ending==='leave'?'做一件自己愿意做的事':'接下眼前的小项目，给新人留一个位置',reply:'你把能做的排好，剩下的交给新人。这一回，没人替别人领功。',effect:{skill:5,network:4,trust:6}},
+  {id:'people',label:'把这一晚留给老朋友',reply:'许舟带来一张旧照片，周闻一眼认出当年那只工具箱。你们讲到打烊，约好下回别再隔这么久。',effect:{spirit:8,trust:10}},
  ]};
 }
 export function pujiangEpilogue(s:GameState){
@@ -302,7 +355,7 @@ export function validatePujiang(s:GameState):void {
  }else if(s.systemProgress!==undefined)throw new Error('该出身没有系统成长记录。');
  if(s.episode===undefined)return;
  const r=s.episode,script=r&&episodeById(r.id);
- if(!script||script.route!==pujiangRoute(s)||!script.commission&&script.age!==s.age||s.ended||s.showdown||!Array.isArray(r.moves)||r.moves.length>script.scenes.length+2||!abilityList(r.loadout,2)||r.loadout.some(a=>!s.systemProgress?.equipped.includes(a))||r.loadout.length!==(s.systemProgress?.equipped.length??0)||r.moves.some(m=>!m||!['choice','ability'].includes(m.kind)||typeof m.id!=='string'))throw new Error('现场进度不完整。');
+ if(!script||script.route!==pujiangRoute(s)||!script.commission&&script.age!==s.age||s.ended||s.showdown||!Array.isArray(r.moves)||r.moves.length>script.scenes.length+2||!abilityList(r.loadout,2)||r.loadout.some(a=>!s.systemProgress?.equipped.includes(a))||r.loadout.length!==(s.systemProgress?.equipped.length??0)||r.moves.some(m=>!m||!['choice','ability'].includes(m.kind)||typeof m.id!=='string'||(m.luck!==undefined&&!['hit','miss'].includes(m.luck))))throw new Error('现场进度不完整。');
  const f=moveFrame(s,script,r,!r.receipt);
  if(r.receipt){
   const v=r.receipt;
